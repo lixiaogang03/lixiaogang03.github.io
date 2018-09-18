@@ -22,7 +22,7 @@ RSS: false
 # zhihu_username:     qiubaiying
 github_username:    lixiaogang03
 # facebook_username:  baiying.qiu.7
-# jianshu_username:   e71990ada2fd
+jianshu_username:   79cdf82d2b98
 # twitter_username:   qiubaiying
 
 
@@ -99,16 +99,16 @@ service-worker: true
 # Friends
 friends: [
     {
-        title: "WY",
-        href: "http://zhengwuyang.com"
+        title: "Gityuan",
+        href: "http://gityuan.com"
     },{
-        title: "简书·BY",
-        href: "http://www.jianshu.com/u/e71990ada2fd"
+        title: "简书·WHR",
+        href: "https://www.jianshu.com/u/0d9d0f2e9787"
     },{
-        title: "Apple",
-        href: "https://apple.com"
+        title: "Android Developer",
+        href: "https://developer.android.google.cn/"
     },{
-        title: "Apple Developer",
-        href: "https://developer.apple.com/"
+        title: "AOSP",
+        href: "https://source.android.com/"
     }
 ]
