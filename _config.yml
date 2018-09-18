@@ -1,10 +1,10 @@
 # Site settings
 title: BXT Blog
-SEOTitle: 冰雪天的博客 | BXT Blog
+SEOTitle: BXT Blog | 冰雪天的博客 
 header-img: img/post-bg-desk.jpg
-email: qiubaiying@gmail.com
+email: 1158646410@qq.com
 description: "Every failure is leading towards success."
-keyword: "BXT, BXT Blog, 晓刚的博客, lixiaogang, 李晓刚, Android, HUAWEI"
+keyword: "Android,Android技术博客,Android源码分析,李晓刚"
 url: "http://lixiaogang03.github.io"          # your host, for absolute URL
 baseurl: ""      # for example, '/blog' if your blog hosted on 'host/blog'
 github_repo: "https://github.com/lixiaogang03/lixiaogang03.github.io.git" # you code repository
@@ -17,13 +17,13 @@ sidebar-avatar: /img/about-BY-gentle.jpg      # use absolute URL, seeing it's us
 
 
 # SNS settings
-RSS: false
-# weibo_username:     qiubaiying
-# zhihu_username:     qiubaiying
+RSS: true
+# weibo_username:     
+# zhihu_username:     
 github_username:    lixiaogang03
-# facebook_username:  baiying.qiu.7
+# facebook_username:  
 jianshu_username:   79cdf82d2b98
-# twitter_username:   qiubaiying
+# twitter_username:   
 
 
 
