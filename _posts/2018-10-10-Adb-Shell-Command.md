@@ -1,7 +1,7 @@
 ---
 layout:     post
-title:      Book Reading Record
-subtitle:   Knowledge is power
+title:      Adb Shell Conmand
+subtitle:   Shell
 date:       2018-10-10
 author:     LXG
 header-img: img/post-bg-ios10.jpg
@@ -21,3 +21,4 @@ tags:
 | pm list permissions -g -d       | PMS | 查看系统中的危险权限列表 |
 | dumpsys package com.immomo.momo       | PMS | 查看某个应用的AndroidManifest.xml的配置情况 |
 | ps -t -p 2390       | Linux | 查看某个进程的线程情况 |
+| dumpsys activity p com.android.baseservice       | AMS | 查看某个应用的进程(ProcessRecord)情况 |
