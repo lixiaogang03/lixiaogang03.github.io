@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      Book reading record
+title:      Book Reading Record
 subtitle:   Knowledge is power
 date:       2018-10-10
 author:     LXG
@@ -10,7 +10,7 @@ tags:
     - Book
 ---
 
-## Book reading record
+## Book Reading Record
 
 
 | 书籍          | 作者                                | 时间               | 详细信息        |
