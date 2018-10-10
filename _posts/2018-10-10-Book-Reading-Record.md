@@ -4,7 +4,7 @@ title:      Book Reading Record
 subtitle:   Knowledge is power
 date:       2018-10-10
 author:     LXG
-header-img: img/post-bg-coffee.jpg
+header-img: img/post-bg-coffee.jpeg
 catalog: true
 tags:
     - Book
