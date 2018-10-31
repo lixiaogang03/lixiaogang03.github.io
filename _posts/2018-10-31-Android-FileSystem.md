@@ -1,14 +1,14 @@
 ---
 layout:     post
-title:      android filesystem
-subtitle:   android filesystem
+title:      Android FileSystem
+subtitle:   ROM
 date:       2018-10-31
 author:     LXG
-header-img: img/post-bg-android.jpg
+header-img: img/post-bg-hacker.jpg
 catalog: true
 tags:
     - Android
-    - filesystem
+    - FileSystem
 ---
 
 ## Android FileSystem
