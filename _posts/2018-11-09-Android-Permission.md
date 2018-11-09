@@ -22,7 +22,7 @@ tags:
 [官网权限定义](https://developer.android.google.cn/reference/android/Manifest.permission)
 
 ### android.permission.INJECT_EVENTS
-'''
+```xml
     <!-- @SystemApi Allows an application to inject user events (keys, touch, trackball)
          into the event stream and deliver them to ANY window.  Without this
          permission, you can only deliver events to windows in your own process.
@@ -31,7 +31,7 @@ tags:
     -->
     <permission android:name="android.permission.INJECT_EVENTS"
         android:protectionLevel="signature" />
-'''
+```
 
 
 
