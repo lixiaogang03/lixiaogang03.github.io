@@ -23,10 +23,10 @@ tags:
 
 ### android.permission.INJECT_EVENTS
 ```xml
-    <!-- @SystemApi Allows an application to inject user events (keys, touch, trackball)\n
-         into the event stream and deliver them to ANY window.  Without this\n
-         permission, you can only deliver events to windows in your own process.\n
-         <p>Not for use by third-party applications.\n
+    <!-- @SystemApi Allows an application to inject user events (keys, touch, trackball)<br>
+         into the event stream and deliver them to ANY window.  Without this<br>
+         permission, you can only deliver events to windows in your own process.<br>
+         <p>Not for use by third-party applications.<br>
          @hide
     -->
     <permission android:name="android.permission.INJECT_EVENTS"
