@@ -53,6 +53,11 @@ drwx------   4 u0_a27    u0_a27    4096 1970-09-08 08:32 com.android.systemui
 
 ### SELinux
 
+>
+11-06 17:06:27.241  1336  1336 I auditd  : type=1400 audit(0.0:323): avc: denied { search } for comm="ActivityManager" name="media" dev="dm-0" ino=472354 scontext=u:r:system_server:s0 tcontext=u:object_r:sunmi_media_file:s0 tclass=dir permissive=0
+
+
+
 
 
 
