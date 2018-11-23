@@ -21,6 +21,10 @@ tags:
 
 [官网权限定义](https://developer.android.google.cn/reference/android/Manifest.permission)
 
+[GID权限定义](http://androidxref.com/7.1.2_r36/xref/frameworks/base/core/res/AndroidManifest.xml)
+
+[GID和权限对应关系](http://androidxref.com/7.1.2_r36/xref/system/core/include/private/android_filesystem_config.h)
+
 ### android.permission.INJECT_EVENTS
 ```xml
     <!-- @SystemApi Allows an application to inject user events (keys, touch, trackball)<br>
