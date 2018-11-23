@@ -21,7 +21,7 @@ tags:
 
 [官网权限定义](https://developer.android.google.cn/reference/android/Manifest.permission)
 
-[GID权限定义](http://androidxref.com/7.1.2_r36/xref/frameworks/base/core/res/AndroidManifest.xml)
+[GID权限定义](http://androidxref.com/7.1.2_r36/xref/frameworks/base/data/etc/platform.xml)
 
 [GID和权限对应关系](http://androidxref.com/7.1.2_r36/xref/system/core/include/private/android_filesystem_config.h)
 
