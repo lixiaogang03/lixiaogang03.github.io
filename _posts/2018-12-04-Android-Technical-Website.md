@@ -1,0 +1,38 @@
+---
+layout:     post
+title:      Android Technical Website
+subtitle:   ROM
+date:       2018-12-04
+author:     LXG
+header-img: img/post-bg-map.jpg
+catalog: true
+tags:
+    - Android
+    - Permission
+    - Security
+    - SELinux
+---
+
+## Android Official Website
+
+[AOSP安全指南](https://source.android.com/security)
+
+[官网应用安全最佳实践](https://developer.android.com/topic/security/best-practices#permissions)
+
+[源码权限定义](http://androidxref.com/7.1.2_r36/xref/frameworks/base/core/res/AndroidManifest.xml)
+
+[官网权限定义](https://developer.android.google.cn/reference/android/Manifest.permission)
+
+[GID权限定义](http://androidxref.com/7.1.2_r36/xref/frameworks/base/data/etc/platform.xml)
+
+[GID和权限对应关系](http://androidxref.com/7.1.2_r36/xref/system/core/include/private/android_filesystem_config.h)
+
+
+## Android Technology Blog
+
+[袁辉辉技术博客](http://gityuan.com/)
+
+
+
+
+
