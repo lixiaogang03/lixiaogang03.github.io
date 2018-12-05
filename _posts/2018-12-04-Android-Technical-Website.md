@@ -27,6 +27,8 @@ tags:
 
 [GID和权限对应关系](http://androidxref.com/7.1.2_r36/xref/system/core/include/private/android_filesystem_config.h)
 
+[AOSP存储部分设计](https://source.android.com/devices/storage)
+
 
 ## Android Technology Blog
 
