@@ -32,6 +32,8 @@ tags:
 
 [袁辉辉技术博客](http://gityuan.com/)
 
+[安卓的安全机制permission](http://sanjay-f.github.io/2016/05/18/%E6%BA%90%E7%A0%81%E6%8E%A2%E7%B4%A2%E7%B3%BB%E5%88%9736---%E5%AE%89%E5%8D%93%E7%9A%84%E5%AE%89%E5%85%A8%E6%9C%BA%E5%88%B6permission/)
+
 
 
 
