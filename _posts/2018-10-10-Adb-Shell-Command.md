@@ -26,3 +26,6 @@ tags:
 | wm density       | WMS | 查看本机屏幕密度(ro.sf.lcd_density) | DisplayMetrics.java |
 | wm density 260      | WMS | 设置本机屏幕密度(ro.sf.lcd_density) | Physical density: 230 Override density: 260 |
 | wm density reset      | WMS | 重置本机屏幕密度(ro.sf.lcd_density) |
+| aapt dump badging *.apk      | SDK | 根据APK查询包名 |
+
+
