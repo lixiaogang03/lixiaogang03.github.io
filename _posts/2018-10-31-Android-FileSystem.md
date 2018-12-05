@@ -27,6 +27,12 @@ tags:
 
 ## proc
 
+### pid
+
+#### mountinfo
+
+> 885 816 0:15 /runtime/default /storage rw,relatime master:10 - tmpfs tmpfs rw,seclabel,size=915496k,nr_inodes=228874,mode=755,gid=1000
+
 ## sys
 
 ## vendor
