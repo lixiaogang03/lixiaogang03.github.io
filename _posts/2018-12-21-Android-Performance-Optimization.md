@@ -21,6 +21,10 @@ tags:
 [胡凯翻译 安卓性能优化典范](http://hukai.me/blog/categories/android-performance/)
 
 
+## 电量分析
+
+[Battery_Historian_Tool使用说明](https://wwmmyy.github.io/2016/12/14/Battery_Historian_Tool%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/)
+
 
 
 
