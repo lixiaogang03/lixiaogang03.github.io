@@ -16,7 +16,9 @@ tags:
 
 [官方网站 Performance and Power](https://developer.android.com/topic/performance/)
 
-[官方网站 Android Studio Profile](https://developer.android.com/studio/profile/energy-profiler)
+[官方网站 Android Studio Profile](https://developer.android.com/studio/profile/)
+
+[胡凯翻译 安卓性能优化典范](http://hukai.me/blog/categories/android-performance/)
 
 
 
