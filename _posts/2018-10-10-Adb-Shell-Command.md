@@ -13,6 +13,10 @@ tags:
     - linux
 ---
 
+## 参考文章
+
+[ADB Shell Commands-官方](http://androiddoc.qiniudn.com/tools/help/shell.html)
+
 [Pm命令-Gityuan](http://gityuan.com/2016/02/28/pm-command/)
 
 [Am命令-Gityuan](http://gityuan.com/2016/02/27/am-command/)
