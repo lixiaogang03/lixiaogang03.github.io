@@ -13,6 +13,12 @@ tags:
     - linux
 ---
 
+[Pm命令-Gityuan](http://gityuan.com/2016/02/28/pm-command/)
+
+[Am命令-Gityuan](http://gityuan.com/2016/02/27/am-command/)
+
+[Ps命令-Gityuan](http://gityuan.com/2015/10/11/ps-command/)
+
 ## Adb Shell Conmand
 
 
