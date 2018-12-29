@@ -25,6 +25,12 @@ tags:
 
 [Battery_Historian_Tool使用说明](https://wwmmyy.github.io/2016/12/14/Battery_Historian_Tool%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/)
 
+[Android Alarm、WakeLock机制与对齐唤醒](http://codingtrip.com/2017/03/27/0010-alian_wakeup/)
+
+[理解android的alarm机制-Gityuan](http://gityuan.com/2017/03/12/alarm_manager_service/)
+
+[理解JobScheduler机制-Gityuan](http://gityuan.com/2017/03/10/job_scheduler_service/)
+
 
 
 
