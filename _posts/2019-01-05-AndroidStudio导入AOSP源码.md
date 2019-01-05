@@ -12,6 +12,18 @@ tags:
     - dumpsys
 ---
 
-## AndroidStudio导入AOSP源码
+## 下载源码
+
+1. [AOSP官网](https://source.android.com/setup/downloading)
+
+2. [清华大学镜像](https://mirror.tuna.tsinghua.edu.cn/help/AOSP/)
+
+> repo init -u https://android.googlesource.com/platform/manifest -b android-7.1.2_r36
+> repo sync
+
+## 编译源码
 
 
+
+
+## 配置
