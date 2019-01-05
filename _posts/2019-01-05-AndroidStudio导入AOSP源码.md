@@ -38,10 +38,15 @@ tags:
 
 ## 配置
 
-### AndroidStudio导入源码
+1. 选择android.ipr导入源码
+2. 建立一个空的jdk, 并设置为工程依赖的jdk
+3. 删除所有的依赖库
+4. 将frameworks和external目录作为依赖，并调整依赖优先级
+5. 将out/target/common/R/设置为依赖
+6. 将不需要的目录从索引中删除，提高检索速度
 
-### jdk 配置
+## 常见问题
 
-### 依赖项配置
+　[AS一直不停的scanning files to index](https://blog.csdn.net/seakisbest/article/details/83752736)
 
 
