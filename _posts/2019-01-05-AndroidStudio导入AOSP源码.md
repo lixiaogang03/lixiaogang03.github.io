@@ -16,28 +16,27 @@ tags:
 
 [硬件配置要求-官网](https://source.android.com/setup/build/requirements)
 
-[搭建编译环境](https://source.android.com/setup/build/initializing)
+[搭建编译环境-官网](https://source.android.com/setup/build/initializing)
 
 ## 下载源码
 
-[AOSP官网](https://source.android.com/setup/downloading)
+[下载源码-官网](https://source.android.com/setup/downloading)
 
 [清华大学镜像](https://mirror.tuna.tsinghua.edu.cn/help/AOSP/)
 
-> repo init -u https://android.googlesource.com/platform/manifest -b android-7.1.2_r36
-
-> repo sync
+1. repo init -u https://android.googlesource.com/platform/manifest -b android-7.1.2_r36
+2. repo sync
 
 ## 编译源码
 
-[准备编译](https://source.android.com/setup/build/building)
+[准备编译-官网](https://source.android.com/setup/build/building)
 
-> source build/envsetup.sh
-> ./build/envsetup.sh
-> lunch aosp_arm-eng(编译选项可选)
-> make -j4
-> mmm development/tools/idegen/
-> ./development/tools/idegen/idegen.sh
+1. source build/envsetup.sh
+2. ./build/envsetup.sh
+3. lunch aosp_arm-eng(编译选项可选)
+4. make -j4
+5. mmm development/tools/idegen/
+6. ./development/tools/idegen/idegen.sh
 
 ## 配置
 
@@ -46,3 +45,5 @@ tags:
 ### jdk 配置
 
 ### 依赖项配置
+
+
