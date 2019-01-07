@@ -18,9 +18,8 @@ tags:
 　[搭建编译环境-官网](https://source.android.com/setup/build/initializing)
  
  1. 切换编译时的java版本
- >sudo update-alternatives --config java
- 
- >sudo update-alternatives --config javac
+ >sudo update-alternatives --config java<br/>
+  sudo update-alternatives --config javac
 
 ## 下载源码
 
