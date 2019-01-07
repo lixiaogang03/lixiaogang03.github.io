@@ -19,6 +19,7 @@ tags:
  
  1. 切换编译时的java版本
  >sudo update-alternatives --config java
+ 
  >sudo update-alternatives --config javac
 
 ## 下载源码
