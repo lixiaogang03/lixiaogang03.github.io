@@ -20,6 +20,9 @@ tags:
  1. 切换编译时的java版本
  >sudo update-alternatives --config java<br/>
   sudo update-alternatives --config javac
+  
+ 2. 切换make版本
+ [make 版本切换](https://www.jianshu.com/p/e42746bd0bac)
 
 ## 下载源码
 
