@@ -45,3 +45,13 @@ export PATH=$PATH:$ANDROID_HOME/ndk-bundle
 * source ~/.bashrc
 
 * ndk-build -v
+
+## CMake
+
+CMake是一个跨平台的编译工具，它自己不编译出目标对象，而是根据CMakeLists.txt生成 makefile(Unix) 或 project（Windows）文件,再使用一般的构建方式编译出目标对象。
+
+目前在AndroidStudio中，一共有两种构建方式：
+
+1. ndk-build，需要配置文件Application.mk，Android.mk。
+2. Cmake，需要配置文件CMakeLists.txt。这种方式是AndroidStudio2.2版本新增加的方式，是目前google主推的方式
+
