@@ -17,6 +17,8 @@ tags:
 
 [NDK环境配置](https://juejin.im/entry/5940fe588d6d810058b68e58)
 
+[JNI开发-简书](https://www.jianshu.com/p/87ce6f565d37)
+
 ## NDK环境配置（ubuntu 16.04）
 
 ### 下载
@@ -54,4 +56,12 @@ CMake是一个跨平台的编译工具，它自己不编译出目标对象，而
 
 1. ndk-build，需要配置文件Application.mk，Android.mk。
 2. Cmake，需要配置文件CMakeLists.txt。这种方式是AndroidStudio2.2版本新增加的方式，是目前google主推的方式
+
+## JNI
+
+![JNI](/images/jni.png)
+
+## Hello World
+
+![DEMO](/images/jni_demo.png)
 

@@ -38,7 +38,7 @@ tags:
 
 [Android分析常用的工具或命令](https://mabin004.github.io/2018/08/02/Android%E5%88%86%E6%9E%90%E5%B8%B8%E7%94%A8%E7%9A%84%E5%B7%A5%E5%85%B7%E6%88%96%E5%91%BD%E4%BB%A4/)
 
-
+[隔壁李老头博客-简书](https://www.jianshu.com/p/87ce6f565d37)
 
 
 
