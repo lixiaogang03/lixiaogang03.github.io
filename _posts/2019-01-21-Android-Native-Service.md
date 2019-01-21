@@ -28,14 +28,14 @@ tags:
 ### SQRService.h
 
 ```c++
-#ifndef ANDROID_MISOO_SQRSERVICE_H
+#ifndef ANDROID_MISOO_SQRSERVICE_H  
 #define ANDROID_MISOO_SQRSERVICE_H
 
-#include <stdint.h>
-#include <sys/types.h>
-#include <binder/Parcel.h>
-#include <binder/IInterface.h>
-#include <utils/RefBase.h>
+#include <stdint.h>  
+#include <sys/types.h>  
+#include <binder/Parcel.h>  
+#include <binder/IInterface.h>  
+#include <utils/RefBase.h>  
 
 
 namespace android {
