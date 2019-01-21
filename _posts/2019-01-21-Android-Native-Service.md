@@ -79,8 +79,7 @@ enum {
 
 int SQRService::instantiate() {
     ALOGE("SQRService instantiate");
-    //add service to servicemanager
-    int r = defaultServiceManager()->addService(String16("misoo.sqr"), new SQRService());
+    int r = defaultServiceManager()->addService(String16("misoo.sqr"), new SQRService());//add service to servicemanager
     ALOGE("SQRService r= %d\n", r);
     return r;
 }
@@ -93,7 +92,6 @@ SQRService::~SQRService() {
     ALOGV("SQRService destroyed");
 }
 
-//Impl BBinder::onTransact
 status_t SQRService::onTransact(uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags) {
 
     switch(code) {
@@ -162,7 +160,6 @@ int main(int argc, char** argv) {
 ### Android.mk
 
 ```makefile
-
 #libSQRS01.so
 
 LOCAL_PATH:= $(call my-dir)
@@ -194,6 +191,7 @@ LOCAL_MODULE_TAGS:= optional
 LOCAL_MODULE:= square
 
 include $(BUILD_EXECUTABLE)
+```
 
 
 
