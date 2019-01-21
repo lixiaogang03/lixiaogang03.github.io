@@ -157,7 +157,7 @@ int main(int argc, char** argv) {
 }
 ```
 
-### Android.mk
+### Android.mk---生成native守护进程
 
 ```makefile
 #libSQRS01.so
@@ -178,7 +178,7 @@ LOCAL_MODULE:= libSQRS01
 
 include $(BUILD_SHARED_LIBRARY)
 
-# addserver.bin
+# squareserver.bin
 
 include $(CLEAR_VARS)
 
@@ -188,7 +188,7 @@ LOCAL_SHARED_LIBRARIES:= libutils libbinder libSQRS01 liblog
 
 LOCAL_MODULE_TAGS:= optional
 
-LOCAL_MODULE:= square
+LOCAL_MODULE:= squareserver
 
 include $(BUILD_EXECUTABLE)
 ```
@@ -274,9 +274,9 @@ int SQR::execute(int n) {
 
 ### com_misoo_service_Sqr01.h
 
-javac com/misoo/service/Sqr01.java
+1. javac com/misoo/service/Sqr01.java
 
-javah -classpath . -jni com.misoo.service.Sqr01
+2. javah -classpath . -jni com.misoo.service.Sqr01
 
 
 ```c++
@@ -285,10 +285,15 @@ javah -classpath . -jni com.misoo.service.Sqr01
 /* Header for class com_misoo_service_Sqr01 */
 
 #ifndef _Included_com_misoo_service_Sqr01
+
 #define _Included_com_misoo_service_Sqr01
+
 #ifdef __cplusplus
+
 extern "C" {
+
 #endif
+
 /*
  * Class:     com_misoo_service_Sqr01
  * Method:    execute
@@ -300,6 +305,7 @@ JNIEXPORT jint JNICALL Java_com_misoo_service_Sqr01_execute
 #ifdef __cplusplus
 }
 #endif
+
 #endif
 ```
 
@@ -307,12 +313,17 @@ JNIEXPORT jint JNICALL Java_com_misoo_service_Sqr01_execute
 
 ```c++
 #include "com_misoo_service_Sqr01.h"
+
 #include <cutils/log.h>
+
 #include <binder/IPCThreadState.h>
+
 #include <binder/ProcessState.h>
+
 #include <binder/IServiceManager.h>
 
 #include "../../SQRService.h"
+
 #include "../../SQR.h"
 
 using namespace android;
@@ -344,7 +355,7 @@ public class Sqr01 {
 }
 ```
 
-### Android.mk
+### Android.mk---生成上层Apk使用so库
 
 ```makefile
 # libSQRS01_jni.so
@@ -364,6 +375,27 @@ LOCAL_MODULE_TAGS:= optional
 LOCAL_MODULE:= libSQRS01_jni
 
 include $(BUILD_SHARED_LIBRARY)
+```
+
+## 添加到android系统编译环境
+
+### build/target/product/base.mk
+
+```makefile
+PRODUCT_PACKAGES += \
+libSQRS01
+libSQRS01_jni
+squareserver
+```
+
+### system/core/rootdir/init.rc
+```
+service squareserver /system/bin/squareserver
+    class core
+    user root
+    group root
+    critical
+    seclabel u:r:squareserver:s0
 ```
 
 
