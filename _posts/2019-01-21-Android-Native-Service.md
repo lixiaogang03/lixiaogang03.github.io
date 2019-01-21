@@ -289,9 +289,7 @@ int SQR::execute(int n) {
 #define _Included_com_misoo_service_Sqr01
 
 #ifdef __cplusplus
-
 extern "C" {
-
 #endif
 
 /*
@@ -383,8 +381,8 @@ include $(BUILD_SHARED_LIBRARY)
 
 ```makefile
 PRODUCT_PACKAGES += \
-libSQRS01
-libSQRS01_jni
+libSQRS01 \
+libSQRS01_jni \
 squareserver
 ```
 
@@ -398,7 +396,9 @@ service squareserver /system/bin/squareserver
     seclabel u:r:squareserver:s0
 ```
 
+## 总结
 
+![native_service](/images/native_service.png)
 
 
 
