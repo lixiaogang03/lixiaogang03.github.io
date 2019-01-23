@@ -585,9 +585,9 @@ int SQR2::add(int x, int y) {
 
   2. 在C++层，Android提供 BpInterface<T> 和 BnInterface<T> 类模板来协助建立Proxy-Stub机制
 
-  3. 以Proxy类别来提供方便的API, 降低Client客户端的开发负担
+  3. 以Proxy类别来为客户端(client)提供方便的API
 
-  4. 以Stub类别来提供方便的API，降低服务端的开发负担
+  4. 以Stub类别来为服务端(server)提供方便的API
 
 
 
