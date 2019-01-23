@@ -70,7 +70,7 @@ namespace android {
 
 int SQRService2::instantiate() {
 
-    ALOGE("SQRService instantiate");
+    ALOGE("SQRService instantiate\n");
 
     int r = defaultServiceManager()->addService(String16("misoo.sqr"), new SQRService2());
 
@@ -80,14 +80,17 @@ int SQRService2::instantiate() {
 }
 
 int SQRService2::square(const int& n) {
+    printf("SQRService2::square(%d)\n", n);
     return n * n;
 }
 
 int SQRService2::mul(const int& n, const int& m) {
+    printf("SQRService2::mul(%d, %d)\n", n, m);
     return n * m;
 }
 
 int SQRService2::add(const int& x, const int& y) {
+    printf("SQRService2::add(%d, %d)\n", x, y);
     return x + y;
 }
 
@@ -396,6 +399,8 @@ using namespace android;
 
 int main(int argc, char** argv) {
 
+    printf("server::main\n");
+
     sp<ProcessState> proc(ProcessState::self());
 
     sp<IServiceManager> sm = defaultServiceManager();
@@ -446,19 +451,21 @@ using namespace android;
 
 int main(int argc, char** argv) {
 
+    printf("client::main\n");
+
     SQR2 *sqr = new SQR2();
 
     int num1 = sqr->square(2);
-
-    ALOGV("square(2)=%d\n", num1);
+    printf("square(2)=%d\n", num1);
+    ALOGE("square(2)=%d\n", num1);
 
     int num2 = sqr->add(2, 3);
-
-    ALOGV("add(2, 3)=%d\n", num2);
+    printf("add(2, 3)=%d\n", num2);
+    ALOGE("add(2, 3)=%d\n", num2);
 
     int num3 = sqr->mul(2, 3);
-
-    ALOGV("mul(2, 3)=%d\n", num3);
+    printf("mul(2, 3)=%d\n", num3);
+    ALOGE("mul(2, 3)=%d\n", num3);
     
     return 0;
 
@@ -488,9 +495,7 @@ class SQR2 {
 
     private:
 
-        static const sp<ISQRS>& getSQRService();
-
-        static sp<ISQRS> sSQRService;
+        static const sp<ISQRS> getSQRService();
 
 };
 
@@ -516,7 +521,7 @@ class SQR2 {
 
 namespace android {
 
-const sp<ISQRS>& SQR2::getSQRService() {
+const sp<ISQRS> SQR2::getSQRService() {
 
     sp<IServiceManager> sm = defaultServiceManager();
 
@@ -535,9 +540,9 @@ int SQR2::square(int n) {
 
     int k = 0;
 
-    const sp<ISQRS>& isqrs = getSQRService();
+    const sp<ISQRS> isqrs = getSQRService();
 
-    if (isqrs != NULL) {
+    if (isqrs != 0) {
         k = isqrs->square(n);
     }
 
@@ -549,9 +554,9 @@ int SQR2::mul(int n, int m) {
 
     int k = 0;
 
-    const sp<ISQRS>& isqrs = getSQRService();
+    const sp<ISQRS> isqrs = getSQRService();
 
-    if (isqrs != NULL) {
+    if (isqrs != 0) {
         k = isqrs->mul(n, m);
     }
 
@@ -562,9 +567,9 @@ int SQR2::add(int x, int y) {
 
     int k = 0;
 
-    const sp<ISQRS>& isqrs = getSQRService();
+    const sp<ISQRS> isqrs = getSQRService();
 
-    if (isqrs != NULL) {
+    if (isqrs != 0) {
         k = isqrs->add(x, y);
     }
 
@@ -590,7 +595,9 @@ int SQR2::add(int x, int y) {
   4. 以Stub类别来为服务端(server)提供方便的API
 
 
+### 源码地址
 
+[源码地址](https://github.com/lixiaogang03/android-native-service)
 
 
 

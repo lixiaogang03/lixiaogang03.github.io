@@ -400,6 +400,10 @@ service squareserver /system/bin/squareserver
 
 ![native_service](/images/native_service.png)
 
+## 源码地址
+
+[源码地址](https://github.com/lixiaogang03/android-native-service)
+
 
 
 
