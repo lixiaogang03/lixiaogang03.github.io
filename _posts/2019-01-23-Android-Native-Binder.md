@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      Android Binder
+title:      Android Native Binder
 subtitle:   IPC
 date:       2019-01-23
 author:     LXG
@@ -10,6 +10,8 @@ tags:
     - Binder
     - IPC
 ---
+
+### 框架图
 
 ![binder_1](/images/binder-1.png)
 
@@ -573,9 +575,20 @@ int SQR2::add(int x, int y) {
 }; // namespace android
 ```
 
-### 总结
+### 类图
 
 ![binder_2](/images/binder-2.png)
+
+### 总结
+
+  1. Proxy-Stub机制将通用性API包装起来，提供专用性API。在Java层Android提供了AIDL.exe工具来协助建立Proxy-Stub机制
+
+  2. 在C++层，Android提供 BpInterface<T> 和 BnInterface<T> 类模板来协助建立Proxy-Stub机制
+
+  3. 以Proxy类别来提供方便的API, 降低Client客户端的开发负担
+
+  4. 以Stub类别来提供方便的API，降低服务端的开发负担
+
 
 
 
