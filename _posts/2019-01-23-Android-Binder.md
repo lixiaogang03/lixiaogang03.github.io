@@ -11,6 +11,7 @@ tags:
     - IPC
 ---
 
+![binder_1](/images/binder-1.png)
 
 ### 服务端实现
 
@@ -144,7 +145,6 @@ namespace android {
 
 enum {
     SQUARE = IBinder::FIRST_CALL_TRANSACTION,
-
     MUL, // IBinder::FIRST_CALL_TRANSACTION + 1
 
     ADD, // IBinder::FIRST_CALL_TRANSACTION + 2
@@ -266,19 +266,18 @@ namespace android {
 enum {
     SQUARE = IBinder::FIRST_CALL_TRANSACTION,
     MUL, // IBinder::FIRST_CALL_TRANSACTION + 1
+
     ADD, // IBinder::FIRST_CALL_TRANSACTION + 2
 };
 
 int BpSQRS::square(const int& n) {
 
     Parcel data, reply;
-
     data.writeInt32(n);
 
     ALOGV("BpSQRService::create remote()->transact()\n");
 
-    // IPC 通信
-    remote()->transact(SQUARE, data, &reply);
+    remote()->transact(SQUARE, data, &reply);  // IPC 通信
 
     ALOGV("BpSQRService::create n=%d\n", n);
 
@@ -571,9 +570,12 @@ int SQR2::add(int x, int y) {
 
 }
 
-
 }; // namespace android
 ```
+
+### 总结
+
+![binder_2](/images/binder-2.png)
 
 
 
