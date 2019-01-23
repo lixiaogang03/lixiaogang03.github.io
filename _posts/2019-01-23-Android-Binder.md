@@ -21,9 +21,11 @@ tags:
 // SQRService2.h
 
 #ifndef ANDROID_MISOO_SQRSERVICE2_H
+
 #define ANDROID_MISOO_SQRSERVICE2_H
 
 #include <stdint.h>
+
 #include <sys/types.h>
 
 #include "ISQRSStub.h"
@@ -67,7 +69,6 @@ int SQRService2::instantiate() {
 
     ALOGE("SQRService instantiate");
 
-    //add service to servicemanager
     int r = defaultServiceManager()->addService(String16("misoo.sqr"), new SQRService2());
 
     ALOGE("SQRService r= %d\n", r);
@@ -76,17 +77,14 @@ int SQRService2::instantiate() {
 }
 
 int SQRService2::square(const int& n) {
-
     return n * n;
 }
 
 int SQRService2::mul(const int& n, const int& m) {
-
     return n * m;
 }
 
 int SQRService2::add(const int& x, const int& y) {
-
     return x + y;
 }
 
@@ -102,17 +100,19 @@ int SQRService2::add(const int& x, const int& y) {
 // ISQRSStub.h
 
 #ifndef ANDROID_MISOO_ISQRSStub_H
+
 #define ANDROID_MISOO_ISQRSStub_H
 
 #include <utils/RefBase.h>
+
 #include <binder/IInterface.h>
+
 #include <binder/Parcel.h>
 
 #include "ISQRS.h"
 
 namespace android {
 
-//Bn端
 class BnSQRS: public BnInterface<ISQRS> {
 
     public:
@@ -120,7 +120,6 @@ class BnSQRS: public BnInterface<ISQRS> {
         virtual status_t onTransact(uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags = 0);
 
 };
-
 
 }; // namespace android
 
@@ -134,7 +133,9 @@ class BnSQRS: public BnInterface<ISQRS> {
 // ISQRSStub.cpp
 
 #include <stdint.h>
+
 #include <sys/types.h>
+
 #include <binder/Parcel.h>
 
 #include "ISQRSStub.h"
@@ -142,14 +143,15 @@ class BnSQRS: public BnInterface<ISQRS> {
 namespace android {
 
 enum {
-
     SQUARE = IBinder::FIRST_CALL_TRANSACTION,
-    MUL, // IBinder::FIRST_CALL_TRANSACTION + 1
-    ADD, // IBinder::FIRST_CALL_TRANSACTION + 2
 
+    MUL, // IBinder::FIRST_CALL_TRANSACTION + 1
+
+    ADD, // IBinder::FIRST_CALL_TRANSACTION + 2
 };
 
 //--------------------------------------------------
+
 status_t BnSQRS::onTransact(uint32_t code, const Parcel& data, Parcel* reply, uint32_t flags) {
 
     switch (code) {
@@ -189,7 +191,6 @@ status_t BnSQRS::onTransact(uint32_t code, const Parcel& data, Parcel* reply, ui
 
 }
 
-
 } // namespace android
 ```
 
@@ -202,10 +203,13 @@ status_t BnSQRS::onTransact(uint32_t code, const Parcel& data, Parcel* reply, ui
 // ISQRS.h
 
 #include <utils/RefBase.h>
+
 #include <binder/IInterface.h>
+
 #include <binder/Parcel.h>
 
 #ifndef ANDROID_MISOO_ISQRS_SERVICE_H
+
 #define ANDROID_MISOO_ISQRS_SERVICE_H
 
 namespace android {
@@ -248,6 +252,8 @@ class BpSQRS: public BpInterface<ISQRS> {
 ```
 
 #### ISQRS.cpp
+
+```c++
 
 //ISQRS.cpp
 
@@ -292,7 +298,6 @@ int BpSQRS::mul(const int& n, const int& m) {
 
     ALOGV("BpSQRService::create remote()->transact()\n");
 
-    // IPC 通信
     remote()->transact(MUL, data, &reply);
 
     ALOGV("BpSQRService::create n=%d, m=%d\n", n, m);
@@ -314,7 +319,6 @@ int BpSQRS::add(const int& x, const int& y) {
 
     ALOGV("BpSQRService::create remote()->transact()\n");
 
-    // IPC 通信
     remote()->transact(ADD, data, &reply);
 
     ALOGV("BpSQRService::create x=%d, y=%d\n", x, y);
@@ -330,6 +334,7 @@ int BpSQRS::add(const int& x, const int& y) {
 IMPLEMENT_META_INTERFACE(SQRS, "android.misoo.IAS");
 
 };//namespace android
+
 ```
 
 ### 公共so库
@@ -369,12 +374,19 @@ include $(BUILD_EXECUTABLE)
 ```c++
 // addserver2.cpp
 #include <stdio.h>
+
 #include <sys/types.h>
+
 #include <unistd.h>
+
 #include <grp.h>
+
 #include <binder/IPCThreadState.h>
+
 #include <binder/ProcessState.h>
+
 #include <binder/IServiceManager.h>
+
 #include <cutils/log.h>
 
 #include "SQRService2.h"
@@ -420,8 +432,11 @@ include $(BUILD_EXECUTABLE)
 ```c++
 
 // addclent.cpp
+
 #include <stdio.h>
+
 #include <sys/types.h>
+
 #include <unistd.h>
 
 #include "SQR2.h"
@@ -489,11 +504,13 @@ class SQR2 {
 // SQR2.cpp
 
 #include <binder/IServiceManager.h>
+
 #include <binder/IPCThreadState.h>
 
 #include <cutils/log.h>
 
 #include "SQR2.h"
+
 #include "ISQRS.h"
 
 namespace android {
