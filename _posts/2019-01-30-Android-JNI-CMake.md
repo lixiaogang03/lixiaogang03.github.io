@@ -79,6 +79,7 @@ ADD_EXECUTABLE(main ${DIR_SRCS})
 
 ### 构建结果
 
+```
 ├── CMakeCache.txt
 ├── CMakeFiles
 │   ├── 3.5.1
@@ -116,6 +117,7 @@ ADD_EXECUTABLE(main ${DIR_SRCS})
 ├── CMakeLists.txt
 ├── main.cpp
 └── Makefile
+```
 
 ### 执行编译-make
 
