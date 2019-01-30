@@ -57,6 +57,76 @@ ADD_EXECUTABLE(main ${DIR_SRCS})
 
 ```
 
+### 构建-cmake .
+
+> -- The C compiler identification is GNU 5.4.0
+> -- The CXX compiler identification is GNU 5.4.0
+> -- Check for working C compiler: /usr/bin/cc
+> -- Check for working C compiler: /usr/bin/cc -- works
+> -- Detecting C compiler ABI info
+> -- Detecting C compiler ABI info - done
+> -- Detecting C compile features
+> -- Detecting C compile features - done
+> -- Check for working CXX compiler: /usr/bin/c++
+> -- Check for working CXX compiler: /usr/bin/c++ -- works
+> -- Detecting CXX compiler ABI info
+> -- Detecting CXX compiler ABI info - done
+> -- Detecting CXX compile features
+> -- Detecting CXX compile features - done
+> -- Configuring done
+> -- Generating done
+> -- Build files have been written to: /home/***/JNI/cmake
+
+### 构建结果
+
+├── CMakeCache.txt
+├── CMakeFiles
+│   ├── 3.5.1
+│   │   ├── CMakeCCompiler.cmake
+│   │   ├── CMakeCXXCompiler.cmake
+│   │   ├── CMakeDetermineCompilerABI_C.bin
+│   │   ├── CMakeDetermineCompilerABI_CXX.bin
+│   │   ├── CMakeSystem.cmake
+│   │   ├── CompilerIdC
+│   │   │   ├── a.out
+│   │   │   └── CMakeCCompilerId.c
+│   │   └── CompilerIdCXX
+│   │       ├── a.out
+│   │       └── CMakeCXXCompilerId.cpp
+│   ├── cmake.check_cache
+│   ├── CMakeDirectoryInformation.cmake
+│   ├── CMakeOutput.log
+│   ├── CMakeTmp
+│   ├── feature_tests.bin
+│   ├── feature_tests.c
+│   ├── feature_tests.cxx
+│   ├── main.dir
+│   │   ├── build.make
+│   │   ├── cmake_clean.cmake
+│   │   ├── DependInfo.cmake
+│   │   ├── depend.make
+│   │   ├── flags.make
+│   │   ├── link.txt
+│   │   └── progress.make
+│   ├── Makefile2
+│   ├── Makefile.cmake
+│   ├── progress.marks
+│   └── TargetDirectories.txt
+├── cmake_install.cmake
+├── CMakeLists.txt
+├── main.cpp
+└── Makefile
+
+### 执行编译-make
+
+> [ 50%] Building CXX object CMakeFiles/main.dir/main.cpp.o
+> [100%] Linking CXX executable main
+> [100%] Built target main
+
+### 运行main.bin
+
+> Hello word!
+
 
 
 
