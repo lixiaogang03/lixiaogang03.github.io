@@ -75,6 +75,8 @@ tags:
 > 对于某些窗口，如壁纸窗口、SurfaceView的窗口来说，窗口即是输入事件派发的终点。而对于其他的如Activity、对话框等使用了Android控件系统的窗口来说，输入事件的终点是控件（View）。
 > ViewRootImpl将窗口所接收到的输入事件沿着控件树将事件派发给感兴趣的控件。
 
+## 总结
 
+![android_input_system_2](/images/android_input_system_2.png)
 
 
