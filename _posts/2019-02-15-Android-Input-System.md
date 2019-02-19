@@ -24,6 +24,8 @@ tags:
 
 [InputSystem-袁辉辉](http://gityuan.com/2016/12/10/input-manager/)
 
+[手机新增按键流程](https://www.jianshu.com/p/debbc56ab2d3)
+
 ## 相关代码
 
 [Linux按键代码-linux/input.h](http://androidxref.com/kernel_3.18/xref/include/uapi/linux/input.h)
@@ -32,8 +34,13 @@ tags:
 
 [按键字符映射文件-Generic.kcm](http://androidxref.com/7.0.0_r1/xref/frameworks/base/data/keyboards/Generic.kcm)
 
+[上层按键码-keycodes.h](http://androidxref.com/7.0.0_r1/xref/frameworks/native/include/android/keycodes.h)
+
+[这里通过宏定义将标签字符与上层按键码对应起来-InputEventLabels](http://androidxref.com/7.0.0_r1/xref/frameworks/native/include/input/InputEventLabels.h)
+
 [Android按键代码-android.view.KeyEvent](http://androidxref.com/7.0.0_r1/xref/frameworks/base/core/java/android/view/KeyEvent.java)
 
+[keycode-attrs.xml](http://androidxref.com/7.0.0_r1/xref/frameworks/base/core/res/res/values/attrs.xml)
 
 ## 框架图
 
