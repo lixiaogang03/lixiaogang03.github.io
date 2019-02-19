@@ -16,31 +16,21 @@ tags:
 
 ## 参考文章
 
-[Android输入系统-AOSP官网](https://source.android.google.cn/devices/input)
-
-[深入理解android输入系统](https://www.kancloud.cn/alex_wsc/android-deep3/416415)
-
-[androud输入系统](https://www.kancloud.cn/digest/androidcore/149085)
-
-[InputSystem-袁辉辉](http://gityuan.com/2016/12/10/input-manager/)
-
-[手机新增按键流程](https://www.jianshu.com/p/debbc56ab2d3)
+[Android输入系统-AOSP官网](https://source.android.google.cn/devices/input)<br/>
+[深入理解android输入系统](https://www.kancloud.cn/alex_wsc/android-deep3/416415)<br/>
+[androud输入系统](https://www.kancloud.cn/digest/androidcore/149085)<br/>
+[InputSystem-袁辉辉](http://gityuan.com/2016/12/10/input-manager/)<br/>
+[手机新增按键流程](https://www.jianshu.com/p/debbc56ab2d3)<br/>
 
 ## 相关代码
 
-[Linux按键代码-linux/input.h](http://androidxref.com/kernel_3.18/xref/include/uapi/linux/input.h)
-
-[按键布局文件-Generic.kl](http://androidxref.com/7.0.0_r1/xref/frameworks/base/data/keyboards/Generic.kl)
-
-[按键字符映射文件-Generic.kcm](http://androidxref.com/7.0.0_r1/xref/frameworks/base/data/keyboards/Generic.kcm)
-
-[上层按键码-keycodes.h](http://androidxref.com/7.0.0_r1/xref/frameworks/native/include/android/keycodes.h)
-
-[这里通过宏定义将标签字符与上层按键码对应起来-InputEventLabels](http://androidxref.com/7.0.0_r1/xref/frameworks/native/include/input/InputEventLabels.h)
-
-[Android按键代码-android.view.KeyEvent](http://androidxref.com/7.0.0_r1/xref/frameworks/base/core/java/android/view/KeyEvent.java)
-
-[keycode-attrs.xml](http://androidxref.com/7.0.0_r1/xref/frameworks/base/core/res/res/values/attrs.xml)
+[Linux按键代码-linux/input.h](http://androidxref.com/kernel_3.18/xref/include/uapi/linux/input.h)<br/>
+[按键布局文件-Generic.kl](http://androidxref.com/7.0.0_r1/xref/frameworks/base/data/keyboards/Generic.kl)<br/>
+[按键字符映射文件-Generic.kcm](http://androidxref.com/7.0.0_r1/xref/frameworks/base/data/keyboards/Generic.kcm)<br/>
+[上层按键码-keycodes.h](http://androidxref.com/7.0.0_r1/xref/frameworks/native/include/android/keycodes.h)<br/>
+[这里通过宏定义将标签字符与上层按键码对应起来-InputEventLabels](http://androidxref.com/7.0.0_r1/xref/frameworks/native/include/input/InputEventLabels.h)<br/>
+[Android按键代码-android.view.KeyEvent](http://androidxref.com/7.0.0_r1/xref/frameworks/base/core/java/android/view/KeyEvent.java)<br/>
+[keycode-attrs.xml](http://androidxref.com/7.0.0_r1/xref/frameworks/base/core/res/res/values/attrs.xml)<br/>
 
 ## 框架图
 
