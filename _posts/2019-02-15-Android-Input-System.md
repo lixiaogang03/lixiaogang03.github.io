@@ -24,6 +24,17 @@ tags:
 
 [InputSystem-袁辉辉](http://gityuan.com/2016/12/10/input-manager/)
 
+## 相关代码
+
+[Linux按键代码-linux/input.h](http://androidxref.com/kernel_3.18/xref/include/uapi/linux/input.h)
+
+[按键布局文件-Generic.kl](http://androidxref.com/7.0.0_r1/xref/frameworks/base/data/keyboards/Generic.kl)
+
+[按键字符映射文件-Generic.kcm](http://androidxref.com/7.0.0_r1/xref/frameworks/base/data/keyboards/Generic.kcm)
+
+[Android按键代码-android.view.KeyEvent](http://androidxref.com/7.0.0_r1/xref/frameworks/base/core/java/android/view/KeyEvent.java)
+
+
 ## 框架图
 
 ![android_input_system](/images/android_input_system.png)
