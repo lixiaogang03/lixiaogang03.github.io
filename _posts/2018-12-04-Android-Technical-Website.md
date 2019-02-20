@@ -40,5 +40,13 @@ tags:
 
 [隔壁李老头博客-简书](https://www.jianshu.com/p/87ce6f565d37)
 
+[RickAi的博客](http://navyblue.top/)
+
+## 电子书
+
+[Android核心分析](https://www.kancloud.cn/digest/androidcore/149085)
+
+[深入理解Android卷三](https://www.kancloud.cn/alex_wsc/android-deep3/416415)
+
 
 
