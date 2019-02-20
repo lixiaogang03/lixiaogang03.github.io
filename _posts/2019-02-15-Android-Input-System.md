@@ -83,6 +83,29 @@ tags:
 > 对于某些窗口，如壁纸窗口、SurfaceView的窗口来说，窗口即是输入事件派发的终点。而对于其他的如Activity、对话框等使用了Android控件系统的窗口来说，输入事件的终点是控件（View）。
 > ViewRootImpl将窗口所接收到的输入事件沿着控件树将事件派发给感兴趣的控件。
 
+## IMS的工作原理
+
+### IMS的结构体系
+
+![android_IMS_2](/images/android_IMS_2.png)
+
+### IMS的工作流程
+
+1. InputReader在其线程循环中不断地从EventHub中抽取原始输入事件
+2. 进行加工处理后将加工所得的事件放入InputDispatcher的派发发队列中
+3. InputDispatcher则在其线程循环中将派发队列中的事件取出，查找合适的窗口，将事件写入到窗口的事件接收管道中
+4. 窗口事件接收线程的Looper从管道中将事件取出，交由事件处理函数进行事件响应。整个过程共有三个线程首尾相接，像三台水泵似的一层层地将事件交付给事件处理函数
+
+![android_IMS_3](/images/android_IMS_3.png)
+
+### 类图
+
+![android_IMS_4](/images/android_IMS_4.png)
+
+### 时序图
+
+![android_IMS](/images/android_IMS.png)
+
 ## 总结
 
 ![android_input_system_2](/images/android_input_system_2.png)
