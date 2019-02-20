@@ -98,10 +98,6 @@ tags:
 
 ![android_IMS_3](/images/android_IMS_3.png)
 
-### 类图
-
-![android_IMS_4](/images/android_IMS_4.png)
-
 ### 时序图
 
 ![android_IMS](/images/android_IMS.png)
