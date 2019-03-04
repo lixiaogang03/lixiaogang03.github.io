@@ -42,6 +42,8 @@ tags:
 
 [RickAi的博客](http://navyblue.top/)
 
+[马壮的博客](https://mazhuang.org/)
+
 ## 电子书
 
 [Android核心分析](https://www.kancloud.cn/digest/androidcore/149085)

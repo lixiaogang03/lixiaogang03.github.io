@@ -23,6 +23,8 @@ tags:
 
 [Ps命令-Gityuan](http://gityuan.com/2015/10/11/ps-command/)
 
+[adb常用命令查询表](https://github.com/mzlogin/awesome-adb/blob/master/README.md)
+
 ## Adb Shell Conmand
 
 
