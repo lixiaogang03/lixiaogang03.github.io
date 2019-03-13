@@ -35,6 +35,7 @@ tags:
 
 ## Background restrictions-隐方广播限制
 
+[Android-O后台服务和广播限制](https://developer.android.com/about/versions/oreo/background?hl=zh-cn)
 
 ## Power management restrictions
 
