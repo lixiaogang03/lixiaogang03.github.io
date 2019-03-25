@@ -33,4 +33,9 @@ tags:
 [SystemUI-简书](https://www.jianshu.com/p/0ab1279465fa)
 
 
+### 架构
+
+![systemui](/images/systemui.png)
+
+
 
