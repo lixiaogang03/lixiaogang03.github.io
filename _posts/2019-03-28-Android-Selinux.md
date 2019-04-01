@@ -27,6 +27,9 @@ seapp_contexts 用于为应用进程和 /data/data 目录分配标签。在每�
 > user=_app seinfo=sunmi domain=sunmi_app type=app_data_file levelFrom=user
 > user=_app domain=untrusted_app type=app_data_file levelFrom=user
 
+
+s0 是 SELinux为了满足军用和教育行业设计的 Multi-Level Security(MLS)机制有关。MLS将进程和文件进行了分级，不同级别的资源需要不同级别的进程访问
+
 > ps -Z
 > u:r:sunmi_app:s0               u0_a69    3588  1258  990992 30876 SyS_epoll_ 00000000 S com.sunmi.***
 > u:r:sunmi_app:s0:c512,c768     u0_a69    3588  1258  990992 30876 SyS_epoll_ 00000000 S com.sunmi.***
