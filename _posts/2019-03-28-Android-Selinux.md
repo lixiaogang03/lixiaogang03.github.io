@@ -17,6 +17,20 @@ tags:
 
 > 03-28 09:57:44.667  7326  7326 W m.sunmi.sidekey: type=1400 audit(0.0:244): avc: denied { write } for name="property_service" dev="tmpfs" ino=220 scontext=u:r:sunmi_app:s0:c512,c768 tcontext=u:object_r:property_socket:s0 tclass=sock_file permissive=0
 
+### 原因分析
+
+seapp_contexts 用于为应用进程和 /data/data 目录分配标签。在每次应用启动时，zygote 进程都会读取此配置；在启动期间，installd 会读取此配置。
+
+> seapp_contexts
+> levelFrom=user 不同level的进程无法进行socket通信
+> //user=_app seinfo=sunmi domain=sunmi_app type=app_data_file
+> user=_app seinfo=sunmi domain=sunmi_app type=app_data_file levelFrom=user
+> user=_app domain=untrusted_app type=app_data_file levelFrom=user
+
+> ps -Z
+> u:r:sunmi_app:s0               u0_a69    3588  1258  990992 30876 SyS_epoll_ 00000000 S com.sunmi.***
+> u:r:sunmi_app:s0:c512,c768     u0_a69    3588  1258  990992 30876 SyS_epoll_ 00000000 S com.sunmi.***
+
 ### 修改方案
 
 //sunmi_app.te
