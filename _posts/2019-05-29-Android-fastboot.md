@@ -24,21 +24,21 @@ Fastboot 是一种引导加载程序模式，您可以在该模式下刷写设�
 
 ## qcom
 
-### 关机充电模式
+### 开启和关闭关机充电模式
 
-1. 开启和关闭关机充电模式
+> fastboot oem enable-charger-screen  
+> fastboot oem disable-charger-screen  
 
-> fastboot oem enable-charger-screen
-> fastboot oem disable-charger-screen
+### 查看devinfo分区数据
 
-2. 查看devinfo分区数据
+> C:\Users\thinkpad>fastboot oem device-info  
+> (bootloader)    Device tampered: false  
+> (bootloader)    Device unlocked: true  
+> (bootloader)    Device critical unlocked: true  
+> (bootloader)    Charger screen enabled: false  
+> (bootloader)    Display panel:  
+> OKAY [  0.015s]  
+> Finished. Total time: 0.016s  
 
-> C:\Users\thinkpad>fastboot oem device-info
-> (bootloader)    Device tampered: false
-> (bootloader)    Device unlocked: true
-> (bootloader)    Device critical unlocked: true
-> (bootloader)    Charger screen enabled: false
-> (bootloader)    Display panel:
-> OKAY [  0.015s]
-> Finished. Total time: 0.016s
+
 
