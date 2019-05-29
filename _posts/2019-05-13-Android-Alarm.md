@@ -11,4 +11,6 @@ tags:
     - alarm
 ---
 
+[理解AlarmManager机制-gityuan](http://gityuan.com/2017/03/12/alarm_manager_service/)
+
 
