@@ -34,4 +34,33 @@ tags:
 [理解JobScheduler机制-Gityuan](http://gityuan.com/2017/03/10/job_scheduler_service/)
 
 
+## CPU 控制策略
+
+### QCOM
+
+[高通官网](https://developer.qualcomm.com/software/snapdragon-power-optimization-sdk)
+
+[ZGQboost-github](https://github.com/zengge2/ZGQboost)
+
+framework/base/core/java/android/util/[BoostFramework.java]
+
+vendor/qcom/proprietary/android-perf/QPerformance
+
+```java
+/** @hide */
+public class BoostFramework {
+
+    private static final String TAG = "BoostFramework";
+    private static final String PERFORMANCE_JAR = "/system/framework/QPerformance.jar";
+    private static final String PERFORMANCE_CLASS = "com.qualcomm.qti.Performance";
+}
+```
+
+### MTK
+
+frameworks/base/core/java/com/mediatek/perfservice/IPerfServiceManager.java
+
+vendor/mediatek/proprietary/hardware/perfservice/
+
+
 
