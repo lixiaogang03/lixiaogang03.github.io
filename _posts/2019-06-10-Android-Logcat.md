@@ -11,6 +11,16 @@ tags:
     - debug
 ---
 
+### 常用命令
+
+adb logcat -f /sdcard/log.txt -r 1 -n 5
+
+-f: 将log输出到指定文件中
+-r: 单个文件的大小上限
+-n: 文件的个数
+
+命令输出：log.txt.1 log.txt.2 log.txt.3 log.txt.4 log.txt.5
+
 ### logcat -help
 
 ```txt
