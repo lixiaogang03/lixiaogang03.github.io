@@ -12,6 +12,46 @@ tags:
     - android
 ---
 
+
+## toybox 
+
+external/toybox/[Android.mk](http://androidxref.com/9.0.0_r3/xref/external/toybox/Android.mk)
+
+### toybox --help
+
+```txt
+usage: toybox [--long | --version | [command] [arguments...]]
+
+With no arguments, shows available commands. First argument is
+name of a command to run, followed by any arguments to that command.
+
+--long	Show path to each command
+--version	Show toybox version
+
+To install command symlinks, try:
+  for i in $(/bin/toybox --long); do ln -s /bin/toybox $i; done
+```
+
+### toybox
+
+```txt
+acpi base64 basename blkid blockdev bunzip2 bzcat cal cat chattr chcon
+chgrp chmod chown chroot cksum clear cmp comm cp cpio cut date dd
+df dirname dmesg dos2unix du echo egrep env expand expr fallocate
+false fgrep find flock free freeramdisk fsfreeze getenforce getprop
+grep groups head help hostname hwclock id ifconfig inotifyd insmod
+install ionice iorenice kill killall ln load_policy logname losetup
+ls lsattr lsmod lsof lsusb makedevs md5sum mkdir mkfifo mknod mkswap
+mktemp modinfo more mount mountpoint mv nbd-client nc netcat netstat
+nice nl nohup od partprobe paste patch pgrep pidof pivot_root pkill
+pmap printenv printf ps pwd pwdx readlink realpath renice restorecon
+rev rfkill rm rmdir rmmod route runcon sed seq setenforce setprop
+setsid sha1sum sleep sort split stat strings swapoff swapon switch_root
+sync sysctl tac tail tar taskset tee time timeout top touch tr traceroute
+traceroute6 true truncate tty ulimit umount uname uniq unix2dos uptime
+usleep vconfig vmstat wc which whoami xargs xxd yes
+```
+
 ## android M userdebug
 
 ### adb shell "ls -al /system/bin/"
