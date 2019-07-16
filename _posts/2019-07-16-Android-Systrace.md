@@ -15,17 +15,19 @@ tags:
 
 [systrace-官网](https://developer.android.com/studio/profile/systrace)
 
+## 简介
+
+![systrace_demo](/images/systrace_demo.png)
+
 ## 启动 systrace
 
 ### Android Device Monitor
  
-./sdk/tools/monitor
+1. ./sdk/tools/monitor
 
-![monitor](/images/android_device_monitor.png)
+2. ![monitor](/images/android_device_monitor.png)
 
-![systrace](/images/systrace.png)
-
-
+3. ![systrace](/images/systrace.png)
 
 ### 命令行
 
