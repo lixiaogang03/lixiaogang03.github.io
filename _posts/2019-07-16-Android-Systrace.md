@@ -23,6 +23,10 @@ tags:
 
 ![monitor](/images/android_device_monitor.png)
 
+![systrace](/images/systrace.png)
+
+
+
 ### 命令行
 
 
