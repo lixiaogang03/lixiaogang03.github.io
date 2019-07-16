@@ -91,7 +91,10 @@ NOTE: more categories may be available with adb root
 
 ![systrace_param](/images/systrace_param.png)
 
+## 报告分析
 
+### 打开报告
 
+> google-chrome mynewtrace.html
 
 
