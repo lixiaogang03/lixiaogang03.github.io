@@ -19,9 +19,7 @@ tags:
 
 ![systrace_demo](/images/systrace_demo.png)
 
-## 启动 systrace
-
-### Android Device Monitor
+## Android Device Monitor
  
 1. ./sdk/tools/monitor
 
@@ -29,7 +27,69 @@ tags:
 
 3. ![systrace](/images/systrace.png)
 
-### 命令行
+## 命令行
+
+### 命令行抓取systrace
+
+> python ./platform-tools/systrace/systrace.py --time=10 -o mynewtrace.html sched gfx view wm
+
+```txt
+
+lixiaogang@lixiaogang-OptiPlex-7020:~/Android/Sdk$ python ./platform-tools/systrace/systrace.py --time=10 -o mynewtrace.html sched gfx view wm
+Starting tracing (10 seconds)
+Tracing completed. Collecting output...
+Outputting Systrace results...
+Tracing complete, writing results
+
+Wrote trace HTML file: file:///home/lixiaogang/Android/Sdk/mynewtrace.html
+
+```
+
+### 列出当前设备支持的抓取类别
+
+> python ./platform-tools/systrace/systrace.py --list-categories
+
+> python ./platform-tools/systrace/systrace.py --help
+
+```txt
+
+lixiaogang@lixiaogang-OptiPlex-7020:~/Android/Sdk$ python ./platform-tools/systrace/systrace.py --list-categories
+         gfx - Graphics
+       input - Input
+        view - View System
+     webview - WebView
+          wm - Window Manager
+          am - Activity Manager
+          sm - Sync Manager
+       audio - Audio
+       video - Video
+      camera - Camera
+         hal - Hardware Modules
+         app - Application
+         res - Resource Loading
+      dalvik - Dalvik VM
+          rs - RenderScript
+      bionic - Bionic C Library
+       power - Power Management
+          pm - Package Manager
+          ss - System Server
+    database - Database
+     network - Network
+       sched - CPU Scheduling
+        freq - CPU Frequency
+        idle - CPU Idle
+        load - CPU Load
+  memreclaim - Kernel Memory Reclaim
+  binder_driver - Binder Kernel driver
+  binder_lock - Binder global lock trace
+
+NOTE: more categories may be available with adb root
+
+```
+
+### 命令行参数
+
+![systrace_param](/images/systrace_param.png)
 
 
 
