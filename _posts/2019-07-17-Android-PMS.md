@@ -15,7 +15,7 @@ tags:
 
 [应用安装检查](http://www.robotshell.com/2018/02/06/Android包管理之App安装前的校验/)
 
-### 代码
+### 核心代码
 
 ```java
          // Invoke remote method to get package information and install
@@ -61,11 +61,29 @@ tags:
             }
         }
 
+
+    // 检验完成后的回调(Binder IPC)
+    @Override
+    public void verifyPendingInstall(int id, int verificationCode) throws RemoteException {
+        mContext.enforceCallingOrSelfPermission(
+                android.Manifest.permission.PACKAGE_VERIFICATION_AGENT,
+                "Only package verification agents can verify applications");
+
+        final Message msg = mHandler.obtainMessage(PACKAGE_VERIFIED);
+        final PackageVerificationResponse response = new PackageVerificationResponse(
+                verificationCode, Binder.getCallingUid());
+        msg.arg1 = id;
+        msg.obj = response;
+        mHandler.sendMessage(msg);
+    }
+
 ```
 
 ### dumpsys 调试
-> L2:/ $ dumpsys package v
-> Verifiers:
->   Required: com.android.vending (uid=10033)
 
+```txt
+L2:/ $ dumpsys package v
+Verifiers:
+  Required: com.android.vending (uid=10033)
+```
 
