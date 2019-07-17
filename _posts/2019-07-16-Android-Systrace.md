@@ -15,6 +15,10 @@ tags:
 
 [systrace-官网](https://developer.android.com/studio/profile/systrace)
 
+[systrace-AOSP](https://source.android.com/devices/tech/debug/systrace)
+
+[systace-Gityuan](http://gityuan.com/2016/01/17/systrace/)
+
 ## 简介
 
 ![systrace_demo](/images/systrace_demo.png)
@@ -97,4 +101,42 @@ NOTE: more categories may be available with adb root
 
 > google-chrome mynewtrace.html
 
+### 快捷键
+
+#### 导航操作
+
+|导航操作|作用|
+|---|---|
+|w|放大，[+shift]速度更快|
+|s|缩小，[+shift]速度更快|
+|a|左移，[+shift]速度更快|
+|d|右移，[+shift]速度更快|
+
+#### 快捷操作
+
+|常用操作|作用|
+|---|---|
+|f|**放大**当前选定区域|
+|m|**标记**当前选定区域|
+|v|高亮**VSync**|
+|g|切换是否显示**60hz**的网格线|
+|0|恢复trace到**初始态**，这里是数字0而非字母o|
+
+|一般操作|作用|
+|---|---|
+|h|切换是否显示详情|
+|/|搜索关键字|
+|enter|显示搜索结果，可通过← →定位搜索结果|
+|`|显示/隐藏脚本控制台|
+|?|显示帮助功能|
+
+#### 模式切换
+
+1. Select mode: **双击已选定区**能将所有相同的块高亮选中；（对应数字1）
+2. Pan mode: 拖动平移视图（对应数字2）
+3. Zoom mode:通过上/下拖动鼠标来实现放大/缩小功能；（对应数字3）
+4. Timing mode:拖动来创建或移除时间窗口线。（对应数字4）
+
+
+可通过按数字1~4，用于切换鼠标模式； 另外，按住alt键，再滚动鼠标滚轮能实现放大/缩小功能。
 
