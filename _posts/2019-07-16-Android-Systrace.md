@@ -93,7 +93,18 @@ NOTE: more categories may be available with adb root
 
 ### 命令行参数
 
-![systrace_param](/images/systrace_param.png)
+    python systrace.py [options] [category1] [category2] ... [categoryN]
+
+|options|解释|
+|---|---|
+|-o `<FILE`>|输出的目标文件
+|-t N, --time=N|    执行时间，默认5s|
+|-b N, --buf-size=N|buffer大小（单位kB),用于限制trace总大小，默认无上限|
+|-k `<KFUNCS`>，--ktrace=`<KFUNCS`>|    追踪kernel函数，用逗号分隔|
+|-a `<APP_NAME`>,--app=`<APP_NAME`>|    追踪应用包名，用逗号分隔|
+|--from-file=`<FROM_FILE`>|从文件中创建互动的systrace|
+|-e `<DEVICE_SERIAL`>,--serial=`<DEVICE_SERIAL`>|指定设备|
+|-l, --list-categories|列举可用的tags|
 
 ## 报告分析
 
