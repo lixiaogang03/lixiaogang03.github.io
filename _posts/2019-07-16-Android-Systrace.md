@@ -11,6 +11,9 @@ tags:
     - performance
 ---
 
+
+## 参考网址
+
 [systrace-看云](https://www.kancloud.cn/digest/itfootballprefermanc/100913)
 
 [systrace-官网](https://developer.android.com/studio/profile/systrace)
@@ -150,4 +153,29 @@ NOTE: more categories may be available with adb root
 
 
 可通过按数字1~4，用于切换鼠标模式； 另外，按住alt键，再滚动鼠标滚轮能实现放大/缩小功能。
+
+
+## 代码增加trace
+
+### java framework层
+
+    import android.os.Trace;
+    Trace.traceBegin(long traceTag, String methodName)
+    Trace.traceEnd(long traceTag)
+
+在代码中必须成对出现，一般将traceEnd放入到finally语句块，另外，必须在同一个线程。
+
+
+### app层
+
+    import android.os.Trace;
+    Trace.beginSection(String sectionName)
+    Trace.EndSection()
+
+这里默认的traceTag为`TRACE_TAG_APP`，systrace命令通过指定app参数即
+
+### native framework层
+
+    #include<utils/Trace.h>
+    ATRACE_CALL();
 
