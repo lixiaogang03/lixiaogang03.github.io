@@ -154,6 +154,13 @@ NOTE: more categories may be available with adb root
 
 可通过按数字1~4，用于切换鼠标模式； 另外，按住alt键，再滚动鼠标滚轮能实现放大/缩小功能。
 
+#### 搜索
+
+1. 输入搜索内容,然后Endter键
+2. 鼠标定位搜索结果面板
+3. 单击M按键定位位置
+
+![systrace_search](/images/systrace_search.png)
 
 ## 代码增加trace
 
@@ -182,7 +189,7 @@ NOTE: more categories may be available with adb root
 ### native framework层
 
     #include<utils/Trace.h>
-    ATRACE_CALL();
+    ATRACE_CALL();  // 利用ScopedTrace对象的创建和回收
 
 
 **system/core/include/utils/Trace.h**
@@ -206,4 +213,10 @@ class ScopedTrace {
 };
 
 ```
+
+## systrace分析案例
+
+### 应用启动分析
+
+[AppLaunch](http://chendongqi.me/2017/02/18/systrace_appLauncher/)
 
