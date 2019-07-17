@@ -18,22 +18,17 @@ tags:
 ### 代码
 
 ```java
-
-        /*
-         * Invoke remote method to get package information and install
-         * location values. Override install location based on default
-         * policy if needed and then create install arguments based
-         * on the install location.
-         */
+         // Invoke remote method to get package information and install
+         // location values. Override install location based on default
+         // policy if needed and then create install arguments based
+         // on the install location.
         public void handleStartCopy() throws RemoteException {
             -----------------------------------------------------------------------------
                         Trace.asyncTraceBegin(
                                 TRACE_TAG_PACKAGE_MANAGER, "verification", verificationId);
-                        /*
-                         * Send the intent to the required verification agent,
-                         * but only start the verification timeout after the
-                         * target BroadcastReceivers have run.
-                         */
+                        // Send the intent to the required verification agent,
+                        // but only start the verification timeout after the
+                        // target BroadcastReceivers have run.
                         verification.setComponent(requiredVerifierComponent);
                         mContext.sendOrderedBroadcastAsUser(verification, verifierUser,
                                 android.Manifest.permission.PACKAGE_VERIFICATION_AGENT,
@@ -50,13 +45,11 @@ tags:
                                     }
                                 }, null, 0, null, null);
 
-                        /*
-                         * 暂停安装等待校验
-                         * We don't want the copy to proceed until verification
-                         * succeeds, so null out this field.
-                         */
+                         // 暂停安装等待校验结果
+                         // We don't want the copy to proceed until verification
+                         // succeeds, so null out this field.
                         mArgs = null;
-
+            -----------------------------------------------------------------------------------------
         }
 
         void handleReturnCode() {
