@@ -162,6 +162,11 @@ NOTE: more categories may be available with adb root
     import android.os.Trace;
     Trace.traceBegin(long traceTag, String methodName)
     Trace.traceEnd(long traceTag)
+    Trace.asyncTraceBegin(long traceTag, String methodName, int cookie) {
+    Trace.asyncTraceEnd(long traceTag, String methodName, int cookie)
+
+    Trace.asyncTraceEnd(TRACE_TAG_PACKAGE_MANAGER, "queueInstall", System.identityHashCode(params));
+    Trace.traceBegin(TRACE_TAG_PACKAGE_MANAGER, "startCopy");
 
 在代码中必须成对出现，一般将traceEnd放入到finally语句块，另外，必须在同一个线程。
 
@@ -178,4 +183,27 @@ NOTE: more categories may be available with adb root
 
     #include<utils/Trace.h>
     ATRACE_CALL();
+
+
+**system/core/include/utils/Trace.h**
+
+```cpp
+
+#define ATRACE_NAME(name) ScopedTrace ___tracer(name)
+
+// ATRACE_CALL is an ATRACE_NAME that uses the current function name.
+#define ATRACE_CALL() ATRACE_NAME(__FUNCTION__)
+
+class ScopedTrace {
+  public:
+    inline ScopedTrace(const char *name) {
+      ATrace_beginSection(name);
+    }
+
+    inline ~ScopedTrace() {
+      ATrace_endSection();
+    }
+};
+
+```
 
