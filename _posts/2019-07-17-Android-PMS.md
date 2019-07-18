@@ -17,6 +17,8 @@ tags:
 
 ### 核心代码
 
+**PackageManagerService.java**
+
 ```java
          // Invoke remote method to get package information and install
          // location values. Override install location based on default
@@ -76,6 +78,49 @@ tags:
         msg.obj = response;
         mHandler.sendMessage(msg);
     }
+
+```
+
+**APP层**
+
+```xml
+
+    <uses-permission android:name="android.permission.PACKAGE_VERIFICATION_AGENT"/>
+
+    <receiver android:name=".receiver.PackageVerifyReceiver">
+        <intent-filter>
+            <action android:name="android.intent.action.PACKAGE_NEEDS_VERIFICATION"/>
+            <data android:mimeType="application/vnd.android.package-archive"/>
+        </intent-filter>
+    </receiver>
+
+```
+
+```java
+
+public class PackageVerifyReceiver extends BroadcastReceiver {
+
+    public static final String EXTRA_VERIFICATION_INSTALLER_UID
+            = "android.content.pm.extra.VERIFICATION_INSTALLER_UID";
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        String action = intent.getAction();
+        if (Intent.ACTION_PACKAGE_NEEDS_VERIFICATION.equals(action)
+                || Intent.ACTION_PACKAGE_VERIFIED.equals(action)) {
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
+                int id = extras.getInt(PackageManager.EXTRA_VERIFICATION_ID);
+                int uid = extras.getInt(EXTRA_VERIFICATION_INSTALLER_UID);
+
+                // check uid here
+
+                PackageManager pm = context.getPackageManager();
+                pm.verifyPendingInstall(id, PackageManager.VERIFICATION_REJECT);
+            }
+        }
+    }
+}
 
 ```
 
