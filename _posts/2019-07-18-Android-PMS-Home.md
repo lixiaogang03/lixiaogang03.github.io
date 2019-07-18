@@ -80,6 +80,36 @@ $ adb shell dumpsys package preferred-xml
     // 启动桌面
     private ResolveInfo chooseBestActivity(Intent intent, String resolvedType,
             int flags, List<ResolveInfo> query, int userId) {
+            ---------------------------------------------------------------------
+                // 第一级别筛选
+                // If there is more than one activity with the same priority,
+                // then let the user decide between them.
+                ResolveInfo r0 = query.get(0);
+                ResolveInfo r1 = query.get(1);
+
+                // If the first activity has a higher priority, or a different
+                // default, then it is always desirable to pick it.
+                if (r0.priority != r1.priority
+                        || r0.preferredOrder != r1.preferredOrder
+                        || r0.isDefault != r1.isDefault) {   // Intent.CATEGORY_DEFAULT
+                    return query.get(0);
+                }
+
+                // 第二级筛选
+                // If we have saved a preference for a preferred activity for
+                // this Intent, use that.
+                ResolveInfo ri = findPreferredActivity(intent, resolvedType,
+                        flags, query, r0.priority, true, false, debug, userId);
+                if (ri != null) {
+                    return ri;
+                }
+            ---------------------------------------------------------------------
+    }
+
+    // 从Preferred中查找
+    ResolveInfo findPreferredActivity(Intent intent, String resolvedType, int flags,
+            List<ResolveInfo> query, int priority, boolean always,
+            boolean removeMatches, boolean debug, int userId) {
 
 ```
 
