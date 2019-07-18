@@ -11,11 +11,13 @@ tags:
     - pms
 ---
 
-## Home Setting
+### Home Setting
 
 **adb shell am start -a android.settings.HOME_SETTINGS**
 
 **adb shell dumpsys package pref**
+
+> pref[erred]: print preferred package settings
 
 ```txt
 
@@ -37,5 +39,49 @@ Preferred Activities User 0:
           AutoVerify=false
 
 ```
+
+**adb shell dumpsys package preferred-xml**
+
+> preferred-xml [--full]: print preferred package settings as xml
+
+```txt
+
+$ adb shell dumpsys package preferred-xml
+
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<preferred-activities>
+
+    <item name="com.tencent.mobileqq/.activity.SplashActivity">
+        <filter>
+            <action name="android.intent.action.MAIN" />
+            <cat name="android.intent.category.HOME" />
+            <cat name="android.intent.category.DEFAULT" />
+        </filter>
+    </item>
+
+</preferred-activities>
+
+```
+
+### PMS
+
+**接口**
+
+```java
+
+    // 设置默认桌面
+    public abstract void replacePreferredActivity(IntentFilter filter, int match,
+            ComponentName[] set, ComponentName activity);
+
+    // 启动桌面
+    private ResolveInfo chooseBestActivity(Intent intent, String resolvedType,
+            int flags, List<ResolveInfo> query, int userId) {
+
+```
+
+### Home 启动
+
+![pms_home_start](/images/pms_home_start.png)
+
 
 
