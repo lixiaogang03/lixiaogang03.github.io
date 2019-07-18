@@ -11,6 +11,10 @@ tags:
     - pms
 ---
 
+### 参考文章
+
+[Android 9.x 设置默认桌面流程-简书](https://www.jianshu.com/p/f8913ce0a004?utm_campaign=maleskine&utm_content=note&utm_medium=seo_notes&utm_source=recommendation)
+
 ### Home Setting
 
 **adb shell am start -a android.settings.HOME_SETTINGS**
@@ -82,6 +86,5 @@ $ adb shell dumpsys package preferred-xml
 ### Home 启动
 
 ![pms_home_start](/images/pms_home_start.png)
-
 
 
