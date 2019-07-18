@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      Android PMS
+title:      Android PMS Verification
 subtitle:   PackageManagerService
 date:       2019-07-17
 author:     LXG
@@ -20,6 +20,26 @@ tags:
 **PackageManagerService.java**
 
 ```java
+
+    /**
+     * Whether verification is enabled by default.
+     */
+    private static final boolean DEFAULT_VERIFY_ENABLE = true;
+
+    /**
+     * The default maximum time to wait for the verification agent to return in
+     * milliseconds.
+     */
+    private static final long DEFAULT_VERIFICATION_TIMEOUT = 10 * 1000;
+
+    /**
+     * The default response for package verification timeout.
+     *
+     * This can be either PackageManager.VERIFICATION_ALLOW or
+     * PackageManager.VERIFICATION_REJECT.
+     */
+    private static final int DEFAULT_VERIFICATION_RESPONSE = PackageManager.VERIFICATION_ALLOW;
+
          // Invoke remote method to get package information and install
          // location values. Override install location based on default
          // policy if needed and then create install arguments based
@@ -78,6 +98,45 @@ tags:
         msg.obj = response;
         mHandler.sendMessage(msg);
     }
+
+```
+
+**android.provider.Settings**
+
+```java
+
+       /**
+        * Whether the package manager should send package verification broadcasts for verifiers to
+        * review apps prior to installation.
+        * 1 = request apps to be verified prior to installation, if a verifier exists.
+        * 0 = do not verify apps before installation
+        * @hide
+        */
+       public static final String PACKAGE_VERIFIER_ENABLE = "package_verifier_enable";
+
+       /** Timeout for package verification.
+        * @hide */
+       public static final String PACKAGE_VERIFIER_TIMEOUT = "verifier_timeout";
+
+       /** Default response code for package verification.
+        * @hide */
+       public static final String PACKAGE_VERIFIER_DEFAULT_RESPONSE = "verifier_default_response";
+
+       /**
+        * Show package verification setting in the Settings app.
+        * 1 = show (default)
+        * 0 = hide
+        * @hide
+        */
+       public static final String PACKAGE_VERIFIER_SETTING_VISIBLE = "verifier_setting_visible";
+
+       /**
+        * Run package verification on apps installed through ADB/ADT/USB
+        * 1 = perform package verification on ADB installs (default)
+        * 0 = bypass package verification on ADB installs
+        * @hide
+        */
+       public static final String PACKAGE_VERIFIER_INCLUDE_ADB = "verifier_verify_adb_installs";
 
 ```
 
