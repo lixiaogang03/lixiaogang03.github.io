@@ -19,24 +19,24 @@ tags:
 
 ### 调试命令
 
-**查看设备支持的运行时权限列表**
+### 查看设备支持的运行时权限列表
 
-> adb shell pm list permissions -g -d
+adb shell pm list permissions -g -d
 
-**查看进程gids**
+### 查看进程gids
 
-> adb shell dumpsys activity p com.sunmi.superpermissiontest | grep -B 1 gid
+adb shell dumpsys activity p com.sunmi.superpermissiontest | grep -B 1 gid
 
-**查看应用已经授予的动态权限**
+### 查看应用已经授予的动态权限
 
-> adb shell dumpsys package com.sunmi.superpermissiontest | grep -A 10 "runtime permissions"
+adb shell dumpsys package com.sunmi.superpermissiontest | grep -A 10 "runtime permissions"
 
-**权限授予和收回**
+### 权限授予和收回
 
-> pm grant [--user USER_ID] PACKAGE PERMISSION
-> pm revoke [--user USER_ID] PACKAGE PERMISSION
-> pm reset-permissions
-> pm set-permission-enforced PERMISSION [true|false]
+pm grant [--user USER_ID] PACKAGE PERMISSION<br>
+pm revoke [--user USER_ID] PACKAGE PERMISSION<br>
+pm reset-permissions<br>
+pm set-permission-enforced PERMISSION [true|false]
 
 ### 系统预置应用授权
 
