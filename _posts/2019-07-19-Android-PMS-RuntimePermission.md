@@ -17,21 +17,56 @@ tags:
 
 [APP如何请求运行时权限-Developer](https://developer.android.com/training/permissions/requesting)
 
+[Android O特许权限白名单](https://source.android.com/devices/tech/config/perms-whitelist)
+
+[Android Permissions-简书](https://www.jianshu.com/p/ffd583f720f4)
+
+### 运行时权限和gids
+
+**GIDS**
+
+> gids是由框架在Application安装过程中生成，与Application申请的具体权限相关。如果Application申请的相应的permission被granted，而且有对应的gids，那么这个Application的gids中将包含这个gids
+
+
+[platform.xml](http://androidxref.com/7.1.2_r36/xref/frameworks/base/data/etc/platform.xml)
+
+```xml
+
+<!-- This file is used to define the mappings between lower-level system
+     user and group IDs and the higher-level permission names managed
+     by the platform.
+
+     Be VERY careful when editing this file!  Mistakes made here can open
+     big security holes.
+-->
+<permissions>
+
+    <permission name="android.permission.WRITE_MEDIA_STORAGE" >
+        <group gid="media_rw" />
+        <group gid="sdcard_rw" />
+    </permission>
+
+</permissions>
+
+```
+
+
+
 ### 调试命令
 
-### 查看设备支持的运行时权限列表
+**查看设备支持的运行时权限列表**
 
 adb shell pm list permissions -g -d
 
-### 查看进程gids
+**查看进程gids**
 
-adb shell dumpsys activity p com.sunmi.superpermissiontest | grep -B 1 gid
+adb shell dumpsys activity p com.sunmi.superpermissiontest
 
-### 查看应用已经授予的动态权限
+**查看应用已经授予的动态权限**
 
-adb shell dumpsys package com.sunmi.superpermissiontest | grep -A 10 "runtime permissions"
+adb shell dumpsys package com.sunmi.superpermissiontest
 
-### 权限授予和收回
+**权限授予和收回**
 
 pm grant [--user USER_ID] PACKAGE PERMISSION<br>
 pm revoke [--user USER_ID] PACKAGE PERMISSION<br>
