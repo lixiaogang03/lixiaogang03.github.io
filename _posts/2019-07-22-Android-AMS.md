@@ -13,6 +13,8 @@ tags:
 
 ## 参考链接
 
+[AMS-ActivityStack-简书](https://www.jianshu.com/p/94816e52cd77)
+
 ## AMS
 
 ![ams_activity_stack](/images/ams_activity_stack.png)
