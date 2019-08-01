@@ -193,6 +193,14 @@ Android中的LocalSocket是基于UNIX-domain Socket的，UNIX-domain Socket是�
 
 ```
 
+### selinux
+
+[SELinux权限问题](https://www.jianshu.com/p/9374e4421d38)
+
+type=1400 audit(0.0:113): avc: denied { connectto } for path=0073756E6D696F70656E736572766963652E6C6F67636174 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:r:system_app:s0 tclass=unix_stream_socket permissive=0
+
+> allow ​untrusted_app system_app:unix_stream_socket connectto;
+
 ## 调试命令
 
 **netstat**
@@ -299,4 +307,5 @@ public class Credentials {
 }
 
 ```
+
 
