@@ -19,7 +19,7 @@ tags:
 
 ## Socket
 
-> Socket通常翻译为套接字，它是为了方便让两台机器能互相通信的一套技术，该套技术封装好了繁琐的TCP/IP协议，向外提供出简单的API简化了通信实现的过程，其可以实现不同层面，不同应用，跨进程跨网络的通信
+Socket通常翻译为套接字，它是为了方便让两台机器能互相通信的一套技术，该套技术封装好了繁琐的TCP/IP协议，向外提供出简单的API简化了通信实现的过程，其可以实现不同层面，不同应用，跨进程跨网络的通信
 
 依据Socket提供的数据传输特性可分为如下几个大类：
 
@@ -144,9 +144,8 @@ tags:
 
 ## LocalSocket
 
-> Android中的LocalSocket是基于UNIX-domain Socket的，UNIX-domain Socket是在Socket的基础上衍生出来的一种IPC通信机制，因此LocalSocket解决的是同一台主机上不同进程间互相通信的问题。
-> 其相对于网络通信使用的socket不需要经过网络协议栈，不需要打包拆包、计算校验，自然的执行效率也高。与大名鼎鼎的binder机制作用一样，都在Android系统中作为IPC通信手段被广泛使用。
-
+Android中的LocalSocket是基于UNIX-domain Socket的，UNIX-domain Socket是在Socket的基础上衍生出来的一种IPC通信机制，因此LocalSocket解决的是同一台主机上不同进程间互相通信的问题。
+其相对于网络通信使用的socket不需要经过网络协议栈，不需要打包拆包、计算校验，自然的执行效率也高。与大名鼎鼎的binder机制作用一样，都在Android系统中作为IPC通信手段被广泛使用。
 
 ## 调试命令
 
@@ -200,6 +199,20 @@ unix  3      [ ]         STREAM     CONNECTED      1880643 5283/adbd            
 
 ```
 
+## Android中的Socket IPC
 
+Socket通信方式也是C/S架构，比Binder简单很多。在Android系统中采用Socket通信方式的主要有：
 
+* zygote：用于孵化进程，system_server创建进程是通过socket向zygote进程发起请求
+* installd：用于安装App的守护进程，上层PackageManagerService很多实现最终都是交给它来完成
+* lmkd：lowmemorykiller的守护进程，Java层的LowMemoryKiller最终都是由lmkd来完成
+* adbd：这个也不用说，用于服务adb
+* logcatd:这个不用说，用于服务logcat
+* vold：即volume Daemon，是存储类的守护进程，用于负责如USB、Sdcard等存储设备的事件处理
+
+Socket方式更多的用于Android framework层与native层之间的通信
+
+### installd
+
+[Installd守护进程](http://gityuan.com/2016/11/13/android-installd/)
 
