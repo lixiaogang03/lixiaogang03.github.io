@@ -147,6 +147,52 @@ Socket通常翻译为套接字，它是为了方便让两台机器能互相通�
 Android中的LocalSocket是基于UNIX-domain Socket的，UNIX-domain Socket是在Socket的基础上衍生出来的一种IPC通信机制，因此LocalSocket解决的是同一台主机上不同进程间互相通信的问题。
 其相对于网络通信使用的socket不需要经过网络协议栈，不需要打包拆包、计算校验，自然的执行效率也高。与大名鼎鼎的binder机制作用一样，都在Android系统中作为IPC通信手段被广泛使用。
 
+
+### 服务端
+
+
+```java
+
+    /**
+     * Creates a new server socket listening at specified name.
+     * On the Android platform, the name is created in the Linux
+     * abstract namespace (instead of on the filesystem).
+     *
+     * @param name address for socket
+     * @throws IOException
+     */
+    public LocalServerSocket(String name) throws IOException
+    {
+        impl = new LocalSocketImpl();
+
+        impl.create(LocalSocket.SOCKET_STREAM);
+
+        localAddress = new LocalSocketAddress(name);
+        impl.bind(localAddress);
+
+        impl.listen(LISTEN_BACKLOG);
+    }
+
+    // 如上构造方法同时处理了bind和listen
+    LocalServerSocket serverSock = new LocalServerSocket("com.android.bluetooth.tests.sock");
+    LocalSocket acceptSock = serverSock.accept();
+
+    // 获取客户端的身份以便做权限控制
+    Credentials credentials = acceptSock.getPeerCredentials();
+    Log.d(TAG, "connect success: " + pm.getNameForUid(credentials.getUid()));
+
+```
+
+### 客户端
+
+```java
+
+    LocalSocket client = new LocalSocket();
+    LocalSocketAddress address = new LocalSocketAddress(SOCKET_NAME, LocalSocketAddress.Namespace.ABSTRACT);
+    client.connect(address);
+
+```
+
 ## 调试命令
 
 **netstat**
@@ -215,4 +261,42 @@ Socket方式更多的用于Android framework层与native层之间的通信
 ### installd
 
 [Installd守护进程](http://gityuan.com/2016/11/13/android-installd/)
+
+## 权限控制
+
+```java
+
+/**
+ * Socket implementation used for android.net.LocalSocket and
+ * android.net.LocalServerSocket. Supports only AF_LOCAL sockets.
+ */
+class LocalSocketImpl {
+
+    /**
+     * Retrieves the credentials of this socket's peer. Only valid on
+     * connected sockets.
+     *
+     * @return non-null; peer credentials
+     * @throws IOException
+     */
+    public Credentials getPeerCredentials() throws IOException {
+        return getPeerCredentials_native(fd);
+    }
+
+}
+
+/**
+ * A class for representing UNIX credentials passed via ancillary data
+ * on UNIX domain sockets. See "man 7 unix" on a desktop linux distro.
+ */
+public class Credentials {
+    /** pid of process. root peers may lie. */
+    private final int pid;
+    /** uid of process. root peers may lie. */
+    private final int uid;
+    /** gid of process. root peers may lie. */
+    private final int gid;
+}
+
+```
 
