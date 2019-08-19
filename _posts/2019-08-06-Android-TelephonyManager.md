@@ -14,6 +14,27 @@ tags:
 
 [TelephonyManager-developer](https://developer.android.google.cn/reference/android/telephony/TelephonyManager)
 
+
+## 架构图
+
+![TelephonyRegistry](/images/phone_architecture.png)
+
+## TelephonyTesgistry
+
+TelephonyTesgistry 实现手机无线电信息集中管理和通知，通过回调或广播的形式通知应用等如下信息：
+
+1. 手机无线电信号状态
+2. 手机无线电信号强度
+3. 手机通话状态
+4. 基站位置
+5. 数据连接状态
+6. 基站信息
+7. 基站变化
+8. 呼叫转移变化
+9. OTASP变化
+10. 等等
+
+
 ## dumpsys telephony.registry
 
 ![TelephonyRegistry](/images/telephony_registry.png)
