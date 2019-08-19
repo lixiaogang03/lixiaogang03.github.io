@@ -53,3 +53,176 @@ public class SubscriptionInfo implements Parcelable {
 }
 
 ```
+
+### SubscriptionManager
+
+```java
+
+//frameworks/base/telephony/java/android/telephony/SubscriptionManager.java
+
+/**
+ * SubscriptionManager is the application interface to SubscriptionController
+ * and provides information about the current Telephony Subscriptions.
+ * * <p>
+ * You do not instantiate this class directly; instead, you retrieve
+ * a reference to an instance through {@link #from}.
+ * <p>
+ * All SDK public methods require android.Manifest.permission.READ_PHONE_STATE.
+ */
+public class SubscriptionManager {
+
+
+    /**
+     * Get an instance of the SubscriptionManager from the Context.
+     * This invokes {@link android.content.Context#getSystemService
+     * Context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE)}.
+     *
+     * @param context to use.
+     * @return SubscriptionManager instance
+     */
+    public static SubscriptionManager from(Context context) {
+        return (SubscriptionManager) context.getSystemService(
+                Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+    }
+
+
+    public List<SubscriptionInfo> getActiveSubscriptionInfoList() {
+        List<SubscriptionInfo> result = null;
+
+        try {
+            ISub iSub = ISub.Stub.asInterface(ServiceManager.getService("isub"));
+            if (iSub != null) {
+                result = iSub.getActiveSubscriptionInfoList(mContext.getOpPackageName());
+            }
+        } catch (RemoteException ex) {
+            // ignore it
+        }
+        return result;
+    }
+
+}
+
+### SubscriptionController---dumpsys isub
+
+SubscriptionController 即SIM卡信息控制器，用Subscription的描述方式来自3GPP协议，SIM卡可被描述为Subscriber
+SubscriptionController 作为控制器，所以它所担负的责任是 SIM 卡信息的中转和管理工作
+
+```java
+
+// frameworks/opt/telephony/src/java/com/android/internal/telephony/SubscriptionController.java
+
+/**
+ *
+ * SubscriptionController to provide an inter-process communication to
+ * access Sms in Icc.
+ *
+ */
+public class SubscriptionController extends ISub.Stub {
+
+    @Override
+    public void dump(FileDescriptor fd, PrintWriter pw, String[] args) {
+        mContext.enforceCallingOrSelfPermission(android.Manifest.permission.DUMP,
+                "Requires DUMP");
+        final long token = Binder.clearCallingIdentity();
+        try {
+            pw.println("SubscriptionController:");
+            pw.println(" defaultSubId=" + getDefaultSubId());
+            pw.println(" defaultDataSubId=" + getDefaultDataSubId());
+            pw.println(" defaultVoiceSubId=" + getDefaultVoiceSubId());
+            pw.println(" defaultSmsSubId=" + getDefaultSmsSubId());
+
+            pw.println(" defaultDataPhoneId=" + SubscriptionManager
+                    .from(mContext).getDefaultDataPhoneId());
+            pw.println(" defaultVoicePhoneId=" + SubscriptionManager.getDefaultVoicePhoneId());
+            pw.println(" defaultSmsPhoneId=" + SubscriptionManager
+                    .from(mContext).getDefaultSmsPhoneId());
+            pw.flush();
+
+            for (Entry<Integer, Integer> entry : sSlotIdxToSubId.entrySet()) {
+                pw.println(" sSlotIdxToSubId[" + entry.getKey() + "]: subId=" + entry.getValue());
+            }
+            pw.flush();
+            pw.println("++++++++++++++++++++++++++++++++");
+
+            List<SubscriptionInfo> sirl = getActiveSubscriptionInfoList(
+                    mContext.getOpPackageName());
+            if (sirl != null) {
+                pw.println(" ActiveSubInfoList:");
+                for (SubscriptionInfo entry : sirl) {
+                    pw.println("  " + entry.toString());
+                }
+            } else {
+                pw.println(" ActiveSubInfoList: is null");
+            }
+            pw.flush();
+            pw.println("++++++++++++++++++++++++++++++++");
+
+            sirl = getAllSubInfoList(mContext.getOpPackageName());
+            if (sirl != null) {
+                pw.println(" AllSubInfoList:");
+                for (SubscriptionInfo entry : sirl) {
+                    pw.println("  " + entry.toString());
+                }
+            } else {
+                pw.println(" AllSubInfoList: is null");
+            }
+            pw.flush();
+            pw.println("++++++++++++++++++++++++++++++++");
+
+            mLocalLog.dump(fd, pw, args);
+            pw.flush();
+            pw.println("++++++++++++++++++++++++++++++++");
+            pw.flush();
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
+    }
+
+}
+
+```
+
+### 新SIM卡插入
+
+当有一张新的SIM卡插入到手机，手机检测到有SIM卡插入，就会发起SIM卡数据的查询，UiccController将查询得到的数据，传递到SubscriptionController
+
+![SIM_INFO](/images/sim_update.png)
+
+### ICCID IMSI
+
+IMSI：国际移动用户识别码，是区别移动用户的标识，储存在SIM卡中，可用于区别移动用户的有效信息，通过IMSI可反查运营商、归属地、手机号码等信息，在接入网络时会到运营商服务器中进行验证。
+格式：15位0-9的数字
+ICCID：SIM卡卡号，是卡的标识，不作接入网络的鉴权认证，可在SIM卡卡后查询到。
+格式：大多为19或20位0-9的数字，亦存在6位/12位的情况
+
+08-19 16:32:34.158  1811  1811 D SIMRecords: [SIMRecords] iccid: 898602b82[RhoJ8pQ8XHgBIyMLaFh7JyZ0ARk]
+
+08-19 17:04:10.952  2012  2012 D SIMRecords: [SIMRecords] iccid: 89860447161890301251
+
+### UICC
+
+UICC，全称 Universal Integrated Circuit Card，译作通用集成电路卡，主要用于
+
+1. 存储用户信息
+2. 鉴权密钥
+3. 短消
+4. 付费方式
+5. 联系人等信息
+
+在UICC中可以包括多种逻辑模块，如：
+
+1. 用户标识模块（Subscriber Identity Module，SIM）
+2. 通用用户标识模块（Universal Subscriber Identity Module，USIM）
+3. IP多媒体业务标识模块（IP Multi Media Service Identity Module，ISIM）
+4. 智能IC卡模块（Removable User Identity Module，RUIM（UIM））
+5. 特殊RUIM（CSIM）
+
+以上模块，实际上是网络升级换代所对应的产物。SIM用于GSM网络系统中，俗称2G网络。USIM也叫升级版SIM，多用于3G网络系统中。ISIM则是4G时代的产物。RUIM、CSIM是CDMA网络系统中的技术。
+
+
+
+
+
+
+
+
