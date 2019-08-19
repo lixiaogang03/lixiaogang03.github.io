@@ -102,6 +102,8 @@ public class SubscriptionManager {
 
 }
 
+```
+
 ### SubscriptionController---dumpsys isub
 
 SubscriptionController 即SIM卡信息控制器，用Subscription的描述方式来自3GPP协议，SIM卡可被描述为Subscriber
@@ -198,6 +200,32 @@ ICCID：SIM卡卡号，是卡的标识，不作接入网络的鉴权认证，可
 08-19 16:32:34.158  1811  1811 D SIMRecords: [SIMRecords] iccid: 898602b82[RhoJ8pQ8XHgBIyMLaFh7JyZ0ARk]
 
 08-19 17:04:10.952  2012  2012 D SIMRecords: [SIMRecords] iccid: 89860447161890301251
+
+```java
+
+public abstract class IccRecords extends Handler implements IccConstants {
+
+    /**
+     * Returns the ICC ID stripped at the first hex character. Some SIMs have ICC IDs
+     * containing hex digits; {@link #getFullIccId()} should be used to get the full ID including
+     * hex digits.
+     * @return ICC ID without hex digits
+     */
+    public String getIccId() {
+        return mIccId;
+    }
+
+    /**
+     * Returns the full ICC ID including hex digits.
+     * @return full ICC ID including hex digits
+     */
+    public String getFullIccId() {
+        return mFullIccId;
+    }
+
+}
+
+```
 
 ### UICC
 
