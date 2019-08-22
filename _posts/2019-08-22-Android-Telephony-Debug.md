@@ -11,6 +11,8 @@ tags:
     - debug
 ---
 
+[adb_command](https://github.com/mzlogin/awesome-adb/blob/master/README.md)
+
 ## dumpsys
 
 ### dumpsys isub
@@ -76,7 +78,32 @@ registrations: count=28
 
 ### dumpsys netstats
 
+1. set=DEFAULT 表示前台的网络使用, set=BACKGROUND 表示后台的网络使用. set=ALL 意味着前台和后台都有
+2. brxBytes 和 rxPackets 表示接收到的字节和数据包的数量.
+3. txBytes 和 txPackets 表示发送的字节和数据包的数量.
 
+```txt
+
+Active interfaces:
+  iface=ccmni0 ident=[{type=MOBILE, subType=COMBINED, subscriberId=460040..., metered=true}]
+Active UID interfaces:
+  iface=ccmni0 ident=[{type=MOBILE, subType=COMBINED, subscriberId=460040..., metered=true}]
+Dev stats:
+  Pending bytes: 1636215
+  History since boot:
+  ident=[{type=MOBILE, subType=COMBINED, subscriberId=460040..., metered=true}] uid=-1 set=ALL tag=0x0
+    NetworkStatsHistory: bucketDuration=3600
+      st=1566468000 rb=3960169 rp=3941 tb=660653 tp=2820 op=0
+      st=1566471600 rb=1283266 rp=1249 tb=236203 tp=797 op=0
+Xt stats:
+  Pending bytes: 1612775
+  History since boot:
+  ident=[{type=MOBILE, subType=COMBINED, subscriberId=460040..., metered=true}] uid=-1 set=ALL tag=0x0
+    NetworkStatsHistory: bucketDuration=3600
+      st=1566468000 rb=3890874 rp=2215 tb=660653 tp=2820 op=0
+      st=1566471600 rb=1260377 rp=677 tb=236203 tp=797 op=0
+
+```
 
 
 
