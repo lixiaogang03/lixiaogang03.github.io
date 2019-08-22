@@ -45,3 +45,38 @@ SubscriptionController:
 
 ```
 
+### dumpsys telephony.registry
+
+```txt
+
+last known state:
+  Phone Id=0
+  mCallState=0
+  mCallIncomingNumber=
+  mServiceState=0 0 voice home data home 树米eSIM 树米eSIM 46000 树米eSIM 树米eSIM 46000  LTE LTE CSS not supported -1 -1 RoamInd=-1 DefRoamInd=-1 EmergOnly=false IsDataRoamingFromRegistration=false IsUsingCarrierAggregation=false mRilImsRadioTechnology=0
+  mSignalStrength=SignalStrength: 99 0 -120 -160 -120 -1 -1 26 -87 -7 262 2147483647 2147483647 gsm|lte
+  mMessageWaiting=false
+  mCallForwarding=false
+  mDataActivity=0
+  mDataConnectionState=0
+  mDataConnectionPossible=true
+  mDataConnectionReason=nwTypeChanged
+  mDataConnectionApn=
+  mDataConnectionLinkProperties=null
+  mDataConnectionNetworkCapabilities=null
+  mCellLocation=Bundle[mParcelledData.dataSize=64]
+  mCellInfo=null
+registrations: count=28
+  {callingPackage=com.android.systemui binder=android.os.BinderProxy@22c266e callback=null onSubscriptionsChangedListenererCallback=com.android.internal.telephony.IOnSubscriptionsChangedListener$Stub$Proxy@796110f callerUserId=0 subId=-1 phoneId=-1 events=0 canReadPhoneState=true}
+  {callingPackage=android binder=android.telephony.SubscriptionManager$OnSubscriptionsChangedListener$2@4b2059c callback=null onSubscriptionsChangedListenererCallback=android.telephony.SubscriptionManager$OnSubscriptionsChangedListener$2@4b2059c callerUserId=0 subId=-1 phoneId=-1 events=0 canReadPhoneState=true}
+  {callingPackage=android binder=android.telephony.SubscriptionManager$OnSubscriptionsChangedListener$2@2a1ba5 callback=null onSubscriptionsChangedListenererCallback=android.telephony.SubscriptionManager$OnSubscriptionsChangedListener$2@2a1ba5 callerUserId=0 subId=-1 phoneId=-1 events=0 canReadPhoneState=true}
+  {callingPackage=com.quicinc.cne.CNEService binder=android.os.BinderProxy@cf83b7a callback=null onSubscriptionsChangedListenererCallback=com.android.internal.telephony.IOnSubscriptionsChangedListener$Stub$Proxy@22caf2b callerUserId=0 subId=-1 phoneId=-1 events=0 canReadPhoneState=true}
+
+```
+
+### dumpsys netstats
+
+
+
+
+
