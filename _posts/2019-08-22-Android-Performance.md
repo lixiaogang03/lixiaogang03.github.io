@@ -2,7 +2,7 @@
 layout:     post
 title:      Android Performance Optimization
 subtitle:   ROM
-date:       2020-11-11
+date:       2019-08-22
 author:     LXG
 header-img: img/post-bg-perfomance.jpg
 catalog: true
