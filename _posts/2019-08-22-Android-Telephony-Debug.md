@@ -105,5 +105,144 @@ Xt stats:
 
 ```
 
+### dumpsys netpolicy
+
+```txt
+
+System ready: true
+Restrict background: false
+Restrict power: false
+Device idle: false
+Network policies:
+  NetworkPolicy[NetworkTemplate: matchRule=MOBILE_ALL, subscriberId=460040..., matchSubscriberIds=[460040...]]: cycleDay=22, cycleTimezone=Asia/Shanghai, warningBytes=2147483648, limitBytes=-1, lastWarningSnooze=-1, lastLimitSnooze=-1, metered=true, inferred=true
+  NetworkPolicy[NetworkTemplate: matchRule=MOBILE_ALL, subscriberId=460040..., matchSubscriberIds=[460040...]]: cycleDay=22, cycleTimezone=Asia/Shanghai, warningBytes=2147483648, limitBytes=5368709120, lastWarningSnooze=-1, lastLimitSnooze=-1, metered=true, inferred=false
+Metered ifaces: {ccmni0}
+Policy for UIDs:
+  UID=10063 policy=REJECT_METERED_BACKGROUND
+  UID=10080 policy=REJECT_METERED_BACKGROUND
+Power save whitelist (except idle) app ids:
+  UID=10008: true
+  UID=10021: true
+Power save whitelist app ids:
+  UID=10008: true
+  UID=10021: true
+Restrict background whitelist uids:
+  UID=10008
+  UID=10021
+Default restrict background whitelist uids:
+  UID=10008
+  UID=10021
+Status for all known UIDs:
+  UID=1001 state=0 (fg) rules=0 (NONE)
+  UID=10006 state=6 (bg) rules=0 (NONE)
+  UID=10008 state=16 (bg) rules=0 (NONE)
+  UID=10011 state=3 (fg svc) rules=0 (NONE)
+  UID=10019 state=0 (fg) rules=0 (NONE)
+  UID=10020 state=0 (fg) rules=0 (NONE)
+  UID=10021 state=0 (fg) rules=1 (ALLOW_METERED)
+  UID=10051 state=10 (bg) rules=0 (NONE)
+  UID=10053 state=0 (fg) rules=0 (NONE)
+  UID=10054 state=10 (bg) rules=0 (NONE)
+  UID=10056 state=12 (bg) rules=0 (NONE)
+  UID=10057 state=10 (bg) rules=0 (NONE)
+  UID=10058 state=10 (bg) rules=0 (NONE)
+  UID=10059 state=10 (bg) rules=0 (NONE)
+  UID=10061 state=6 (bg) rules=0 (NONE)
+  UID=10063 state=10 (bg) rules=4 (REJECT_METERED)
+  UID=10066 state=10 (bg) rules=0 (NONE)
+  UID=10067 state=7 (bg) rules=0 (NONE)
+  UID=10078 state=16 (bg) rules=64 (REJECT_ALL)
+  UID=10079 state=16 (bg) rules=64 (REJECT_ALL)
+  UID=10080 state=16 (bg) rules=4 (REJECT_METERED)
+Status for just UIDs with rules:
+  UID=10021 rules=1 (ALLOW_METERED)
+  UID=10063 rules=4 (REJECT_METERED)
+  UID=10078 rules=64 (REJECT_ALL)
+  UID=10079 rules=64 (REJECT_ALL)
+  UID=10080 rules=4 (REJECT_METERED)
+
+```
+
+### cmd netpolicy
+
+```txt
+
+Network policy manager (netpolicy) commands:
+  help
+    Print this help text.
+
+  add restrict-background-whitelist UID
+    Adds a UID to the whitelist for restrict background usage.
+  add restrict-background-blacklist UID
+    Adds a UID to the blacklist for restrict background usage.
+  get restrict-background
+    Gets the global restrict background usage status.
+  list wifi-networks [BOOLEAN]
+    Lists all saved wifi networks and whether they are metered or not.
+    If a boolean argument is passed, filters just the metered (or unmetered)
+    networks.
+  list restrict-background-whitelist
+    Lists UIDs that are whitelisted for restrict background usage.
+  list restrict-background-blacklist
+    Lists UIDs that are blacklisted for restrict background usage.
+  remove restrict-background-whitelist UID
+    Removes a UID from the whitelist for restrict background usage.
+  remove restrict-background-blacklist UID
+    Removes a UID from the blacklist for restrict background usage.
+  set metered-network ID BOOLEAN
+    Toggles whether the given wi-fi network is metered.
+  set restrict-background BOOLEAN
+    Sets the global restrict background usage status.
+
+```
+
+### dumpsys network_management
+
+```txt
+
+NetworkManagementService NativeDaemonConnector Log:
+08-22 19:00:26.199 - SND -> {53 bandwidth setglobalalert 2097152}
+08-22 19:00:26.204 - RCV <- {200 53 Bandwidth command succeeeded}
+08-22 19:00:26.204 - RMV <- {200 53 Bandwidth command succeeeded}
+08-22 19:00:36.089 - RCV <- {613 IfaceClass idle 0 1891045252533}
+08-22 19:01:43.440 - RCV <- {613 IfaceClass active 0 1958396019384 10066}
+08-22 19:01:53.489 - RCV <- {613 IfaceClass idle 0 1968445164769}
+08-22 19:03:02.889 - RCV <- {613 IfaceClass active 0 2037844982619 10066}
+08-22 19:03:13.089 - RCV <- {613 IfaceClass idle 0 2048045143927}
+08-22 19:04:15.298 - RCV <- {613 IfaceClass active 0 2110251846777 10066}
+08-22 19:04:25.489 - RCV <- {613 IfaceClass idle 0 2120445168932}
+08-22 19:04:33.802 - RCV <- {613 IfaceClass active 0 2128757286548 10066}
+08-22 19:04:53.032 - RCV <- {613 IfaceClass idle 0 2147988346780}
+08-22 19:04:55.549 - RCV <- {613 IfaceClass active 0 2150505004318 10051}
+08-22 19:06:27.369 - SND -> {54 network permission user set SYSTEM 10081}
+08-22 19:06:27.370 - RCV <- {200 54 success}
+08-22 19:06:27.371 - RMV <- {200 54 success}
+08-22 19:06:27.672 - SND -> {55 bandwidth gettetherstats}
+
+Pending requests:
+
+Bandwidth control enabled: true
+mMobileActivityFromRadio=true mLastPowerStateFromRadio=1
+mNetworkActive=false
+Active quota ifaces: {ccmni0=5362625187}
+Active alert ifaces: {}
+Data saver mode: false
+UID bandwith control blacklist rule: [10063,10080]
+UID bandwith control whitelist rule: [10008,10021]
+UID firewall  rule: []
+UID firewall standby chain enabled: false
+UID firewall standby rule: []
+UID firewall dozable chain enabled: false
+UID firewall dozable rule: []
+UID firewall powersave chain enabled: false
+UID firewall powersave rule: []
+Idle timers:
+  ccmni0:
+    timeout=10 type=0 networkCount=1
+Firewall enabled: false
+Netd service status: alive
+
+```
+
 
 
