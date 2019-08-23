@@ -221,7 +221,24 @@ public class NetworkPolicyManagerService extends INetworkPolicyManager.Stub {
 
 ```
 
+### dumpsys netpolicy --- data/system/netpolicy.xml
 
+```xml
+
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<policy-list version="10" restrictBackground="false">
+<network-policy networkTemplate="1" subscriberId="460110137747172" cycleDay="20" cycleTimezone="Asia/Shanghai" warningBytes="2147483648" limitBytes="-1" lastWarningSnooze="-1" lastLimitSnooze="-1" metered="true" inferred="true" />
+<network-policy networkTemplate="1" subscriberId="460040239900971" cycleDay="20" cycleTimezone="Asia/Shanghai" warningBytes="2147483648" limitBytes="-1" lastWarningSnooze="-1" lastLimitSnooze="-1" metered="true" inferred="true" />
+<network-policy networkTemplate="1" cycleDay="20" cycleTimezone="Asia/Shanghai" warningBytes="2147483648" limitBytes="-1" lastWarningSnooze="-1" lastLimitSnooze="-1" metered="true" inferred="true" />
+<network-policy networkTemplate="1" subscriberId="460040834361206" cycleDay="20" cycleTimezone="Asia/Shanghai" warningBytes="2147483648" limitBytes="-1" lastWarningSnooze="-1" lastLimitSnooze="-1" metered="true" inferred="true" />
+</policy-list>
+<whitelist>
+<restrict-background uid="10008" />
+<restrict-background uid="10027" />
+<restrict-background uid="10091" />
+</whitelist>
+
+```
 
 
 
