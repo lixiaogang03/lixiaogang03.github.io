@@ -44,6 +44,25 @@ Netd位于Framework层和Kernel层之间，它是Android系统中网络相关消
 3. 若该数据包应该被转发，则它将被钩子函数FORWARD处理，然后还要经钩子函数POST_ROUTING处理后才能传输到网络
 4. 本机进程产生的数据包要先经过钩子函数LOCAL_OUT处理后，再进行路由选择处理，然后经过钩子函数POST_ROUTING处理后再发送到网络
 
-![iptables_principle](images/iptables_principle.png)
+![iptables_principle](/images/iptables_principle.png)
+
+### 规则
+
+![iptables_rule](/images/iptables_rule.png)
+
+### iptables 命令格式
+
+![iptables_rule_format](/images/iptables_rule_format.png)
+
+添加一条规则
+
+> iptables -A INPUT -p icmp -s 10.24.67.97 -j DROP       //drop掉源为10.24.67.97的icmp报文
+
+删除一条规则
+
+> iptables -D INPUT -p icmp -s 10.24.67.97 -j DROP
+
+
+
 
 
