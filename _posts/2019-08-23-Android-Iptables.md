@@ -54,13 +54,173 @@ Netd位于Framework层和Kernel层之间，它是Android系统中网络相关消
 
 ![iptables_rule_format](/images/iptables_rule_format.png)
 
-添加一条规则
+添加一条规则: drop掉源为10.24.67.97的icmp报文
 
-> iptables -A INPUT -p icmp -s 10.24.67.97 -j DROP       //drop掉源为10.24.67.97的icmp报文
+> iptables -A INPUT -p icmp -s 10.24.67.97 -j DROP
 
 删除一条规则
 
 > iptables -D INPUT -p icmp -s 10.24.67.97 -j DROP
+
+### android iptables -h
+
+```txt
+
+V2:/ $ iptables -h
+
+iptables v1.4.20
+
+Usage: iptables -[ACD] chain rule-specification [options]
+       iptables -I chain [rulenum] rule-specification [options]
+       iptables -R chain rulenum rule-specification [options]
+       iptables -D chain rulenum [options]
+       iptables -[LS] [chain [rulenum]] [options]
+       iptables -[FZ] [chain] [options]
+       iptables -[NX] chain
+       iptables -E old-chain-name new-chain-name
+       iptables -P chain target [options]
+       iptables -h (print this help information)
+
+Commands:
+Either long or short options are allowed.
+  --append  -A chain		Append to chain
+  --check   -C chain		Check for the existence of a rule
+  --delete  -D chain		Delete matching rule from chain
+  --delete  -D chain rulenum
+				Delete rule rulenum (1 = first) from chain
+  --insert  -I chain [rulenum]
+				Insert in chain as rulenum (default 1=first)
+  --replace -R chain rulenum
+				Replace rule rulenum (1 = first) in chain
+  --list    -L [chain [rulenum]]
+				List the rules in a chain or all chains
+  --list-rules -S [chain [rulenum]]
+				Print the rules in a chain or all chains
+  --flush   -F [chain]		Delete all rules in  chain or all chains
+  --zero    -Z [chain [rulenum]]
+				Zero counters in chain or all chains
+  --new     -N chain		Create a new user-defined chain
+  --delete-chain
+            -X [chain]		Delete a user-defined chain
+  --policy  -P chain target
+				Change policy on chain to target
+  --rename-chain
+            -E old-chain new-chain
+				Change chain name, (moving any references)
+Options:
+    --ipv4	-4		Nothing (line is ignored by ip6tables-restore)
+    --ipv6	-6		Error (line is ignored by iptables-restore)
+[!] --protocol	-p proto	protocol: by number or name, eg. `tcp'
+[!] --source	-s address[/mask][...]
+				source specification
+[!] --destination -d address[/mask][...]
+				destination specification
+[!] --in-interface -i input name[+]
+				network interface name ([+] for wildcard)
+ --jump	-j target
+				target for rule (may load target extension)
+  --goto      -g chain
+                              jump to chain with no return
+  --match	-m match
+				extended match (may load extension)
+  --numeric	-n		numeric output of addresses and ports
+[!] --out-interface -o output name[+]
+				network interface name ([+] for wildcard)
+  --table	-t table	table to manipulate (default: `filter')
+  --verbose	-v		verbose mode
+  --wait	-w		wait for the xtables lock
+  --line-numbers		print line numbers when listing
+  --exact	-x		expand numbers (display exact values)
+[!] --fragment	-f		match second or further fragments only
+  --modprobe=<command>		try to insert modules using this command
+  --set-counters PKTS BYTES	set the counter during insert/append
+[!] --version	-V		print package version.
+
+```
+
+### Framework Interface
+
+NPMS是网络策略管理服务。收费网络（Metered Network）判定和处理策略；Power Save/Device Idle情况下对APP的网络限制策略，这些策略一般指对APP的网络和限制和放行，通过netfilter来实现
+
+```java
+
+/**
+ * Service that maintains low-level network policy rules, using
+ * {@link NetworkStatsService} statistics to drive those rules.
+ * <p>
+ * Derives active rules by combining a given policy with other system status,
+ * and delivers to listeners, such as {@link ConnectivityManager}, for
+ * enforcement.
+ *
+ * <p>
+ * This class uses 2-3 locks to synchronize state:
+ * <ul>
+ * <li>{@code mUidRulesFirstLock}: used to guard state related to individual UIDs (such as firewall
+ * rules).
+ * <li>{@code mNetworkPoliciesSecondLock}: used to guard state related to network interfaces (such
+ * as network policies).
+ * <li>{@code allLocks}: not a "real" lock, but an indication (through @GuardedBy) that all locks
+ * must be held.
+ * </ul>
+ *
+ * <p>
+ * As such, methods that require synchronization have the following prefixes:
+ * <ul>
+ * <li>{@code UL()}: require the "UID" lock ({@code mUidRulesFirstLock}).
+ * <li>{@code NL()}: require the "Network" lock ({@code mNetworkPoliciesSecondLock}).
+ * <li>{@code AL()}: require all locks, which must be obtained in order ({@code mUidRulesFirstLock}
+ * first, then {@code mNetworkPoliciesSecondLock}, then {@code mYetAnotherGuardThirdLock}, etc..
+ * </ul>
+ */
+public class NetworkPolicyManagerService extends INetworkPolicyManager.Stub {
+
+    static final String TAG = "NetworkPolicy";
+
+    @Override
+    public void setUidPolicy(int uid, int policy) {
+        mContext.enforceCallingOrSelfPermission(MANAGE_NETWORK_POLICY, TAG);
+
+        if (!UserHandle.isApp(uid)) {
+            throw new IllegalArgumentException("cannot apply policy to UID " + uid);
+        }
+        synchronized (mUidRulesFirstLock) {
+            final long token = Binder.clearCallingIdentity();
+            try {
+                final int oldPolicy = mUidPolicy.get(uid, POLICY_NONE);
+                if (oldPolicy != policy) {
+                    setUidPolicyUncheckedUL(uid, oldPolicy, policy, true);
+                }
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        }
+    }
+
+    @Override
+    public void setNetworkPolicies(NetworkPolicy[] policies) {
+        mContext.enforceCallingOrSelfPermission(MANAGE_NETWORK_POLICY, TAG);
+
+        final long token = Binder.clearCallingIdentity();
+        try {
+            maybeRefreshTrustedTime();
+            synchronized (mUidRulesFirstLock) {
+                synchronized (mNetworkPoliciesSecondLock) {
+                    normalizePoliciesNL(policies);
+                    updateNetworkEnabledNL();
+                    updateNetworkRulesNL();
+                    updateNotificationsNL();
+                    writePolicyAL();
+                }
+            }
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
+    }
+
+}
+
+```
+
 
 
 
