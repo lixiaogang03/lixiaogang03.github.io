@@ -13,7 +13,21 @@ tags:
 
 [linux网络基础知识-简书](https://www.jianshu.com/p/47baebc39923)
 
-### 架构
+### Linux 网络协议栈
+
+![linux_network](/images/linux_network.jpg)
+
+### Socket
+
+应用层的各种网络应用程序基本上都是通过 Linux Socket 编程接口来和内核空间的网络协议栈通信的。
+Linux Socket 是从 BSD Socket 发展而来的，它是 Linux 操作系统的重要组成部分之一，它是网络应用程序的基础。
+从层次上来说，它位于应用层，是操作系统为应用程序员提供的 API，通过它，应用程序可以访问传输层协议
+
+1. socket 位于传输层协议之上，屏蔽了不同网络协议之间的差异
+2. socket 是网络编程的入口，它提供了大量的系统调用，构成了网络程序的主体
+3. 在Linux系统中，socket 属于文件系统的一部分，网络通信可以被看作是对文件的读取，使得我们对网络的控制和对文件的控制一样方便
+
+### iptables 架构
 
 1. 由iptables客户端调用命令来配置管理防火墙，最后相关请求发送到内核模块；内核模块用于组织iptables使用的表、链和规则。
 2. iptables依赖netfilter来注册各种hooks实现对数据包的具体转发逻辑控制
