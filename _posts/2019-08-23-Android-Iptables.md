@@ -15,14 +15,12 @@ tags:
 
 ### 架构
 
-![linux_iptables](/images/linux_iptables.png)
-
 1. 由iptables客户端调用命令来配置管理防火墙，最后相关请求发送到内核模块；内核模块用于组织iptables使用的表、链和规则。
 2. iptables依赖netfilter来注册各种hooks实现对数据包的具体转发逻辑控制
 
-### netd
+![linux_iptables](/images/linux_iptables.png)
 
-![android_netd](/images/android_netd.png)
+### Iptable Setting
 
 Netd是Android系统中专门负责网络管理和控制的后台daemon程序，其功能主要分三大块：
 
@@ -37,5 +35,15 @@ Netd的工作流程和Vold类似，其工作可分成两部分:
 
 Netd位于Framework层和Kernel层之间，它是Android系统中网络相关消息和命令转发及处理的中枢模块
 
+![android_netd](/images/android_netd.png)
+
+### 工作原理
+
+1. 数据包从左边进入IP协议栈，进行IP校验以后，数据包被第一个钩子函数PRE_ROUTING处理，然后就进入路由模块，由其决定该数据包是转发出去还是送给本机
+2. 若该数据包是送给本机的，则要经过钩子函数LOCAL_IN处理后传递给本机的上层协议
+3. 若该数据包应该被转发，则它将被钩子函数FORWARD处理，然后还要经钩子函数POST_ROUTING处理后才能传输到网络
+4. 本机进程产生的数据包要先经过钩子函数LOCAL_OUT处理后，再进行路由选择处理，然后经过钩子函数POST_ROUTING处理后再发送到网络
+
+![iptables_principle](images/iptables_principle.png)
 
 
