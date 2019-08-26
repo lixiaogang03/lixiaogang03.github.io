@@ -11,6 +11,8 @@ tags:
     - NetworkStatsService
 ---
 
+[Android性能测试之网络流量-简书](https://www.jianshu.com/p/47e2f4540f29)
+
 ### NetworkTemplate
 
 ```java
@@ -92,7 +94,23 @@ public class NetworkPolicy implements Parcelable, Comparable<NetworkPolicy> {
  */
 public class NetworkStatsHistory implements Parcelable {
 
+    /** Path to {@code /proc/net/xt_qtaguid/iface_stat_all}. */
+    private final File mStatsXtIfaceAll;
+    /** Path to {@code /proc/net/xt_qtaguid/iface_stat_fmt}. */
+    private final File mStatsXtIfaceFmt;
+    /** Path to {@code /proc/net/xt_qtaguid/stats}. */
+    private final File mStatsXtUid;
 
+    public NetworkStatsFactory() {
+        this(new File("/proc/"));
+    }
+
+    @VisibleForTesting
+    public NetworkStatsFactory(File procRoot) {
+        mStatsXtIfaceAll = new File(procRoot, "net/xt_qtaguid/iface_stat_all");
+        mStatsXtIfaceFmt = new File(procRoot, "net/xt_qtaguid/iface_stat_fmt");
+        mStatsXtUid = new File(procRoot, "net/xt_qtaguid/stats");
+    }
 
 }
 
@@ -298,3 +316,18 @@ public class NetworkStatsCollection implements FileRotator.Reader {
 }
 
 ```
+
+### proc/net/xt_qtaguid/stats
+
+```txt
+
+L2K:/ $ cat proc/net/xt_qtaguid/stats | grep 10027
+idx iface acct_tag_hex uid_tag_int cnt_set rx_bytes rx_packets tx_bytes tx_packets rx_tcp_bytes rx_tcp_packets rx_udp_bytes rx_udp_packets rx_other_bytes rx_other_packets tx_tcp_bytes tx_tcp_packets tx_udp_bytes tx_udp_packets tx_other_bytes tx_other_packets
+10 rmnet_data0 0x0 10027 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+11 rmnet_data0 0x0 10027 1 451662 2320 1193948 3888 451662 2320 0 0 0 0 1193948 3888 0 0 0 0
+40 wlan0 0x0 10027 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+41 wlan0 0x0 10027 1 38829 166 77083 208 38829 166 0 0 0 0 77083 208 0 0 0 0
+
+```
+
+
