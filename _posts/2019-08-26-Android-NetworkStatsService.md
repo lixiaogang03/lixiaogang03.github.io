@@ -244,3 +244,57 @@ public class NetworkPolicyManagerService extends INetworkPolicyManager.Stub {
 }
 
 ```
+
+### NetworkStatsCollection
+
+```java
+
+/**
+ * Collection of {@link NetworkStatsHistory}, stored based on combined key of
+ * {@link NetworkIdentitySet}, UID, set, and tag. Knows how to persist itself.
+ */
+public class NetworkStatsCollection implements FileRotator.Reader {
+
+    /**
+     * Combine all {@link NetworkStatsHistory} in this collection which match
+     * the requested parameters.
+     */
+    public NetworkStatsHistory getHistory(
+            NetworkTemplate template, int uid, int set, int tag, int fields,
+            @NetworkStatsAccess.Level int accessLevel) {
+        return getHistory(template, uid, set, tag, fields, Long.MIN_VALUE, Long.MAX_VALUE,
+                accessLevel);
+    }
+
+    /**
+     * Combine all {@link NetworkStatsHistory} in this collection which match
+     * the requested parameters.
+     */
+    public NetworkStatsHistory getHistory(
+            NetworkTemplate template, int uid, int set, int tag, int fields, long start, long end,
+            @NetworkStatsAccess.Level int accessLevel, int callerUid) {
+        if (!NetworkStatsAccess.isAccessibleToUser(uid, callerUid, accessLevel)) {
+            throw new SecurityException("Network stats history of uid " + uid
+                    + " is forbidden for caller " + callerUid);
+        }
+
+        final NetworkStatsHistory combined = new NetworkStatsHistory(
+                mBucketDuration, start == end ? 1 : estimateBuckets(), fields);
+
+        // shortcut when we know stats will be empty
+        if (start == end) return combined;
+
+        for (int i = 0; i < mStats.size(); i++) {
+            final Key key = mStats.keyAt(i);
+            if (key.uid == uid && NetworkStats.setMatches(set, key.set) && key.tag == tag
+                    && templateMatches(template, key.ident)) {
+                final NetworkStatsHistory value = mStats.valueAt(i);
+                combined.recordHistory(value, start, end);
+            }
+        }
+        return combined;
+    }
+
+}
+
+```
