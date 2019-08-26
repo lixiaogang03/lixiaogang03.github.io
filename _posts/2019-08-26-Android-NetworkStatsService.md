@@ -11,9 +11,7 @@ tags:
     - NetworkStatsService
 ---
 
-## Mobile Network
-
-### App
+### NetworkTemplate
 
 ```java
 
@@ -38,7 +36,69 @@ public class NetworkTemplate implements Parcelable {
 
 ```
 
-### Framework
+### NetworkPolicyManager
+
+```java
+
+/**
+ * Manager for creating and modifying network policy rules.
+ *
+ * {@hide}
+ */
+public class NetworkPolicyManager {
+
+    public NetworkPolicy[] getNetworkPolicies() {
+        try {
+            return mService.getNetworkPolicies(mContext.getOpPackageName());
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+}
+
+```
+
+### NetworkPolicy
+
+```java
+
+/**
+ * Policy for networks matching a {@link NetworkTemplate}, including usage cycle
+ * and limits to be enforced.
+ *
+ * @hide
+ */
+public class NetworkPolicy implements Parcelable, Comparable<NetworkPolicy> {
+
+}
+
+```
+
+### NetworkStatsHistory
+
+```java
+
+/**
+ * Collection of historical network statistics, recorded into equally-sized
+ * "buckets" in time. Internally it stores data in {@code long} series for more
+ * efficient persistence.
+ * <p>
+ * Each bucket is defined by a {@link #bucketStart} timestamp, and lasts for
+ * {@link #bucketDuration}. Internally assumes that {@link #bucketStart} is
+ * sorted at all times.
+ *
+ * @hide
+ */
+public class NetworkStatsHistory implements Parcelable {
+
+
+
+}
+
+```
+
+### NetworkStatsService
 
 ```java
 
@@ -74,6 +134,18 @@ public class NetworkStatsService extends INetworkStatsService.Stub {
 
    }
 
+
+    /**
+     * Return network history, splicing between DEV and XT stats when
+     * appropriate.
+     */
+    private NetworkStatsHistory internalGetHistoryForNetwork(NetworkTemplate template, int fields,
+            @NetworkStatsAccess.Level int accessLevel) {
+        // We've been using pure XT stats long enough that we no longer need to
+        // splice DEV and XT together.
+        return mXtStatsCached.getHistory(template, UID_ALL, SET_ALL, TAG_NONE, fields, accessLevel);
+    }
+
 }
 
 /** {@hide} */
@@ -104,5 +176,71 @@ interface INetworkStatsSession {
 
 }
 
+```
+
+### NetworkPolicyManagerService
+
+```java
+
+/**
+ * Service that maintains low-level network policy rules, using
+ * {@link NetworkStatsService} statistics to drive those rules.
+ * <p>
+ * Derives active rules by combining a given policy with other system status,
+ * and delivers to listeners, such as {@link ConnectivityManager}, for
+ * enforcement.
+ *
+ * <p>
+ * This class uses 2-3 locks to synchronize state:
+ * <ul>
+ * <li>{@code mUidRulesFirstLock}: used to guard state related to individual UIDs (such as firewall
+ * rules).
+ * <li>{@code mNetworkPoliciesSecondLock}: used to guard state related to network interfaces (such
+ * as network policies).
+ * <li>{@code allLocks}: not a "real" lock, but an indication (through @GuardedBy) that all locks
+ * must be held.
+ * </ul>
+ *
+ * <p>
+ * As such, methods that require synchronization have the following prefixes:
+ * <ul>
+ * <li>{@code UL()}: require the "UID" lock ({@code mUidRulesFirstLock}).
+ * <li>{@code NL()}: require the "Network" lock ({@code mNetworkPoliciesSecondLock}).
+ * <li>{@code AL()}: require all locks, which must be obtained in order ({@code mUidRulesFirstLock}
+ * first, then {@code mNetworkPoliciesSecondLock}, then {@code mYetAnotherGuardThirdLock}, etc..
+ * </ul>
+ */
+public class NetworkPolicyManagerService extends INetworkPolicyManager.Stub {
+
+    static final String TAG = "NetworkPolicy";
+
+
+    @Override
+    public NetworkPolicy[] getNetworkPolicies(String callingPackage) {
+        mContext.enforceCallingOrSelfPermission(MANAGE_NETWORK_POLICY, TAG);
+        try {
+            mContext.enforceCallingOrSelfPermission(READ_PRIVILEGED_PHONE_STATE, TAG);
+            // SKIP checking run-time OP_READ_PHONE_STATE since caller or self has PRIVILEGED
+            // permission
+        } catch (SecurityException e) {
+            mContext.enforceCallingOrSelfPermission(READ_PHONE_STATE, TAG);
+
+            if (mAppOps.noteOp(AppOpsManager.OP_READ_PHONE_STATE, Binder.getCallingUid(),
+                    callingPackage) != AppOpsManager.MODE_ALLOWED) {
+                return new NetworkPolicy[0];
+            }
+        }
+
+        synchronized (mNetworkPoliciesSecondLock) {
+            final int size = mNetworkPolicy.size();
+            final NetworkPolicy[] policies = new NetworkPolicy[size];
+            for (int i = 0; i < size; i++) {
+                policies[i] = mNetworkPolicy.valueAt(i);
+            }
+            return policies;
+        }
+    }
+
+}
 
 ```
