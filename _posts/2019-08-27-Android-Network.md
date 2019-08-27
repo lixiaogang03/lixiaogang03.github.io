@@ -11,6 +11,12 @@ tags:
     - Network
 ---
 
+[Android Net架构-CSDN](https://blog.csdn.net/qq_14978113/article/details/79069002)
+
 [深入理解android网络架构--CSDN](https://blog.csdn.net/qq_14978113/article/details/89182253)
+
+### 架构
+
+![android_network](/images/android_network)
 
 
