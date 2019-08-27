@@ -17,6 +17,8 @@ tags:
 
 ### 架构
 
-![android_network](/images/android_network)
+![android_network](/images/android_network.png)
+
+![android_netd](/images/android_netd.png)
 
 
