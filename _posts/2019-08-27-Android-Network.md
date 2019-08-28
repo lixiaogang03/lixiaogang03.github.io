@@ -168,3 +168,22 @@ CS和WifiStateMachine通过NetworkAgent进行双向通信：
 
 ![network_agent](/images/network_agent.png)
 
+## NetworkMonitor
+
+在链路网络注册到CS，并且所有网络配置信息都已经向netd完成了配置，此时就会开始进行网络诊断，具体诊断的任务交给NetworkMonitor。
+
+NetworkMonitor也是一个状态机，包含以下几种基本状态：
+
+![network_monitor](/images/network_monitor.png)
+
+State	                  |                      Description
+:-:                       |                         :-:
+DefaultState	          |         初始状态。接收CS网络诊断命令消息后触发诊断；接收用户登录网络消息
+MaybeNotifyState	      |         通知用户登录。接收诊断后发送的"CMD_LAUNCH_CAPTIVE_PORTAL_APP"消息，startActivity显示登录页面
+EvaluatingState	          |         诊断状态。进入时发送"CMD_REEVALUATE"消息，接收 “CMD_REEVALUATE” 消息并执行网络诊断过程
+CaptivePortalState	      |         登录状态。进入时发送"CMD_LAUNCH_CAPTIVE_PORTAL_APP"消息显示登录页面，发送10分钟延迟的"CMD_CAPTIVE_PORTAL_RECHECK"消息进行再次诊断
+ValidatedState	          |         已验证状态。进入时发送"EVENT_NETWORK_TESTED"通知CS网络诊断完成
+EvaluatingPrivateDnsState |       	私密DNS验证状态。Android Pie验证私密DNS推出。
+
+
+
