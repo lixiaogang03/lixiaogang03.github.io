@@ -20,6 +20,9 @@ tags:
 StateMachine在状态机的类别中属于有限状态机（Finite state machine），简称FSM，属于状态设计模式中Context环境类，
 适用于需要在复杂状态与业务之间进行切换的场景，如游戏当中人物的走、跑、攻击，会经常在这几个状态之中进行切换,运用状态机能保证项目的可拓展性，提高可读性。
 
+状态机可以描述为一个有向图树，有一组节点和一组转移函数组成。状态机通过相应一些列事件运行。
+每个事件都属于当前结点的转移函数的控制范围内，其中函数的范围是一个节点的子集。函数返回下一个节点。这些节点至少有一个终态，到达终态，状态机停止。
+
 
 ## 如何使用
 
@@ -70,6 +73,8 @@ public class TestStateMachine extends StateMachine {
 ![state_machine_init](/images/state_machine_init.png)
 
 ## 源码
+
+![state_machine_uml](/images/state_machine_uml.webp)
 
 ### StateMachine
 
@@ -202,6 +207,42 @@ public class StateMachine {
             stateInfo.active = false;
             if (mDbg) mSm.log("addStateInternal: X stateInfo: " + stateInfo);
             return stateInfo;
+        }
+
+
+        /**
+         * Complete the construction of the state machine.
+         */
+        private final void completeConstruction() {
+            if (mDbg) mSm.log("completeConstruction: E");
+
+            /**
+             * Determine the maximum depth of the state hierarchy
+             * so we can allocate the state stacks.
+             */
+            int maxDepth = 0;
+            // 回溯遍历所有State节点，得到最大的树形结构深度
+            for (StateInfo si : mStateInfo.values()) {
+                int depth = 0;
+                for (StateInfo i = si; i != null; depth++) {
+                    i = i.parentStateInfo;
+                }
+                if (maxDepth < depth) {
+                    maxDepth = depth;
+                }
+            }
+            if (mDbg) mSm.log("completeConstruction: maxDepth=" + maxDepth);
+
+            mStateStack = new StateInfo[maxDepth];
+            mTempStateStack = new StateInfo[maxDepth];
+
+            // 初始化状态栈
+            setupInitialStateStack();
+
+            /** Sending SM_INIT_CMD message to invoke enter methods asynchronously */
+            sendMessageAtFrontOfQueue(obtainMessage(SM_INIT_CMD, mSmHandlerObj));
+
+            if (mDbg) mSm.log("completeConstruction: X");
         }
 
     }
@@ -369,6 +410,30 @@ public class State implements IState {
 }
 
 ```
+
+## Android中的状态机
+
+主要使用在网络、蓝牙等模块中
+
+```java
+
+public class DhcpClient extends StateMachine {}
+
+public class IpManager extends StateMachine {}
+
+public class DataConnection extends StateMachine {}
+
+private class NsdStateMachine extends StateMachine {}
+
+public class NetworkMonitor extends StateMachine {}
+
+public class WifiController extends StateMachine {}
+
+public class WifiStateMachine extends StateMachine{}
+
+```
+
+![wifi_state_machine](/images/wifi_state_machine.png)
 
 
 
