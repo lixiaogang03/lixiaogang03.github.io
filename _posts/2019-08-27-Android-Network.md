@@ -185,5 +185,125 @@ CaptivePortalState	      |         登录状态。进入时发送"CMD_LAUNCH_CAP
 ValidatedState	          |         已验证状态。进入时发送"EVENT_NETWORK_TESTED"通知CS网络诊断完成
 EvaluatingPrivateDnsState |       	私密DNS验证状态。Android Pie验证私密DNS推出。
 
+## NetworkPolicyManagerService
+
+NetworkPolicyManagerService（简称NPMS）是Android系统的网络策略管理者。NPMS会监听网络属性变化（是否收费，metered）、应用前后台、系统电量状态（省电模式）、设备休眠状态（Doze），在这些状态发生改变时，为不同名单内的网络消费者配置不同的网络策略。
+
+网络策略的基本目的：
+
+1. 在收费网络的情况下省流量
+2. 最大可能性的省电
+3. 防止危险流量进入
+
+网络策略中几个重要的名单：
+
+NameList	                |                       Description
+:-:                         |                         :-:
+mUidFirewallStandbyRules	|         黑名单，针对前后台应用。此名单中的APP默认REJECT，可配置ALLOW。
+mUidFirewallDozableRules	|         白名单，针对Doze。此名单中的APP在Doze情况下默认ALLOW。
+mUidFirewallPowerSaveRules	|         白名单，针对省电模式（由Battery服务提供）。此名单中的APP在省电模式下默认ALLOW，但在Doze情况下仍然REJECT。
+
+NPMS对网络策略进行统一管理和记录，并配合netd和iptables/ip6tables工具，达到网络限制的目的。
+
+### dumpsys netpolicy
+
+```txt
+System ready: true
+Restrict background: false
+Restrict power: false
+Device idle: false
+Network policies:
+  NetworkPolicy[NetworkTemplate: matchRule=MOBILE_ALL, subscriberId=460110..., matchSubscriberIds=[460110...]]: cycleDay=1, cycleTimezone=Asia/Shanghai, warningBytes=2147483648, limitBytes=-1, lastWarningSnooze=-1, lastLimitSnooze=-1, metered=true, inferred=false
+  NetworkPolicy[NetworkTemplate: matchRule=MOBILE_ALL, matchSubscriberIds=[null]]: cycleDay=27, cycleTimezone=Asia/Shanghai, warningBytes=2147483648, limitBytes=-1, lastWarningSnooze=-1, lastLimitSnooze=-1, metered=true, inferred=true
+  NetworkPolicy[NetworkTemplate: matchRule=MOBILE_ALL, subscriberId=460040..., matchSubscriberIds=[460040...]]: cycleDay=27, cycleTimezone=Asia/Shanghai, warningBytes=2147483648, limitBytes=-1, lastWarningSnooze=-1, lastLimitSnooze=-1, metered=true, inferred=true
+Metered ifaces: {rmnet_data0}
+Policy for UIDs:
+Power save whitelist (except idle) app ids:
+  UID=10008: true
+  UID=10027: true
+Power save whitelist app ids:
+  UID=10008: true
+  UID=10027: true
+Restrict background whitelist uids:
+  UID=10008
+  UID=10027
+Default restrict background whitelist uids:
+  UID=10008
+  UID=10027
+Status for all known UIDs:
+  UID=1001 state=0 (fg) rules=0 (NONE)
+  ....................................
+Status for just UIDs with rules:
+  UID=10008 rules=1 (ALLOW_METERED)
+  UID=10027 rules=1 (ALLOW_METERED)
+
+```
+
+## NetworkManagementService
+
+Android SystemServer不具备直接配置和操作网络的能力，所有的网络参数（网口、IP、DNS、Router等）配置，网络策略执行都需要通过netd这个native进程来实际执行或者传递给Kernel来执行。
+
+而NetworkManagementService（简称NMS）就是SystemServer中其他服务连接netd的桥梁。
+
+NMS和netd之间通信的方式有两种：Binder 和 Socket。为什么不全使用Binder？原因在于Android老版本上像 vold、netd 这种native进程和SystemServer通信的方式都是使用的Socket，目前高版本上也在慢慢的Binder化，提升调用速度。
+
+SystemServer和netd之间的数据流向图：
+
+![network_manager_service](/images/network_manager_service.png)
+
+### dumpsys network_management
+
+```txt
+
+NetworkManagementService NativeDaemonConnector Log:
+08-28 13:48:47.875 - RCV <- {200 30 MTU changed}
+08-28 13:48:47.876 - SND -> {31 network route add 100 rmnet_data0 0.0.0.0/0 10.156.246.136}
+08-28 13:48:47.880 - RCV <- {200 31 success}
+08-28 13:48:47.893 - SND -> {32 bandwidth gettetherstats}
+08-28 13:48:47.896 - RCV <- {200 32 Tethering stats list completed}
+08-28 13:48:47.912 - RCV <- {600 Iface linkstate rmnet_data0 down}
+08-28 13:48:47.922 - RCV <- {616 Route removed fe80::/64 dev rmnet_data0}
+08-28 13:48:47.922 - RCV <- {614 Address removed fe80::c980:eef2:32dd:10c1/64 rmnet_data0 128 253}
+08-28 13:48:47.973 - SND -> {33 bandwidth gettetherstats}
+08-28 13:48:47.977 - RCV <- {200 33 Tethering stats list completed}
+08-28 13:48:48.006 - SND -> {34 idletimer add rmnet_data0 10 0}
+08-28 13:48:48.035 - RCV <- {614 Address removed 10.156.246.135/28 rmnet_data0 128 0}
+08-28 13:48:48.294 - RCV <- {200 34 Add success}
+08-28 13:48:48.295 - SND -> {35 network default set 100}
+08-28 13:48:48.297 - RCV <- {200 35 success}
+08-28 13:48:48.348 - SND -> {36 bandwidth gettetherstats}
+08-28 13:48:48.349 - RCV <- {200 36 Tethering stats list completed}
+08-28 13:48:48.402 - SND -> {37 idletimer remove rmnet_data0 10 0}
+08-28 13:48:48.723 - RCV <- {200 37 Remove success}
+08-28 13:48:48.728 - SND -> {38 network destroy 100}
+08-28 13:48:48.795 - SND -> {39 bandwidth setglobalalert 2097152}
+08-28 13:48:49.546 - RCV <- {200 38 success}
+.................................................................
+
+Pending requests:
+
+Bandwidth control enabled: true
+mMobileActivityFromRadio=false mLastPowerStateFromRadio=1
+mNetworkActive=false
+Active quota ifaces: {rmnet_data0=9223372036854775807}
+Active alert ifaces: {}
+Data saver mode: false
+UID bandwith control blacklist rule: []
+UID bandwith control whitelist rule: [10008,10027]
+UID firewall  rule: []
+UID firewall standby chain enabled: false
+UID firewall standby rule: []
+UID firewall dozable chain enabled: false
+UID firewall dozable rule: []
+UID firewall powersave chain enabled: false
+UID firewall powersave rule: []
+Idle timers:
+  rmnet_data0:
+    timeout=10 type=0 networkCount=1
+Firewall enabled: false
+Netd service status: alive
+
+```
+
 
 
