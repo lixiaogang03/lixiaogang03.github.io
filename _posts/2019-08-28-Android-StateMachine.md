@@ -13,13 +13,15 @@ tags:
 
 [Android StateMachine-简书](https://www.jianshu.com/p/4f01cb96f8c2)
 
-### 概念
+[StateMachine.java](http://androidxref.com/7.1.2_r36/xref/frameworks/base/core/java/com/android/internal/util/StateMachine.java)
+
+## 概念
 
 StateMachine在状态机的类别中属于有限状态机（Finite state machine），简称FSM，属于状态设计模式中Context环境类，
 适用于需要在复杂状态与业务之间进行切换的场景，如游戏当中人物的走、跑、攻击，会经常在这几个状态之中进行切换,运用状态机能保证项目的可拓展性，提高可读性。
 
 
-### 如何使用
+## 如何使用
 
 StateMachine的基本使用必须按如下四个步骤进行，缺一不可：
 
@@ -28,9 +30,50 @@ StateMachine的基本使用必须按如下四个步骤进行，缺一不可：
 3. 通过setInitialState设置初始状态
 4. 调用start方法启动状态机
 
-[StateMachine.java](http://androidxref.com/7.1.2_r36/xref/frameworks/base/core/java/com/android/internal/util/StateMachine.java)
 
 ```java
+
+public class TestStateMachine extends StateMachine {
+
+ //step 1
+    public TestStateMachine(String name) {
+        super(name);
+        constructStatesHierarchy();
+    }
+    /**
+     * 构造状态层次结构（树形结构，可多棵）
+     */
+    private void constructStatesHierarchy(){
+ //step 2
+        //构造第一棵树形层次结构
+        State s1 = new S1();
+        State s2 = new S2();
+        State p1 = new P1();
+        addState(s1,p1);
+        addState(s2,p1);
+        //构造第二棵树形层次结构
+        State p2 = new P2();
+        addState(p2);
+ //step 3
+        setInitialState(s1);
+ //step 4
+        start();
+    }
+
+}
+
+```
+
+1. 通过addState函数初始化状态机的状态层次结构，该层次结构由SmHandler中的HashMap<State,StateInfo> mStateInfo来存储表示。
+2. 通过setInitialState方法设置初始状态
+
+## 源码
+
+### StateMachine
+
+```java
+
+//com.android.internal.util.StateMachine
 
 public class StateMachine {
 
@@ -42,6 +85,15 @@ public class StateMachine {
 
     private static class SmHandler extends Handler {
 
+        // 空闲状态，当其他State都处理完毕，就会进入该状态
+        /** State used when state machine is halted */
+        private HaltingState mHaltingState = new HaltingState();
+
+        // 退出状态，停用状态机进入的状态
+        /** State used when state machine is quitting */
+        private QuittingState mQuittingState = new QuittingState();
+
+        //用一个HashMap来存储状态机的状态层次结构
         /** The map of all of the states in the state machine */
         private HashMap<State, StateInfo> mStateInfo = new HashMap<State, StateInfo>();
 
@@ -61,6 +113,52 @@ public class StateMachine {
             // 添加空闲状态与退出状态
             addState(mHaltingState, null);
             addState(mQuittingState, null);
+        }
+
+        /**
+         * Add a new state to the state machine. Bottom up addition
+         * of states is allowed but the same state may only exist
+         * in one hierarchy.
+         *
+         * @param state the state to add
+         * @param parent the parent of state
+         * @return stateInfo for this state
+         */
+        //该方法主要是向HashMap<State,StateInfo> mStateInfo添加元素，StateInfo当中存有当前节点的父节点信息，通过Key-Value组合来表示状态机的状态层级结构
+        private final StateInfo addState(State state, State parent) {
+            if (mDbg) {
+                mSm.log("addStateInternal: E state=" + state.getName() + ",parent="
+                        + ((parent == null) ? "" : parent.getName()));
+            }
+            StateInfo parentStateInfo = null;
+            if (parent != null) {
+                parentStateInfo = mStateInfo.get(parent);
+                if (parentStateInfo == null) {
+                    // Recursively add our parent as it's not been added yet.
+                    parentStateInfo = addState(parent, null);
+                }
+            }
+            StateInfo stateInfo = mStateInfo.get(state);
+            if (stateInfo == null) {
+                stateInfo = new StateInfo();
+                mStateInfo.put(state, stateInfo);
+            }
+
+            // Validate that we aren't adding the same state in two different hierarchies.
+            // 异常校验，如果一个State已经有一个父状态，再添加一个父状态则会抛出异常
+            if ((stateInfo.parentStateInfo != null)
+                    && (stateInfo.parentStateInfo != parentStateInfo)) {
+                throw new RuntimeException("state already added");
+            }
+
+            // 当前状态
+            stateInfo.state = state;
+            // 当前状态的父节点信息StateInfo类型
+            stateInfo.parentStateInfo = parentStateInfo;
+            // 当前状态是否激活，调用State#enter方法后会激活置为true
+            stateInfo.active = false;
+            if (mDbg) mSm.log("addStateInternal: X stateInfo: " + stateInfo);
+            return stateInfo;
         }
 
     }
@@ -112,8 +210,122 @@ public class StateMachine {
 
 ```
 
-1. 通过addState函数初始化状态机的状态层次结构，该层次结构由SmHandler中的HashMap<State,StateInfo> mStateInfo来存储表示。
-2. 通过setInitialState方法设置初始状态
+### IState
+
+```java
+
+package com.android.internal.util;
+
+import android.os.Message;
+
+/**
+ * {@hide}
+ *
+ * The interface for implementing states in a {@link StateMachine}
+ */
+public interface IState {
+
+    /**
+     * Returned by processMessage to indicate the the message was processed.
+     */
+    static final boolean HANDLED = true;
+
+    /**
+     * Returned by processMessage to indicate the the message was NOT processed.
+     */
+    static final boolean NOT_HANDLED = false;
+
+    /**
+     * Called when a state is entered.
+     */
+    void enter();
+
+    /**
+     * Called when a state is exited.
+     */
+    void exit();
+
+    /**
+     * Called when a message is to be processed by the
+     * state machine.
+     *
+     * This routine is never reentered thus no synchronization
+     * is needed as only one processMessage method will ever be
+     * executing within a state machine at any given time. This
+     * does mean that processing by this routine must be completed
+     * as expeditiously as possible as no subsequent messages will
+     * be processed until this routine returns.
+     *
+     * @param msg to process
+     * @return HANDLED if processing has completed and NOT_HANDLED
+     *         if the message wasn't processed.
+     */
+    boolean processMessage(Message msg);
+
+    /**
+     * Name of State for debugging purposes.
+     *
+     * @return name of state.
+     */
+    String getName();
+}
+
+```
+
+### State
+
+```java
+
+package com.android.internal.util;
+
+import android.os.Message;
+
+/**
+ * {@hide}
+ *
+ * The class for implementing states in a StateMachine
+ */
+public class State implements IState {
+
+    /**
+     * Constructor
+     */
+    protected State() { }
+
+
+    @Override
+    public void enter() { }
+
+    @Override
+    public void exit() { }
+
+    @Override
+    public boolean processMessage(Message msg) {
+        return false;
+    }
+
+    /**
+     * Name of State for debugging purposes.
+     *
+     * This default implementation returns the class name, returning
+     * the instance name would better in cases where a State class
+     * is used for multiple states. But normally there is one class per
+     * state and the class name is sufficient and easy to get. You may
+     * want to provide a setName or some other mechanism for setting
+     * another name if the class name is not appropriate.
+     *
+     * @see com.android.internal.util.IState#processMessage(android.os.Message)
+     */
+    @Override
+    public String getName() {
+        String name = getClass().getName();
+        int lastDollar = name.lastIndexOf('$');
+        return name.substring(lastDollar + 1);
+    }
+
+}
+
+```
 
 
 
