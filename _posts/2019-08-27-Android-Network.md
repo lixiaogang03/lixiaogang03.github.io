@@ -305,5 +305,37 @@ Netd service status: alive
 
 ```
 
+## netd
+
+为了保障各个功能的正常运行，Android系统中有非常多的守护进程（Daemon）。为了保证系统起来后各项功能都已经ready，这些daemon进程跟随系统的启动而启动，而且一般比system_server进程先启动。如存储相关的vold、电话相关的rild、以及网络相关netd等, netd进程由init进程启动
+
+```txt
+
+$ ps |grep -E "netd|vold|rild|system_server"
+root      364   1     44036  3272  hrtimer_na 00000000 S /system/bin/vold
+root      761   1     24736  2776  binder_thr 00000000 S /system/bin/netd
+radio     762   1     84876  14388 hrtimer_na 00000000 S /system/bin/rild
+system    1378  692   1808024 114108 SyS_epoll_ 00000000 S system_server
+
+```
+
+netd作为Android系统的网络守护者，主要有以下方面的职能：
+
+1. 处理接收来自Kernel的UEvent消息（包含网络接口、带宽、路由等信息），并传递给Framework
+2. 提供防火墙设置、网络地址转换（NAT）、带宽控制、网络设备绑定（Tether）等接口
+3. 管理和缓存DNS信息，为系统和应用提供域名解析服务
+
+## wpa_supplicant
+
+与netd一样，也是Android系统的一个daemon进程，与netd不同的是，它只有在WiFi开启的情况下才会启动，在WiFi关闭的时候会随之关闭。wpa_supplicant向Framework提供了WiFi配置、连接、断开等接口。
+
+wpa_supplicant比Android的历史要早，在很多其他平台上也被广泛利用，他增加了对更多RFC协议的支持，这也是Google最初选择它的原因。但从Android近几个版本来看，Google还是希望弱化wpa_supplicant，并将其功能迁移至Framework或者其他daemon进程中。Android 8.0发生的几个改变：
+
+与system_server的通信从原来的Socket通信改成了HIDL，提高了速度、便于system分区自升级
+扫描的功能迁移到了system/wificond中，弱化wpa_supplicant
+
+wpa_supplicant和Framework通信：
+
+![wpa_supplicant](/images/wpa_supplicant.png)
 
 
