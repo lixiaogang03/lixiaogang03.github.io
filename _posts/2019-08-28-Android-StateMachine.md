@@ -67,6 +67,8 @@ public class TestStateMachine extends StateMachine {
 1. 通过addState函数初始化状态机的状态层次结构，该层次结构由SmHandler中的HashMap<State,StateInfo> mStateInfo来存储表示。
 2. 通过setInitialState方法设置初始状态
 
+![state_machine_init](/images/state_machine_init.png)
+
 ## 源码
 
 ### StateMachine
@@ -93,12 +95,53 @@ public class StateMachine {
         /** State used when state machine is quitting */
         private QuittingState mQuittingState = new QuittingState();
 
+        /** Reference to the StateMachine */
+        private StateMachine mSm;
+
+        /**
+         * Information about a state.
+         * Used to maintain the hierarchy.
+         */
+        private class StateInfo {
+            /** The state */
+            State state;
+
+            /** The parent of this state, null if there is no parent */
+            StateInfo parentStateInfo;
+
+            /** True when the state has been entered and on the stack */
+            boolean active;
+        }
+
+
         //用一个HashMap来存储状态机的状态层次结构
         /** The map of all of the states in the state machine */
         private HashMap<State, StateInfo> mStateInfo = new HashMap<State, StateInfo>();
 
         /** The initial state that will process the first message */
         private State mInitialState;
+
+
+       /**
+         * State entered when transitionToHaltingState is called.
+         */
+        private class HaltingState extends State {
+            @Override
+            public boolean processMessage(Message msg) {
+                mSm.haltedProcessMessage(msg);
+                return true;
+            }
+        }
+
+        /**
+         * State entered when a valid quit message is handled.
+         */
+        private class QuittingState extends State {
+            @Override
+            public boolean processMessage(Message msg) {
+                return NOT_HANDLED;
+            }
+        }
 
         /**
          * Constructor
