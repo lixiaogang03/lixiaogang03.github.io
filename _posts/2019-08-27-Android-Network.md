@@ -148,5 +148,23 @@ CS通过NetworkFactory和WifiStateMachine单向通信：
 
 ![network_factory](/images/network_factory.png)
 
+## NetworkAgent
 
+链路网络的代理，是CS和链路网络管理者（如WifiStateMachine）之间的信使，在L2连接成功后创建。通过NetworkAgent，WifiStateMachine可以向CS：
+
+1. 更新网络状态 NetworkInfo（断开、连接中、已连接等）
+2. 更新链路配置 LinkProperties（本机网口、IP、DNS、路由信息等）
+3. 更新网络能力 NetworkCapabilities（信号强度、是否收费等）
+
+CS可以向WifiStateMachine：
+
+1. 更新网络有效性（即NetworkMonitor的网络检测结果）
+2. 禁止自动连接
+3. 由于网络不可上网等原因主动断开网络
+
+因此，NetworkAgent提供了CS和WifiStateMachine之间双向通信的能力。原理类似NetworkFactory，也是使用了AsyncChannel和Messenger。
+
+CS和WifiStateMachine通过NetworkAgent进行双向通信：
+
+![network_agent](/images/network_agent.png)
 
