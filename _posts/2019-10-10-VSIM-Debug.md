@@ -2,7 +2,7 @@
 layout:     post
 title:      VSIM Debug
 subtitle:   VSIM 常见问题调试
-date:       2019-08-28
+date:       2019-10-10
 author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
