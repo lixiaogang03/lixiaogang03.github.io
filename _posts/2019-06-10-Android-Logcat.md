@@ -86,6 +86,14 @@ Android 日志记录系统为日志消息保留了多个环形缓冲区，而且
 
 ## 常用命令
 
+### 查看某个进程日志
+
+adb logcat --pid 11385
+
+### 输出缓冲区日志到指定文件
+
+adb logcat -f /sdcard/log.txt -d
+
 ### 查看指定缓冲区日志
 
 adb logcat -b radio
@@ -228,6 +236,25 @@ If not specified on the command line, filterspec is set from ANDROID_LOG_TAGS.
 
 If not specified with -v on command line, format is set from ANDROID_PRINTF_LOG
 or defaults to "threadtime"
+
+```
+
+## kernel 日志
+
+**adb shell dmesg > dmesg.txt**
+
+```txt
+
+$ adb shell dmesg --help
+usage: dmesg [-c] [-r|-t] [-n LEVEL] [-s SIZE]
+
+Print or control the kernel ring buffer.
+
+-c	Clear the ring buffer after printing
+-n	Set kernel logging LEVEL (1-9)
+-r	Raw output (with <level markers>)
+-s	Show the last SIZE many bytes
+-t	Don't print kernel's timestamps
 
 ```
 
