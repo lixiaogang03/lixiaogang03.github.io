@@ -435,7 +435,7 @@ public class WifiStateMachine extends StateMachine{}
 
 ### WifiStateMachine
 
-![wifi_state_machine](/images/wifi_state_machine.png)
+![wifi_state_machine](/images/wifi_state_machine.jpg)
 
 
 
