@@ -33,6 +33,16 @@ StateMachine的基本使用必须按如下四个步骤进行，缺一不可：
 3. 通过setInitialState设置初始状态
 4. 调用start方法启动状态机
 
+其他常用API如下表所示：
+
+Method                    	   |                   Description
+:-:                            |                       :-:
+quit()	                       |            停止状态机，会进入QuttingState
+sendMessage(Message msg)	   |            发送一个消息，供各状态处理
+deferMessage(Message msg)	   |            发送一个延迟消息，在下一次状态转换时，才会被放入消息队列
+transitionTo(IState state)	   |            转移至相应状态
+transitionToHaltingState()	   |            进入HaltingState
+
 
 ```java
 
@@ -66,6 +76,8 @@ public class TestStateMachine extends StateMachine {
 }
 
 ```
+
+![demo_state_machine](/images/demo_state_machine.webp)
 
 1. 通过addState函数初始化状态机的状态层次结构，该层次结构由SmHandler中的HashMap<State,StateInfo> mStateInfo来存储表示。
 2. 通过setInitialState方法设置初始状态
@@ -245,7 +257,29 @@ public class StateMachine {
             if (mDbg) mSm.log("completeConstruction: X");
         }
 
+        /**
+         * Initialize StateStack to mInitialState.
+         */
+        private final void setupInitialStateStack() {
+            if (mDbg) {
+                Log.d(TAG, "setupInitialStateStack: E mInitialState="
+                        + mInitialState.getName());
+            }
+
+            // 初始化状态栈 mS1->mP1
+            StateInfo curStateInfo = mStateInfo.get(mInitialState);
+            for (mTempStateStackCount = 0; curStateInfo != null; mTempStateStackCount++) {
+                mTempStateStack[mTempStateStackCount] = curStateInfo;
+                curStateInfo = curStateInfo.parentStateInfo;
+            }
+            // Empty the StateStack    //逻辑上清空mStateStack，通过将栈顶Index设置
+            mStateStackTopIndex = -1;
+            //初始化 mStateStack，就是将mTempStateStack逆序赋值给mStateStack  mP1->mS1
+            moveTempStateStackToStateStack();
+        }
+
     }
+
 
     /**
      * Initialize.
@@ -293,6 +327,10 @@ public class StateMachine {
 }
 
 ```
+
+### setupInitialStateStack
+
+![setupInitialStateStack](/images/setupInitialStateStack.webp)
 
 ### IState
 
@@ -470,7 +508,7 @@ public class SecondActivity extends Activity implements View.OnClickListener {
 ```java
 
 /**
- *  mP1      mP2
+ *  mP1      mP2   mHaltingState mQuittingState
  *  /   \
  *  mS2   mS1
  *
@@ -668,6 +706,8 @@ public class NetworkMonitor extends StateMachine {}
 public class WifiController extends StateMachine {}
 
 public class WifiStateMachine extends StateMachine{}
+
+....................................................
 
 ```
 
