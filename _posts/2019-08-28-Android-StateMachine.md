@@ -449,6 +449,41 @@ public class State implements IState {
 
 ```
 
+## 总结
+
+### 状态机初始化
+
+* 假设我们经过前三步基本使用步骤构造的状态层次结构图如下所示：
+
+![state_machine_tree](/images/state_machine_tree.webp)
+
+* 当我们调用start()方法，进而会调用SmHandler#completeConstruction(),该方法首先会初始化2个状态栈
+
+![state_machine_1](/images/state_machine_1.webp)
+
+* 接着发送一个SM_INIT_CMD消息，当SmHandler#handleMessage()，处理这个初始化消息时，会调用SmHandler#invokeEnterMethods(0),依次从mStateStack的栈底（因为传入参数为0）到栈顶调用对应State.enter()方法，即enter方法的调用顺序为P0->P1->S2->S5，并将State.active设置为true，表示已经激活。
+
+### 状态机消息处理
+
+当SmHandler处理通过StateMachine#sendMessage()发送的消息时，会调用SmHandler的processMsg()方法，消息分发逻辑如下：
+消息会优先分配给当前的初始状态，如果该状态不能处理该消息（State#processMessage返回false），则分发给其父节点，以此类推，如果所有状态都不能处理，则分发给StateMachine的unhandleMessage方法进行处理，即消息会从mStateStack的栈顶分发至栈底
+
+处理完消息会调用SmHandler#performTransitions方法，进行状态转移，假设我们调用StateMachine#transitionTo(S4)，设置S4为目的状态，performTransitions的主要工作逻辑如下:
+
+* 调用SmHandler#setupTempStateStackWithStatesToEnter方法找到目的状态与当前初始状态S5（mStateStack的栈顶元素）的公共祖先即P1，同时对mTempStateStack进行重新赋值：先将目的状态S4入栈，然后根据S4往上回溯，如果节点未被激活则入栈，直到找到一个处于激活状态的节点，该节点即是目的状态与当前初始状态的公共祖先。此时，mTempStateStack逻辑上的结构应当如下图所示
+
+![state_machine_2](/images/state_machine_2.webp)
+
+* 接着调用SmHandler#invokeExitMethods(commonStateInfo)方法，退出旧的状态，mStateStack依次出栈调用State.exit()方法，直到公共祖先P1（不含公共祖先），即exit的调用顺序为S5->S2，此时mStateStack逻辑上结构如下图所示
+
+![state_machine_3](/images/state_machine_3.webp)
+
+* 将mTempStateStack整合至mStateStack
+
+![state_machine_4](/images/state_machine_4.webp)
+
+* 调用SmHandler# invokeEnterMethods方法，从公共节点之上依次调用State.enter方法，直到栈顶，即新状态的enter调用顺序为S1->S4
+
 ## Demo
 
 ```java
@@ -684,6 +719,118 @@ public class HSM extends StateMachine {
         }
     }
 }
+
+```
+### Demo logcat
+
+```txt
+
+// 状态机初始化
+2019-09-05 16:34:36.079 27217-27217/com.dady.state D/HSM: makeHsm start
+2019-09-05 16:34:36.090 27217-27217/com.dady.state D/StateMachine: addStateInternal: E state=HaltingState,parent=
+2019-09-05 16:34:36.090 27217-27217/com.dady.state D/StateMachine: addStateInternal: X stateInfo: state=HaltingState,active=false,parent=null
+2019-09-05 16:34:36.090 27217-27217/com.dady.state D/StateMachine: addStateInternal: E state=QuittingState,parent=
+2019-09-05 16:34:36.090 27217-27217/com.dady.state D/StateMachine: addStateInternal: X stateInfo: state=QuittingState,active=false,parent=null
+2019-09-05 16:34:36.090 27217-27217/com.dady.state D/HSM: construct start
+2019-09-05 16:34:36.097 27217-27217/com.dady.state D/StateMachine: addStateInternal: E state=P1,parent=
+2019-09-05 16:34:36.097 27217-27217/com.dady.state D/StateMachine: addStateInternal: X stateInfo: state=P1,active=false,parent=null
+2019-09-05 16:34:36.097 27217-27217/com.dady.state D/StateMachine: addStateInternal: E state=S1,parent=P1
+2019-09-05 16:34:36.098 27217-27217/com.dady.state D/StateMachine: addStateInternal: X stateInfo: state=S1,active=false,parent=P1
+2019-09-05 16:34:36.098 27217-27217/com.dady.state D/StateMachine: addStateInternal: E state=S2,parent=P1
+2019-09-05 16:34:36.098 27217-27217/com.dady.state D/StateMachine: addStateInternal: X stateInfo: state=S2,active=false,parent=P1
+2019-09-05 16:34:36.098 27217-27217/com.dady.state D/StateMachine: addStateInternal: E state=P2,parent=
+2019-09-05 16:34:36.098 27217-27217/com.dady.state D/StateMachine: addStateInternal: X stateInfo: state=P2,active=false,parent=null
+2019-09-05 16:34:36.098 27217-27217/com.dady.state D/StateMachine: setInitialState: initialState=S1
+2019-09-05 16:34:36.098 27217-27217/com.dady.state D/HSM: construct end
+2019-09-05 16:34:36.098 27217-27217/com.dady.state D/StateMachine: completeConstruction: E
+2019-09-05 16:34:36.098 27217-27217/com.dady.state D/StateMachine: completeConstruction: maxDepth=2
+2019-09-05 16:34:36.098 27217-27217/com.dady.state D/StateMachine: setupInitialStateStack: E mInitialState=S1
+2019-09-05 16:34:36.098 27217-27217/com.dady.state D/StateMachine: moveTempStackToStateStack: i=1,j=0
+2019-09-05 16:34:36.099 27217-27217/com.dady.state D/StateMachine: moveTempStackToStateStack: i=0,j=1
+2019-09-05 16:34:36.099 27217-27217/com.dady.state D/StateMachine: moveTempStackToStateStack: X mStateStackTop=1,startingIndex=0,Top=S1
+2019-09-05 16:34:36.099 27217-27217/com.dady.state D/StateMachine: completeConstruction: X
+2019-09-05 16:34:36.099 27217-27217/com.dady.state D/HSM: makeHsm end
+2019-09-05 16:34:36.099 27217-29069/com.dady.state D/StateMachine: handleMessage: E msg.what=-2
+2019-09-05 16:34:36.099 27217-29069/com.dady.state D/StateMachine: invokeEnterMethods: P1
+2019-09-05 16:34:36.099 27217-29069/com.dady.state D/HSM: mP1.enter
+2019-09-05 16:34:36.099 27217-29069/com.dady.state D/StateMachine: invokeEnterMethods: S1
+2019-09-05 16:34:36.100 27217-29069/com.dady.state D/HSM: mS1.enter
+2019-09-05 16:34:36.100 27217-29069/com.dady.state D/StateMachine: handleMessage: X
+
+// send CMD
+
+2019-09-05 16:35:40.977 27217-29069/com.dady.state D/StateMachine: handleMessage: E msg.what=1
+2019-09-05 16:35:40.977 27217-29069/com.dady.state D/StateMachine: processMsg: S1
+2019-09-05 16:35:40.977 27217-29069/com.dady.state D/HSM: S1.processMessage what=1
+2019-09-05 16:35:40.977 27217-29069/com.dady.state D/StateMachine: transitionTo: destState=S1
+2019-09-05 16:35:40.977 27217-29069/com.dady.state D/StateMachine: handleMessage: new destination call exit
+2019-09-05 16:35:40.978 27217-29069/com.dady.state D/StateMachine: setupTempStateStackWithStatesToEnter: X mTempStateStackCount=1,curStateInfo: state=P1,active=true,parent=null
+2019-09-05 16:35:40.978 27217-29069/com.dady.state D/StateMachine: invokeExitMethods: S1
+2019-09-05 16:35:40.978 27217-29069/com.dady.state D/HSM: mS1.exit
+2019-09-05 16:35:40.978 27217-29069/com.dady.state D/StateMachine: moveTempStackToStateStack: i=0,j=1
+2019-09-05 16:35:40.978 27217-29069/com.dady.state D/StateMachine: moveTempStackToStateStack: X mStateStackTop=1,startingIndex=1,Top=S1
+2019-09-05 16:35:40.978 27217-29069/com.dady.state D/StateMachine: invokeEnterMethods: S1
+2019-09-05 16:35:40.978 27217-29069/com.dady.state D/HSM: mS1.enter
+2019-09-05 16:35:40.978 27217-29069/com.dady.state D/StateMachine: handleMessage: X
+2019-09-05 16:35:40.979 27217-29069/com.dady.state D/StateMachine: handleMessage: E msg.what=2
+2019-09-05 16:35:40.979 27217-29069/com.dady.state D/StateMachine: processMsg: S1
+2019-09-05 16:35:40.979 27217-29069/com.dady.state D/HSM: S1.processMessage what=2
+2019-09-05 16:35:40.979 27217-29069/com.dady.state D/StateMachine: processMsg: P1
+2019-09-05 16:35:40.979 27217-29069/com.dady.state D/HSM: mP1.processMessage what=2
+2019-09-05 16:35:40.982 27217-29069/com.dady.state D/StateMachine: deferMessage: msg=2
+2019-09-05 16:35:40.982 27217-29069/com.dady.state D/StateMachine: transitionTo: destState=S2
+2019-09-05 16:35:40.982 27217-29069/com.dady.state D/StateMachine: handleMessage: new destination call exit
+2019-09-05 16:35:40.982 27217-29069/com.dady.state D/StateMachine: setupTempStateStackWithStatesToEnter: X mTempStateStackCount=1,curStateInfo: state=P1,active=true,parent=null
+2019-09-05 16:35:40.982 27217-29069/com.dady.state D/StateMachine: invokeExitMethods: S1
+2019-09-05 16:35:40.982 27217-29069/com.dady.state D/HSM: mS1.exit
+2019-09-05 16:35:40.983 27217-29069/com.dady.state D/StateMachine: moveTempStackToStateStack: i=0,j=1
+2019-09-05 16:35:40.986 27217-29069/com.dady.state D/StateMachine: moveTempStackToStateStack: X mStateStackTop=1,startingIndex=1,Top=S2
+2019-09-05 16:35:40.986 27217-29069/com.dady.state D/StateMachine: invokeEnterMethods: S2
+2019-09-05 16:35:40.986 27217-29069/com.dady.state D/HSM: mS2.enter
+2019-09-05 16:35:40.987 27217-29069/com.dady.state D/StateMachine: moveDeferredMessageAtFrontOfQueue; what=2
+2019-09-05 16:35:40.987 27217-29069/com.dady.state D/StateMachine: handleMessage: X
+2019-09-05 16:35:40.987 27217-29069/com.dady.state D/StateMachine: handleMessage: E msg.what=2
+2019-09-05 16:35:40.987 27217-29069/com.dady.state D/StateMachine: processMsg: S2
+2019-09-05 16:35:40.987 27217-29069/com.dady.state D/HSM: mS2.processMessage what=2
+2019-09-05 16:35:40.987 27217-29069/com.dady.state D/StateMachine: handleMessage: X
+2019-09-05 16:35:40.988 27217-29069/com.dady.state D/StateMachine: handleMessage: E msg.what=3
+2019-09-05 16:35:40.988 27217-29069/com.dady.state D/StateMachine: processMsg: S2
+2019-09-05 16:35:40.988 27217-29069/com.dady.state D/HSM: mS2.processMessage what=3
+2019-09-05 16:35:40.988 27217-29069/com.dady.state D/StateMachine: deferMessage: msg=3
+2019-09-05 16:35:40.988 27217-29069/com.dady.state D/StateMachine: transitionTo: destState=P2
+2019-09-05 16:35:40.988 27217-29069/com.dady.state D/StateMachine: handleMessage: new destination call exit
+2019-09-05 16:35:40.988 27217-29069/com.dady.state D/StateMachine: setupTempStateStackWithStatesToEnter: X mTempStateStackCount=1,curStateInfo: null
+2019-09-05 16:35:40.988 27217-29069/com.dady.state D/StateMachine: invokeExitMethods: S2
+2019-09-05 16:35:40.988 27217-29069/com.dady.state D/HSM: mS2.exit
+2019-09-05 16:35:40.989 27217-29069/com.dady.state D/StateMachine: invokeExitMethods: P1
+2019-09-05 16:35:40.989 27217-29069/com.dady.state D/HSM: mP1.exit
+2019-09-05 16:35:40.989 27217-29069/com.dady.state D/StateMachine: moveTempStackToStateStack: i=0,j=0
+2019-09-05 16:35:40.989 27217-29069/com.dady.state D/StateMachine: moveTempStackToStateStack: X mStateStackTop=0,startingIndex=0,Top=P2
+2019-09-05 16:35:40.989 27217-29069/com.dady.state D/StateMachine: invokeEnterMethods: P2
+2019-09-05 16:35:40.989 27217-29069/com.dady.state D/HSM: mP2.enter
+2019-09-05 16:35:40.989 27217-29069/com.dady.state D/StateMachine: moveDeferredMessageAtFrontOfQueue; what=3
+2019-09-05 16:35:40.989 27217-29069/com.dady.state D/StateMachine: handleMessage: X
+2019-09-05 16:35:40.989 27217-29069/com.dady.state D/StateMachine: handleMessage: E msg.what=3
+2019-09-05 16:35:40.989 27217-29069/com.dady.state D/StateMachine: processMsg: P2
+2019-09-05 16:35:40.989 27217-29069/com.dady.state D/HSM: P2.processMessage what=3
+2019-09-05 16:35:40.996 27217-29069/com.dady.state D/StateMachine: handleMessage: X
+2019-09-05 16:35:40.997 27217-29069/com.dady.state D/StateMachine: handleMessage: E msg.what=4
+2019-09-05 16:35:40.997 27217-29069/com.dady.state D/StateMachine: processMsg: P2
+2019-09-05 16:35:40.997 27217-29069/com.dady.state D/HSM: P2.processMessage what=4
+2019-09-05 16:35:40.997 27217-29069/com.dady.state D/StateMachine: handleMessage: X
+2019-09-05 16:35:40.997 27217-29069/com.dady.state D/StateMachine: handleMessage: E msg.what=5
+2019-09-05 16:35:40.997 27217-29069/com.dady.state D/StateMachine: processMsg: P2
+2019-09-05 16:35:40.997 27217-29069/com.dady.state D/HSM: P2.processMessage what=5
+2019-09-05 16:35:40.997 27217-29069/com.dady.state D/StateMachine: transitionTo: destState=HaltingState
+2019-09-05 16:35:40.997 27217-29069/com.dady.state D/StateMachine: handleMessage: new destination call exit
+2019-09-05 16:35:40.997 27217-29069/com.dady.state D/StateMachine: setupTempStateStackWithStatesToEnter: X mTempStateStackCount=1,curStateInfo: null
+2019-09-05 16:35:40.998 27217-29069/com.dady.state D/StateMachine: invokeExitMethods: P2
+2019-09-05 16:35:40.998 27217-29069/com.dady.state D/HSM: mP2.exit
+2019-09-05 16:35:40.998 27217-29069/com.dady.state D/StateMachine: moveTempStackToStateStack: i=0,j=0
+2019-09-05 16:35:40.998 27217-29069/com.dady.state D/StateMachine: moveTempStackToStateStack: X mStateStackTop=0,startingIndex=0,Top=HaltingState
+2019-09-05 16:35:40.998 27217-29069/com.dady.state D/StateMachine: invokeEnterMethods: HaltingState
+2019-09-05 16:35:40.998 27217-29069/com.dady.state D/HSM: halting
+2019-09-05 16:35:40.998 27217-29069/com.dady.state D/StateMachine: handleMessage: X
 
 ```
 
