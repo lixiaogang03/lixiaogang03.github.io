@@ -935,6 +935,10 @@ public class WifiStateMachine extends StateMachine{}
 
 ![wifi_state_machine](/images/wifi_state_machine.jpg)
 
+### 打开wifi开关
+
+![set_wifi_enable](/images/set_wifi_enable.png)
+
 
 
 
