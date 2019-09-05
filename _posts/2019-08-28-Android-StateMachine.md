@@ -927,6 +927,10 @@ public class WifiStateMachine extends StateMachine{}
 
 ```
 
+### WifiController
+
+![wifi_controller](/images/wifi_controller.png)
+
 ### WifiStateMachine
 
 ![wifi_state_machine](/images/wifi_state_machine.jpg)
