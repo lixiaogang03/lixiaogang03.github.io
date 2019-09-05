@@ -721,11 +721,12 @@ public class HSM extends StateMachine {
 }
 
 ```
-### Demo logcat
+## Demo logcat
+
+### StateMachine start()
 
 ```txt
 
-// 状态机初始化
 2019-09-05 16:34:36.079 27217-27217/com.dady.state D/HSM: makeHsm start
 2019-09-05 16:34:36.090 27217-27217/com.dady.state D/StateMachine: addStateInternal: E state=HaltingState,parent=
 2019-09-05 16:34:36.090 27217-27217/com.dady.state D/StateMachine: addStateInternal: X stateInfo: state=HaltingState,active=false,parent=null
@@ -757,79 +758,147 @@ public class HSM extends StateMachine {
 2019-09-05 16:34:36.100 27217-29069/com.dady.state D/HSM: mS1.enter
 2019-09-05 16:34:36.100 27217-29069/com.dady.state D/StateMachine: handleMessage: X
 
-// send CMD
+```
 
+### send CMD1
+
+```txt
+
+// 开始处理 CMD1
 2019-09-05 16:35:40.977 27217-29069/com.dady.state D/StateMachine: handleMessage: E msg.what=1
 2019-09-05 16:35:40.977 27217-29069/com.dady.state D/StateMachine: processMsg: S1
 2019-09-05 16:35:40.977 27217-29069/com.dady.state D/HSM: S1.processMessage what=1
+
+// 转向自身 S1
 2019-09-05 16:35:40.977 27217-29069/com.dady.state D/StateMachine: transitionTo: destState=S1
 2019-09-05 16:35:40.977 27217-29069/com.dady.state D/StateMachine: handleMessage: new destination call exit
+
+// 旧分支退出 exit
 2019-09-05 16:35:40.978 27217-29069/com.dady.state D/StateMachine: setupTempStateStackWithStatesToEnter: X mTempStateStackCount=1,curStateInfo: state=P1,active=true,parent=null
 2019-09-05 16:35:40.978 27217-29069/com.dady.state D/StateMachine: invokeExitMethods: S1
 2019-09-05 16:35:40.978 27217-29069/com.dady.state D/HSM: mS1.exit
+
+// 新分支 end
 2019-09-05 16:35:40.978 27217-29069/com.dady.state D/StateMachine: moveTempStackToStateStack: i=0,j=1
 2019-09-05 16:35:40.978 27217-29069/com.dady.state D/StateMachine: moveTempStackToStateStack: X mStateStackTop=1,startingIndex=1,Top=S1
 2019-09-05 16:35:40.978 27217-29069/com.dady.state D/StateMachine: invokeEnterMethods: S1
 2019-09-05 16:35:40.978 27217-29069/com.dady.state D/HSM: mS1.enter
+
+// 处理完成
 2019-09-05 16:35:40.978 27217-29069/com.dady.state D/StateMachine: handleMessage: X
+
+```
+
+![state_machine_cmd1](/images/state_machine_cmd1.png)
+
+### send CMD2
+
+```txt
+
 2019-09-05 16:35:40.979 27217-29069/com.dady.state D/StateMachine: handleMessage: E msg.what=2
 2019-09-05 16:35:40.979 27217-29069/com.dady.state D/StateMachine: processMsg: S1
 2019-09-05 16:35:40.979 27217-29069/com.dady.state D/HSM: S1.processMessage what=2
+
+// S1 无法处理，P1 处理
 2019-09-05 16:35:40.979 27217-29069/com.dady.state D/StateMachine: processMsg: P1
 2019-09-05 16:35:40.979 27217-29069/com.dady.state D/HSM: mP1.processMessage what=2
+
+// send CMD3, 挂起 CMD2
 2019-09-05 16:35:40.982 27217-29069/com.dady.state D/StateMachine: deferMessage: msg=2
+// 转向 S2
 2019-09-05 16:35:40.982 27217-29069/com.dady.state D/StateMachine: transitionTo: destState=S2
+
+// 旧树支状态 exit
 2019-09-05 16:35:40.982 27217-29069/com.dady.state D/StateMachine: handleMessage: new destination call exit
 2019-09-05 16:35:40.982 27217-29069/com.dady.state D/StateMachine: setupTempStateStackWithStatesToEnter: X mTempStateStackCount=1,curStateInfo: state=P1,active=true,parent=null
 2019-09-05 16:35:40.982 27217-29069/com.dady.state D/StateMachine: invokeExitMethods: S1
+// S1 exit()
 2019-09-05 16:35:40.982 27217-29069/com.dady.state D/HSM: mS1.exit
+
+// 新树支 enter
 2019-09-05 16:35:40.983 27217-29069/com.dady.state D/StateMachine: moveTempStackToStateStack: i=0,j=1
 2019-09-05 16:35:40.986 27217-29069/com.dady.state D/StateMachine: moveTempStackToStateStack: X mStateStackTop=1,startingIndex=1,Top=S2
 2019-09-05 16:35:40.986 27217-29069/com.dady.state D/StateMachine: invokeEnterMethods: S2
 2019-09-05 16:35:40.986 27217-29069/com.dady.state D/HSM: mS2.enter
+
+// 处理挂起的消息 CMD2
 2019-09-05 16:35:40.987 27217-29069/com.dady.state D/StateMachine: moveDeferredMessageAtFrontOfQueue; what=2
+
 2019-09-05 16:35:40.987 27217-29069/com.dady.state D/StateMachine: handleMessage: X
 2019-09-05 16:35:40.987 27217-29069/com.dady.state D/StateMachine: handleMessage: E msg.what=2
 2019-09-05 16:35:40.987 27217-29069/com.dady.state D/StateMachine: processMsg: S2
+
+// send CMD4
 2019-09-05 16:35:40.987 27217-29069/com.dady.state D/HSM: mS2.processMessage what=2
+
+// 开始处理 CMD3
 2019-09-05 16:35:40.987 27217-29069/com.dady.state D/StateMachine: handleMessage: X
 2019-09-05 16:35:40.988 27217-29069/com.dady.state D/StateMachine: handleMessage: E msg.what=3
 2019-09-05 16:35:40.988 27217-29069/com.dady.state D/StateMachine: processMsg: S2
 2019-09-05 16:35:40.988 27217-29069/com.dady.state D/HSM: mS2.processMessage what=3
+
+// 挂起 CMD3 转向 P2
 2019-09-05 16:35:40.988 27217-29069/com.dady.state D/StateMachine: deferMessage: msg=3
 2019-09-05 16:35:40.988 27217-29069/com.dady.state D/StateMachine: transitionTo: destState=P2
+
+// 旧分支状态 exit
 2019-09-05 16:35:40.988 27217-29069/com.dady.state D/StateMachine: handleMessage: new destination call exit
 2019-09-05 16:35:40.988 27217-29069/com.dady.state D/StateMachine: setupTempStateStackWithStatesToEnter: X mTempStateStackCount=1,curStateInfo: null
 2019-09-05 16:35:40.988 27217-29069/com.dady.state D/StateMachine: invokeExitMethods: S2
+
+// S2 exit
 2019-09-05 16:35:40.988 27217-29069/com.dady.state D/HSM: mS2.exit
 2019-09-05 16:35:40.989 27217-29069/com.dady.state D/StateMachine: invokeExitMethods: P1
+
+// P1 exit
 2019-09-05 16:35:40.989 27217-29069/com.dady.state D/HSM: mP1.exit
+
+// 新分支状态 enter
 2019-09-05 16:35:40.989 27217-29069/com.dady.state D/StateMachine: moveTempStackToStateStack: i=0,j=0
 2019-09-05 16:35:40.989 27217-29069/com.dady.state D/StateMachine: moveTempStackToStateStack: X mStateStackTop=0,startingIndex=0,Top=P2
 2019-09-05 16:35:40.989 27217-29069/com.dady.state D/StateMachine: invokeEnterMethods: P2
+
+// P2 enter， send CMD5
 2019-09-05 16:35:40.989 27217-29069/com.dady.state D/HSM: mP2.enter
+
+// P2 处理挂起的 CMD3
 2019-09-05 16:35:40.989 27217-29069/com.dady.state D/StateMachine: moveDeferredMessageAtFrontOfQueue; what=3
 2019-09-05 16:35:40.989 27217-29069/com.dady.state D/StateMachine: handleMessage: X
 2019-09-05 16:35:40.989 27217-29069/com.dady.state D/StateMachine: handleMessage: E msg.what=3
 2019-09-05 16:35:40.989 27217-29069/com.dady.state D/StateMachine: processMsg: P2
+
+// CMD3 处理完成
 2019-09-05 16:35:40.989 27217-29069/com.dady.state D/HSM: P2.processMessage what=3
+
+// 开始处理 CMD4
 2019-09-05 16:35:40.996 27217-29069/com.dady.state D/StateMachine: handleMessage: X
 2019-09-05 16:35:40.997 27217-29069/com.dady.state D/StateMachine: handleMessage: E msg.what=4
 2019-09-05 16:35:40.997 27217-29069/com.dady.state D/StateMachine: processMsg: P2
 2019-09-05 16:35:40.997 27217-29069/com.dady.state D/HSM: P2.processMessage what=4
+
+// CMD4 处理完成， 开始处理 CMD5
 2019-09-05 16:35:40.997 27217-29069/com.dady.state D/StateMachine: handleMessage: X
 2019-09-05 16:35:40.997 27217-29069/com.dady.state D/StateMachine: handleMessage: E msg.what=5
 2019-09-05 16:35:40.997 27217-29069/com.dady.state D/StateMachine: processMsg: P2
 2019-09-05 16:35:40.997 27217-29069/com.dady.state D/HSM: P2.processMessage what=5
+
+// 转向暂停状态
 2019-09-05 16:35:40.997 27217-29069/com.dady.state D/StateMachine: transitionTo: destState=HaltingState
 2019-09-05 16:35:40.997 27217-29069/com.dady.state D/StateMachine: handleMessage: new destination call exit
 2019-09-05 16:35:40.997 27217-29069/com.dady.state D/StateMachine: setupTempStateStackWithStatesToEnter: X mTempStateStackCount=1,curStateInfo: null
 2019-09-05 16:35:40.998 27217-29069/com.dady.state D/StateMachine: invokeExitMethods: P2
+
+// P2 退出
 2019-09-05 16:35:40.998 27217-29069/com.dady.state D/HSM: mP2.exit
+
 2019-09-05 16:35:40.998 27217-29069/com.dady.state D/StateMachine: moveTempStackToStateStack: i=0,j=0
 2019-09-05 16:35:40.998 27217-29069/com.dady.state D/StateMachine: moveTempStackToStateStack: X mStateStackTop=0,startingIndex=0,Top=HaltingState
 2019-09-05 16:35:40.998 27217-29069/com.dady.state D/StateMachine: invokeEnterMethods: HaltingState
+
+// HaltingState 回调halting
 2019-09-05 16:35:40.998 27217-29069/com.dady.state D/HSM: halting
+
+// 状态机停止， 目前处于HaltingState
 2019-09-05 16:35:40.998 27217-29069/com.dady.state D/StateMachine: handleMessage: X
 
 ```
