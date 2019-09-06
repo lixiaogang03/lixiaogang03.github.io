@@ -931,9 +931,193 @@ public class WifiStateMachine extends StateMachine{}
 
 ![wifi_controller](/images/wifi_controller.png)
 
+```java
+
+/**
+ * WifiController is the class used to manage on/off state of WifiStateMachine for various operating
+ * modes (normal, airplane, wifi hotspot, etc.).
+ */
+public class WifiController extends StateMachine {
+
+    WifiController(Context context, WifiStateMachine wsm, WifiSettingsStore wss,
+            WifiLockManager wifiLockManager, Looper looper, FrameworkFacade f) {
+        super(TAG, looper);
+        ------------------------------------------------------------------------
+        addState(mDefaultState);
+            addState(mApStaDisabledState, mDefaultState);
+            addState(mStaEnabledState, mDefaultState);
+            addState(mApStaEnabledState, mDefaultState);
+                addState(mDeviceActiveState, mStaEnabledState);
+                addState(mDeviceInactiveState, mStaEnabledState);
+                    addState(mScanOnlyLockHeldState, mDeviceInactiveState);
+                    addState(mFullLockHeldState, mDeviceInactiveState);
+                    addState(mFullHighPerfLockHeldState, mDeviceInactiveState);
+                    addState(mNoLockHeldState, mDeviceInactiveState);
+            addState(mStaDisabledWithScanState, mDefaultState);
+            addState(mApEnabledState, mDefaultState);
+            addState(mEcmState, mDefaultState);
+
+        boolean isAirplaneModeOn = mSettingsStore.isAirplaneModeOn();
+        boolean isWifiEnabled = mSettingsStore.isWifiToggleEnabled();
+        boolean isScanningAlwaysAvailable = mSettingsStore.isScanAlwaysAvailable();
+
+        log("isAirplaneModeOn = " + isAirplaneModeOn +
+                ", isWifiEnabled = " + isWifiEnabled +
+                ", isScanningAvailable = " + isScanningAlwaysAvailable);
+
+        if (isScanningAlwaysAvailable) {
+            setInitialState(mStaDisabledWithScanState);
+        } else {
+            setInitialState(mApStaDisabledState);
+        }
+
+        setLogRecSize(100);
+        setLogOnlyTransitions(false);
+        ------------------------------------------------------------------------
+    }
+}
+
+
+/**
+ * WifiService handles remote WiFi operation requests by implementing
+ * the IWifiManager interface.
+ *
+ * @hide
+ */
+public class WifiServiceImpl extends IWifiManager.Stub {
+
+
+    public WifiServiceImpl(Context context) {
+        -------------------------------------------------------------------
+        mWifiStateMachine = new WifiStateMachine(mContext, mFacade,
+            wifiStateMachineThread.getLooper(), mUserManager, mWifiInjector,
+            new BackupManagerProxy(), mCountryCode);
+        --------------------------------------------------------------------
+    }
+
+
+    /**
+     * Check if Wi-Fi needs to be enabled and start
+     * if needed
+     *
+     * This function is used only at boot time
+     */
+    public void checkAndStartWifi() {
+        ----------------------------------------
+        mWifiController.start();
+        ----------------------------------------
+    }
+
+}
+
+public final class WifiService extends SystemService {
+
+    final WifiServiceImpl mImpl;
+
+    public WifiService(Context context) {
+        super(context);
+        mImpl = new WifiServiceImpl(context);
+    }
+
+    @Override
+    public void onStart() {
+        Log.i(TAG, "Registering " + Context.WIFI_SERVICE);
+        publishBinderService(Context.WIFI_SERVICE, mImpl);
+    }
+
+
+    @Override
+    public void onBootPhase(int phase) {
+        if (phase == SystemService.PHASE_SYSTEM_SERVICES_READY) {
+            mImpl.checkAndStartWifi();
+        }
+    }
+
+}
+
+
+public final class SystemServer {
+
+    /**
+     * Starts a miscellaneous grab bag of stuff that has yet to be refactored
+     * and organized.
+     */
+    private void startOtherServices() {
+        --------------------------------------------------------------------------
+                mSystemServiceManager.startService(WIFI_P2P_SERVICE_CLASS);
+                mSystemServiceManager.startService(WIFI_SERVICE_CLASS);
+                mSystemServiceManager.startService(
+                            "com.android.server.wifi.scanner.WifiScanningService");
+        --------------------------------------------------------------------------
+
+    }
+
+}
+
+
+```
+
 ### WifiStateMachine
 
 ![wifi_state_machine](/images/wifi_state_machine.jpg)
+
+```java
+
+/**
+ * Track the state of Wifi connectivity. All event handling is done here,
+ * and all changes in connectivity state are initiated here.
+ *
+ * Wi-Fi now supports three modes of operation: Client, SoftAp and p2p
+ * In the current implementation, we support concurrent wifi p2p and wifi operation.
+ * The WifiStateMachine handles SoftAp and Client operations while WifiP2pService
+ * handles p2p operation.
+ *
+ * @hide
+ */
+public class WifiStateMachine extends StateMachine implements WifiNative.WifiRssiEventHandler {
+
+    public WifiStateMachine(Context context, FrameworkFacade facade, Looper looper,
+                            UserManager userManager, WifiInjector wifiInjector,
+                            BackupManagerProxy backupManagerProxy,
+                            WifiCountryCode countryCode) {
+        super("WifiStateMachine", looper);
+        --------------------------------------------------------------------------------
+        // CHECKSTYLE:OFF IndentationCheck
+        addState(mDefaultState);
+            addState(mInitialState, mDefaultState);
+            addState(mSupplicantStartingState, mDefaultState);
+            addState(mSupplicantStartedState, mDefaultState);
+                addState(mDriverStartingState, mSupplicantStartedState);
+                addState(mDriverStartedState, mSupplicantStartedState);
+                    addState(mScanModeState, mDriverStartedState);
+                    addState(mConnectModeState, mDriverStartedState);
+                        addState(mL2ConnectedState, mConnectModeState);
+                            addState(mObtainingIpState, mL2ConnectedState);
+                            addState(mConnectedState, mL2ConnectedState);
+                            addState(mRoamingState, mL2ConnectedState);
+                        addState(mDisconnectingState, mConnectModeState);
+                        addState(mDisconnectedState, mConnectModeState);
+                        addState(mWpsRunningState, mConnectModeState);
+                addState(mWaitForP2pDisableState, mSupplicantStartedState);
+                addState(mDriverStoppingState, mSupplicantStartedState);
+                addState(mDriverStoppedState, mSupplicantStartedState);
+            addState(mSupplicantStoppingState, mDefaultState);
+            addState(mSoftApState, mDefaultState);
+        // CHECKSTYLE:ON IndentationCheck
+
+        setInitialState(mInitialState);
+
+        setLogRecSize(NUM_LOG_RECS_NORMAL);
+        setLogOnlyTransitions(false);
+
+        //start the state machine
+        start();
+        --------------------------------------------------------------------------------
+    }
+
+}
+
+```
 
 ### 打开wifi开关
 
