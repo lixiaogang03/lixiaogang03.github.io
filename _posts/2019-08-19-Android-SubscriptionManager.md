@@ -56,15 +56,20 @@ public class SubscriptionInfo implements Parcelable {
 
 ```
 
+```txt
+
 ++++++++++++++++++++++++++++++++
  AllSubInfoList:
   {id=1, iccId=898602 simSlotIndex=-1 displayName=树米eSIM carrierName=只能拨打紧急呼救电话 nameSource=0 iconTint=-16746133 dataRoaming=0 iconBitmap=android.graphics.Bitmap@a8d2cfe mcc 460 mnc 4}
   {id=2, iccId=89860318740211132823 simSlotIndex=-1 displayName=中国电信 carrierName=CHN-CT nameSource=0 iconTint=-16746133 dataRoaming=0 iconBitmap=android.graphics.Bitmap@c45bc5f mcc 460 mnc 11}
 ++++++++++++++++++++++++++++++++
 
+```
+
 ### subid
 
 **slotid**或者**phoneid**是指卡槽，双卡机器的卡槽1值为0，卡槽2值为1，依次类推
+
 **subid**：SubscriptionId(Subscription Identifier)。subid是数据库telephony.db的表siminfo的主键递增项，其中telephony.db在"/data/user_de/0/com.android.providers.telephony/databases"下
 
 
