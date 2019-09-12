@@ -208,7 +208,7 @@ public class ServiceState implements Parcelable {
     IsUsingCarrierAggregation=false
     mRilImsRadioTechnology=0
 
-```txt
+```
 
 ## ServiceStateTracker
 
@@ -358,7 +358,7 @@ public class ServiceStateTracker extends Handler {
 
 ```
 
-## ServiceStateTracker初始化
+### ServiceStateTracker初始化
 
 ```java
 
@@ -477,6 +477,133 @@ public class TelephonyComponentFactory {
         Rlog.d(LOG_TAG, "makeServiceStateTracker");
         return new ServiceStateTracker(phone, ci);
     }
+
+}
+
+```
+
+### 消息注册和发送
+
+```java
+
+public interface CommandsInterface {
+
+    void registerForRadioStateChanged(Handler h, int what, Object obj);
+
+    void registerForVoiceRadioTechChanged(Handler h, int what, Object obj);
+
+    void registerForImsNetworkStateChanged(Handler h, int what, Object obj);
+
+}
+
+public abstract class BaseCommands implements CommandsInterface {
+
+    protected RegistrantList mRadioStateChangedRegistrants = new RegistrantList();
+
+    @Override
+    public void registerForRadioStateChanged(Handler h, int what, Object obj) {
+        Registrant r = new Registrant (h, what, obj);
+
+        synchronized (mStateMonitor) {
+            mRadioStateChangedRegistrants.add(r);
+            r.notifyRegistrant();
+        }
+    }
+
+    /**
+     * Store new RadioState and send notification based on the changes
+     *
+     * This function is called only by RIL.java when receiving unsolicited
+     * RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED
+     *
+     * RadioState has 3 values : RADIO_OFF, RADIO_UNAVAILABLE, RADIO_ON.
+     *
+     * @param newState new RadioState decoded from RIL_UNSOL_RADIO_STATE_CHANGED
+     */
+    protected void setRadioState(RadioState newState) {
+        -------------------------------------------------------------
+                    mRadioStateChangedRegistrants.notifyRegistrants();   // 发送
+        -------------------------------------------------------------
+
+    }
+
+}
+
+
+/**
+ * RIL implementation of the CommandsInterface.
+ *
+ * {@hide}
+ */
+public final class RIL extends BaseCommands implements CommandsInterface {
+
+    private void switchToRadioState(RadioState newState) {
+        setRadioState(newState);
+    }
+
+
+}
+
+```
+
+### 消息处理
+
+```java
+
+public class ServiceStateTracker extends Handler {
+
+    @Override
+    public void handleMessage(Message msg) {
+        -------------------------------------------------------------------------------
+            case EVENT_SIM_READY:
+                // Reset the mPreviousSubId so we treat a SIM power bounce
+                // as a first boot.  See b/19194287
+                mOnSubscriptionsChangedListener.mPreviousSubId.set(-1);
+                pollState();
+                // Signal strength polling stops when radio is off
+                queueNextSignalStrengthPoll();
+                break;
+        --------------------------------------------------------------------------------
+    }
+
+    private void modemTriggeredPollState() {
+        pollState(true);
+    }
+
+
+    // pollState方法向RIL发起请求，RIL会异步处理请求，最终会向Modem发起AT命令
+    // 处理完成后发送新的消息，由handlePollStateResult处理消息
+    public void pollState(boolean modemTriggered) {
+        ---------------------------------------------------------------------------
+        switch (mCi.getRadioState()) {
+
+        ---------------------------------------------------------------------------
+            default:
+                if (modemTriggered) mIsModemTriggeredPollingPending = true;
+                // Issue all poll-related commands at once then count down the responses, which
+                // are allowed to arrive out-of-order
+                mPollingContext[0]++;
+                mCi.getOperator(obtainMessage(EVENT_POLL_STATE_OPERATOR, mPollingContext));
+
+                mPollingContext[0]++;
+                mCi.getDataRegistrationState(obtainMessage(EVENT_POLL_STATE_GPRS, mPollingContext));
+
+                mPollingContext[0]++;
+                mCi.getVoiceRegistrationState(obtainMessage(EVENT_POLL_STATE_REGISTRATION,
+                        mPollingContext));
+
+                if (mPhone.isPhoneTypeGsm()) {
+                    mPollingContext[0]++;
+                    mCi.getNetworkSelectionMode(obtainMessage(
+                            EVENT_POLL_STATE_NETWORK_SELECTION_MODE, mPollingContext));
+                }
+                break;
+
+        ----------------------------------------------------------------------------
+
+    }
+
+    protected void handlePollStateResult(int what, AsyncResult ar) {}
 
 }
 
