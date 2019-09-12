@@ -14,6 +14,8 @@ tags:
 
 ## 背景
 
+```java
+
 // 电话状态跟踪
 public abstract class CallTracker extends Handler
 
@@ -22,6 +24,8 @@ public class ServiceStateTracker extends Handler
 
 // 数据连接状态跟踪
 public class DcTracker extends Handler;
+
+```
 
 以上三个 Tracker 对象负责与 RIL 类的 Java 对象进行交互，而这些交互在 RIL 层中的处理是与 Modem 基于串口连接的AT命令的发送和执行，最终完成语音通话、网络服务状态和网络数据连接的控制和管理
 
