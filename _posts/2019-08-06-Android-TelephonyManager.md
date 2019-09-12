@@ -85,7 +85,33 @@ class TelephonyRegistry extends ITelephonyRegistry.Stub {
 }
 
 
+## ServiceState
+
 public class ServiceState implements Parcelable {
+
+    /**
+     * Normal operation condition, the phone is registered
+     * with an operator either in home network or in roaming.
+     */
+    public static final int STATE_IN_SERVICE = 0;
+
+    /**
+     * Phone is not registered with any operator, the phone
+     * can be currently searching a new operator to register to, or not
+     * searching to registration at all, or registration is denied, or radio
+     * signal is not available.
+     */
+    public static final int STATE_OUT_OF_SERVICE = 1;
+
+    /**
+     * The phone is registered and locked.  Only emergency numbers are allowed. {@more}
+     */
+    public static final int STATE_EMERGENCY_ONLY = 2;
+
+    /**
+     * Radio of telephony is explicitly powered off.
+     */
+    public static final int STATE_POWER_OFF = 3;
 
     /**
      * Get current registered data network operator name in long alphanumeric format.
@@ -108,9 +134,66 @@ public class ServiceState implements Parcelable {
         return mVoiceOperatorAlphaLong;
     }
 
+    @Override
+    public String toString() {
+        String radioTechnology = rilRadioTechnologyToString(mRilVoiceRadioTechnology);
+        String dataRadioTechnology = rilRadioTechnologyToString(mRilDataRadioTechnology);
+
+        return (mVoiceRegState                                                          // 语音注册状态
+                + " " + mDataRegState                                                   // 数据注册状态
+                + " "
+                + "voice " + getRoamingLogString(mVoiceRoamingType)                     // 语音漫游类型
+                + " "
+                + "data " + getRoamingLogString(mDataRoamingType)                       // 数据漫游类型
+                + " " + mVoiceOperatorAlphaLong                                         // 语音服务运营商
+                + " " + mVoiceOperatorAlphaShort
+                + " " + mVoiceOperatorNumeric                                           // 46000 中国移动(GSM), 46001 中国联通(GSM), 46003 中国电信(CDMA)
+                + " " + mDataOperatorAlphaLong                                          // 数据服务运营商
+                + " " + mDataOperatorAlphaShort
+                + " " + mDataOperatorNumeric
+                + " " + (mIsManualNetworkSelection ? "(manual)" : "")
+                + " " + radioTechnology                                                  // 无线通信技术类型
+                + " " + dataRadioTechnology                                              // 数据无线通信技术类型                                           
+                + " " + (mCssIndicator ? "CSS supported" : "CSS not supported")
+                + " " + mNetworkId
+                + " " + mSystemId
+                + " RoamInd=" + mCdmaRoamingIndicator
+                + " DefRoamInd=" + mCdmaDefaultRoamingIndicator
+                + " EmergOnly=" + mIsEmergencyOnly                                       // 拨打紧急电话
+                + " IsDataRoamingFromRegistration=" + mIsDataRoamingFromRegistration
+                + " IsUsingCarrierAggregation=" + mIsUsingCarrierAggregation
+                + " mRilImsRadioTechnology=" + mRilImsRadioTechnology);
+    }
+
 }
 
-
 ```
+
+### ServiceState toString
+
+```txt
+
+    0                    // 语音注册状态  STATE_IN_SERVICE
+    0                    // 数据注册状态  STATE_IN_SERVICE
+    voice home           // 语音漫游类型  home
+    data home            // 数据漫游类型  home
+    树米eSIM              // 语音服务运行商
+    树米eSIM
+    46000                // 46000 中国移动(GSM), 46001 中国联通(GSM), 46003 中国电信(CDMA)
+    树米eSIM
+    树米eSIM
+    46000
+    LTE LTE              // 无线通信技术类型
+    CSS not supported
+    -1
+    -1 
+    RoamInd=-1 DefRoamInd=-1
+    EmergOnly=false
+    IsDataRoamingFromRegistration=false
+    IsUsingCarrierAggregation=false
+    mRilImsRadioTechnology=0
+
+```txt
+
 
 
