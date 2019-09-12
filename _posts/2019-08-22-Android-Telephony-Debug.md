@@ -13,6 +13,41 @@ tags:
 
 [adb_command](https://github.com/mzlogin/awesome-adb/blob/master/README.md)
 
+
+## 概念
+
+### MCC
+
+**Mobile Country Code：移动国家代码**
+
+由3位数字组成，唯一地识别移动用户所属的国家。MCC由国际电联(ITU)统一分配和管理，一旦分配就不可更改。所以一个MCC只能对应一个国家，但是一个国家可以被分配多个MCC。比如美国的MCC有310，311和316，中国的MCC只有460
+
+### MNC
+
+**Mobile Network Code：移动网络代码**
+
+共2位，中国移动TD系统使用00，中国联通GSM系统使用01，中国移动GSM系统使用02，中国电信CDMA系统使用03。它与MCC合起来唯一标识一个移动网络提供者，比如中国移动46002。
+
+Tips：MCC+MNC就可以唯一确定一个移动网络运营商。比如中国移动为46000
+
+### IMSI
+
+**International mobile subscriber identity：国际移动用户识别码**
+
+国际上为唯一识别一个移动用户所分配的号码，存于SIM卡中。IMSI共有15位，其结构如下：MCC+MNC+MSIN（MNC+MSIN=NMSI），一个典型的IMSI号码为460030912121001。所以MCC和MNC可以通过截取IMSI的前3位和次2次来获取。
+
+### IMEI
+
+**IMEI(International Mobile Equipment Identity)是国际移动设备识别码**
+
+是由15位数字组成的"电子串号"，它与每台移动电话机一一对应，而且该码是全世界唯一的，存于设备中。每一只移动电话机在组装完成后都将被赋予一个全球唯一的一组号码，这个号码从生产到交付使用都将被制造生产的厂商所记录。从这个定义上看，无论是单卡手机还是双卡手机，都应该只有一个IMEI号，但是移动设备开发规范里面明确定义，IMEI和IMSI存在一一对应的关系，所以双卡手机会有两个IMEI号。一个IMEI对应两个IMSI （SIM卡）的情况是规范里没有定义的，所以两个IMEI相对安全一些。如果两个IMSI（SIM卡）对应同一个IMEI，相当于有一个是不合法的。有些地方，比如印度什么的，检查IMEI号，两个卡用同一个IMEI号就会出现问题。所以支持双卡的手机有两个IMEI号。
+
+### ICCID
+
+SIM卡卡号，是卡的标识，不作接入网络的鉴权认证，可在SIM卡卡后查询到
+
+
+
 ## dumpsys
 
 ### dumpsys isub
