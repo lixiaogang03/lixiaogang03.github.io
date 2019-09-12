@@ -27,6 +27,8 @@ tags:
 
 ### SubscriptionInfo.java
 
+SIM卡的信息就是SubscriptionInfo(Subscription Information)，比如iccid、MNC、MCC等，多张SIM卡就有多个SubscriptionInfo
+
 ```java
 
 //frameworks/base/telephony/java/android/telephony/SubscriptionInfo.java
@@ -35,24 +37,36 @@ public class SubscriptionInfo implements Parcelable {
 
      @Override
         public void writeToParcel(Parcel dest, int flags) {
-            dest.writeInt(mId);   //数据库id，递增主键，每一个iccid的卡会占用1个id
-            dest.writeString(mIccId);  //sim卡的iccid，每张sim卡是唯一的
-            dest.writeInt(mSimSlotIndex);  //sim卡插入卡槽值，0是卡1，1是卡2，没有插入则是-1
-            dest.writeCharSequence(mDisplayName); //sim卡名称，用户可以自定义
-            dest.writeCharSequence(mCarrierName); //运营商名称
-            dest.writeInt(mNameSource);  //名称来源，是用户设置或者是从sim卡读取（一般就是运营商名称）等
-            dest.writeInt(mIconTint);   //sim卡图标染色值，tint的概念可以百度google
-            dest.writeString(mNumber);  //sim卡关联号码
-            dest.writeInt(mDataRoaming);  //sim卡是否启用数据漫游
-            dest.writeInt(mMcc);    //mcc,移动国家码，3位数字，中国是460
-            dest.writeInt(mMnc);    //mnc，移动网络码，2位数字，如00,01等，表示运营商
-            dest.writeString(mCountryIso); //国家iso代码 
-            mIconBitmap.writeToParcel(dest, flags);  //sim卡图标
+            dest.writeInt(mId);                         //数据库id，递增主键，每一个iccid的卡会占用1个id
+            dest.writeString(mIccId);                   //sim卡的iccid，每张sim卡是唯一的
+            dest.writeInt(mSimSlotIndex);               //sim卡插入卡槽值，0是卡1，1是卡2，没有插入则是-1
+            dest.writeCharSequence(mDisplayName);       //sim卡名称，用户可以自定义
+            dest.writeCharSequence(mCarrierName);       //运营商名称
+            dest.writeInt(mNameSource);                 //名称来源，是用户设置或者是从sim卡读取（一般就是运营商名称）等
+            dest.writeInt(mIconTint);                   //sim卡图标染色值，tint的概念可以百度google
+            dest.writeString(mNumber);                  //sim卡关联号码
+            dest.writeInt(mDataRoaming);                //sim卡是否启用数据漫游
+            dest.writeInt(mMcc);                        //mcc,移动国家码，3位数字，中国是460
+            dest.writeInt(mMnc);                        //mnc，移动网络码，2位数字，如00,01等，表示运营商
+            dest.writeString(mCountryIso);              //国家iso代码
+            mIconBitmap.writeToParcel(dest, flags);     //sim卡图标
         }
         ......
 }
 
 ```
+
+++++++++++++++++++++++++++++++++
+ AllSubInfoList:
+  {id=1, iccId=898602 simSlotIndex=-1 displayName=树米eSIM carrierName=只能拨打紧急呼救电话 nameSource=0 iconTint=-16746133 dataRoaming=0 iconBitmap=android.graphics.Bitmap@a8d2cfe mcc 460 mnc 4}
+  {id=2, iccId=89860318740211132823 simSlotIndex=-1 displayName=中国电信 carrierName=CHN-CT nameSource=0 iconTint=-16746133 dataRoaming=0 iconBitmap=android.graphics.Bitmap@c45bc5f mcc 460 mnc 11}
+++++++++++++++++++++++++++++++++
+
+### subid
+
+**slotid**或者**phoneid**是指卡槽，双卡机器的卡槽1值为0，卡槽2值为1，依次类推
+**subid**：SubscriptionId(Subscription Identifier)。subid是数据库telephony.db的表siminfo的主键递增项，其中telephony.db在"/data/user_de/0/com.android.providers.telephony/databases"下
+
 
 ### SubscriptionManager
 
