@@ -138,7 +138,90 @@ public abstract class BaseCommands implements CommandsInterface {
 // RIL.Java
 
 // 请求消息体
-class RILRequest {}
+class RILRequest {
+
+    static AtomicInteger sNextSerial = new AtomicInteger(0);  // 下一个 RILRequest 对象编号
+
+    private static Object sPoolSync = new Object();  // 用于同步访问
+
+    private static RILRequest sPool = null; // 保存下一个处理的 RILRequest 对象
+
+    private static int sPoolSize = 0;
+
+    private static final int MAX_POOL_SIZE = 4;  // 缓存池大小
+
+    int mSerial;  // 当前请求编号
+
+    int mRequest; // RIL 请求类型
+
+    Message mResult; // 保存 RIL 请求的Message对象
+
+    RILRequest mNext;  // 下一个 RILRequest 处理对象
+
+    /**
+     * Retrieves a new RILRequest instance from the pool.
+     *
+     * @param request RIL_REQUEST_*
+     * @param result sent when operation completes
+     * @return a RILRequest instance from the pool.
+     */
+    static RILRequest obtain(int request, Message result) {
+        RILRequest rr = null;
+
+        synchronized(sPoolSync) {
+            if (sPool != null) {
+                rr = sPool;
+                sPool = rr.mNext;
+                rr.mNext = null;
+                sPoolSize--;
+            }
+        }
+
+        if (rr == null) {
+            rr = new RILRequest();
+        }
+
+        rr.mSerial = sNextSerial.getAndIncrement();
+
+        rr.mRequest = request;
+        rr.mResult = result;
+        rr.mParcel = Parcel.obtain();
+
+        rr.mWakeLockType = RIL.INVALID_WAKELOCK;
+        rr.mStartTimeMs = SystemClock.elapsedRealtime();
+        if (result != null && result.getTarget() == null) {
+            throw new NullPointerException("Message target must not be null");
+        }
+
+        // first elements in any RIL Parcel
+        rr.mParcel.writeInt(request);
+        rr.mParcel.writeInt(rr.mSerial);
+
+        return rr;
+    }
+
+    // RIL 请求返回异常或者失败的处理
+    void onError(int error, Object ret) {
+        CommandException ex;
+
+        ex = CommandException.fromRilErrno(error);
+
+        if (RIL.RILJ_LOGD) Rlog.d(LOG_TAG, serialString() + "< "
+            + RIL.requestToString(mRequest)
+            + " error: " + ex + " ret=" + RIL.retToString(mRequest, ret));
+
+        if (mResult != null) {
+            AsyncResult.forMessage(mResult, ret, ex);
+            mResult.sendToTarget();
+        }
+
+        if (mParcel != null) {
+            mParcel.recycle();
+            mParcel = null;
+        }
+    }
+
+}
 
 public final class RIL extends BaseCommands implements CommandsInterface {
 
