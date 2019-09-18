@@ -20,6 +20,8 @@ tags:
 
 ![android_phone](/images/android_phone.png)
 
+上图为双卡设备情况
+
 ```java
 
 // 电话状态跟踪
@@ -40,9 +42,9 @@ public class DcTracker extends Handler;
 RIL(Radio Interface Layer) 无线通信接口层， 在 Android 源码中分为两大部分
 
 1. Framework 层的 Java 部分，简称 RILJ
-2. HAL 层中的 C++ 程序，简称 RILC
+2. HAL 层中的 C++ 程序，简称 RILC(rild)
 
-![android_ril](/images/android_ril.png)
+![android_ril](/images/android_ril.gif)
 
 RILJ 与 RILC 之间通过 rild 端口的 Socket 连接进行 RIL 消息的交互和处理
 
@@ -537,9 +539,22 @@ public final class RIL extends BaseCommands implements CommandsInterface {
 
 ### RIL Receiver
 
+**接收步骤**
+
+1. 分析接收到的Parcel，根据类型不同进行处理
+2. 根据数据中的Token（mSerail),反查mRequest,找到对应的请求信息
+3. 将是数据转换成结果数据
+4. 将结果放在RequestMessage中发回到请求的发起者
+
 ![android_ril_reciever](/images/android_ril_reciever.gif)
 
 ### RIL Sender
+
+**发送步骤**
+
+1. 生成RILRequest，此时将生成m_Serial（请求的Token)并将请求号，数据，及其Result Message 对象填入到RILRequest中
+2. 使用send将RILRequest打包到EVENT_SEND消息中发送到到RIL Sender Handler
+3. RilSender 接收到EVENT_SEND消息，将RILRequest通过套接口发送到RILD，同时将RILRequest保存在mRequest中以便应答消息的返回
 
 ![android_ril_sender](/images/android_ril_sender.gif)
 
@@ -549,7 +564,7 @@ public final class RIL extends BaseCommands implements CommandsInterface {
 
 ### RILJ 运行机制
 
-![android_ril_java](/images/android_ril_java.png)
+![android_ril_java](/images/android_ril_java.gif)
 
 **CallTracker 通话状态跟踪**
 
@@ -768,6 +783,8 @@ hardware/ril/
 ### RILD 运行框架
 
 ![android_rild_2](/images/android_rild_2.gif)
+
+
 
 
 
