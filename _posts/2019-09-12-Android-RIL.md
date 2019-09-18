@@ -780,11 +780,243 @@ hardware/ril/
 
 ![android_rild_2](/images/android_rild_2.gif)
 
+## 代码
+
+### rild.rc
+
+```rc
+
+service ril-daemon /system/bin/rild
+    class main
+    socket rild stream 660 root radio
+    socket sap_uim_socket1 stream 660 bluetooth bluetooth
+    socket rild-debug stream 660 radio system
+    user root
+    group radio cache inet misc audio log readproc wakelock qcom_diag
+
+```
+
+### rild.c
+
+```c
+
+static struct RIL_Env s_rilEnv = {
+    RIL_onRequestComplete,
+    RIL_onUnsolicitedResponse,
+    RIL_requestTimedCallback,
+    RIL_onRequestAck
+};
+
+int main(int argc, char **argv) {
+
+    ----------------------------------------------------------------------
+
+    RIL_startEventLoop();  // 开始循环监听Socket事件
+
+    // 获取 reference-ril.so 动态链接库，获取指向 RIL_init 函数的指针 rilInit
+    rilInit =
+        (const RIL_RadioFunctions *(*)(const struct RIL_Env *, int, char **))
+        dlsym(dlHandle, "RIL_Init");
+    -----------------------------------------------------------------------
+   
+    // 获取 reference-ril.so 动态链接库的 rilInit 函数，传递 s_rilEnv 给 reference-ril.so 返回 funcs
+    funcs = rilInit(&s_rilEnv, argc, rilArgv);
+    RLOGD("RIL_Init rilInit completed");
+
+    // 调用 libril.so 的 RIL_register 函数， 将 funcs 传递给 libril.so
+    // RIL_register 实际就是初始化监听 socket 所需的参数，然后开始监听 socket 是否有数据到来
+    RIL_register(funcs);
+
+    RLOGD("RIL_Init RIL_register completed");
+
+    if (rilUimInit) {
+        RLOGD("RIL_register_socket started");
+        RIL_register_socket(rilUimInit, RIL_SAP_SOCKET, argc, rilArgv);
+    }
+
+    RLOGD("RIL_register_socket completed");
+
+done:
+
+    RLOGD("RIL_Init starting sleep loop");
+    while (true) {
+        sleep(UINT32_MAX);  // 初始化完成后进入睡眠状态
+    }
+
+}
+
+```
+
+rild.c 中的 main 函数负责启动 rild，其中最关键的就是将 LibRIL 和 Reference-RIL 之间建立一种相互调用的能力
+
+* LibRIL 中有指向 Reference-RIL 中 **funcs** 结构体的指针
+* Reference-RIL中有指向 LibRIL 中 **s_rilEnv** 结构体的指针
+
+![android_rild_start](/images/android_rild_start.png)
+
+### LibRIL
+
+**ril.cpp**
+
+```cpp
+
+extern "C" void
+RIL_startEventLoop(void) {
+    /* spin up eventLoop thread and wait for it to get started */
+    s_started = 0;
+    pthread_mutex_lock(&s_startupMutex);
+
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+    // 创建基于eventLoop函数调用的子线程
+    int result = pthread_create(&s_tid_dispatch, &attr, eventLoop, NULL);
+    if (result != 0) {
+        RLOGE("Failed to create dispatch thread: %s", strerror(result));
+        goto done;
+    }
+
+    while (s_started == 0) {
+        pthread_cond_wait(&s_startupCond, &s_startupMutex);
+    }
+
+done:
+    pthread_mutex_unlock(&s_startupMutex);
+}
+
+static void *
+eventLoop(void *param) {
+    int ret;
+    int filedes[2];
+
+    ril_event_init();
+
+    pthread_mutex_lock(&s_startupMutex);
+
+    s_started = 1;
+    pthread_cond_broadcast(&s_startupCond);
+
+    pthread_mutex_unlock(&s_startupMutex);
+
+    ret = pipe(filedes);  // 创建通信管道, 用于事件的发送和接收
+
+    if (ret < 0) {
+        RLOGE("Error in pipe() errno:%d", errno);
+        return NULL;
+    }
+
+    s_fdWakeupRead = filedes[0];  // 管道的读端
+    s_fdWakeupWrite = filedes[1]; // 管道的写端
+
+    fcntl(s_fdWakeupRead, F_SETFL, O_NONBLOCK);
+
+    // 创建一个ril_event：s_wakeupfd_event
+    ril_event_set (&s_wakeupfd_event, s_fdWakeupRead, true,
+                processWakeupCallback, NULL);
+
+    // 将创建出的ril_event加入到event队列中
+    rilEventAddWakeup (&s_wakeupfd_event);
+
+    // Only returns on error
+    ril_event_loop();  // 开始循环监听ril_event事件
+    RLOGE ("error in event_loop_base errno:%d", errno);
+    // kill self to restart on error
+    kill(0, SIGKILL);
+
+    return NULL;
+}
+
+```
+
+**ril_event.cpp**
+
+```cpp
+
+void ril_event_loop()
+{
+    int n;
+    fd_set rfds;
+    struct timeval tv;
+    struct timeval * ptv;
 
 
+    for (;;) {
 
+        // make local copy of read fd_set
+        memcpy(&rfds, &readFds, sizeof(fd_set));
+        if (-1 == calcNextTimeout(&tv)) {
+            // no pending timers; block indefinitely
+            dlog("~~~~ no timers; blocking indefinitely ~~~~");
+            ptv = NULL;
+        } else {
+            dlog("~~~~ blocking for %ds + %dus ~~~~", (int)tv.tv_sec, (int)tv.tv_usec);
+            ptv = &tv;
+        }
+        printReadies(&rfds);
+        n = select(nfds, &rfds, NULL, NULL, ptv);
+        printReadies(&rfds);
+        dlog("~~~~ %d events fired ~~~~", n);
+        if (n < 0) {
+            if (errno == EINTR) continue;
 
+            RLOGE("ril_event: select error (%d)", errno);
+            // bail?
+            return;
+        }
 
+        // Check for timeouts
+        processTimeouts();
+        // Check for read-ready
+        processReadReadies(&rfds, n);
+        // Fire away
+        firePending();
+    }
+}
+
+```
+
+**ril_event.h**
+
+```h
+// Max number of fd's we watch at any one time.  Increase if necessary.
+#define MAX_FD_EVENTS 8
+
+typedef void (*ril_event_cb)(int fd, short events, void *userdata);
+
+struct ril_event {
+    struct ril_event *next;
+    struct ril_event *prev;
+
+    int fd;
+    int index;
+    bool persist;
+    struct timeval timeout;
+    ril_event_cb func;    // 事件执行函数
+    void *param;
+};
+
+// Initialize internal data structs
+void ril_event_init();
+
+// Initialize an event
+void ril_event_set(struct ril_event * ev, int fd, bool persist, ril_event_cb func, void * param);
+
+// Add event to watch list
+void ril_event_add(struct ril_event * ev);
+
+// Add timer event
+void ril_timer_add(struct ril_event * ev, struct timeval * tv);
+
+// Remove event from watch list
+void ril_event_del(struct ril_event * ev);
+
+// Event loop
+void ril_event_loop();
+
+```
+
+![android_rild_starteventloop](/images/android_rild_starteventloop.png)
 
 
 
