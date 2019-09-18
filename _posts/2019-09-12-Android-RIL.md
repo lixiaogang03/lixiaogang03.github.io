@@ -18,10 +18,6 @@ tags:
 
 这个虚拟电话对象就是GSMPhone(CDMAPhone), Phone 对象所提供的功能协议，以及要求下层的支撑环境都有一个统一的描述，这个底层描述的实现就是靠RIL来完成适配
 
-![android_phone](/images/android_phone.png)
-
-上图为双卡设备情况
-
 ```java
 
 // 电话状态跟踪
