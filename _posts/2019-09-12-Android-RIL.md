@@ -14,6 +14,11 @@ tags:
 
 ## 背景
 
+由于 Android 开发者使用的 Modem 是不一样的，各种指令格式，初始化序列都可能不一样，GSM 和 CDMA 就差别更大了，所以为了消除这些差别，Android 设计者将ril做了一个抽象，使用一个虚拟电话的概念。
+这个虚拟电话对象就是GSMPhone(CDMAPhone), Phone 对象所提供的功能协议，以及要求下层的支撑环境都有一个统一的描述，这个底层描述的实现就是靠RIL来完成适配
+
+![android_phone](/images/android_phone.png)
+
 ```java
 
 // 电话状态跟踪
@@ -741,9 +746,9 @@ hardware/ril/
 
 ![android_hal_2](/images/android_hal_2.png)
 
+### RILC 运行框架
 
-
-
+![android_rild](/images/android_rild.gif)
 
 
 
