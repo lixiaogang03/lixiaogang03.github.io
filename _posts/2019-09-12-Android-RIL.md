@@ -721,19 +721,19 @@ hardware/ril/
 
 ### Linux HAL-硬件抽象层
 
-Windows HAL : 位于驱动程序和硬件设备之间，更换硬件设备无需更换驱动程序
+**Windows HAL** : 位于驱动程序和硬件设备之间，更换硬件设备无需更换驱动程序
 
-Linux HAL : 位于操作系统核心层和驱动程序之上，是一个运行在 User Space 用户空间的服务程序(Daemon process), 为上层应用提供统一的接口，硬件更换时需要更新设备驱动
+**Linux HAL** : 位于操作系统核心层和驱动程序之上，是一个运行在 User Space 用户空间的服务程序(Daemon process), 为上层应用提供统一的接口，硬件更换时需要更新设备驱动
 
 ![linux_hal](/images/linux_hal.png)
 
 ### Android HAL
 
-旧结构 ：应用或者框架通过 *.so 动态链接库的调用而达到对硬件驱动的访问
+**旧结构** ：应用或者框架通过 *.so 动态链接库的调用而达到对硬件驱动的访问
 
 ![android_hal](/images/android_hal.png)
 
-新结构 ：HAL Stub 是一种 Proxy 代理概念，虽然 Stub 仍然以 *.so 的形式存在，但是具体实现已经隐藏了起来
+**新结构** ：HAL Stub 是一种 Proxy 代理概念，虽然 Stub 仍然以 *.so 的形式存在，但是具体实现已经隐藏了起来
 
 * Stub 向 HAL 提供 operation 方法
 * Runtime(Daemon process) 通过 Stub 提供的 *.so 获取它的 operation 方法，并设置 Callback
