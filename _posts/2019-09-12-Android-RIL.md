@@ -780,9 +780,10 @@ hardware/ril/
 
 ![android_rild_2](/images/android_rild_2.gif)
 
-## 代码
 
-### rild.rc
+### rild
+
+**rild.rc**
 
 ```rc
 
@@ -796,7 +797,7 @@ service ril-daemon /system/bin/rild
 
 ```
 
-### rild.c
+**rild.c**
 
 ```c
 
@@ -814,17 +815,20 @@ int main(int argc, char **argv) {
     RIL_startEventLoop();  // 开始循环监听Socket事件
 
     // 获取 reference-ril.so 动态链接库，获取指向 RIL_init 函数的指针 rilInit
+
     rilInit =
         (const RIL_RadioFunctions *(*)(const struct RIL_Env *, int, char **))
         dlsym(dlHandle, "RIL_Init");
     -----------------------------------------------------------------------
    
     // 获取 reference-ril.so 动态链接库的 rilInit 函数，传递 s_rilEnv 给 reference-ril.so 返回 funcs
+
     funcs = rilInit(&s_rilEnv, argc, rilArgv);
     RLOGD("RIL_Init rilInit completed");
 
     // 调用 libril.so 的 RIL_register 函数， 将 funcs 传递给 libril.so
     // RIL_register 实际就是初始化监听 socket 所需的参数，然后开始监听 socket 是否有数据到来
+
     RIL_register(funcs);
 
     RLOGD("RIL_Init RIL_register completed");
@@ -871,6 +875,7 @@ RIL_startEventLoop(void) {
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
     // 创建基于eventLoop函数调用的子线程
+
     int result = pthread_create(&s_tid_dispatch, &attr, eventLoop, NULL);
     if (result != 0) {
         RLOGE("Failed to create dispatch thread: %s", strerror(result));
@@ -912,14 +917,16 @@ eventLoop(void *param) {
     fcntl(s_fdWakeupRead, F_SETFL, O_NONBLOCK);
 
     // 创建一个ril_event：s_wakeupfd_event
+
     ril_event_set (&s_wakeupfd_event, s_fdWakeupRead, true,
                 processWakeupCallback, NULL);
 
     // 将创建出的ril_event加入到event队列中
+
     rilEventAddWakeup (&s_wakeupfd_event);
 
     // Only returns on error
-    ril_event_loop();  // 开始循环监听ril_event事件
+    ril_event_loop();                   // 开始循环监听ril_event事件
     RLOGE ("error in event_loop_base errno:%d", errno);
     // kill self to restart on error
     kill(0, SIGKILL);
@@ -1018,6 +1025,7 @@ void ril_event_loop();
 
 ![android_rild_starteventloop](/images/android_rild_starteventloop.png)
 
+### Reference-RIL(厂商实现部分)
 
 
 
