@@ -819,6 +819,7 @@ int main(int argc, char **argv) {
     rilInit =
         (const RIL_RadioFunctions *(*)(const struct RIL_Env *, int, char **))
         dlsym(dlHandle, "RIL_Init");
+
     -----------------------------------------------------------------------
    
     // 获取 reference-ril.so 动态链接库的 rilInit 函数，传递 s_rilEnv 给 reference-ril.so 返回 funcs
@@ -866,52 +867,31 @@ rild.c 中的 main 函数负责启动 rild，其中最关键的就是将 LibRIL 
 
 extern "C" void
 RIL_startEventLoop(void) {
-    /* spin up eventLoop thread and wait for it to get started */
-    s_started = 0;
-    pthread_mutex_lock(&s_startupMutex);
 
-    pthread_attr_t attr;
-    pthread_attr_init(&attr);
-    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    --------------------------------------------------------------------
 
     // 创建基于eventLoop函数调用的子线程
 
     int result = pthread_create(&s_tid_dispatch, &attr, eventLoop, NULL);
-    if (result != 0) {
-        RLOGE("Failed to create dispatch thread: %s", strerror(result));
-        goto done;
-    }
 
-    while (s_started == 0) {
-        pthread_cond_wait(&s_startupCond, &s_startupMutex);
-    }
+    --------------------------------------------------------------------
 
-done:
-    pthread_mutex_unlock(&s_startupMutex);
 }
 
-static void *
-eventLoop(void *param) {
+static void *eventLoop(void *param) {
     int ret;
     int filedes[2];
 
     ril_event_init();
 
-    pthread_mutex_lock(&s_startupMutex);
-
-    s_started = 1;
-    pthread_cond_broadcast(&s_startupCond);
-
-    pthread_mutex_unlock(&s_startupMutex);
+    ------------------------------------------------------
 
     ret = pipe(filedes);  // 创建通信管道, 用于事件的发送和接收
 
-    if (ret < 0) {
-        RLOGE("Error in pipe() errno:%d", errno);
-        return NULL;
-    }
+    ------------------------------------------------------
 
     s_fdWakeupRead = filedes[0];  // 管道的读端
+
     s_fdWakeupWrite = filedes[1]; // 管道的写端
 
     fcntl(s_fdWakeupRead, F_SETFL, O_NONBLOCK);
@@ -925,13 +905,11 @@ eventLoop(void *param) {
 
     rilEventAddWakeup (&s_wakeupfd_event);
 
-    // Only returns on error
-    ril_event_loop();                   // 开始循环监听ril_event事件
-    RLOGE ("error in event_loop_base errno:%d", errno);
-    // kill self to restart on error
-    kill(0, SIGKILL);
+    // 开始循环监听ril_event事件
 
-    return NULL;
+    ril_event_loop();
+
+    -------------------------------------------------------
 }
 
 ```
@@ -950,32 +928,22 @@ void ril_event_loop()
 
     for (;;) {
 
-        // make local copy of read fd_set
-        memcpy(&rfds, &readFds, sizeof(fd_set));
-        if (-1 == calcNextTimeout(&tv)) {
-            // no pending timers; block indefinitely
-            dlog("~~~~ no timers; blocking indefinitely ~~~~");
-            ptv = NULL;
-        } else {
-            dlog("~~~~ blocking for %ds + %dus ~~~~", (int)tv.tv_sec, (int)tv.tv_usec);
-            ptv = &tv;
-        }
-        printReadies(&rfds);
-        n = select(nfds, &rfds, NULL, NULL, ptv);
-        printReadies(&rfds);
-        dlog("~~~~ %d events fired ~~~~", n);
-        if (n < 0) {
-            if (errno == EINTR) continue;
+        -----------------------------------------
 
-            RLOGE("ril_event: select error (%d)", errno);
-            // bail?
-            return;
-        }
+        printReadies(&rfds);
+
+        n = select(nfds, &rfds, NULL, NULL, ptv);
+
+        printReadies(&rfds);
+
+        -----------------------------------------
 
         // Check for timeouts
         processTimeouts();
+
         // Check for read-ready
         processReadReadies(&rfds, n);
+
         // Fire away
         firePending();
     }
