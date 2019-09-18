@@ -232,6 +232,9 @@ public final class RIL extends BaseCommands implements CommandsInterface {
     RILReceiver mReceiver;
 
     // 请求消息对象列表
+    // RILJ 发起请求消息时，将 RILRequest 请求对象保存在 mRequestsList 列表中;
+    // RILC 处理完成返回消息后，将此消息从 mRequestsList 列表移除，
+    // 这说明正常情况下 Request 和 Response处于一一对应的关系
     SparseArray<RILRequest> mRequestList = new SparseArray<RILRequest>();
 
     // 向RILC发出请求消息
@@ -297,6 +300,155 @@ public final class RIL extends BaseCommands implements CommandsInterface {
             --------------------------------------------------------------------
         }
 
+    }
+
+    // RILC 返回的消息处理
+    private void processResponse (Parcel p) {
+        int type;
+
+        type = p.readInt();
+
+        if (type == RESPONSE_UNSOLICITED || type == RESPONSE_UNSOLICITED_ACK_EXP) {
+            // 处理 Modem 主动上报的消息
+            processUnsolicited (p, type);
+        } else if (type == RESPONSE_SOLICITED || type == RESPONSE_SOLICITED_ACK_EXP) {
+            // 处理 RILJ 请求返回的消息
+            RILRequest rr = processSolicited (p, type);
+            if (rr != null) {
+                if (type == RESPONSE_SOLICITED) {
+                    decrementWakeLock(rr);
+                }
+                rr.release();
+                return;
+            }
+        } else if (type == RESPONSE_SOLICITED_ACK) {
+            int serial;
+            serial = p.readInt();
+
+            RILRequest rr;
+            synchronized (mRequestList) {
+                rr = mRequestList.get(serial);
+            }
+            if (rr == null) {
+                Rlog.w(RILJ_LOG_TAG, "Unexpected solicited ack response! sn: " + serial);
+            } else {
+                decrementWakeLock(rr);
+                if (RILJ_LOGD) {
+                    riljLog(rr.serialString() + " Ack < " + requestToString(rr.mRequest));
+                }
+            }
+        }
+    }
+
+    // 处理 Modem 主动上报的消息
+    private void processUnsolicited(Parcel p, int type) {
+        int response;
+        Object ret;
+
+        response = p.readInt();
+
+        // 组装返回对象ret
+        try {
+            switch (response) {
+                case RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED:
+                    ret = responseVoid(p);
+                    break;
+                case RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED:
+                    ret = responseVoid(p);
+                    break;
+                -----------------------------------------------
+            }
+        } catch (Throwable tr) {
+            Rlog.e(RILJ_LOG_TAG, "Exception processing unsol response: " + response +
+                    "Exception:" + tr.toString());
+            return;
+        }
+
+        // 发送出 Registant消息通知
+        switch (response) {
+            case RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED:
+                /* has bonus radio state int */
+                RadioState newState = getRadioStateFromInt(p.readInt());
+                if (RILJ_LOGD) unsljLogMore(response, newState.toString());
+
+                switchToRadioState(newState);
+                break;
+                -------------------------------------------------------------------------
+            case RIL_UNSOL_SIGNAL_STRENGTH:
+                // Note this is set to "verbose" because it happens
+                // frequently
+                if (RILJ_LOGV) unsljLogvRet(response, ret);
+
+                // 发出消息通知，此通知是 ServiceStaterTracker接收和处理的
+                if (mSignalStrengthRegistrant != null) {
+                    mSignalStrengthRegistrant.notifyRegistrant(
+                            new AsyncResult(null, ret, null));
+                }
+                break;
+        }
+
+    }
+
+    // 处理客户端向 RILC 请求返回的消息
+    private RILRequest processSolicited(Parcel p, int type) {
+        int serial, error;
+        boolean found = false;
+
+        serial = p.readInt();
+        error = p.readInt();
+
+        RILRequest rr;
+
+        // 从 mRequestList中找到消息，并从列表移除，从而保证请求消息和返回消息的一一对应关系
+        rr = findAndRemoveRequestFromList(serial);
+
+        if (rr == null) {
+            Rlog.w(RILJ_LOG_TAG, "Unexpected solicited response! sn: "
+                    + serial + " error: " + error);
+            return null;
+        }
+        ----------------------------------------------------------------------
+        if (error == 0 || p.dataAvail() > 0) {
+            // either command succeeds or command fails but with data payload
+            try {
+                switch (rr.mRequest) {
+                    case RIL_REQUEST_GET_SIM_STATUS:
+                        ret = responseIccCardStatus(p);
+                        break;
+                    case RIL_REQUEST_DIAL:
+                        ret = responseVoid(p);
+                        break;
+                    case RIL_REQUEST_GET_IMSI:
+                        ret = responseString(p);
+                        break;
+                    ---------------------------------------------------------------
+            } catch (Throwable tr) {
+                // Exceptions here usually mean invalid RIL responses
+
+                Rlog.w(RILJ_LOG_TAG, rr.serialString() + "< "
+                        + requestToString(rr.mRequest)
+                        + " exception, possible invalid RIL response", tr);
+
+                if (rr.mResult != null) {
+                    AsyncResult.forMessage(rr.mResult, null, tr);
+                    rr.mResult.sendToTarget();
+                }
+                return rr;
+            }
+        }
+        ---------------------------------------------------------------------------
+        if (error == 0) {
+
+            if (RILJ_LOGD) riljLog(rr.serialString() + "< " + requestToString(rr.mRequest)
+                    + " " + retToString(rr.mRequest, ret));
+
+            if (rr.mResult != null) {
+                // 发出消息通知，完成请求消息的回调操作
+                AsyncResult.forMessage(rr.mResult, ret, null);
+                rr.mResult.sendToTarget();
+            }
+        }
+        -----------------------------------------------------------------------------
     }
 
     // 向 RILC 发送请求消息
