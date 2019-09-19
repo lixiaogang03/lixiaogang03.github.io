@@ -997,6 +997,8 @@ void ril_event_loop();
 
 **reference_ril.c**
 
+```c
+
 #ifdef RIL_SHLIB
 static const struct RIL_Env *s_rilenv;
 
@@ -1012,9 +1014,6 @@ static const struct RIL_Env *s_rilenv;
 
 
 #endif
-
-
-```c
 
 /*** Static Variables ***/
 static const RIL_RadioFunctions s_callbacks = {
@@ -1091,8 +1090,8 @@ static void *mainLoop(void *param __unused) {
 
         RIL_requestTimedCallback(initializeCallback, NULL, &TIMEVAL_0);
 
-        // Give initializeCallback a chance to dispatched, since
-        // we don't presently have a cancellation mechanism
+        // Give initializeCallback a chance to dispatched, since we don't presently have a cancellation mechanism
+
         sleep(1);
 
         // 进入等待状态，如果 AT 模块被关闭，则函数返回，因此mainLoop的主要工作其实就是初始化并监控AT模块， 一旦发现被关闭，就要重新打开并初始化
@@ -1102,13 +1101,8 @@ static void *mainLoop(void *param __unused) {
 
     }
 
-/**
- * Called by atchannel when an unsolicited line appears
- * This is called on atchannel's reader thread. AT commands may
- * not be issued here
- */
-
 // Modem 上报消息的回调
+
 static void onUnsolicited (const char *s, const char *sms_pdu) {
 
     ---------------------------------------------------------------
@@ -1162,6 +1156,7 @@ static void *readerLoop(void *arg __unused) {
         }
 
         if(isSMSUnsolicited(line)) {  // 接收的短信处理逻辑
+
             char *line1;
             const char *line2;
 
@@ -1182,6 +1177,7 @@ static void *readerLoop(void *arg __unused) {
             free(line1);
         } else {
             processLine(line);    // 处理 Modem 发出的命令行
+
         }
     }
 
@@ -1204,9 +1200,22 @@ static void processLine(const char *line) {
 }
 
 static void handleUnsolicited(const char *line) {
+
     if (s_unsolHandler != NULL) {
         s_unsolHandler(line, NULL); // 回调onUnsolicited
+
     }
+}
+
+// 用于发送 AT 命令
+
+int at_send_command (const char *command, ATResponse **pp_outResponse) {
+    int err;
+
+    err = at_send_command_full (command, NO_RESULT, NULL,
+                                    NULL, 0, pp_outResponse);
+
+    return err;
 }
 
 ```
