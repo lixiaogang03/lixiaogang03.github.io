@@ -15,6 +15,7 @@ tags:
 
 ### 高通 QXDM
 
+![qcom_qxdm](/images/qcom_qxdm.png)
 
 ### MTK mtklog
 
