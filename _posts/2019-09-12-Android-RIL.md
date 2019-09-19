@@ -995,6 +995,226 @@ void ril_event_loop();
 
 ### Reference-RIL(厂商实现部分)
 
+**reference_ril.c**
+
+#ifdef RIL_SHLIB
+static const struct RIL_Env *s_rilenv;
+
+// LibRIL 请求消息的回调接口
+
+#define RIL_onRequestComplete(t, e, response, responselen) s_rilenv->OnRequestComplete(t,e, response, responselen)
+
+// Modem 主动上报的消息的LibRIL回调接口
+
+#define RIL_onUnsolicitedResponse(a,b,c) s_rilenv->OnUnsolicitedResponse(a,b,c)
+
+#define RIL_requestTimedCallback(a,b,c) s_rilenv->RequestTimedCallback(a,b,c)
+
+
+#endif
+
+
+```c
+
+/*** Static Variables ***/
+static const RIL_RadioFunctions s_callbacks = {
+    RIL_VERSION,             // Reference-RIL 版本号
+    onRequest,               // 指向 onRequest 函数的指针
+    currentState,
+    onSupports,
+    onCancel,
+    getVersion
+};
+
+pthread_t s_tid_mainloop;
+
+static const struct RIL_Env *s_rilenv;
+
+const RIL_RadioFunctions *RIL_Init(const struct RIL_Env *env, int argc, char **argv) {
+
+    ------------------------------------------------------------
+
+    s_rilenv = env;  // 记录 LibRIL 提供的 RIL_Env 指针， 通过它可调用 LibRIL 提供的相应函数
+
+    ------------------------------------------------------------
+
+    pthread_attr_init (&attr);
+
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+    // 启动基于 mainLoop 函数运行的子进程，mainLoop主要负责监听和接收 Modem 主动上报的 UnSolicited 消息
+
+    ret = pthread_create(&s_tid_mainloop, &attr, mainLoop, NULL);
+
+    // 返回 Reference-RIL 提供的指向 RIL_RadioFunctions 的指针 s_callbacks， LibRIL 可以调用 Reference-RIL 提供的函数
+
+    return &s_callbacks;
+
+    -------------------------------------------------------------
+
+}
+
+// 负责监听和处理 modem 上报的消息
+
+static void *mainLoop(void *param __unused) {
+
+    ------------------------------------------------------------------
+
+    for (;;) {
+        fd = -1;
+        while  (fd < 0) {
+
+            // 与 Modem 建立基于串口的通信连接， 返回链接的文件描述符fd
+
+            if (s_port > 0) {
+
+                fd = socket_loopback_client(s_port, SOCK_STREAM);
+
+            } else if (s_device_socket) {
+                if (!strcmp(s_device_path, "/dev/socket/qemud")) {
+
+            ----------------------------------------------------------
+
+        }
+
+        --------------------------------------------------------------
+
+        // 开启 AT 命令通道， at_open函数由atchannel.c提供， onUnsolicited 用于回调
+
+        ret = at_open(fd, onUnsolicited);
+        if (ret < 0) {
+            RLOGE ("AT error %d on at_open\n", ret);
+            return 0;
+        }
+
+        // 增加定时 RIL 任务，且回调initializeCallback， 用于初始化modem
+
+        RIL_requestTimedCallback(initializeCallback, NULL, &TIMEVAL_0);
+
+        // Give initializeCallback a chance to dispatched, since
+        // we don't presently have a cancellation mechanism
+        sleep(1);
+
+        // 进入等待状态，如果 AT 模块被关闭，则函数返回，因此mainLoop的主要工作其实就是初始化并监控AT模块， 一旦发现被关闭，就要重新打开并初始化
+
+        waitForClose();
+        RLOGI("Re-opening after close");
+
+    }
+
+/**
+ * Called by atchannel when an unsolicited line appears
+ * This is called on atchannel's reader thread. AT commands may
+ * not be issued here
+ */
+
+// Modem 上报消息的回调
+static void onUnsolicited (const char *s, const char *sms_pdu) {
+
+    ---------------------------------------------------------------
+
+        // 调用 LibRIL 的 RIL_onUnsolicitedResponse 发出不同类型的消息通知
+
+        RIL_onUnsolicitedResponse (
+            RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED,
+            NULL, 0);
+
+    ---------------------------------------------------------------
+
+}
+
+```
+
+**atchannel.c**
+
+```c
+
+/**
+ * Starts AT handler on stream "fd'
+ * returns 0 on success, -1 on error
+ */
+int at_open(int fd, ATUnsolHandler h) {
+
+    -------------------------------------------------------------
+
+    s_fd = fd;
+    s_unsolHandler = h;  // onUnsolicited 函数指针
+
+    --------------------------------------------------------------
+
+    // 创建 readerLoop 子线程
+
+    ret = pthread_create(&s_tid_reader, &attr, readerLoop, &attr);
+
+    --------------------------------------------------------------
+
+}
+
+// 循环监听并接收 Modem 发出的 AT 命令
+static void *readerLoop(void *arg __unused) {
+    for (;;) {
+        const char * line;
+
+        line = readline();  // 读取 Modem 发出的 AT 命令
+
+        if (line == NULL) {
+            break;
+        }
+
+        if(isSMSUnsolicited(line)) {  // 接收的短信处理逻辑
+            char *line1;
+            const char *line2;
+
+            // The scope of string returned by 'readline()' is valid only
+            // till next call to 'readline()' hence making a copy of line
+            // before calling readline again.
+            line1 = strdup(line);
+            line2 = readline();
+
+            if (line2 == NULL) {
+                free(line1);
+                break;
+            }
+
+            if (s_unsolHandler != NULL) {
+                s_unsolHandler (line1, line2);
+            }
+            free(line1);
+        } else {
+            processLine(line);    // 处理 Modem 发出的命令行
+        }
+    }
+
+    onReaderClosed();  // for循环退出则通知 mainLoop AT设备关闭
+
+    return NULL;
+}
+
+static void processLine(const char *line) {
+
+    ----------------------------------------------------------
+
+    if (sp_response == NULL) {
+        /* no command pending */
+        handleUnsolicited(line);
+    }
+
+    -----------------------------------------------------------
+
+}
+
+static void handleUnsolicited(const char *line) {
+    if (s_unsolHandler != NULL) {
+        s_unsolHandler(line, NULL); // 回调onUnsolicited
+    }
+}
+
+```
+
+**RIL_Init函数的基本功能**
+
+![android_ril_init](/images/android_ril_init.png)
+
 
 
 
