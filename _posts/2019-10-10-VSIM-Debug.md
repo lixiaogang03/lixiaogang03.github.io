@@ -11,6 +11,37 @@ tags:
     - debug
 ---
 
+## Modem 日志抓取
+
+### 高通 QXDM
+
+
+### MTK mtklog
+
+**打开 mtklog**
+
+1. *#*#364633#*#*
+2. adb shell am start -n com.mediatek.mtklogger/.MainActivity
+
+**modem log查看工具ELT**
+
+```txt
+
+├── file_tree.txt
+└── MDLog1_2019_0919_161556
+    ├── DbgInfo_LR12A.R2.MP_HQ6739_65_BD2_N1_MOLY_LR12A_R2_MP_V5_23_P5_2019_06_03_17_58_1_ulwctg_n
+    ├── file_tree.txt
+    ├── MDDB_InfoCustomAppSrcP_MT6739_S00_MOLY_LR12A_R2_MP_V5_23_P5_1_ulwctg_n.EDB
+    ├── MDDB.META_MT6739_S00_MOLY_LR12A_R2_MP_V5_23_P5_1_ulwctg_n.EDB
+    ├── MDDB.META.ODB_MT6739_S00_MOLY_LR12A_R2_MP_V5_23_P5_1_ulwctg_n.XML.GZ
+    ├── MDLog1_2019_0919_161556.muxz
+    ├── mdm_layout_desc_1_ulwctg_n.dat
+    └── version_info.txt
+
+```
+
+![mtk_elt](/images/mtk_elt.png)
+
 ## 注册网络失败
 
 ### dumpsys phone
@@ -203,7 +234,7 @@ radio     1002  547   77620  2580  poll_sched b624b624 S rild
 // com.android.phone
 09-19 13:57:38.919  1627  1627 D RILJ    : [4228]> QUERY_NETWORK_SELECTION_MODE [SUB0]
 
-// RILReceiver0
+// RILReceiver0: 运营商注册失败
 09-19 13:57:38.934  1627  1715 D RILJ    : [4225]< OPERATOR {null, null, null} [SUB0]
 
 // rild
@@ -228,6 +259,24 @@ radio     1002  547   77620  2580  poll_sched b624b624 S rild
 09-19 13:57:38.967   547   869 I RILQ    : (0/547):RIL[0][event] qcril_qmi_nas_reset_data_snapshot_cache_and_timer: Resetting snapshot timer
 
 09-19 13:57:38.984  1627  1715 D RILJ    : Unsol response received for UNSOL_RESPONSE_VOICE_NETWORK_STATE_CHANGED Sending ack to ril.cpp [SUB0]
+
+```
+
+### vsim.log
+
+```txt
+
+09-19 15:07:28.875  3176  3191 D VSIM_PROTOCOL: onCommandReceiver in
+09-19 15:07:28.875  3176  3191 D VSIM_PROTOCOL: data by tunnel req: 80F2000C00
+09-19 15:07:28.875  3176  3191 D VSIM_PROTOCOL: dataFromTunnel, semaphore.acquire wait
+09-19 15:07:28.875  3176  3191 D VSIM_PROTOCOL: dataFromTunnel, semaphore.acquire acquire
+09-19 15:07:28.875  3176  3191 D VSIM_PROTOCOL: call vsim apdu command in
+09-19 15:07:28.876  3176  3191 D VSIM_PROTOCOL: call vsim apdu command out
+09-19 15:07:28.876  3176  3191 D VSIM_PROTOCOL: dataFromTunnel, semaphore.acquire release
+09-19 15:07:28.876  3176  3191 D VSIM_PROTOCOL: data by tunnel ack: 9000
+09-19 15:07:28.876  3176  3191 D VSIM_PROTOCOL: mPlatform.onResponse(commandTunnelResponse) in
+09-19 15:07:28.877  3176  3191 D VSIM_PROTOCOL: mPlatform.onResponse(commandTunnelResponse) out
+09-19 15:07:28.877  3176  3191 D VSIM_PROTOCOL: onCommandReceiver out
 
 ```
 
