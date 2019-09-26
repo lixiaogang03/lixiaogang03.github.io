@@ -496,6 +496,38 @@ CommandListener::CommandListener() :
 假设Client端发送的命令名是"nat"，当CL收到这个命令后，首先会从其构造函数中注册的那些命令对象中找到对应该名字（即"nat"）的命令对象，
 其结果就是图中的NatCmd对象。而该命令最终的处理工作将由此NatCmd对象的runCommand函数完成
 
+### ndc命令
+
+**ndc monitor**
+
+```txt
+
+// 关闭wifi
+
+130|L2K:/ # ndc monitor
+
+[Connected to Netd]
+614 Address removed 10.10.167.12/20 wlan0 128 0
+616 Route removed fe80::/64 dev wlan0
+614 Address removed fe80::20a:f5ff:fe05:888/64 wlan0 128 253
+600 Iface linkstate wlan0 down
+600 Iface linkstate wlan0 down
+600 Iface linkstate wlan0 down
+613 IfaceClass active 0 2316907674321 0
+600 Iface linkstate rmnet_data0 up
+616 Route updated fe80::/64 dev rmnet_data0
+614 Address updated fe80::e14:e07f:1b23:67a5/64 rmnet_data0 196 253
+600 Iface linkstate wlan0 down
+614 Address updated 10.154.101.251/29 rmnet_data0 128 0
+614 Address updated fe80::e14:e07f:1b23:67a5/64 rmnet_data0 128 253
+600 Iface linkstate p2p0 down
+600 Iface linkstate p2p0 down
+600 Iface linkstate wlan0 down
+600 Iface removed wlan0
+600 Iface removed p2p0
+
+```
+
 ## Iptables
 
 ### iptables --list
@@ -698,8 +730,40 @@ QUEUE：数据返回到用户空间去处理。
 
 ```
 
+**Demo**
+
+iptables -t filter -A INPUT -s 192.168.1.108 -j DROP
 
 
+**List the rules in a chain**
+
+```txt
+
+L2K:/ # iptables -L INPUT
+
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+REJECT     all  --  anywhere             anywhere             owner UID match u0_a88 reject-with icmp-port-unreachable
+REJECT     all  --  anywhere             anywhere             owner UID match u0_a88 reject-with icmp-port-unreachable
+bw_INPUT   all  --  anywhere             anywhere
+fw_INPUT   all  --  anywhere             anywhere
+DROP       all  --  192.168.1.108        anywhere
+
+```
+
+**Print the rules in a chain**
+
+```txt
+
+L2K:/ # iptables -S INPUT
+-P INPUT ACCEPT
+-A INPUT -i wlan0 -m owner --uid-owner 10088 -j REJECT --reject-with icmp-port-unreachable
+-A INPUT -i rmnet_data0 -m owner --uid-owner 10088 -j REJECT --reject-with icmp-port-unreachable
+-A INPUT -j bw_INPUT
+-A INPUT -j fw_INPUT
+-A INPUT -s 192.168.1.108/32 -j DROP
+
+```
 
 
 
