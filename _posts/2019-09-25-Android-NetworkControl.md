@@ -14,6 +14,8 @@ tags:
 
 ## netd
 
+![android_netd](/images/android_netd.png)
+
 ### 概述
 
 Netd 是 Android 系统中专门负责网络管理和控制的后台守护程序，其功能主要分为三个部分
@@ -181,6 +183,8 @@ service netd /system/bin/netd
 
 ### netstat -apn | grep netd
 
+```txt
+
 Active UNIX domain sockets (servers and established)
 Proto RefCnt Flags       Type       State           I-Node PID/Program Name    Path
 unix  2      [ ACC ]     STREAM     LISTENING        13121 770/netd            /dev/socket/netd
@@ -192,6 +196,8 @@ unix  3      [ ]         STREAM     CONNECTED        21159 770/netd
 unix  2      [ ]         DGRAM                       13174 770/netd
 unix  3      [ ]         STREAM     CONNECTED        22773 770/netd            /dev/socket/netd
 unix  3      [ ]         STREAM     CONNECTED        21160 770/netd
+
+```
 
 ### main.cpp
 
@@ -286,6 +292,124 @@ int main() {
 * DnsProxyListener: dnsproxyd socket
 * MDnsSdListener: mdns socket
 * FwmarkServer: fwmarkd socket
+
+### NetlinkManager.cpp(NM)
+
+主要负责接收并解析来自Kernel的UEvent消息
+
+```cpp
+
+int NetlinkManager::start() {
+
+    if ((mUeventHandler = setupSocket(&mUeventSock, NETLINK_KOBJECT_UEVENT,
+         0xffffffff, NetlinkListener::NETLINK_FORMAT_ASCII, false)) == NULL) {
+        return -1;
+    }
+
+    if ((mRouteHandler = setupSocket(&mRouteSock, NETLINK_ROUTE,
+                                     RTMGRP_LINK |
+                                     RTMGRP_IPV4_IFADDR |
+                                     RTMGRP_IPV6_IFADDR |
+                                     RTMGRP_IPV6_ROUTE |
+                                     (1 << (RTNLGRP_ND_USEROPT - 1)),
+         NetlinkListener::NETLINK_FORMAT_BINARY, false)) == NULL) {
+        return -1;
+    }
+
+    if ((mQuotaHandler = setupSocket(&mQuotaSock, NETLINK_NFLOG,
+            NFLOG_QUOTA_GROUP, NetlinkListener::NETLINK_FORMAT_BINARY, false)) == NULL) {
+        ALOGW("Unable to open qlog quota socket, check if xt_quota2 can send via UeventHandler");
+        // TODO: return -1 once the emulator gets a new kernel.
+    }
+
+    if ((mStrictHandler = setupSocket(&mStrictSock, NETLINK_NETFILTER,
+            0, NetlinkListener::NETLINK_FORMAT_BINARY_UNICAST, true)) == NULL) {
+        ALOGE("Unable to open strict socket");
+        // TODO: return -1 once the emulator gets a new kernel.
+    }
+
+    return 0;
+
+}
+
+```
+
+* NETLINK_KOBJECT_UEVENT: 代表kobject事件，这些事件包含的信息格式是NETLINK_FORMAT_ASCII，表示使用字符串解析的方式解析UEvent消息。
+kobject一般用于通知内核中某个模块的加载和卸载。对NM来说关注的是 sys/class/net 下模块的加载和卸载消息
+
+* NETLINK_ROUTE: 代表kernel中routing或者link改变时对应的消息。消息内容格式为NETLINK_FORMAT_BINARY
+
+* NETLINK_NFLOG: 和带宽控制有关, netd中的带宽控制可以设置一个预警值，当网络数据超过一定字节数时就会触发kernel发送一个警告
+
+* NETLINK_NETFILTER: Netfilter 利用一些封包过滤的规则设定, 来定义出什么数据包可以接收, 什么数据包需要剔除,位于内核层。
+iptables 通过命令的方式对 Netfilter 规则进行排序与修改, 位于用户层
+
+![netlink_manager_class](/images/netd/netlink_manager_class.png)
+
+### NetlinkHandler.cpp
+
+```cpp
+
+void NetlinkHandler::onEvent(NetlinkEvent *evt) {
+
+    if (!strcmp(subsys, "net")) {                              // NETLINK_KOBJECT_UEVENT、NETLINK_ROUTE
+
+        --------------------------------------------------
+
+        if (action == NetlinkEvent::Action::kAdd) {
+            notifyInterfaceAdded(iface);
+        } else if (action == NetlinkEvent::Action::kRemove) {
+            notifyInterfaceRemoved(iface);
+        }
+
+        ---------------------------------------------------
+
+    } else if (!strcmp(subsys, "qlog")
+            || !strcmp(subsys, "xt_quota2")) {                 // NETLINK_NFLOG
+
+        const char *alertName = evt->findParam("ALERT_NAME");
+        const char *iface = evt->findParam("INTERFACE");
+        notifyQuotaLimitReached(alertName, iface);             // 流量预警通知
+
+    } else if (!strcmp(subsys, "strict")) {                    // NETLINK_NETFILTER
+
+        const char *uid = evt->findParam("UID");
+        const char *hex = evt->findParam("HEX");
+        notifyStrictCleartext(uid, hex);
+
+    } else if (!strcmp(subsys, "xt_idletimer")) {              //
+
+        const char *label = evt->findParam("INTERFACE");
+        const char *state = evt->findParam("STATE");
+        const char *timestamp = evt->findParam("TIME_NS");
+        const char *uid = evt->findParam("UID");
+        if (state)
+            notifyInterfaceClassActivity(label, !strcmp("active", state),
+                                         timestamp, uid);
+    }
+
+}
+
+void NetlinkHandler::notify(int code, const char *format, ...) {
+    char *msg;
+    va_list args;
+    va_start(args, format);
+    if (vasprintf(&msg, format, args) >= 0) {
+        mNm->getBroadcaster()->sendBroadcast(code, msg, false);             // 发送给 Framework 层的 NetworkManagerService
+        free(msg);
+    } else {
+        SLOGE("Failed to send notification: vasprintf: %s", strerror(errno));
+    }
+    va_end(args);
+}
+
+void NetlinkHandler::notifyStrictCleartext(const char* uid, const char* hex) {
+    notify(ResponseCode::StrictCleartext, "%s %s", uid, hex);
+}
+
+```
+
+![netlink_manager](/images/netd/netlink_manager)
 
 
 
