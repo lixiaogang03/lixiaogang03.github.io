@@ -12,6 +12,8 @@ tags:
     - iptables
 ---
 
+[深入理解Netd](https://www.kancloud.cn/alex_wsc/android-wifi-nfc-gps/414019)
+
 ## netd
 
 ![android_netd](/images/android_netd.png)
@@ -377,7 +379,7 @@ void NetlinkHandler::onEvent(NetlinkEvent *evt) {
         const char *hex = evt->findParam("HEX");
         notifyStrictCleartext(uid, hex);
 
-    } else if (!strcmp(subsys, "xt_idletimer")) {              //
+    } else if (!strcmp(subsys, "xt_idletimer")) {              // 用于跟踪某个NIC的工作状态，即是"idle"还是"active"
 
         const char *label = evt->findParam("INTERFACE");
         const char *state = evt->findParam("STATE");
@@ -409,7 +411,91 @@ void NetlinkHandler::notifyStrictCleartext(const char* uid, const char* hex) {
 
 ```
 
-![netlink_manager](/images/netd/netlink_manager)
+![netlink_manager](/images/netd/netlink_manager.png)
+
+### CommandListener.cpp(CL)
+
+主要作用是接收来自Framework的NetworkManagementService的命令
+
+```cpp
+
+void CommandListener::registerLockingCmd(FrameworkCommand *cmd, android::RWLock& lock) {
+    registerCmd(new LockingFrameworkCommand(cmd, lock));
+}
+
+CommandListener::CommandListener() :
+                 FrameworkListener("netd", true) {
+    registerLockingCmd(new InterfaceCmd());
+    registerLockingCmd(new IpFwdCmd());
+    registerLockingCmd(new TetherCmd());
+    registerLockingCmd(new NatCmd());
+    registerLockingCmd(new ListTtysCmd());
+    registerLockingCmd(new PppdCmd());
+    registerLockingCmd(new SoftapCmd());
+    registerLockingCmd(new BandwidthControlCmd(), gCtls->bandwidthCtrl.lock);
+    registerLockingCmd(new IdletimerControlCmd());
+    registerLockingCmd(new ResolverCmd());
+    registerLockingCmd(new FirewallCmd(), gCtls->firewallCtrl.lock);
+    registerLockingCmd(new ClatdCmd());
+    registerLockingCmd(new NetworkCommand());
+    registerLockingCmd(new StrictCmd());
+    registerLockingCmd(getQtiConnectivityCmd(this));
+
+    initializeDataControllerLib();
+
+    /*
+     * This is the only time we touch top-level chains in iptables; controllers
+     * should only mutate rules inside of their children chains, as created by
+     * the constants above.
+     *
+     * Modules should never ACCEPT packets (except in well-justified cases);
+     * they should instead defer to any remaining modules using RETURN, or
+     * otherwise DROP/REJECT.
+     */
+
+    // Create chains for children modules
+    createChildChains(V4V6, "filter", "INPUT", FILTER_INPUT);
+    createChildChains(V4V6, "filter", "FORWARD", FILTER_FORWARD);
+    createChildChains(V4V6, "filter", "OUTPUT", FILTER_OUTPUT);
+    createChildChains(V4V6, "raw", "PREROUTING", RAW_PREROUTING);
+    createChildChains(V4V6, "mangle", "POSTROUTING", MANGLE_POSTROUTING);
+    createChildChains(V4V6, "mangle", "FORWARD", MANGLE_FORWARD);
+    createChildChains(V4, "nat", "PREROUTING", NAT_PREROUTING);
+    createChildChains(V4, "nat", "POSTROUTING", NAT_POSTROUTING);
+
+    // Let each module setup their child chains
+    setupOemIptablesHook();
+
+    /* When enabled, DROPs all packets except those matching rules. */
+    gCtls->firewallCtrl.setupIptablesHooks();
+
+    /* Does DROPs in FORWARD by default */
+    gCtls->natCtrl.setupIptablesHooks();
+    /*
+     * Does REJECT in INPUT, OUTPUT. Does counting also.
+     * No DROP/REJECT allowed later in netfilter-flow hook order.
+     */
+    gCtls->bandwidthCtrl.setupIptablesHooks();
+    /*
+     * Counts in nat: PREROUTING, POSTROUTING.
+     * No DROP/REJECT allowed later in netfilter-flow hook order.
+     */
+    gCtls->idletimerCtrl.setupIptablesHooks();
+
+    gCtls->bandwidthCtrl.enableBandwidthControl(false);
+
+    if (int ret = RouteController::Init(NetworkController::LOCAL_NET_ID)) {
+        ALOGE("failed to initialize RouteController (%s)", strerror(-ret));
+    }
+}
+
+```
+
+![command_listener](/images/netd/command_listener.png)
+
+假设Client端发送的命令名是"nat"，当CL收到这个命令后，首先会从其构造函数中注册的那些命令对象中找到对应该名字（即"nat"）的命令对象，
+其结果就是图中的NatCmd对象。而该命令最终的处理工作将由此NatCmd对象的runCommand函数完成
+
 
 
 
