@@ -496,6 +496,154 @@ CommandListener::CommandListener() :
 假设Client端发送的命令名是"nat"，当CL收到这个命令后，首先会从其构造函数中注册的那些命令对象中找到对应该名字（即"nat"）的命令对象，
 其结果就是图中的NatCmd对象。而该命令最终的处理工作将由此NatCmd对象的runCommand函数完成
 
+## Iptables
+
+### iptables --list
+
+```txt
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination 
+REJECT     all  --  anywhere             anywhere             owner UID match u0_a88 reject-with icmp-port-unreachable
+REJECT     all  --  anywhere             anywhere             owner UID match u0_a88 reject-with icmp-port-unreachable
+bw_INPUT   all  --  anywhere             anywhere
+fw_INPUT   all  --  anywhere             anywhere
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+oem_fwd    all  --  anywhere             anywhere
+fw_FORWARD  all  --  anywhere             anywhere
+bw_FORWARD  all  --  anywhere             anywhere
+natctrl_FORWARD  all  --  anywhere             anywhere
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+REJECT     all  --  anywhere             anywhere             owner UID match u0_a88 reject-with icmp-port-unreachable
+REJECT     all  --  anywhere             anywhere             owner UID match u0_a88 reject-with icmp-port-unreachable
+oem_out    all  --  anywhere             anywhere
+fw_OUTPUT  all  --  anywhere             anywhere
+st_OUTPUT  all  --  anywhere             anywhere
+bw_OUTPUT  all  --  anywhere             anywhere
+blacklist-mms  all  --  anywhere             anywhere
+
+Chain blacklist-mms (1 references)
+target     prot opt source               destination
+DROP       all  --  anywhere             10.0.0.200           owner UID match u0_a88
+DROP       all  --  anywhere             10.0.0.172           owner UID match u0_a88
+DROP       all  --  anywhere             10.0.0.200           owner UID match system
+DROP       all  --  anywhere             10.0.0.172           owner UID match system
+DROP       all  --  anywhere             10.0.0.200           owner UID match u0_a84
+DROP       all  --  anywhere             10.0.0.172           owner UID match u0_a84
+DROP       all  --  anywhere             10.0.0.200           owner UID match u0_a89
+DROP       all  --  anywhere             10.0.0.172           owner UID match u0_a89
+DROP       all  --  anywhere             10.0.0.200           owner UID match u0_a90
+DROP       all  --  anywhere             10.0.0.172           owner UID match u0_a90
+DROP       all  --  anywhere             10.0.0.200           owner UID match u0_a91
+DROP       all  --  anywhere             10.0.0.172           owner UID match u0_a91
+
+Chain bw_FORWARD (1 references)
+target     prot opt source               destination
+
+Chain bw_INPUT (1 references)
+target     prot opt source               destination
+           all  --  anywhere             anywhere             ! quota globalAlert: 2097152 bytes
+           all  --  anywhere             anywhere             owner socket exists
+
+Chain bw_OUTPUT (1 references)
+target     prot opt source               destination
+           all  --  anywhere             anywhere             ! quota globalAlert: 2097152 bytes
+           all  --  anywhere             anywhere             owner socket exists
+
+Chain bw_costly_shared (0 references)
+target     prot opt source               destination
+bw_penalty_box  all  --  anywhere             anywhere
+
+Chain bw_data_saver (1 references)
+target     prot opt source               destination
+RETURN     all  --  anywhere             anywhere
+
+Chain bw_happy_box (1 references)
+target     prot opt source               destination
+RETURN     all  --  anywhere             anywhere             owner UID match u0_a8
+RETURN     all  --  anywhere             anywhere             owner UID match u0_a29
+RETURN     all  --  anywhere             anywhere             owner UID match 0-9999
+bw_data_saver  all  --  anywhere             anywhere
+
+Chain bw_penalty_box (1 references)
+target     prot opt source               destination
+bw_happy_box  all  --  anywhere             anywhere
+
+Chain fw_FORWARD (1 references)
+target     prot opt source               destination
+
+Chain fw_INPUT (1 references)
+target     prot opt source               destination
+
+Chain fw_OUTPUT (1 references)
+target     prot opt source               destination
+
+Chain fw_dozable (0 references)
+target     prot opt source               destination
+RETURN     all  --  anywhere             anywhere
+RETURN     tcp  --  anywhere             anywhere             tcp flags:RST/RST
+RETURN     all  --  anywhere             anywhere             owner UID match 0-9999
+DROP       all  --  anywhere             anywhere
+
+Chain fw_powersave (0 references)
+target     prot opt source               destination
+RETURN     all  --  anywhere             anywhere
+RETURN     tcp  --  anywhere             anywhere             tcp flags:RST/RST
+RETURN     all  --  anywhere             anywhere             owner UID match 0-9999
+DROP       all  --  anywhere             anywhere
+
+Chain fw_standby (0 references)
+target     prot opt source               destination
+RETURN     all  --  anywhere             anywhere
+RETURN     tcp  --  anywhere             anywhere             tcp flags:RST/RST
+
+Chain natctrl_FORWARD (1 references)
+target     prot opt source               destination
+DROP       all  --  anywhere             anywhere
+
+Chain natctrl_tether_counters (0 references)
+target     prot opt source               destination
+
+Chain oem_fwd (1 references)
+target     prot opt source               destination
+
+Chain oem_out (1 references)
+target     prot opt source               destination
+
+Chain st_OUTPUT (1 references)
+target     prot opt source               destination
+
+Chain st_clear_caught (2 references)
+target     prot opt source               destination
+
+Chain st_clear_detect (0 references)
+target     prot opt source               destination
+REJECT     all  --  anywhere             anywhere             connmark match  0x2000000/0x2000000 reject-with icmp-port-unreachable
+RETURN     all  --  anywhere             anywhere             connmark match  0x1000000/0x1000000
+CONNMARK   tcp  --  anywhere             anywhere             u32 "0x0>>0x16&0x3c@0xc>>0x1a&0x3c@0x0&0xffff0000=0x16030000&&0x0>>0x16&0x3c@0xc>>0x1a&0x3c@0x4&0xff0000=0x10000" CONNMARK or 0x1000000
+CONNMARK   udp  --  anywhere             anywhere             u32 "0x0>>0x16&0x3c@0x8&0xffff0000=0x16fe0000&&0x0>>0x16&0x3c@0x14&0xff0000=0x10000" CONNMARK or 0x1000000
+RETURN     all  --  anywhere             anywhere             connmark match  0x1000000/0x1000000
+st_clear_caught  tcp  --  anywhere             anywhere             state ESTABLISHED u32 "0x0>>0x16&0x3c@0xc>>0x1a&0x3c@0x0&0x0=0x0"
+st_clear_caught  udp  --  anywhere             anywhere
+
+Chain st_penalty_log (0 references)
+target     prot opt source               destination
+CONNMARK   all  --  anywhere             anywhere             CONNMARK or 0x1000000
+NFLOG      all  --  anywhere             anywhere
+
+Chain st_penalty_reject (0 references)
+target     prot opt source               destination
+CONNMARK   all  --  anywhere             anywhere             CONNMARK or 0x2000000
+NFLOG      all  --  anywhere             anywhere
+REJECT     all  --  anywhere             anywhere             reject-with icmp-port-unreachable
+
+```
+
+
+
 
 
 
