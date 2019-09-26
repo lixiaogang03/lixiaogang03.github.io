@@ -20,7 +20,7 @@ Netd 是 Android 系统中专门负责网络管理和控制的后台守护程序
 
 1. 设置防火墙(Firewall) 、网络地址转换(NAT) 、带宽控制 、无线网卡软接入点控制(Soft Access Ponit)控制，网络设备绑定等等
 2. Android 系统中 DNS 信息的缓存和管理
-3. 网络服务搜索功能(Net Service Discovery, 简称NSD)功能，包括服务注册(Service Registration) 、服务搜索(Service Browse)和服务名机械
+3. 网络服务搜索功能(Net Service Discovery, 简称NSD)功能，包括服务注册(Service Registration) 、服务搜索(Service Browse)和服务名解析(Service Resolve)等
 
 Netd 的工作流程分为两个部分：
 
@@ -161,6 +161,138 @@ tree system/netd
 
 ```
 
-### 进程启动
+### socket
+
+system/netd/server/netd.rc
+
+```rc
+
+service netd /system/bin/netd
+    class main
+    socket netd stream 0660 root system
+    socket dnsproxyd stream 0660 root inet
+    socket mdns stream 0660 root system
+    socket fwmarkd stream 0660 root inet
+
+```
+
+* Framework 层中 NetworkManagementService和NsdService将分别和"netd"及"mdns"建立链接并交互
+* 每一个调用域名解析socket API的进程都会借由"dnsproxyd"监听socket与Netd建立链接
+
+### netstat -apn | grep netd
+
+Active UNIX domain sockets (servers and established)
+Proto RefCnt Flags       Type       State           I-Node PID/Program Name    Path
+unix  2      [ ACC ]     STREAM     LISTENING        13121 770/netd            /dev/socket/netd
+unix  2      [ ACC ]     STREAM     LISTENING        13126 770/netd            /dev/socket/dnsproxyd
+unix  2      [ ACC ]     STREAM     LISTENING        13129 770/netd            /dev/socket/mdns
+unix  2      [ ACC ]     STREAM     LISTENING        13132 770/netd            /dev/socket/fwmarkd
+unix  3      [ ]         STREAM     CONNECTED        22795 770/netd            /dev/socket/mdns
+unix  3      [ ]         STREAM     CONNECTED        21159 770/netd
+unix  2      [ ]         DGRAM                       13174 770/netd
+unix  3      [ ]         STREAM     CONNECTED        22773 770/netd            /dev/socket/netd
+unix  3      [ ]         STREAM     CONNECTED        21160 770/netd
+
+### main.cpp
+
+```cpp
+
+int main() {
+
+    using android::net::gCtls;
+
+    ALOGI("Netd 1.0 starting");
+    remove_pid_file();
+
+    blockSigpipe();
+
+    NetlinkManager *nm = NetlinkManager::Instance();
+    if (nm == nullptr) {
+        ALOGE("Unable to create NetlinkManager");
+        exit(1);
+    };
+
+    gCtls = new android::net::Controllers();
+
+    -------------------netd socket--------------------
+
+    CommandListener cl;
+    nm->setBroadcaster((SocketListener *) &cl);
+
+    if (nm->start()) {
+        ALOGE("Unable to start NetlinkManager (%s)", strerror(errno));
+        exit(1);
+    }
+
+    -------------------dnsproxyd socket------------------------------
+
+    // Set local DNS mode, to prevent bionic from proxying
+    // back to this service, recursively.
+    setenv("ANDROID_DNS_MODE", "local", 1);
+    DnsProxyListener dpl(&gCtls->netCtrl, &gCtls->eventReporter);
+    if (dpl.startListener()) {
+        ALOGE("Unable to start DnsProxyListener (%s)", strerror(errno));
+        exit(1);
+    }
+
+    -------------------mdns socket-------------------------------------
+
+    MDnsSdListener mdnsl;
+    if (mdnsl.startListener()) {
+        ALOGE("Unable to start MDnsSdListener (%s)", strerror(errno));
+        exit(1);
+    }
+
+    -------------------fwmarkd socket-----------------------------------
+
+    FwmarkServer fwmarkServer(&gCtls->netCtrl, &gCtls->eventReporter);
+    if (fwmarkServer.startListener()) {
+        ALOGE("Unable to start FwmarkServer (%s)", strerror(errno));
+        exit(1);
+    }
+
+
+    status_t ret;
+    if ((ret = NetdNativeService::start()) != android::OK) {
+        ALOGE("Unable to start NetdNativeService: %d", ret);
+        exit(1);
+    }
+
+    /*
+     * Now that we're up, we can respond to commands. Starting the listener also tells
+     * NetworkManagementService that we are up and that our binder interface is ready.
+     */
+    if (cl.startListener()) {
+        ALOGE("Unable to start CommandListener (%s)", strerror(errno));
+        exit(1);
+    }
+
+    write_pid_file();
+
+    IPCThreadState::self()->joinThreadPool();
+
+    ALOGI("Netd exiting");
+
+    remove_pid_file();
+
+    exit(0);
+
+}
+
+```
+
+* NetlinkManager: 接收并处理来自Kernel的UEvent消息。这些消息经NetlinkManager解析后将借助它的Broadcaster(CommandListener) 发送给Framework层的NetworkManagementService
+* CommandListener: 创建netd socket, 处理来自客户端的命令
+* DnsProxyListener: dnsproxyd socket
+* MDnsSdListener: mdns socket
+* FwmarkServer: fwmarkd socket
+
+
+
+
+
+
+
+
 
 
