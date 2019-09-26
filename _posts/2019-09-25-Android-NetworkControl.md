@@ -501,6 +501,7 @@ CommandListener::CommandListener() :
 ### iptables --list
 
 ```txt
+
 Chain INPUT (policy ACCEPT)
 target     prot opt source               destination 
 REJECT     all  --  anywhere             anywhere             owner UID match u0_a88 reject-with icmp-port-unreachable
@@ -641,6 +642,64 @@ NFLOG      all  --  anywhere             anywhere
 REJECT     all  --  anywhere             anywhere             reject-with icmp-port-unreachable
 
 ```
+
+### 概念
+
+iptables是Linux系统中最重要的网络管控工具。它与Kernel中的netfilter模块配合工作，其主要功能是为netfilter设置一些过滤（filter）或网络地址转换（NAT）的规则。当Kernel收到网络数据包后，将会依据iptables设置的规则进行相应的操作。举个最简单的例子，可以利用iptables设置这样一条防火墙规则：丢弃来自IP地址为192.168.1.108的所有数据包
+
+![iptables_rule](/images/netd/iptables_rule.jpg)
+
+* iptables内部(其实是Kernel的netfilter模块)维护着四个Table，分别是filter、nat、mangle和raw
+* Table中定义了Chain。一个Table可以支持多个Chain，Chain实际上是Rule的集合，每个Table都有默认的Chain。例如filter表默认的Chain有INPUT、OUTPUT、FORWARD。用户可以自定义Chain，也可修改Chain中的Rule
+* Rule就是iptables工作的规则。首先，系统将检查要处理的数据包是否满足Rule设置的条件，如果满足则执行Rule中设置的目标(Target)，否则继续执行Chain中的下一条Rule
+
+![iptables_chain](/images/netd/iptables_chain.jpg)
+
+### 工作过程
+
+1. 数据包从左边进入IP协议栈，进行IP校验以后，数据包被第一个钩子函数PRE_ROUTING处理，然后就进入路由模块，由其决定该数据包是转发出去还是送给本机
+2. 若该数据包是送给本机的，则要经过钩子函数LOCAL_IN处理后传递给本机的上层协议
+3. 若该数据包应该被转发，则它将被钩子函数FORWARD处理，然后还要经钩子函数POST_ROUTING处理后才能传输到网络
+4. 本机进程产生的数据包要先经过钩子函数LOCAL_OUT处理后，再进行路由选择处理，然后经过钩子函数POST_ROUTING处理后再发送到网络
+
+![iptables_principle](/images/iptables_principle.png)
+
+### 命令
+
+![iptables_rule_format](/images/iptables_rule_format.png)
+
+**Target**
+
+```txt
+
+ACCEPT：接收数据包。
+DROP：直接丢弃数据包。没有任何信息会反馈给数据源端。
+REJECT: 直接丢弃数据包。会反馈给数据源端。
+RETURN：返回到调用Chain，略过后续的Rule处理。
+QUEUE：数据返回到用户空间去处理。
+
+```
+
+**Action**
+
+```txt
+
+-t：指定table。如果不带此参数，则默认为filter表。
+-A，--append chain rule-specification：在指定Chain的末尾添加一条Rule，rule-specification指明该Rule的内容。
+-D，--delete chain rule-specification：删除指定Chain中满足rule-specification的那条Rule。
+-I，--insert chain[rule num]rule-specification：为指定Chain插入一条Rule，位置由rule num指定。如果没有该参数，则默认加到Chain-N：创建一条新Chain。
+-L，--list：显示指定Table的Chain和Rule的信息。
+
+-i：指定接收数据包的网卡名，如eth0、eth1等。
+-o：指定发出数据包的网卡名。
+-p：指定协议，如tcp、udp等。
+-s，--source address[/mask]：指定数据包的源IP地址。
+-j，--jump target：跳转到指定目标，如ACCEPT、DROP等
+
+```
+
+
+
 
 
 
