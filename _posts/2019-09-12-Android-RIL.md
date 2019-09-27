@@ -20,7 +20,7 @@ tags:
 
 由于 Android 开发者使用的 Modem 是不一样的，各种指令格式，初始化序列都可能不一样，GSM 和 CDMA 就差别更大了，所以为了消除这些差别，Android 设计者将ril做了一个抽象，使用一个虚拟电话的概念。
 
-这个虚拟电话对象就是GSMPhone(CDMAPhone), Phone 对象所提供的功能协议，以及要求下层的支撑环境都有一个统一的描述，这个底层描述的实现就是靠RIL来完成适配
+这个虚拟电话对象就是GsmCdmaPhone, Phone 对象所提供的功能协议，以及要求下层的支撑环境都有一个统一的描述，这个底层描述的实现就是靠RIL来完成适配
 
 ```java
 
@@ -1227,6 +1227,17 @@ int at_send_command (const char *command, ATResponse **pp_outResponse) {
 **RIL_Init函数的基本功能**
 
 ![android_ril_init](/images/android_ril_init.png)
+
+### Solicited消息处理流程-拨号
+
+**拨号流程**
+
+![dial](/images/telephony/dial.webp)
+
+**时序图**
+
+![ril_solicited_message](/images/telephony/ril_solicited_message.png)
+
 
 
 
