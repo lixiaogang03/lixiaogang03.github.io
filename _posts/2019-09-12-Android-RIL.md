@@ -12,6 +12,10 @@ tags:
     - ril
 ---
 
+## Telephony 整体架构图
+
+![TelephonyRegistry](/images/phone_architecture.png)
+
 ## 背景
 
 由于 Android 开发者使用的 Modem 是不一样的，各种指令格式，初始化序列都可能不一样，GSM 和 CDMA 就差别更大了，所以为了消除这些差别，Android 设计者将ril做了一个抽象，使用一个虚拟电话的概念。
@@ -1223,6 +1227,8 @@ int at_send_command (const char *command, ATResponse **pp_outResponse) {
 **RIL_Init函数的基本功能**
 
 ![android_ril_init](/images/android_ril_init.png)
+
+
 
 
 
