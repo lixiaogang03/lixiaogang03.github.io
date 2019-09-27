@@ -24,15 +24,15 @@ tags:
 
 ## 简介
 
-![systrace_demo](/images/systrace_demo.png)
+![systrace_demo](/images/systrace/systrace_demo.png)
 
 ## Android Device Monitor
  
 1. ./sdk/tools/monitor
 
-2. ![monitor](/images/android_device_monitor.png)
+2. ![monitor](/images/systrace/android_device_monitor.png)
 
-3. ![systrace](/images/systrace.png)
+3. ![systrace](/images/systrace/systrace.png)
 
 ## 命令行
 
@@ -160,7 +160,7 @@ NOTE: more categories may be available with adb root
 2. 鼠标定位搜索结果面板
 3. 单击M按键定位位置
 
-![systrace_search](/images/systrace_search.png)
+![systrace_search](/images/systrace/systrace_search.png)
 
 ## 代码增加trace
 
