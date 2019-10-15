@@ -4,17 +4,16 @@ title:      Android Property
 subtitle:   属性服务
 date:       2019-10-15
 author:     LXG
-header-img: img/post-bg-YesOrNo.jpg
+header-img: img/post-bg-unix-linux.jpg
 catalog: true
 tags:
     - android
-    - ipc
+    - property
 ---
 
 ## ctl.start
 
 通过 property_set("ctl.start", service_xx) 来启动 init.rc 中的 service 是一个很方便方法来调用某个可执行程序或某个脚本程序
-
 
 ### Demo 1
 
@@ -34,7 +33,7 @@ public class DevelopmentSettings {
 
 ```
 
-system/etc/init/logd.rc
+**system/etc/init/logd.rc**
 
 ```rc
 
@@ -100,7 +99,7 @@ public final class ActivityManagerService extends ActivityManagerNative
 
 ```
 
-./system/etc/init/dumpstate.rc
+**./system/etc/init/dumpstate.rc**
 
 ```rc
 
@@ -137,7 +136,7 @@ service bugreportplus /system/bin/dumpstate -d -B -P -z \
 
 ### Demo 3
 
-frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+**frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp**
 
 ```cpp
 
@@ -157,7 +156,7 @@ void SurfaceFlinger::startBootAnim() {
 
 ```
 
-./system/etc/init/bootanim.rc
+**./system/etc/init/bootanim.rc**
 
 ```rc
 
