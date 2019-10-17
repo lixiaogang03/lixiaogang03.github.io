@@ -10,13 +10,13 @@ tags:
     - selinux
 ---
 
-[源码](http://androidxref.com/7.1.1_r6/xref/system/sepolicy/)
+[AOSP源码](http://androidxref.com/7.1.1_r6/xref/system/sepolicy/)
 
 ## 架构
 
 SElinux宏观上包含四个基本组件：对象管理器(OM), 访问向量缓存(AVC), 安全服务器, 安全策略
 
-![selinux_arch](images/selinux/selinux_arch.png)
+![selinux_arch](/images/selinux/selinux_arch.png)
 
 ## 基本工作原理
 
@@ -38,9 +38,9 @@ Selinux支持两种形式的安全检查：类型强制(TE)和多层次安全(ML
 
 ## SElinux 模式
 
-1. disable: 关闭模式，不加载策略
-2. permissive: 宽容模式，策略被加载，对象访问被检查，只记录不执行拦截
-3. enforcing: 强制模式
+* disable: 关闭模式，不加载策略
+* permissive: 宽容模式，策略被加载，对象访问被检查，只记录不执行拦截
+* enforcing: 强制模式
 
 可以使用getenforce和setenforce方法查询和设置
 
@@ -187,7 +187,7 @@ type persist_debug_prop, property_type, core_property_type;
 
 **system_app.te**
 
-```te
+```txt
 
 #
 # Apps that run with the system UID, e.g. com.android.system.ui,
