@@ -10,6 +10,8 @@ tags:
     - selinux
 ---
 
+[源码](http://androidxref.com/7.1.1_r6/xref/system/sepolicy/)
+
 ## 架构
 
 SElinux宏观上包含四个基本组件：对象管理器(OM), 访问向量缓存(AVC), 安全服务器, 安全策略
@@ -72,6 +74,134 @@ u:object_r:sunmi_media_file:s0        sunmi
 u:object_r:system_data_file:s0        system
 
 ```
+
+**file_contexts**
+
+```txt
+
+/data(/.*)?             u:object_r:system_data_file:s0
+
+```
+
+**seapp_contexts**
+
+```txt
+
+isSystemServer=true domain=system_server
+user=system seinfo=platform domain=system_app type=system_app_data_file
+user=bluetooth seinfo=platform domain=bluetooth type=bluetooth_data_file
+user=nfc seinfo=platform domain=nfc type=nfc_data_file
+user=radio seinfo=platform domain=radio type=radio_data_file
+user=shared_relro domain=shared_relro
+user=shell seinfo=platform domain=shell type=shell_data_file
+user=_isolated domain=isolated_app levelFrom=user
+user=_app seinfo=platform domain=platform_app type=app_data_file levelFrom=user
+user=_app isAutoPlayApp=true domain=autoplay_app type=autoplay_data_file levelFrom=all
+user=_app isPrivApp=true domain=priv_app type=app_data_file levelFrom=user
+user=_app domain=untrusted_app type=app_data_file levelFrom=user
+
+```
+
+**property_contexts**
+
+```txt
+
+persist.sys.            u:object_r:system_prop:s0
+ro.serialno             u:object_r:serialno_prop:s0
+
+```
+
+## 安全上下文的设定和保存
+
+文件对象的安全上下文会放在文件的扩展属性中，SElinux使用security:selinux名称保存文件对象的安全上下文，文件的安全上下文可以在文件系统初始化的时候显式设定，或者文件创建时的隐式设定。
+一般会继承父对象的标签，如果安全策略允许，对象的标签也可以和父对象不同，这一过程被称为类型转换(type transition)
+
+主体(进程)也会继承父进程的安全上下文，如果安全策略允许也可以执行域转换(domain transition)
+所有的系统守护进程都是init进程启动, android使用自动域转换为每个守护进程设定的专用的域
+
+## 安全规则
+
+安全策略源文件由专用语言编写，包含了声明和规则
+
+### 属性
+
+**attributes**
+
+```txt
+
+# All types used for devices.
+# On change, update CHECK_FC_ASSERT_ATTRS
+# in tools/checkfc.c
+attribute dev_type;
+
+
+# All types used for processes.
+attribute domain;
+
+# All types used for files that can exist on a labeled fs.
+# Do not use for pseudo file types.
+# On change, update CHECK_FC_ASSERT_ATTRS
+# definition in tools/checkfc.c.
+attribute file_type;
+
+# All types used for property service
+# On change, update CHECK_PC_ASSERT_ATTRS
+# definition in tools/checkfc.c.
+attribute property_type;
+
+# Attribute used for all sdcards
+attribute sdcard_type;
+
+# All types used for /data files.
+attribute data_file_type;
+
+```
+
+### 策略声明
+
+**file.te**
+
+```txt
+
+type system_data_file, file_type, data_file_type;
+type anr_data_file, file_type, data_file_type, mlstrustedobject;
+
+type netd_socket, file_type;
+type logd_socket, file_type, mlstrustedobject;
+type logdr_socket, file_type, mlstrustedobject;
+type logdw_socket, file_type, mlstrustedobject;
+
+```
+
+**property.te**
+
+```
+
+type default_prop, property_type, core_property_type;
+type shell_prop, property_type, core_property_type;
+type debug_prop, property_type, core_property_type;
+type dumpstate_prop, property_type, core_property_type;
+type persist_debug_prop, property_type, core_property_type;
+
+```
+
+**system_app.te**
+
+```te
+
+#
+# Apps that run with the system UID, e.g. com.android.system.ui,
+# com.android.settings.  These are not as privileged as the system
+# server.
+#
+type system_app, domain, domain_deprecated;
+app_domain(system_app)
+net_domain(system_app)
+binder_service(system_app)
+
+```
+
+
 
 
 
