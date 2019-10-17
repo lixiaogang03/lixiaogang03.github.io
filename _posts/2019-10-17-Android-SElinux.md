@@ -44,6 +44,18 @@ Selinux支持两种形式的安全检查：类型强制(TE)和多层次安全(ML
 
 可以使用getenforce和setenforce方法查询和设置
 
+## 源码
+
+[AOSP源码](http://androidxref.com/7.1.1_r6/xref/system/sepolicy/)
+
+* attributes -> 所有定义的attributes都在这个文件
+* users -> 其实是将user与roles进行了关联，设置了user的安全级别，s0为最低级是默认的级别，mls_systemHigh是最高的级别
+* roles -> Android中只定义了一个role，名字就是r，将r和attribute domain关联起来
+* security_classes -> 指的是上文命令中的class，个人认为这个class的内容是指在android运行过程中，程序或者系统可能用到的操作的模块
+* access_vectors -> 对应了每一个class可以被允许执行的命令
+* te_macros -> 系统定义的宏全在te_macros文件
+* *.te -> 一些配置的文件，包含了各种运行的规则
+
 ## 安全上下文
 
 安全上下文(安全标签)是由分号分隔的四个域组成的字符串：用户名(u)、角色(r)、类型(sunmi_app)和一个可选的MLS安全范围(s0:c512,c768)
@@ -123,7 +135,168 @@ ro.serialno             u:object_r:serialno_prop:s0
 
 安全策略源文件由专用语言编写，包含了声明和规则
 
-### 属性
+### 用户-user
+
+**users**
+
+```txt
+
+user u roles { r } level s0 range s0 - mls_systemhigh;
+
+```
+
+### 角色-role
+
+**roles**
+
+```txt
+
+role r;
+role r types domain;
+
+```
+
+### 对象-class
+
+**security-classes**
+
+```txt
+
+# file-related classes
+class filesystem
+class file
+class dir
+class fd
+class lnk_file
+class chr_file
+class blk_file
+class sock_file
+class fifo_file
+
+# network-related classes
+class socket
+class tcp_socket
+class udp_socket
+class rawip_socket
+class node
+class netif
+class netlink_socket
+class packet_socket
+class key_socket
+class unix_stream_socket
+class unix_dgram_socket
+
+class binder
+
+# Property service
+class property_service          # userspace
+
+```
+
+### 动作-access_vectors
+
+**access_vectors**
+
+```txt
+
+#
+# Define a common prefix for file access vectors.
+#
+
+common file
+{
+	ioctl
+	read
+	write
+	create
+	getattr
+	setattr
+	lock
+	relabelfrom
+	relabelto
+	append
+	unlink
+	link
+	rename
+	execute
+	swapon
+	quotaon
+	mounton
+}
+
+#
+# Define a common prefix for socket access vectors.
+#
+
+common socket
+{
+# inherited from file
+	ioctl
+	read
+	write
+	create
+	getattr
+	setattr
+	lock
+	relabelfrom
+	relabelto
+	append
+# socket-specific
+	bind
+	connect
+	listen
+	accept
+	getopt
+	setopt
+	shutdown
+	recvfrom
+	sendto
+	recv_msg
+	send_msg
+	name_bind
+}
+
+```
+
+### 宏定义-te_macros
+
+**te_macros**
+
+```txt
+
+#####################################
+# set_prop(sourcedomain, targetproperty)
+# Allows source domain to set the
+# targetproperty.
+#
+define(`set_prop', `
+__unix_socket_connect__($1, property, init)
+allow $1 $2:property_service set;
+get_prop($1, $2)
+')
+
+#####################################
+# get_prop(sourcedomain, targetproperty)
+# Allows source domain to read the
+# targetproperty.
+#
+define(`get_prop', `
+allow $1 $2:file r_file_perms;
+')
+
+```
+
+**global_macros**
+
+```txt
+
+define(`x_file_perms', `{ getattr execute execute_no_trans }')
+define(`r_file_perms', `{ getattr open read ioctl lock }')
+define(`w_file_perms', `{ open append write lock }')
+
+```
+
+### 属性-attributes
 
 **attributes**
 
@@ -157,7 +330,7 @@ attribute data_file_type;
 
 ```
 
-### 策略声明
+### 策略声明-type
 
 **file.te**
 
@@ -198,6 +371,30 @@ type system_app, domain, domain_deprecated;
 app_domain(system_app)
 net_domain(system_app)
 binder_service(system_app)
+
+```
+
+### 策略
+
+**system_app.te**
+
+```txt
+
+# detect /data/anr directory is created
+allow system_app system_data_file:dir { open read write add_name create setattr remove_name rmdir };
+allow system_app system_data_file:file { open read create write unlink setattr };
+
+allow system_app property_type:property_service set;
+
+```
+
+**system_server.te**
+
+```txt
+
+allow system_server rild:unix_stream_socket connectto;
+
+binder_call(system_server, dumpstate)
 
 ```
 
