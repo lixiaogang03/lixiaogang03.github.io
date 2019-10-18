@@ -139,6 +139,10 @@ ro.serialno             u:object_r:serialno_prop:s0
 
 安全策略源文件由专用语言编写，包含了声明和规则
 
+RULE_VARIANT SOURCE_TYPES TARGET_TYPES     : CLASSES PERMISSIONS
+
+allow        system_app   system_data_file : file    { open read create write unlink setattr };
+
 ### 用户-user
 
 **users**
@@ -401,6 +405,37 @@ allow system_server rild:unix_stream_socket connectto;
 binder_call(system_server, dumpstate)
 
 ```
+
+### 访问向量规则
+
+访问向量(Access Vector, AV)规则，通过指定进程对目标对象拥有的权限组，定义进程拥有的特权
+
+**RULE_VARIANT SOURCE_TYPES TARGET_TYPES:CLASSES PERMISSIONS**
+
+* RULE_VARIANT: 可以是 allow、dontaudit、auditallow、neverallow
+* SOURCE_TYPES: 主体(进程process)标识符
+* TARGET_TYPES：进程尝试访问对象的标识符
+* CLASSES：目标对象的类型
+* PERMISSIONS: 目标对象的权限集合
+
+auditallow: 与allow规则配合使用，当一个操作被允许时，记录相关审查事件
+
+> system_app.te:auditallow system_app net_radio_prop:property_service set;
+
+dontaudit: 当某一个事件被认为是安全时，禁止产生访问拒绝的消息
+
+> domain.te:dontaudit domain property_type:file audit_access;
+
+neverallow：规定永远不可执行的操作
+
+> neverallow untrusted_app property_type:property_service set;
+
+
+
+
+
+
+
 
 
 
