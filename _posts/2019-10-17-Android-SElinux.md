@@ -12,6 +12,8 @@ tags:
 
 [AOSP源码](http://androidxref.com/7.1.1_r6/xref/system/sepolicy/)
 
+[selinux-AOSP](https://source.android.com/security/selinux/)
+
 ## 架构
 
 SElinux宏观上包含四个基本组件：对象管理器(OM), 访问向量缓存(AVC), 安全服务器, 安全策略
@@ -48,13 +50,15 @@ Selinux支持两种形式的安全检查：类型强制(TE)和多层次安全(ML
 
 [AOSP源码](http://androidxref.com/7.1.1_r6/xref/system/sepolicy/)
 
-* attributes -> 所有定义的attributes都在这个文件
-* users -> 其实是将user与roles进行了关联，设置了user的安全级别，s0为最低级是默认的级别，mls_systemHigh是最高的级别
-* roles -> Android中只定义了一个role，名字就是r，将r和attribute domain关联起来
-* security_classes -> 指的是上文命令中的class，个人认为这个class的内容是指在android运行过程中，程序或者系统可能用到的操作的模块
-* access_vectors -> 对应了每一个class可以被允许执行的命令
-* te_macros -> 系统定义的宏全在te_macros文件
-* *.te -> 一些配置的文件，包含了各种运行的规则
+![selinux_aosp](/images/selinux/selinux_aosp.png)
+
+![selinux_aosp_2](/images/selinux/selinux_aosp_2.png)
+
+![selinux_aosp_3](/images/selinux/selinux_aosp_2.png)
+
+![selinux_aosp_4](/images/selinux/selinux_aosp_2.png)
+
+![selinux_aosp_5](/images/selinux/selinux_aosp_2.png)
 
 ## 安全上下文
 
