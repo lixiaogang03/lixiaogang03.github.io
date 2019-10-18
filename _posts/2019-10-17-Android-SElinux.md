@@ -54,11 +54,11 @@ Selinux支持两种形式的安全检查：类型强制(TE)和多层次安全(ML
 
 ![selinux_aosp_2](/images/selinux/selinux_aosp_2.png)
 
-![selinux_aosp_3](/images/selinux/selinux_aosp_2.png)
+![selinux_aosp_3](/images/selinux/selinux_aosp_3.png)
 
-![selinux_aosp_4](/images/selinux/selinux_aosp_2.png)
+![selinux_aosp_4](/images/selinux/selinux_aosp_4.png)
 
-![selinux_aosp_5](/images/selinux/selinux_aosp_2.png)
+![selinux_aosp_5](/images/selinux/selinux_aosp_5.png)
 
 ## 安全上下文
 
