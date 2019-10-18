@@ -91,6 +91,8 @@ u:object_r:system_data_file:s0        system
 
 ```
 
+### 文件打标签
+
 **file_contexts**
 
 ```txt
@@ -98,6 +100,11 @@ u:object_r:system_data_file:s0        system
 /data(/.*)?             u:object_r:system_data_file:s0
 
 ```
+
+### 进程打标签
+
+以root用户运行的zygote进程，负责设定每个应用进程的DAC凭据(UID、GID、附加GID)、权能和资源限制。为了支持SELINUX，zygote被扩展检查其客户端的安全上下文并设定应用进程的安全上下文。
+应用的安全上下文根据seapp_contexts配置文件指定的规则确定，而且依赖于应用UID、包名、系统服务端进程标记、以及seinfo
 
 **seapp_contexts**
 
@@ -117,6 +124,15 @@ user=_app isPrivApp=true domain=priv_app type=app_data_file levelFrom=user
 user=_app domain=untrusted_app type=app_data_file levelFrom=user
 
 ```
+
+### 属性打标签
+
+Android使用所有进程均可见的全局系统属性完成操作，比如硬件状态通信、启动和关闭系统服务、硬盘加密、甚至重新加载selinux策略。
+对于只读系统属性的访问一般不限制，可读写属性会被严格限制，只有特权UID可以写入。系统属性必须关联安全上下文，property_contexts文件被property_service(init的一部分)加载到内存中，
+之后用于决定是否允许进程访问
+
+allow system_app property_type:property_service set;
+neverallow untrusted_app property_type:property_service set;
 
 **property_contexts**
 
@@ -431,7 +447,130 @@ neverallow：规定永远不可执行的操作
 > neverallow untrusted_app property_type:property_service set;
 
 
+## 内核修改
 
+Selinux 是一个安全模块，实现了很多插入到对象访问控制的LSM钩子。Android Binder机制被实现成一个内核驱动，Android在其中增加了LSM钩子，并在SElinux代码中增加了对Binder对象类和相关权限的支持。
+
+```txt
+
+./kernel/msm-3.18/security/security.c:int security_binder_transaction(struct task_struct *from, struct task_struct *to)
+./kernel/msm-3.18/drivers/staging/android/binder.c:
+
+static void binder_transaction(struct binder_proc *proc,
+                               struct binder_thread *thread,
+                               struct binder_transaction_data *tr, int reply) {
+
+                if (security_binder_transaction(proc->tsk, target_proc->tsk) < 0) {
+                        return_error = BR_FAILED_REPLY;
+                        goto err_invalid_target_handle;
+                }
+
+}
+./kernel/msm-3.18/include/linux/security.h:int security_binder_transaction(struct task_struct *from, struct task_struct *to);
+./kernel/msm-3.18/include/linux/security.h:static inline int security_binder_transaction(struct task_struct *from, struct task_struct *to)
+
+```
+
+## 用户空间修改
+
+* 在核心C库加入对文件系统标签的支持
+* init和核心原生守护进程、可执行文件的扩展
+* 实现系统层SElinuxAPI
+
+### 库文件和工具
+
+因为SElinux使用扩展属性保存文件系统对象的安全上下文，所以为了能够获取和设定到文件和目录的安全标签，用于管理扩展属性系统调用的封装函数(getxattr、setxattr)首先倍加入到C库中
+
+```txt
+
+../bionic/libc/bionic/fsetxattr.cpp:#include <sys/xattr.h>
+../bionic/libc/bionic/flistxattr.cpp:#include <sys/xattr.h>
+../bionic/libc/bionic/fgetxattr.cpp:#include <sys/xattr.h>
+
+../external/selinux/libselinux/src/lgetfilecon.c:#include <sys/xattr.h>
+../external/selinux/libselinux/src/fsetfilecon.c:#include <sys/xattr.h>
+../external/selinux/libselinux/src/setfilecon.c:#include <sys/xattr.h>
+../external/selinux/libselinux/src/fgetfilecon.c:#include <sys/xattr.h>
+../external/selinux/libselinux/src/getfilecon.c:#include <sys/xattr.h>
+
+```
+
+为了能够在用户空间访问SElinux特性，android增加了libselinux库和一组命令行工具
+
+**chcon：修改一个文件的安全上下文**
+
+```txt
+
+usage: chcon [-hRv] CONTEXT FILE...
+
+Change the SELinux security context of listed file[s].
+
+-h change symlinks instead of what they point to.
+-R recurse into subdirectories.
+-v verbose output.
+
+Device # chcon -hRv u:object_r:system_data_file:s0 app_firewall.xml
+
+chcon 'app_firewall.xml' to u:object_r:system_data_file:s0
+
+```
+
+**id: 显示进程的安全上下文**
+
+```txt
+
+usage: id [-GZgnru]
+
+Print user and group ID.
+-G	Show only the group IDs
+-Z	Show only security context
+-g	Show only the effective group ID
+-n	print names instead of numeric IDs (to be used with -Ggu)
+-r	Show real ID instead of effective ID
+-u	Show only the effective user ID
+
+Device # id u0_a72
+uid=10072(u0_a72) gid=10072(u0_a72) groups=10072(u0_a72), context=u:r:shell:s0
+
+Device # id radio
+uid=1000(system) gid=1000(system) groups=1000(system), context=u:r:shell:s0
+
+Device # id system
+uid=1000(system) gid=1000(system) groups=1000(system), context=u:r:shell:s0
+
+```
+
+**load_policy: 加载一个策略文件**
+
+**restorecon: 还原文件的安全上下文**
+
+**runcon: 在指定的安全上下文中运行程序**
+
+### 系统启动
+
+init进程启动时会从sepolicy二进制文件中加载策略，见init.rc
+
+```rc
+
+## Daemon processes to be run by init.
+##
+service ueventd /sbin/ueventd
+    class core
+    critical
+    seclabel u:r:ueventd:s0
+
+on post-fs-data
+    # We chown/chmod /data again so because mount is run as root + defaults
+    chown system system /data
+    chmod 0771 /data
+    # We restorecon /data in case the userdata partition has been reset.
+    restorecon /data
+
+```
+
+## 总结
+
+![selinux_arch_2](/images/selinux/selinux_arch_2.png)
 
 
 
