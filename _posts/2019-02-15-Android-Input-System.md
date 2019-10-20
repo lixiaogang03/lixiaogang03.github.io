@@ -34,7 +34,7 @@ tags:
 
 ## 框架图
 
-![android_input_system](/images/android_input_system.png)
+![android_input_system](/images/input_manager/android_input_system.png)
 
 
 ### Linux内核
@@ -87,7 +87,7 @@ tags:
 
 ### IMS的结构体系
 
-![android_IMS_2](/images/android_IMS_2.png)
+![android_IMS_2](/images/input_manager/android_IMS_2.png)
 
 ### IMS的工作流程
 
@@ -96,14 +96,14 @@ tags:
 3. InputDispatcher则在其线程循环中将派发队列中的事件取出，查找合适的窗口，将事件写入到窗口的事件接收管道中
 4. 窗口事件接收线程的Looper从管道中将事件取出，交由事件处理函数进行事件响应。整个过程共有三个线程首尾相接，像三台水泵似的一层层地将事件交付给事件处理函数
 
-![android_IMS_3](/images/android_IMS_3.png)
+![android_IMS_3](/images/input_manager/android_IMS_3.png)
 
 ### 时序图
 
-![android_IMS](/images/android_IMS.png)
+![android_IMS](/images/input_manager/android_IMS.png)
 
 ## 总结
 
-![android_input_system_2](/images/android_input_system_2.png)
+![android_input_system_2](/images/input_manager/android_input_system_2.png)
 
 
