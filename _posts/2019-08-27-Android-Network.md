@@ -146,7 +146,7 @@ public class NetworkFactory extends Handler {
 
 CS通过NetworkFactory和WifiStateMachine单向通信：
 
-![network_factory](/images/network_factory.png)
+![network_factory](/images/network/network_factory.png)
 
 ## NetworkAgent
 
@@ -166,7 +166,7 @@ CS可以向WifiStateMachine：
 
 CS和WifiStateMachine通过NetworkAgent进行双向通信：
 
-![network_agent](/images/network_agent.png)
+![network_agent](/images/network/network_agent.png)
 
 ## NetworkMonitor
 
@@ -174,7 +174,7 @@ CS和WifiStateMachine通过NetworkAgent进行双向通信：
 
 NetworkMonitor也是一个状态机，包含以下几种基本状态：
 
-![network_monitor](/images/network_monitor.png)
+![network_monitor](/images/network/network_monitor.png)
 
 State	                  |                      Description
 :-:                       |                         :-:
@@ -249,7 +249,7 @@ NMS和netd之间通信的方式有两种：Binder 和 Socket。为什么不全�
 
 SystemServer和netd之间的数据流向图：
 
-![network_manager_service](/images/network_manager_service.png)
+![network_manager_service](/images/network/network_manager_service.png)
 
 ### dumpsys network_management
 
@@ -336,6 +336,6 @@ wpa_supplicant比Android的历史要早，在很多其他平台上也被广泛�
 
 wpa_supplicant和Framework通信：
 
-![wpa_supplicant](/images/wpa_supplicant.png)
+![wpa_supplicant](/images/network/wpa_supplicant.png)
 
 
