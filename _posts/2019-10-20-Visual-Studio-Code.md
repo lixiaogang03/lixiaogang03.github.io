@@ -12,6 +12,12 @@ tags:
 
 [官网](https://visualstudio.microsoft.com/zh-hans/vs/)
 
+## 简介
+
+Microsoft 在2015年4月30日 Build 开发者大会上正式宣布了 Visual Studio Code 项目：一个运行于 Mac OS X、Windows 和 Linux 之上的，针对于编写现代 Web 和云应用的跨平台源代码编辑器
+
+至2019年9月，已经支持了如下37种语言或文件：F#、HandleBars、Markdown、Python、Jade、PHP、Haxe、Ruby、Sass、Rust、PowerShell、Groovy、R、Makefile、HTML、JSON、TypeScript、Batch、Visual Basic、Swift、Less、SQL、XML、Lua、Go、C++、Ini、Razor、Clojure、C#、Objective-C、CSS、JavaScript、Perl、Coffee Script、Java、Dockerfile
+
 ## 安装
 
 ### ubuntu
@@ -46,7 +52,64 @@ Chinese (Simplified) Language Pack for Visual Studio Code
 
 **运行和结果**
 
-![config_3](/images/visual_studio/config_2.png)
+![config_3](/images/visual_studio/config_3.png)
+
+## launch.json
+
+```json
+
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "make",                                                 // 配置名称，将会在启动配置的下拉菜单中显示
+            "type": "cppdbg",                                               // 配置类型，这里只能为cppdbg
+            "request": "launch",                                            // 请求配置类型，可以为launch（启动）或attach（附加）
+            "program": "${workspaceFolder}/bin/ticket",                     // 将要进行调试的程序的路径
+            "args": [],                                                     // 程序调试时传递给程序的命令行参数，一般设为空即可
+            "stopAtEntry": false,                                           // 设为true时程序将暂停在程序入口处，我一般设置为true
+            "cwd": "${workspaceFolder}",                                    // 调试程序时的工作目录
+            "environment": [],                                              // （环境变量？）
+            "externalConsole": true,                                        // 调试时是否显示控制台窗口，一般设置为true显示控制台
+            "internalConsoleOptions": "neverOpen",                          // 如果不设为neverOpen，调试时会跳到“调试控制台”选项卡，你应该不需要对gdb手动输命令吧？
+            "MIMode": "gdb",                                                // 指定连接的调试器，可以为gdb或lldb。但目前lldb在windows下没有预编译好的版本。
+            "miDebuggerPath": "gdb",                                        // 调试器路径，Windows下后缀不能省略，Linux下则去掉
+            "setupCommands": [                                              // 用处未知，模板如此
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": false
+                }
+            ],
+            "preLaunchTask": "make"                                         // 调试会话开始前执行的任务，一般为编译程序。与tasks.json的label相对应
+        }
+    ]
+}
+
+```
+
+## task.json
+
+**创建task.json快捷键**
+
+> F5
+
+```json
+
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "make",
+            "type": "shell",
+            "command": "make"
+        }
+    ]
+}
+
+```
 
 
 
