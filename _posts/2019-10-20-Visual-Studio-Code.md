@@ -20,8 +20,6 @@ Microsoft 在2015年4月30日 Build 开发者大会上正式宣布了 Visual Stu
 
 ## 安装
 
-### ubuntu
-
 [下载地址](https://code.visualstudio.com/Download)
 
 **安装**
