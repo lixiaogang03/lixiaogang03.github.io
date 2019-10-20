@@ -24,11 +24,11 @@ Microsoft 在2015年4月30日 Build 开发者大会上正式宣布了 Visual Stu
 
 **安装**
 
-> sudo dpkg -i code_1.39.2-1571154070_amd64.deb
+sudo dpkg -i code_1.39.2-1571154070_amd64.deb
 
 **启动**
 
-> code
+code
 
 **中文插件**
 
@@ -54,7 +54,7 @@ Chinese (Simplified) Language Pack for Visual Studio Code
 
 ## launch.json
 
-```json
+```txt
 
 {
     "version": "0.2.0",
@@ -109,7 +109,7 @@ Chinese (Simplified) Language Pack for Visual Studio Code
 
 **创建task.json快捷键F5**
 
-```json
+```txt
 
 {
 
