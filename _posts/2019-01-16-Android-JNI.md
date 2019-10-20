@@ -59,7 +59,7 @@ CMake是一个跨平台的编译工具，它自己不编译出目标对象，而
 
 ## JNI
 
-![JNI](/images/jni.png)
+![JNI](/images/jni/jni.png)
 
 
 

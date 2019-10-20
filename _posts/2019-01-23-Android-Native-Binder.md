@@ -13,7 +13,7 @@ tags:
 
 ### 框架图
 
-![binder_1](/images/binder-1.png)
+![binder_1](/images/binder/binder-1.png)
 
 ### 服务端实现
 
@@ -582,7 +582,7 @@ int SQR2::add(int x, int y) {
 
 ### 类图
 
-![binder_2](/images/binder-2.png)
+![binder_2](/images/binder/binder-2.png)
 
 ### 总结
 
@@ -598,6 +598,8 @@ int SQR2::add(int x, int y) {
 ### 源码地址
 
 [源码地址](https://github.com/lixiaogang03/android-native-service)
+
+![binder_arch](/images/binder/binder_arch.webp)
 
 
 

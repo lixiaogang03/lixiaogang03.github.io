@@ -23,7 +23,7 @@ tags:
 
 > /data/user_de/0/com.android.providers.telephony/databases/telephony.db
 
-![SIM_INFO](/images/sim_info.png)
+![SIM_INFO](/images/telephony/sim_info.png)
 
 ### SubscriptionInfo.java
 
@@ -207,7 +207,7 @@ public class SubscriptionController extends ISub.Stub {
 
 当有一张新的SIM卡插入到手机，手机检测到有SIM卡插入，就会发起SIM卡数据的查询，UiccController将查询得到的数据，传递到SubscriptionController
 
-![SIM_INFO](/images/sim_update.png)
+![SIM_INFO](/images/telephony/sim_update.png)
 
 ### ICCID IMSI
 
