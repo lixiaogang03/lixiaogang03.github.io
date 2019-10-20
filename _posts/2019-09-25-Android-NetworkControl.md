@@ -694,11 +694,11 @@ iptables是Linux系统中最重要的网络管控工具。它与Kernel中的netf
 3. 若该数据包应该被转发，则它将被钩子函数FORWARD处理，然后还要经钩子函数POST_ROUTING处理后才能传输到网络
 4. 本机进程产生的数据包要先经过钩子函数LOCAL_OUT处理后，再进行路由选择处理，然后经过钩子函数POST_ROUTING处理后再发送到网络
 
-![iptables_principle](/images/iptables_principle.png)
+![iptables_principle](/images/netd/iptables_principle.png)
 
 ### 命令
 
-![iptables_rule_format](/images/iptables_rule_format.png)
+![iptables_rule_format](/images/netd/iptables_rule_format.png)
 
 **Target**
 

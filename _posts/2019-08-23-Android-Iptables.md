@@ -32,7 +32,7 @@ Linux Socket 是从 BSD Socket 发展而来的，它是 Linux 操作系统的重
 1. 由iptables客户端调用命令来配置管理防火墙，最后相关请求发送到内核模块；内核模块用于组织iptables使用的表、链和规则。
 2. iptables依赖netfilter来注册各种hooks实现对数据包的具体转发逻辑控制
 
-![linux_iptables](/images/linux_iptables.png)
+![linux_iptables](/images/netd/linux_iptables.png)
 
 ### Iptable Setting
 
@@ -58,15 +58,15 @@ Netd位于Framework层和Kernel层之间，它是Android系统中网络相关消
 3. 若该数据包应该被转发，则它将被钩子函数FORWARD处理，然后还要经钩子函数POST_ROUTING处理后才能传输到网络
 4. 本机进程产生的数据包要先经过钩子函数LOCAL_OUT处理后，再进行路由选择处理，然后经过钩子函数POST_ROUTING处理后再发送到网络
 
-![iptables_principle](/images/iptables_principle.png)
+![iptables_principle](/images/netd/iptables_principle.png)
 
 ### 规则
 
-![iptables_rule](/images/iptables_rule.png)
+![iptables_rule](/images/netd/iptables_rule.png)
 
 ### iptables 命令格式
 
-![iptables_rule_format](/images/iptables_rule_format.png)
+![iptables_rule_format](/images/netd/iptables_rule_format.png)
 
 添加一条规则: drop掉源为10.24.67.97的icmp报文
 
