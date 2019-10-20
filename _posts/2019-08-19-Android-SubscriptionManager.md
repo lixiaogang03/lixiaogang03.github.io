@@ -17,7 +17,7 @@ tags:
 
 ### 架构图
 
-![TelephonyRegistry](/images/phone_architecture.png)
+![TelephonyRegistry](/images/telephony/phone_architecture.png)
 
 ### SIM Info
 

@@ -15,7 +15,7 @@ tags:
 
 ### Linux 网络协议栈
 
-![linux_network](/images/linux_network.jpg)
+![linux_network](/images/network/linux_network.jpg)
 
 ### Socket
 
@@ -49,7 +49,7 @@ Netd的工作流程和Vold类似，其工作可分成两部分:
 
 Netd位于Framework层和Kernel层之间，它是Android系统中网络相关消息和命令转发及处理的中枢模块
 
-![android_netd](/images/android_netd.png)
+![android_netd](/images/netd/android_netd.png)
 
 ### 工作原理
 

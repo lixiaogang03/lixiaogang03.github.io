@@ -17,9 +17,9 @@ tags:
 
 ## 架构
 
-![android_network](/images/android_network.png)
+![android_network](/images/network/android_network.png)
 
-![android_netd](/images/android_netd.png)
+![android_netd](/images/netd/android_netd.png)
 
 ## ConnectivityService
 

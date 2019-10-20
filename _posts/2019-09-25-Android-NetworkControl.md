@@ -16,7 +16,7 @@ tags:
 
 ## netd
 
-![android_netd](/images/android_netd.png)
+![android_netd](/images/netd/android_netd.png)
 
 ### 概述
 

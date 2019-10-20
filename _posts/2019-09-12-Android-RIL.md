@@ -14,7 +14,7 @@ tags:
 
 ## Telephony 整体架构图
 
-![TelephonyRegistry](/images/phone_architecture.png)
+![TelephonyRegistry](/images/telephony/phone_architecture.png)
 
 ## 背景
 
