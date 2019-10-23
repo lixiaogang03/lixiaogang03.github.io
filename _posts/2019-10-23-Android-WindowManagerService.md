@@ -13,6 +13,14 @@ tags:
 
 [WMS-刘望舒的博客](http://liuwangshu.cn/framework/wms/1-wms-produce.html)
 
+## Android GUI history
+
+![android_gui_history](/images/wms/android_gui_history.png)
+
+## AMS/WMS/IMS
+
+![wms_ams_ims](/images/wms/wms_ams_ims.png)
+
 ## Window
 
 Android系统中的窗口是屏幕上的一块用于绘制各种UI元素的一个矩形区域。窗口的概念是独占有一个Surfaces实例的显示区域：Dialog、Toast、StatusBar、NavigationBar、WallPaper、Activity
@@ -185,7 +193,162 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
 ```
 
-![wms_start](images/wms/wms_start.png)
+![wms_start](/images/wms/wms_start.png)
+
+## 数据结构
+
+### WindowManagerPolicy
+
+```java
+
+    final WindowManagerPolicy mPolicy = new PhoneWindowManager();
+
+```
+
+WindowManagerPolicy是窗口管理策略的接口类，用来定义一个窗口策略所要遵循的通用规范，并提供了WindowManager所有的特定的UI行为。
+它的具体实现类为PhoneWindowManager，这个实现类在WMS创建时被创建。WMP允许定制窗口层级和特殊窗口类型以及关键的调度和布局。
+
+### Session
+
+```java
+
+    /**
+     * All currently active sessions with clients.
+     */
+    final ArraySet<Session> mSessions = new ArraySet<>();
+
+```
+
+Session用于进程间通信，其他的应用程序进程想要和WMS进程进行通信就需要经过Session，并且每个应用程序进程都会对应一个Session，WMS保存这些Session用来记录所有向WMS提出窗口管理服务的客户端
+
+### WindowState
+
+```java
+
+    /**
+     * Mapping from an IWindow IBinder to the server's Window object.
+     * This is also used as the lock for all of our state.
+     * NOTE: Never call into methods that lock ActivityManagerService while holding this object.
+     */
+    final HashMap<IBinder, WindowState> mWindowMap = new HashMap<>();
+
+    /**
+     * Windows that are being resized.  Used so we can tell the client about
+     * the resize after closing the transaction in which we resized the
+     * underlying surface.
+     */
+    final ArrayList<WindowState> mResizingWindows = new ArrayList<>();
+
+
+```
+
+mWindowMap就是用来保存WMS中各种窗口的集合, WindowState用于保存窗口的信息，在WMS中它用来描述一个窗口
+
+mResizingWindows是用来存储正在调整大小的窗口的列表
+
+### WindowToken
+
+```java
+
+/**
+ * Container of a set of related windows in the window manager.  Often this
+ * is an AppWindowToken, which is the handle for an Activity that it uses
+ * to display windows.  For nested windows, there is a WindowToken created for
+ * the parent window to manage its children.
+ */
+class WindowToken {
+
+    // The window manager!
+    final WindowManagerService service;
+
+    // The actual token.
+    final IBinder token;
+
+    // The type of window this token is for, as per WindowManager.LayoutParams.
+    final int windowType;
+
+    // If this is an AppWindowToken, this is non-null.
+    AppWindowToken appWindowToken;
+
+}
+
+
+/**
+ * Version of WindowToken that is specifically for a particular application (or
+ * really activity) that is displaying windows.
+ */
+class AppWindowToken extends WindowToken {
+
+    // Non-null only for application tokens.
+    final IApplicationToken appToken;
+
+}
+
+```
+
+WindowToken主要有两个作用：
+
+* 可以理解为窗口令牌，当应用程序想要向WMS申请新创建一个窗口，则需要向WMS出示有效的WindowToken。AppWindowToken作为WindowToken的子类，主要用来描述应用程序的WindowToken结构，
+应用程序中每个Activity都对应一个AppWindowToken
+
+* WindowToken会将相同组件（比如Acitivity）的窗口（WindowState）集合在一起，方便管理
+
+```java
+
+    /**
+     * Mapping from a token IBinder to a WindowToken object.
+     */
+    final HashMap<IBinder, WindowToken> mTokenMap = new HashMap<>();
+
+    /**
+     * List of window tokens that have finished starting their application,
+     * and now need to have the policy remove their windows.
+     */
+    final ArrayList<AppWindowToken> mFinishedStarting = new ArrayList<>();
+
+```
+
+### WindowAnimator
+
+```java
+
+    final WindowAnimator mAnimator;
+
+```
+
+用于管理窗口的动画以及特效动画
+
+### Handler
+
+```java
+
+    final H mH = new H();
+
+```
+用于将任务加入到主线程的消息队列中，这样代码逻辑就会在主线程(system_server)中执行
+
+### InputManagerService
+
+```java
+
+    final InputManagerService mInputManager;
+
+```
+
+InputManagerService(IMS)会对触摸事件进行处理，它会寻找一个最合适的窗口来处理触摸反馈信息，WMS是窗口的管理者，是输入系统的中转站
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
