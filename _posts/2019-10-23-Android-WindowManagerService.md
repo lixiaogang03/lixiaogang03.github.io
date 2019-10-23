@@ -17,6 +17,10 @@ tags:
 
 ![android_gui_history](/images/wms/android_gui_history.png)
 
+## WMS in GUI system
+
+![android_graphics](/images/wms/android_graphics.png)
+
 ## AMS/WMS/IMS
 
 ![wms_ams_ims](/images/wms/wms_ams_ims.png)
@@ -28,6 +32,8 @@ Android系统中的窗口是屏幕上的一块用于绘制各种UI元素的一�
 ## Surface
 
 Surface是一块画布，应用可以通过Canvas或者OpenGL在上面作画，然后通过SurfaceFlinger将多块Surface的内容按照特定顺序(Z-order)进行合成，然后输出到FrameBuffer
+
+![surface](/images/wms/surface.png)
 
 ## WMS
 
