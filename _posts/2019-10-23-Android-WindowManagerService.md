@@ -13,6 +13,8 @@ tags:
 
 [WMS-刘望舒的博客](http://liuwangshu.cn/framework/wms/1-wms-produce.html)
 
+[Android图像系统-gityuan](http://gityuan.com/2017/02/05/graphic_arch/)
+
 ## Android GUI history
 
 ![android_gui_history](/images/wms/android_gui_history.png)
@@ -368,13 +370,19 @@ Android支持多屏幕，一个DisplayContent描述了一块可以绘制窗口�
 
 ## startActivity
 
-![start_activity](/images/wms/start_activity.png)
+![start_activity](/images/wms/start_activity.jpeg)
 
-![start_activity_2](/images/wms/start_activity_2.png)
+![start_activity_2](/images/wms/start_activity_2.jpeg)
 
-## addWindow
+## App-WMS-SurfaceFlinger
 
-![add_window](/images/wms/add_window.webp)
+![surface_display](/images/wms/surface_display.png)
+
+## 总结
+
+![surface_display_2](/images/wms/surface_display_2.png)
+
+
 
 
 
