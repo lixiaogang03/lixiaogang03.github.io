@@ -322,7 +322,7 @@ WindowToken主要有两个作用：
 
 ```
 
-用于管理窗口的动画以及特效动画
+它是所有窗口动画的总管，在Choreographer驱动下，逐个渲染所有动画
 
 ### Handler
 
@@ -342,6 +342,39 @@ WindowToken主要有两个作用：
 ```
 
 InputManagerService(IMS)会对触摸事件进行处理，它会寻找一个最合适的窗口来处理触摸反馈信息，WMS是窗口的管理者，是输入系统的中转站
+
+
+### Choreographer
+
+```java
+
+    final Choreographer mChoreographer = Choreographer.getInstance();
+
+```
+
+Choreographer 的意思是编舞者。它拥有从显示系统中获取VSYNC同步事件的能力，从而可以在合适的时机通知渲染动作，避免在渲染过程中因为发生屏幕重绘而导致的画面撕裂。
+WMS使用Choreographer负责驱动所有的窗口动画、屏幕旋转动画、墙纸动画的渲染
+
+### mDisplayContents
+
+```java
+
+    /** All DisplayContents in the world, kept here */
+    SparseArray<DisplayContent> mDisplayContents = new SparseArray<>(2);
+
+```
+
+Android支持多屏幕，一个DisplayContent描述了一块可以绘制窗口的屏幕。DisplayContent的管理是由DisplayManagerService完成的
+
+## startActivity
+
+![start_activity](/images/wms/start_activity.png)
+
+![start_activity_2](/images/wms/start_activity_2.png)
+
+## addWindow
+
+![add_window](/images/wms/add_window.webp)
 
 
 
