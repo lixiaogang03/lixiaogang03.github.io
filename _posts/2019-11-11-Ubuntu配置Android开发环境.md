@@ -140,6 +140,29 @@ sudo update-alternatives --config g++
 
 * adb version
 
+### adb no permission
+
+```txt
+
+$ adb devices
+List of devices attached
+VB01KJ1014001	no permissions (user in plugdev group; are your udev rules wrong?); see [http://developer.android.com/tools/device.html]
+
+```
+
+* lsusb
+
+    Bus 003 Device 008: ID 0e8d:201c MediaTek Inc. 
+
+* sudo gedit /etc/udev/rules.d/51-android.rules
+
+    SUBSYSTEM=="usb", ATTR{idVendor}=="0e8d", MODE="0666", GROUP="plugdev"
+
+* sudo chmod a+r /etc/udev/rules.d/51-android.rules
+
+
+
+
 
 
 
