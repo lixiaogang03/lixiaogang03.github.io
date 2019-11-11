@@ -19,12 +19,27 @@ tags:
 128G 固态硬盘分区建议:
 
 主分区：50G  /
+
 交换分区：32G  内存*2 (16*2)
+
 逻辑分区：others /home
 
 ## 挂载磁盘
 
+* 查看设备 df -h
+
+* 创建挂载目录 mkdir sunmi
+
+* 挂载到指定目录 sudo mount /dev/sda/ /home/lixiaogang/sunmi
+
+* 查询挂载硬盘UUID sudo blkid /dev/sda  --- /dev/sda: UUID="2d940cd1-d55c-4a18-9e9e-e80e45d00754" TYPE="ext4"
+
+* 设置开机自动挂载 sudo gedit /etc/fstab --- UUID=2d940cd1-d55c-4a18-9e9e-e80e45d00754 /home/lixiaogang/sunmi    ext4    defaults    0    2
+
+
 ```txt
+
+$df -h
 
 文件系统          容量  已用  可用 已用% 挂载点
 udev            7.8G     0  7.8G    0% /dev
@@ -38,16 +53,6 @@ tmpfs           7.8G     0  7.8G    0% /sys/fs/cgroup
 tmpfs           1.6G   60K  1.6G    1% /run/user/1000
 
 ```
-
-* 查看设备 df -h
-
-* 创建挂载目录 mkdir sunmi
-
-* 挂载到指定目录 sudo mount /dev/sda/ /home/lixiaogang/sunmi
-
-* 查询挂载硬盘UUID sudo blkid /dev/sda  --- /dev/sda: UUID="2d940cd1-d55c-4a18-9e9e-e80e45d00754" TYPE="ext4"
-
-* 设置开机自动挂载 sudo gedit /etc/fstab --- UUID=2d940cd1-d55c-4a18-9e9e-e80e45d00754 /home/lixiaogang/sunmi    ext4    defaults    0    2
 
 ## ssh-keygen 生成密钥(gitlab、gerrit)
 
@@ -70,15 +75,6 @@ git命令显示中文乱码解决： git config --global core.quotepath false
 
 ## Java环境配置
 
-OpenJDK 可以直接使用 apt-get 安装
-
-sudo apt-get install openjdk-7-jdk openjdk-7-jre openjdk-7-doc
-
-sudo apt-get install openjdk-8-jdk openjdk-8-jre openjdk-8-doc
-
-
-根据Ubuntu版本，如果不能安装openjdk指定的版本，则需要执行下面命令
-
 sudo add-apt-repository ppa:openjdk-r/ppa
 
 sudo apt-get update
@@ -87,8 +83,7 @@ sudo apt-get install openjdk-7-jdk openjdk-7-jre openjdk-7-doc openjdk-7-jre-hea
 
 sudo apt-get install openjdk-8-jdk openjdk-8-jre openjdk-8-doc openjdk-8-jre-headless openjdk-8-source openjdk-8-jdk-headless
 
-
-配置JDK默认版本
+### 配置JDK默认版本
 
 sudo update-alternatives --config java
 
@@ -134,16 +129,16 @@ sudo update-alternatives --config g++
 
 运行/bin/studio.sh, 安装并下载SDK
 
-环境变量配置
+### 环境变量配置
 
-sudo gedit ~/.bashrc
+* sudo gedit ~/.bashrc
 
-export PATH=$PATH:/home/lixiaogang/sunmi/androidstudio/sdk/tools/
-export PATH=$PATH:/home/lixiaogang/sunmi/androidstudio/sdk/platform-tools
+    export PATH=$PATH:/home/lixiaogang/sunmi/androidstudio/sdk/tools/
+    export PATH=$PATH:/home/lixiaogang/sunmi/androidstudio/sdk/platform-tools
 
-source ~/.bashrc
+* source ~/.bashrc
 
-adb version
+* adb version
 
 
 
