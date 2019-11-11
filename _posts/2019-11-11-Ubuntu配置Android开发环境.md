@@ -24,8 +24,6 @@ tags:
 
 ## 挂载磁盘
 
-* 查看设备 df -h
-
 ```txt
 
 文件系统          容量  已用  可用 已用% 挂载点
@@ -41,18 +39,27 @@ tmpfs           1.6G   60K  1.6G    1% /run/user/1000
 
 ```
 
+* 查看设备 df -h
+
 * 创建挂载目录 mkdir sunmi
 
 * 挂载到指定目录 sudo mount /dev/sda/ /home/lixiaogang/sunmi
 
 * 查询挂载硬盘UUID sudo blkid /dev/sda
 
-> /dev/sda: UUID="2d940cd1-d55c-4a18-9e9e-e80e45d00754" TYPE="ext4"
+/dev/sda: UUID="2d940cd1-d55c-4a18-9e9e-e80e45d00754" TYPE="ext4"
 
 * 设置开机自动挂载 sudo gedit /etc/fstab
 
-> # /dev/sda
-> UUID=2d940cd1-d55c-4a18-9e9e-e80e45d00754 /home/lixiaogang/sunmi           ext4    defaults        0       2
+UUID=2d940cd1-d55c-4a18-9e9e-e80e45d00754 /home/lixiaogang/sunmi    ext4    defaults    0    2
+
+## ssh-keygen 生成密钥(gitlab、gerrit)
+
+ssh-keygen -t rsa -C "your_email@example.com"
+
+
+
+
 
 
 
