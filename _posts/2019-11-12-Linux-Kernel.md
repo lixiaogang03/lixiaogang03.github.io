@@ -11,4 +11,6 @@ tags:
     - kernel
 ---
 
+[kernel.org](https://www.kernel.org/)
 
+[linux-stable.git-清华镜像](https://mirror.tuna.tsinghua.edu.cn/help/linux-stable.git/)
