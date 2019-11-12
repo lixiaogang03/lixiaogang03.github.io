@@ -62,6 +62,20 @@ tmpfs           1.6G   60K  1.6G    1% /run/user/1000
 
 * 拷贝到gitlab、github、gerrit
 
+* vim ~/.ssh/config
+
+```txt
+
+Host 172.16.0.1
+User username
+Port 29418
+
+```
+
+测试配置结果
+
+eval $(ssh-agent -s); ssh-add ;ssh -p 29418 172.16.0.1
+
 ## Git配置
 
 sudo apt-get install git
@@ -72,6 +86,10 @@ git config --global user.name "maxsu"
 git config --global user.email "yiibai.com@gmail.com"
 
 git命令显示中文乱码解决： git config --global core.quotepath false
+
+## repo配置
+
+sudo apt-get install repo
 
 ## Java环境配置
 
