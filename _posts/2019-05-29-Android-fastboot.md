@@ -66,4 +66,22 @@ Fastboot 是一种引导加载程序模式，您可以在该模式下刷写设�
   fastboot reboot-bootloader# 重启到bootloader 刷机用
 ```
 
+## 常见问题
+
+```txt
+
+OptiPlex-7020:~$ fastboot devcies
+< waiting for any device >
+
+fastboot devices
+no permissions (user in plugdev group; are your udev rules wrong?); see [http://developer.android.com/tools/device.html]	fastboot
+
+```
+
+解决方法：
+
+1. 进入sdk platam-tools目录
+2. sudo chown root:root /bin/fastboot
+3. sudo chmod +s /bin/fastboot
+
 
