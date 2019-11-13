@@ -121,6 +121,8 @@ sudo apt-get install libtool openssh-server samba git-core g++ make diffstat tex
 
 sudo apt-get install gnupg flex bison gperf build-essential zip curl zlib1g-dev libc6-dev lib32ncurses5-dev lib32z1 lib32ncurses5 x11proto-core-dev libx11-dev libreadline-gplv2-dev lib32z1-dev libgl1-mesa-dev g++-multilib binutils-mingw-w64 tofrodos python-markdown libxml2-utils xsltproc genisoimage python-imaging bc liblz4-tool
 
+sudo apt-get install -y git flex bison gperf build-essential libncurses5-dev:i386 libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-dev g++-multilib tofrodos python-markdown libxml2-utils xsltproc zlib1g-dev:i386 dpkg-dev libsdl1.2-dev libesd0-dev git-core gnupg flex bison gperf build-essential zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z-dev ccache libgl1-mesa-dev libxml2-utils xsltproc unzip m4
+
 ## gcc/g++ 版本
 
 Ubuntu 16.04及以上系统， gcc/g++ 版本过高，编译可能会报错，所以需要把gcc/g++ 降级为4.8 版本，命令如下：
