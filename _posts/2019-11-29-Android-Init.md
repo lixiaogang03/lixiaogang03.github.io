@@ -15,6 +15,8 @@ tags:
 
 [Android 操作系统架构开篇](http://gityuan.com/android/)
 
+[Android 9.0 init-简书](https://www.jianshu.com/p/77363ef7ca7d)
+
 ## Android 架构图-Gityuan
 
 ![android-stack](/images/init/android-stack.png)
@@ -47,6 +49,7 @@ int main(int argc, char** argv) {
         return watchdogd_main(argc, argv);
     }
 
+    //设置文件属性0777
     // Clear the umask.
     umask(0);
 
@@ -71,7 +74,10 @@ int main(int argc, char** argv) {
     // later on. Now that tmpfs is mounted on /dev, we can actually talk
     // to the outside world.
     open_devnull_stdio();
+
+    // 初始化内核log，位于节点/dev/kmsg
     klog_init();
+    // 设置输出的log级别
     klog_set_level(KLOG_NOTICE_LEVEL);
 
     NOTICE("init %s started!\n", is_first_stage ? "first stage" : "second stage");
@@ -80,6 +86,7 @@ int main(int argc, char** argv) {
         // Indicate that booting is in progress to background fw loaders, etc.
         close(open("/dev/.booting", O_WRONLY | O_CREAT | O_CLOEXEC, 0000));
 
+        // 创建一块共享的内存空间，用于属性服务
         property_init();
 
         // If arguments are passed both on the command line and in DT,
@@ -120,16 +127,21 @@ int main(int argc, char** argv) {
     restorecon("/property_contexts");
     restorecon_recursive("/sys");
 
+    // 初始化epoll功能
     epoll_fd = epoll_create1(EPOLL_CLOEXEC);
     if (epoll_fd == -1) {
         ERROR("epoll_create1 failed: %s\n", strerror(errno));
         exit(1);
     }
 
+    // 初始化子进程退出的信号处理函数，并调用epoll_ctl设置signal fd可读的回调函数
     signal_handler_init();
 
+    // 加载default.prop文件
     property_load_boot_defaults();
     export_oem_lock_status();
+
+    // 启动属性服务器，此处会调用epoll_ctl设置property fd可读的回调函数
     start_property_service();
 
     const BuiltinFunctionMap function_map;
@@ -139,20 +151,28 @@ int main(int argc, char** argv) {
     parser.AddSectionParser("service",std::make_unique<ServiceParser>());
     parser.AddSectionParser("on", std::make_unique<ActionParser>());
     parser.AddSectionParser("import", std::make_unique<ImportParser>());
+
+    // 解析init.rc文件
     parser.ParseConfig("/init.rc");
 
     ActionManager& am = ActionManager::GetInstance();
 
+    // 执行rc文件中触发器为on early-init的语句
     am.QueueEventTrigger("early-init");
 
     // Queue an action that waits for coldboot done so we know ueventd has set up all of /dev...
+    // 等冷插拔设备初始化完成
     am.QueueBuiltinAction(wait_for_coldboot_done_action, "wait_for_coldboot_done");
     // ... so that we can start queuing up actions that require stuff from /dev.
     am.QueueBuiltinAction(mix_hwrng_into_linux_rng_action, "mix_hwrng_into_linux_rng");
+    // 设备组合键的初始化操作，此处会调用epoll_ctl设置keychord fd可读的回调函数
     am.QueueBuiltinAction(keychord_init_action, "keychord_init");
+
+    // 屏幕上显示Android静态Logo
     am.QueueBuiltinAction(console_init_action, "console_init");
 
     // Trigger all the boot actions to get us started.
+    // 执行rc文件中触发器为on init的语句
     am.QueueEventTrigger("init");
 
     // Repeat mix_hwrng_into_linux_rng in case /dev/hw_random or /dev/random
@@ -160,6 +180,7 @@ int main(int argc, char** argv) {
     am.QueueBuiltinAction(mix_hwrng_into_linux_rng_action, "mix_hwrng_into_linux_rng");
 
     // Don't mount filesystems or start core system services in charger mode.
+    // 当处于充电模式，则charger加入执行队列；否则late-init加入队列。
     std::string bootmode = property_get("ro.bootmode");
     if (bootmode == "charger") {
         am.QueueEventTrigger("charger");
@@ -170,12 +191,14 @@ int main(int argc, char** argv) {
         am.QueueEventTrigger("late-init");
     }
 
+    // 触发器为属性是否设置
     // Run all property triggers based on current state of the properties.
     am.QueueBuiltinAction(queue_property_triggers_action, "queue_property_triggers");
 
     while (true) {
         if (!waiting_for_exec) {
             am.ExecuteOneCommand();
+            // 根据需要重启服务
             restart_processes();
         }
 
@@ -193,6 +216,7 @@ int main(int argc, char** argv) {
         bootchart_sample(&timeout);
 
         epoll_event ev;
+        // 循环等待事件发生
         int nr = TEMP_FAILURE_RETRY(epoll_wait(epoll_fd, &ev, 1, timeout));
         if (nr == -1) {
             ERROR("epoll_wait failed: %s\n", strerror(errno));
@@ -206,5 +230,10 @@ int main(int argc, char** argv) {
 
 ```
 
+init进程执行完成后进入循环等待epoll_wait的状态。
+
+## 小结
+
+![android_9_boot.webp](/images/init/android_9_boot.webp)
 
 
