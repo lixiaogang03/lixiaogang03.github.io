@@ -36,4 +36,68 @@ allprojects {
 
 ```
 
+## 应用开发常用库
+
+### leakcanary
+
+```gradle
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
+    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
+
+```
+
+### okhttp
+
+```gradle
+
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+
+```
+
+### room
+
+```gradle
+
+    implementation 'android.arch.persistence.room:runtime:1.1.1'
+    annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
+    implementation 'android.arch.persistence.room:testing:1.1.1'
+
+```
+
+### fastjson
+
+```gradle
+
+    implementation 'com.alibaba:fastjson:1.1.71.android'
+
+```
+
+### gson
+
+```gradle
+
+    implementation 'com.google.code.gson:gson:2.8.2'
+
+```
+
+### picasso
+
+```gradle
+
+    implementation 'com.squareup.picasso:picasso:2.5.2'
+
+```
+
+### bugly
+
+```gradle
+
+    implementation 'com.tencent.bugly:crashreport:latest.release'
+
+```
+
+
+
+
 
