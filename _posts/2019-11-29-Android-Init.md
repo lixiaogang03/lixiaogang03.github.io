@@ -11,4 +11,18 @@ tags:
     - init
 ---
 
+## 参考链接
+
+[Android 操作系统架构开篇](http://gityuan.com/android/)
+
+## Android 架构图-Gityuan
+
+![android-stack](/images/init/android-stack.png)
+
+## Android 启动架构图-Gityuan
+
+![android-boot](/images/init/android-boot.jpg)
+
+
+
 
