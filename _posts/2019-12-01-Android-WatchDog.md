@@ -181,10 +181,53 @@ public class Watchdog extends Thread {
      */
     public final class HandlerChecker implements Runnable {
 
+        public void scheduleCheckLocked() {
+            if (mMonitors.size() == 0 && mHandler.getLooper().getQueue().isPolling()) {
+                // If the target looper has recently been polling, then
+                // there is no reason to enqueue our checker on it since that
+                // is as good as it not being deadlocked.  This avoid having
+                // to do a context switch to check the thread.  Note that we
+                // only do this if mCheckReboot is false and we have no
+                // monitors, since those would need to be executed at this point.
+                mCompleted = true;
+                return;
+            }
+
+            if (!mCompleted) {
+                // we already have a check in flight, so no need
+                return;
+            }
+
+            mCompleted = false;
+            mCurrentMonitor = null;
+            mStartTime = SystemClock.uptimeMillis();
+
+            // 插入消息到消息队列头部
+            mHandler.postAtFrontOfQueue(this);
+        }
+
+
         @Override
         public void run() {
 
+            // 处理插入消息队列头部的消息
+
+            final int size = mMonitors.size();
+            for (int i = 0 ; i < size ; i++) {
+                synchronized (Watchdog.this) {
+                    mCurrentMonitor = mMonitors.get(i);
+                }
+
+                // 检查服务对象锁
+                mCurrentMonitor.monitor();
+            }
+
+            synchronized (Watchdog.this) {
+                mCompleted = true;
+                mCurrentMonitor = null;
+            }
         }
+
 
     }
 
@@ -311,6 +354,7 @@ public final class ActivityManagerService extends ActivityManagerNative
     @Override
     public void run() {
         boolean waitedHalf = false;
+        // 循环检查/每30秒
         while (true) {
             final ArrayList<HandlerChecker> blockedCheckers;
             final String subject;
@@ -319,7 +363,7 @@ public final class ActivityManagerService extends ActivityManagerNative
             synchronized (this) {
                 long timeout = CHECK_INTERVAL;
 
-                //１、处理所有的HandlerChecker
+                //１、处理所有的HandlerChecker(插入消息到消息队列头部)
                 // Make sure we (re)spin the checkers that have become idle within
                 // this wait-and-check interval
                 for (int i=0; i<mHandlerCheckers.size(); i++) {
@@ -331,7 +375,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                     debuggerWasConnected--;
                 }
 
-                // 2. 开始定期检查
+                // 2. 开始定期检查(等待30秒后检查checker状态，即HandlerChecker的run方法执行情况)
                 // NOTE: We use uptimeMillis() here because we do not want to increment the time we
                 // wait while asleep. If the device is asleep then the thing that we are waiting
                 // to timeout on is asleep as well and won't have a chance to run, causing a false
@@ -359,9 +403,11 @@ public final class ActivityManagerService extends ActivityManagerNative
                     waitedHalf = false;
                     continue;
                 } else if (waitState == WAITING) {
+                    // 等待时间小于30秒
                     // still waiting but within their configured intervals; back off and recheck
                     continue;
                 } else if (waitState == WAITED_HALF) {
+                    // 等待时间在30秒到60秒之间
                     if (!waitedHalf) {
                         // We've waited half the deadlock-detection interval.  Pull a stack
                         // trace and wait another half.
@@ -425,6 +471,7 @@ public final class ActivityManagerService extends ActivityManagerNative
             final File stack = ActivityManagerService.dumpStackTraces(
                     !waitedHalf, pids, null, null, NATIVE_STACKS_OF_INTEREST);
 
+            // 等待2s确保dumpStackTraces输出完成
             // Give some extra time to make sure the stack traces get written.
             // The system's been hanging for a minute, another second or two won't hurt much.
             SystemClock.sleep(2000);
@@ -432,6 +479,7 @@ public final class ActivityManagerService extends ActivityManagerNative
             // 开始dumpKernelStackTraces
             // Pull our own kernel thread stacks as well if we're configured for that
             if (RECORD_KERNEL_THREADS) {
+                // 输出kernel trace信息
                 dumpKernelStackTraces();
             }
 
@@ -452,6 +500,7 @@ public final class ActivityManagerService extends ActivityManagerNative
 
             final File newFd = new File(tracesPath);
 
+            // 输出dropbox
             // Try to add the error to the dropbox, but assuming that the ActivityManager
             // itself may be deadlocked.  (which has happened, causing this statement to
             // deadlock and the watchdog as a whole to be ineffective)
@@ -463,6 +512,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                     }
                 };
             dropboxThread.start();
+
             try {
                 dropboxThread.join(2000);  // wait up to 2 seconds for it to return.
             } catch (InterruptedException ignored) {}
@@ -493,9 +543,11 @@ public final class ActivityManagerService extends ActivityManagerNative
             }
             if (controller != null) {
                 Slog.i(TAG, "Reporting stuck state to activity controller");
+                // 将阻塞状态报告给 activity controller
                 try {
                     Binder.setDumpDisabled("Service dumps disabled due to hung system process.");
                     // 1 = keep waiting, -1 = kill system
+                    // 1 = 继续等待  -1 = 杀死系统
                     int res = controller.systemNotResponding(subject);
                     if (res >= 0) {
                         Slog.i(TAG, "Activity controller requested to coninue to wait");
@@ -518,6 +570,7 @@ public final class ActivityManagerService extends ActivityManagerNative
                 Slog.w(TAG, "Restart not allowed: Watchdog is *not* killing the system process");
             } else {
                 Slog.w(TAG, "*** WATCHDOG KILLING SYSTEM PROCESS: " + subject);
+                // 遍历输入阻塞线程的trace信息
                 for (int i=0; i<blockedCheckers.size(); i++) {
                     Slog.w(TAG, blockedCheckers.get(i).getName() + " stack trace:");
                     StackTraceElement[] stackTrace
@@ -538,6 +591,88 @@ public final class ActivityManagerService extends ActivityManagerNative
 
 
 ```
+
+![watchdog_run](/images/watchdog/watchdog_run.png)
+
+## 总结
+
+Watchdog是一个运行在system_server进程的名为"watchdog"的线程:：
+
+- Watchdog运作过程，当阻塞时间超过1分钟则触发一次watchdog，会杀死system_server,触发上层重启；
+- `mHandlerCheckers`记录所有的HandlerChecker对象的列表，包括foreground, main, ui, i/o, display线程的handler;
+- `mHandlerChecker.mMonitors`记录所有Watchdog目前正在监控Monitor，所有的这些monitors都运行在foreground线程。
+- 有两种方式加入`Watchdog监控`：
+    - addThread()：用于监测Handler线程，默认超时时长为60s.这种超时往往是所对应的handler线程消息处理得慢；
+    - addMonitor(): 用于监控实现了Watchdog.Monitor接口的服务.这种超时可能是"android.fg"线程消息处理得慢，也可能是monitor迟迟拿不到锁；
+
+以下情况,即使触发了Watchdog,也不会杀掉system_server进程:
+
+- monkey: 设置IActivityController,拦截systemNotResponding事件, 比如monkey.
+- hang: 执行am hang命令,不重启;
+- debugger: 连接debugger的情况, 不重启;
+
+### 监控Handler线程
+
+Watchdog监控的线程有：默认地`DEFAULT_TIMEOUT=60s`，调试时才为10s方便找出潜在的ANR问题。
+
+|线程名|对应handler|说明|Timeout|
+|---|---|---|
+|main|new Handler(Looper.getMainLooper())|当前主线程|1min|
+|android.fg|FgThread.getHandler|前台线程|1min|
+|android.ui|UiThread.getHandler|UI线程|1min|
+|android.io|IoThread.getHandler|I/O线程|1min|
+|android.display|DisplayThread.getHandler|display线程|1min|
+|ActivityManager|AMS.MainHandler|AMS线程|1min|
+|PowerManagerService|PMS.PowerManagerHandler|PMS线程|1min|
+|PackageManager|PKMS.PackageHandler|PKMS线程|10min|
+
+目前watchdog会监控system_server进程中的以上8个线程:
+
+- 前7个线程的Looper消息处理时间不得超过1分钟;
+- PackageManager线程的处理时间不得超过10分钟;
+
+### 监控同步锁
+
+能够被Watchdog监控的系统服务都实现了Watchdog.Monitor接口，并实现其中的monitor()方法。运行在`android.fg`线程,
+系统中实现该接口类主要有：
+
+- ActivityManagerService
+- WindowManagerService
+- InputManagerService
+- PowerManagerService
+- NetworkManagementService
+- MountService
+- NativeDaemonConnector
+- BinderThreadMonitor
+- MediaProjectionManagerService
+- MediaRouterService
+- MediaSessionService
+- BinderThreadMonitor
+
+### 输出信息
+
+watchdog在check过程中出现阻塞1分钟的情况，则会输出：
+
+1. AMS.dumpStackTraces：输出system_server和3个native进程的traces
+  - 该方法会输出两次，第一次在超时30s的地方；第二次在超时1min;
+2. WD.dumpKernelStackTraces，输出system_server进程中所有线程的kernel stack;
+  - 节点/proc/%d/task获取进程内所有的线程列表
+  - 节点/proc/%d/stack获取kernel的栈
+3. doSysRq, 触发kernel来dump所有阻塞线程，输出所有CPU的backtrace到kernel log;
+  - 节点/proc/sysrq-trigger
+4. dropBox，输出文件到/data/system/dropbox，内容是trace + blocked信息
+5. 杀掉system_server，进而触发zygote进程自杀，从而重启上层framework。
+
+
+
+
+
+
+
+
+
+
+
 
 
 
