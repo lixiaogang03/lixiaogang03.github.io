@@ -529,14 +529,11 @@ ANON代表匿名映射，没有后备存储器；FILE代表文件映射；
 - 选择oom_score_adj最大的进程中，并且rss内存最大的进程作为选中要杀的进程。
 - 杀进程方式：`send_sig(SIGKILL, selected, 0)``向选中的目标进程发送signal 9来杀掉目标进程。
 
+## 总结
 
+本文主要从frameworks的ProcessList.java调整adj，通过socket通信将事件发送给native的守护进程lmkd；lmkd再根据具体的命令来执行相应操作，其主要功能 更新进程的oom_score_adj值以及lowmemorykiller驱动的parameters(包括minfree和adj)；
 
-
-
-
-
-
-
+最后讲到了lowmemorykiller驱动，通过注册shrinker，借助linux标准的内存回收机制，根据当前系统可用内存以及parameters配置参数(adj,minfree)来选取合适的selected_oom_score_adj，再从所有进程中选择adj大于该目标值的并且占用rss内存最大的进程，将其杀掉，从而释放出内存
 
 
 
