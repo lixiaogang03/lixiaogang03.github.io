@@ -125,7 +125,15 @@ tags:
 5. get()和put()方法
 6. C11-fgets()和fputs()
 7. 字符串输出
-8. 字符串函数
+8. 字符串函数 string.h
+9. strlen() 字符串长度
+10. strcat() 拼接字符串
+11. strncat() 限制拼接字符串长度
+12. strcmp 比较字符串(即使数组大小也不同)
+13. strncmp 比较字符串(查找"abc"开头的字符串)
+14. strcpy 拷贝字符串(值拷贝)
+15. strncpy 安全拷贝
+16. ctype.h字符函数和字符串
 
 
 
