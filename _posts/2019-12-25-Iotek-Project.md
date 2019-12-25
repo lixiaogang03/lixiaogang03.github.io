@@ -56,3 +56,17 @@ tags:
 ![lsd_server_main](/images/iotek/lsd_server_main.png)
 
 ### 客户端
+
+1. 注册中断、ALARM信号
+2. 创建匿名管道
+3. 连接服务端socket
+4. 创建新线程：负责将服务端返回信息写入匿名管道，主线程从管道中读取数据
+5. 向服务器发送登录消息
+6. 登录成功后循环向服务器发送心跳包
+7. 展示客户端操作界面
+8. 向服务端发送shell命令
+
+![lsd_client_main](/images/iotek/lsd_client_main.png)
+
+
+
