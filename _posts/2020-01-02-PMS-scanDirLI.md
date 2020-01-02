@@ -134,5 +134,36 @@ public final class Pm {
 ![pm_uninstall](/images/pms/pm_uninstall.png)
 
 
+## 系统应用扫描
+
+**PMS.java**
+
+```java
+
+    private void scanDirLI(File dir, final int parseFlags, int scanFlags, long currentTime) {
+
+        final File[] files = dir.listFiles();
+        if (ArrayUtils.isEmpty(files)) {
+            Log.d(TAG, "No files in app dir " + dir);
+            return;
+        }
+        if (DEBUG_PACKAGE_SCANNING) {
+            Log.d(TAG, "Scanning app dir " + dir + " scanFlags=" + scanFlags
+                    + " flags=0x" + Integer.toHexString(parseFlags));
+        }
+
+        Log.d(TAG, "start scanDirLI:"+dir);
+
+        for (File file : files) {
+            // add by LXG
+            if (file.getName() != null && file.getName().startsWith("APKNAME")) {
+                Slog.d("LXG", "NO: " + file.getName());
+                continue;
+            }
+        }
+
+    }
+
+```
 
 
