@@ -17,7 +17,7 @@ tags:
 
 ## AMS
 
-![ams_activity_stack](/images/ams_activity_stack.png)
+![ams_activity_stack](/images/ams/ams_activity_stack.png)
 
 ### ActivityStackSupervisor
 

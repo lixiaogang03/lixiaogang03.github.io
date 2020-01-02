@@ -115,6 +115,6 @@ $ adb shell dumpsys package preferred-xml
 
 ### Home 启动
 
-![pms_home_start](/images/pms_home_start.png)
+![pms_home_start](/images/pms/pms_home_start.png)
 
 
