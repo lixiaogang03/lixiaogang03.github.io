@@ -138,6 +138,47 @@ final class NativeDaemonConnector implements Runnable, Handler.Callback, Watchdo
 
 ```
 
+![native_daemon_connector_execute](/images/network/native_daemon_connector_execute.png)
+
+## 响应码
+
+```java
+
+    class NetdResponseCode {
+        /* Keep in sync with system/netd/server/ResponseCode.h */
+        public static final int InterfaceListResult       = 110;
+        public static final int TetherInterfaceListResult = 111;
+        public static final int TetherDnsFwdTgtListResult = 112;
+        public static final int TtyListResult             = 113;
+        public static final int TetheringStatsListResult  = 114;
+
+        public static final int TetherStatusResult        = 210;
+        public static final int IpFwdStatusResult         = 211;
+        public static final int InterfaceGetCfgResult     = 213;
+        public static final int SoftapStatusResult        = 214;
+        public static final int InterfaceRxCounterResult  = 216;
+        public static final int InterfaceTxCounterResult  = 217;
+        public static final int QuotaCounterResult        = 220;
+        public static final int TetheringStatsResult      = 221;
+        public static final int DnsProxyQueryResult       = 222;
+        public static final int ClatdStatusResult         = 223;
+
+        public static final int InterfaceChange           = 600;
+        public static final int BandwidthControl          = 601;
+        public static final int InterfaceClassActivity    = 613;
+        public static final int InterfaceAddressChange    = 614;
+        public static final int InterfaceDnsServerInfo    = 615;
+        public static final int RouteChange               = 616;
+        public static final int StrictCleartext           = 617;
+        public static final int InterfaceMessage          = 618;
+    }
+
+```
+
+## netd 主动上报的消息处理
+
+![ndc_unsolicited_msg](/images/network/ndc_unsolicited_msg.png)
+
 ## 原理总结
 
 在服务刚刚开启的时候，就会开启一个线程在后台与localsocket进行连接，然后等待inputstream，
