@@ -13,10 +13,42 @@ tags:
 
 [理解Android Crash处理流程-gityuan](http://gityuan.com/2016/06/24/app-crash/)
 
-[深入理解 Android 9.0 Crash 机制-简书](https://www.jianshu.com/p/37b3c9f950dd)
+## Process Start
+
+![runtime_init](/images/crash_anr/runtime_init.png)
+
+## Crash Init
+
+![crash_init](/images/crash_anr/crash_init.png)
+
+```java
+
+public class RuntimeInit {
+
+    private static final void commonInit() {
+        if (DEBUG) Slog.d(TAG, "Entered RuntimeInit!");
+
+        /* set default handler; this applies to all threads in the VM */
+        Thread.setDefaultUncaughtExceptionHandler(new UncaughtHandler());
+
+    }
+
+}
+
+public class Thread implements Runnable {
+
+    // null unless explicitly set
+    private static volatile UncaughtExceptionHandler defaultUncaughtExceptionHandler;
+
+}
+
+```
 
 ## Crash处理流程
 
 ![crash_trace](/images/crash_anr/crash_trace.png)
+
+
+
 
 
