@@ -18,6 +18,25 @@ tags:
 
 ![linux_uevent](/images/uevent/linux_uevent.png)
 
+## Linux Netlink
+
+Netlink套接字是用以实现用户进程与内核进程通信的一种特殊的进程间通信(IPC) ,也是网络应用程序与内核通信的最常用的接口。
+
+在Linux 内核中，使用netlink 进行应用与内核通信的应用有很多，如
+
+* 路由 daemon（NETLINK_ROUTE）
+* 用户态 socket 协议（NETLINK_USERSOCK）
+* 防火墙（NETLINK_FIREWALL）
+* netfilter 子系统（NETLINK_NETFILTER）
+* 内核事件向用户态通知（NETLINK_KOBJECT_UEVENT）
+* 通用netlink（NETLINK_GENERIC）
+
+Netlink 是一种在内核与用户应用间进行双向数据传输的非常好的方式，用户态应用使用标准的 socket API 就可以使用 netlink 提供的强大功能，内核态需要使用专门的内核 API 来使用 netlink。
+
+一般来说用户空间和内核空间的通信方式有三种：/proc、ioctl、Netlink。而前两种都是单向的，而Netlink可以实现双工通信。
+
+![linux_netlink](/images/uevent/linux_netlink.png)
+
 ## Android Ueventd
 
 Android 中的 ueventd 是一个守护进程，它通过netlink scoket监听内核生成的uevent消息，
@@ -204,6 +223,14 @@ void device_init() {
 注册 Uevent 事件监听
 
 ![uevent_observer](/images/uevent/uevent_observer.png)
+
+## Ueventd 处理
+
+![uevent_handle](/images/uevent/uevent_handle.png)
+
+
+
+
 
 
 
