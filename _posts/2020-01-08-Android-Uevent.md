@@ -181,8 +181,31 @@ void device_init() {
     NOTICE("Coldboot took %.2fs.\n", t.duration());
 }
 
-
 ```
+
+### ueventd.rc
+
+**system/core/rootdir/ueventd.rc**
+
+[system/core/rootdir/ueventd.rc](http://androidxref.com/7.1.2_r36/xref/system/core/rootdir/ueventd.rc)
+
+## ueventd init
+
+![ueventd_init](/images/uevent/ueventd_init.png)
+
+## UEventObserver
+
+[android/os/UEventObserver.java](http://androidxref.com/7.1.2_r36/xref/frameworks/base/core/java/android/os/UEventObserver.java)
+
+[android_os_UEventObserver.cpp](http://androidxref.com/7.1.2_r36/xref/frameworks/base/core/jni/android_os_UEventObserver.cpp)
+
+[libhardware_legacy/uevent/uevent.c](http://androidxref.com/7.1.2_r36/xref/hardware/libhardware_legacy/uevent/uevent.c)
+
+注册 Uevent 事件监听
+
+![uevent_observer](/images/uevent/uevent_observer.png)
+
+
 
 
 
