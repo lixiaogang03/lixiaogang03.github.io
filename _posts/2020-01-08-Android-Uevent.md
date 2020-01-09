@@ -212,6 +212,10 @@ void device_init() {
 
 ![ueventd_init](/images/uevent/ueventd_init.png)
 
+## Ueventd 处理
+
+![uevent_handle](/images/uevent/uevent_handle.png)
+
 ## UEventObserver
 
 [android/os/UEventObserver.java](http://androidxref.com/7.1.2_r36/xref/frameworks/base/core/java/android/os/UEventObserver.java)
@@ -224,9 +228,6 @@ void device_init() {
 
 ![uevent_observer](/images/uevent/uevent_observer.png)
 
-## Ueventd 处理
-
-![uevent_handle](/images/uevent/uevent_handle.png)
 
 
 
