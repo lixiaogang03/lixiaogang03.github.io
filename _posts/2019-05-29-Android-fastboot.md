@@ -80,7 +80,7 @@ no permissions (user in plugdev group; are your udev rules wrong?); see [http://
 
 解决方法：
 
-1. 进入sdk platam-tools目录
+1. 进入sdk platam-tools目录(或者进入out/host/linux-x86/bin目录)
 2. sudo chown root:root /bin/fastboot
 3. sudo chmod +s /bin/fastboot
 
