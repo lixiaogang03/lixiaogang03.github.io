@@ -41,4 +41,26 @@ The commands and default sources are:
 
 ![input_keyevent](/images/input_manager/input_keyevent.png)
 
+## KeyEvent
 
+[KeyEvent.java](http://androidxref.com/7.1.2_r36/xref/frameworks/base/core/java/android/view/KeyEvent.java)
+
+```java
+
+public class KeyEvent extends InputEvent implements Parcelable {
+
+    private int mDeviceId;      // 按键设备
+    private int mSource;        // 设备类型：键盘、鼠标，InputDevice
+    private int mMetaState;     // 组合键功能键状态按下状态，例如CTRL、SHIFT
+    private int mAction;        // down up
+    private int mKeyCode;       // 键值
+    private int mScanCode;      // 底层按键扫描码
+    private int mRepeatCount;   // 长按时的重复次数
+    private int mFlags;         // flags The flags for this key event
+    private long mDownTime;     // 按下的时间
+    private long mEventTime;    // 事件发生的时间
+    private String mCharacters;
+
+}
+
+```
