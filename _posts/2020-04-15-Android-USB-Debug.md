@@ -37,6 +37,7 @@ system/core/adb/daemon/main.cpp
 
 int adbd_main(int server_port) {
 
+    // adbd socket
     init_transport_registration();
 
     // We need to call this even if auth isn't enabled because the file
@@ -175,10 +176,63 @@ persist.adb.tcp.port
 
 ![UsbDebug_init](/images/adb/UsbDebug_init.png)
 
+### 手动打开USB调试
 
+在Android中，当Mobile通过USB连接到PC后，到底开启哪些功能(如：adbd、midi、mtp等) 都是由UsbDeviceManager来做总控的。
+而UsbDeviceManager对这些功能控制的方式就是通过修改property。adbd会根据相关preoperty项作出相应操作，从而决定是否被打开。
+那么adbd是如何响应property的更改呢？
+这主要依赖init.usb.rc或init.*.usb.rc在一开机就注册好的property事件，当指定的property项如sys.usb.config的值被设为mtp,usb时，就会触发启动adbd的命令。
 
+system/core/rootdir/init.usb.rc
 
+```rc
 
+on post-fs-data
+    chown system system /sys/class/android_usb/android0/f_mass_storage/lun/file
+    chmod 0660 /sys/class/android_usb/android0/f_mass_storage/lun/file
+    chown system system /sys/class/android_usb/android0/f_rndis/ethaddr
+    chmod 0660 /sys/class/android_usb/android0/f_rndis/ethaddr
+    mkdir /data/misc/adb 02750 system shell
+    mkdir /data/adb 0700 root root
+
+# adbd is controlled via property triggers in init.<platform>.usb.rc
+service adbd /sbin/adbd --root_seclabel=u:r:su:s0
+    class core
+    socket adbd stream 660 system system
+    disabled
+    seclabel u:r:adbd:s0
+
+# adbd on at boot in emulator
+on property:ro.kernel.qemu=1
+    start adbd
+
+on boot
+    setprop sys.usb.configfs 0
+
+# Used to disable USB when switching states
+on property:sys.usb.config=none && property:sys.usb.configfs=0
+    stop adbd
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/bDeviceClass 0
+    setprop sys.usb.state ${sys.usb.config}
+
+# adb only USB configuration
+# This is the fallback configuration if the
+# USB manager fails to set a standard configuration
+on property:sys.usb.config=adb && property:sys.usb.configfs=0
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor 18d1
+    write /sys/class/android_usb/android0/idProduct 4EE7
+    write /sys/class/android_usb/android0/functions ${sys.usb.config}
+    write /sys/class/android_usb/android0/enable 1
+    start adbd
+    setprop sys.usb.state ${sys.usb.config}
+
+........................................................
+
+```
+
+![open_debug](/images/adb/open_debug.png)
 
 
 
