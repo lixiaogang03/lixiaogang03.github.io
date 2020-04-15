@@ -139,28 +139,43 @@ static bool should_drop_privileges() {
 
 ## 相关属性
 
-**adb 连接模式**
+```txt
 
+// adb 连接模式
 service.adb.tcp.port // 0为USB调试
 persist.adb.tcp.port
 
-**adb 调试用户验证**
+// adb 调试用户验证
 
-[ro.adb.secure]: [1]
+[ro.adb.secure]: [1] // 需要弹框勾选授权
 
-**usb上所有支持的功能**
+// usb上所有支持的功能
 
 [sys.usb.state]: [diag,serial_smd,rmnet_qti_bam,adb]
 
-**Adbd 是否运行中**
+// Adbd 是否运行中
 
 [init.svc.adbd]: [running]
 
-**userdebug**
+// userdebug
 
 [ro.debuggable]: [1]
 
 [ro.secure]: [1]
+
+// vold
+
+[vold.decrypt]: [trigger_restart_framework]
+
+```
+
+## Framework
+
+### Usb Debugging Init
+
+![UsbDebug_init](/images/adb/UsbDebug_init.png)
+
+
 
 
 
