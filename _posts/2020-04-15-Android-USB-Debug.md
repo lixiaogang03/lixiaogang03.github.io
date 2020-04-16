@@ -236,9 +236,50 @@ on property:sys.usb.config=adb && property:sys.usb.configfs=0
 
 ![open_debug](/images/adb/open_debug.png)
 
+## Adbd 与 Server 的授权过程
+
+![adb_fingerprint](/images/adb/adb_fingerprint.png)
 
 
+## dumpsys 调试
 
+adb shell dumpsys usb
+
+```txt
+
+USB Manager State:
+  USB Device State:
+    mCurrentFunctions: adb
+    mCurrentFunctionsApplied: true
+    mConnected: true
+    mConfigured: true
+    mUsbDataUnlocked: false
+    mCurrentAccessory: null
+    mHostConnected: false
+    mSourcePower: false
+    mSinkPower: true
+    mUsbCharging: true
+    Kernel state: CONFIGURED
+    Kernel function list: diag,serial,rmnet,ffs
+  USB Debugging State:
+    Connected to adbd: true
+    Last key received: 7E:F2:DF:CF:2F:04:02:63:36:BF:EF:D2:7B:B1:E1:85
+    User keys:
+  IOException: java.io.FileNotFoundException: /data/misc/adb/adb_keys (No such file or directory)
+    System keys:
+  IOException: java.io.FileNotFoundException: /adb_keys (No such file or directory)
+  USB Host State:
+  USB Port State:
+    otg_default: port=UsbPort{id=otg_default, supportedModes=dual}, status=UsbPortStatus{connected=true, currentMode=ufp, currentPowerRole=sink, currentDataRole=device, supportedRoleCombinations=[source:host, sink:device]}, canChangeMode=true, canChangePowerRole=false, canChangeDataRole=false
+  USB Audio Devices:
+  USB MIDI Devices:
+  Settings for user 0:
+    Device permissions:
+    Accessory permissions:
+    Device preferences:
+    Accessory preferences:
+
+```
 
 
 
