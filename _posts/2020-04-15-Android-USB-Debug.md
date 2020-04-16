@@ -183,6 +183,8 @@ persist.adb.tcp.port
 那么adbd是如何响应property的更改呢？
 这主要依赖init.usb.rc或init.*.usb.rc在一开机就注册好的property事件，当指定的property项如sys.usb.config的值被设为mtp,usb时，就会触发启动adbd的命令。
 
+![open_debug_2](/images/adb/open_debug_2.png)
+
 system/core/rootdir/init.usb.rc
 
 ```rc
