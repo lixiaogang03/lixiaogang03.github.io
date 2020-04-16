@@ -17,6 +17,10 @@ tags:
 
 ## adb debug
 
+Adb(Android-Debug-Bridge)是为了方便Host与目标Android设备通讯而出现的一种套件，支持USB与TCP/IP的通讯的方式。
+Adb分为三个端：Client & Server & Mobile。Adb的部分源代码是混在一起的，很多部分的功能可以重用，各端独立的逻辑使用预编译指令来分隔离。
+源码中通常使用预编译定义ADB_HOST来表示PC上的代码，其他#else块中表示Mobile代码，其他的表示为3端共享的代码。
+
 ![adb_debug](/images/adb/adb_debug.png)
 
 ## adbd
@@ -44,6 +48,7 @@ int adbd_main(int server_port) {
     // descriptor will always be open.
     adbd_cloexec_auth_socket();
 
+    // adbd启动后，读取ro.adb.secure，决定是否要求PC进行PublicKey+Token认证.
     if (ALLOW_ADBD_NO_AUTH && property_get_bool("ro.adb.secure", 0) == 0) {
         auth_required = false;
     }
@@ -86,6 +91,7 @@ int adbd_main(int server_port) {
     D("adbd_main(): post init_jdwp()");
 
     D("Event loop starting");
+    // 开启socket并开启事件循环，接受Client连接和发来的命令
     fdevent_loop();
 
     return 0;
@@ -281,6 +287,9 @@ USB Manager State:
 
 ```
 
+## 小结
+
+![adb_command](/images/adb/adb_command.png)
 
 
 
