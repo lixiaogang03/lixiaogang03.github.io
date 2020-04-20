@@ -158,7 +158,7 @@ persist.adb.tcp.port
 
 // usb上所有支持的功能
 
-[sys.usb.state]: [diag,serial_smd,rmnet_qti_bam,adb]
+[sys.usb.state]: [mtp,adb]
 
 // Adbd 是否运行中
 
@@ -173,6 +173,10 @@ persist.adb.tcp.port
 // vold
 
 [vold.decrypt]: [trigger_restart_framework]
+
+// The persistent property which stores whether adb is enabled or not.
+// May also contain vendor-specific default functions for testing purposes.
+[persist.sys.usb.config]:[mtp,adb]
 
 ```
 
