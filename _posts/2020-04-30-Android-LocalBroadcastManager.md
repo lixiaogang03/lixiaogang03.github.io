@@ -14,7 +14,7 @@ tags:
 
 [CountDownTimer-Android](https://developer.android.google.cn/reference/android/os/CountDownTimer?hl=en)
 
-## Activity 与 Service 通信方式、
+## Activity 与 Service 通信方式
 
 1. Acitivity 将实例传入 Service, 同时利用回调更新UI
 2. Service 持有 Activity的Handler 对象
@@ -146,4 +146,10 @@ public class LogCountDownTimer extends CountDownTimer {
     }
 
 ```
+
+## 注意
+
+最新的Android SDK此接口已经废弃, 推荐LiveData, 可参考[Jetpack之LiveData](https://juejin.im/post/5d7ef1eff265da03b76b518d)
+
+
 
