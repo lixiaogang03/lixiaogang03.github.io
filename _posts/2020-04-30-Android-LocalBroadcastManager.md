@@ -31,7 +31,7 @@ tags:
 
 [LocalBroadcastManager-androidxref](http://androidxref.com/7.1.2_r36/xref/frameworks/support/core-utils/java/android/support/v4/content/LocalBroadcastManager.java)
 
-[local_broadcast_manager](/images/local_broadcast_manager.png)
+![local_broadcast_manager](/images/local_broadcast_manager.png)
 
 ## 应用
 
