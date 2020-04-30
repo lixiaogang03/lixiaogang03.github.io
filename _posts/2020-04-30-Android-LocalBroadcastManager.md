@@ -10,6 +10,23 @@ tags:
     - android
 ---
 
+[LocalBroadcastManager-Android](https://developer.android.google.cn/jetpack/androidx/releases/localbroadcastmanager?hl=zh-cn)
+
+[CountDownTimer-Android](https://developer.android.google.cn/reference/android/os/CountDownTimer?hl=en)
+
+## Activity 与 Service 通信方式、
+
+1. Acitivity 将实例传入 Service, 同时利用回调更新UI
+2. Service 持有 Activity的Handler 对象
+3. 利用系统的 LocalBroadcastManager, Service send message, Activity receive message
+4. 开源组件 (EventBus, otto)
+
+## LocalBroadcastManager 优点
+
+1. 只能传输在App内部，不会被其他App接收，确保数据安全
+2. 接收不到其他App广播，免干扰
+3. 比BrocastReceiver更加高效
+
 ## Activity
 
 ```java
