@@ -27,7 +27,15 @@ tags:
 2. 接收不到其他App广播，免干扰
 3. 比BrocastReceiver更加高效
 
-## Activity
+## 原理图
+
+[LocalBroadcastManager-androidxref](http://androidxref.com/7.1.2_r36/xref/frameworks/support/core-utils/java/android/support/v4/content/LocalBroadcastManager.java)
+
+[local_broadcast_manager](/images/local_broadcast_manager.png)
+
+## 应用
+
+### Activity
 
 ```java
 
@@ -76,7 +84,7 @@ public class MainActivity extends Activity {
 
 ```
 
-## Service
+### Service
 
 ```java
 
