@@ -23,9 +23,11 @@ tags:
 
 ## LocalBroadcastManager 优点
 
-1. 只能传输在App内部，不会被其他App接收，确保数据安全
-2. 接收不到其他App广播，免干扰
-3. 比BrocastReceiver更加高效
+与系统广播的区别:
+
+1. 范围上：LocalBroadcastManager为本地广播，只能接受自身App发送的广播，只能用于应用内之间的通信，范围相对较小；而系统的BraoadCastRecever可以实现跨进程通讯，范围更大。
+2. 效率上：LocalBroadcastManager通信核心是Handler，所以只能用于应用内通信，安全和效率都很高；而系统的BraoadCastRecever通信核心是Binder机制，实现跨进程通信，范围更广，导致运行效率稍微逊一点。
+3. 安全上：LocalBroadcastManager由于核心是Handler，而且只能动态注册，只能用于app内通信，安全上更加的有保障；而系统的BraoadCastRecever容易被利用，安全上相对较弱一点。
 
 ## 原理图
 
