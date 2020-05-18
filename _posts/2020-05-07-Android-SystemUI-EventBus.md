@@ -4,7 +4,7 @@ title:      Android SystemUI EventBus
 subtitle:   事件总线
 date:       2020-05-07
 author:     LXG
-header-img: img/post-bg-map.jpg
+header-img: img/post-bg-android.jpg
 catalog: true
 tags:
     - EventBus
