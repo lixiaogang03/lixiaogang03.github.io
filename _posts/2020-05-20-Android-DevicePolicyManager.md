@@ -12,6 +12,8 @@ tags:
 
 [DevicePolicyManager-Google](https://developer.android.google.cn/reference/android/app/admin/DevicePolicyManager?hl=zh-cn)
 
+[Employing Managed Profiles-AOSP](https://source.android.google.cn/devices/tech/admin/managed-profiles?hl=en)
+
 ## DeviceOwner
 
 DeviceOwner, 设备所有者，Android5.0引入。同样的，DeviceOwner涵盖了所有DeviceAdmin用户的管理能力，是一类特殊的设备管理员，具有在设备上创建和移除辅助用户以及配置全局设置的额外能力。
@@ -169,4 +171,59 @@ public class MainActivity extends Activity {
 
 ```
 
+## Profile Owner
 
+ProfileOwner 译为配置文件所有者，在Android5.0系统推出。ProfileOwner涵盖了所有DeviceAdmin用户的管理能力。Google为了细化行业领域的管理而推出了这一组API，也被称为Android for work,旨在让用户在体验上可以轻松的兼顾生活和工作，可以将你的个人信息和工作信息等进行分类，随时查看
+
+具体功能如下
+
+1. 隐藏应用，可停用制定应用并且不再界面显示，除非调用相应API恢复可用，否则该应用永远无法运行。可以用来开发应用黑白名单功能。
+2. 禁止卸载应用，被设置为禁止卸载的应用将成为受保护应用，无法被用户卸载，除非取消保护。
+3. 复用系统APP
+4. 修改系统设置
+5. 调节静音
+6. 修改用户图标
+7. 修改权限申请的策略
+8. 限制指定应用的某些功能
+9. 允许辅助服务
+10. 允许输入法服务
+11. 禁止截图
+12. 禁止蓝牙访问联系人
+
+### MainActivity
+
+```java
+
+    public void setProfileOwner() {
+        if (mDPM != null) {
+            try {
+                if (mDPM.isAdminActive(mAdminCN)) {
+                    if (mDPM.isProfileOwnerApp(getPackageName())) {
+                        Toast.makeText(this, "配置管理已经激活", Toast.LENGTH_SHORT).show();
+                    } else {
+                        mDPM.setProfileOwner(mAdminCN, DEVICE_POLICY_TEST, UserHandle.myUserId());
+                    }
+                } else {
+                    Toast.makeText(this, "请先激活设备管理器", Toast.LENGTH_SHORT).show();
+                }
+            } catch (SecurityException | IllegalArgumentException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void clearProfileOwner() {
+        if (mDPM != null) {
+            try {
+                if (mDPM.isProfileOwnerApp(getPackageName())) {
+                    mDPM.clearProfileOwner(mAdminCN);
+                } else {
+                    Toast.makeText(this, "配置管理已经清除", Toast.LENGTH_SHORT).show();
+                }
+            } catch (SecurityException | IllegalArgumentException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+```

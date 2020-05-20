@@ -97,7 +97,16 @@ allprojects {
 
 ```
 
+## 编译顺序
 
+./DevicePolicyTest/app/app.iml
+
+```xml
+
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="jdk" jdkName="Android API 28 Platform" jdkType="Android SDK" />
+
+```
 
 
 
