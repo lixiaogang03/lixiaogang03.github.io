@@ -14,6 +14,8 @@ tags:
 
 [Employing Managed Profiles-AOSP](https://source.android.google.cn/devices/tech/admin/managed-profiles?hl=en)
 
+[面向企业应用的 Android 新功能](https://developer.android.google.cn/work/versions?hl=zh-cn)
+
 ## DeviceOwner
 
 DeviceOwner, 设备所有者，Android5.0引入。同样的，DeviceOwner涵盖了所有DeviceAdmin用户的管理能力，是一类特殊的设备管理员，具有在设备上创建和移除辅助用户以及配置全局设置的额外能力。
