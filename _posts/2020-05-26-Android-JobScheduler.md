@@ -16,6 +16,8 @@ tags:
 
 [Android 保活措施-掘金](https://juejin.im/post/5df24da36fb9a0165c711807)
 
+[](http://gityuan.com/2017/03/10/job_scheduler_service/)
+
 ## 应用
 
 ### AndroidManifest.xml
@@ -131,6 +133,22 @@ public class ScheduleService extends JobService {
     Ready: false (job=false user=true !pending=true !active=true !backingup=true comp=true)
 
 ```
+
+## Framework
+
+[JobSchedulerService.java](http://androidxref.com/9.0.0_r3/xref/frameworks/base/services/core/java/com/android/server/job/)
+
+[理解JobScheduler机制-Gityuan](http://gityuan.com/2017/03/10/job_scheduler_service/)
+
+[任务调度JobScheduler源码剖析-简书](https://www.jianshu.com/p/34c7d7529d9cc)
+
+### UML-schedule
+
+![job_scheduler_schedule](/images/job/job_scheduler_schedule.jpg)
+
+### UML-cancel
+
+![job_scheduler_cancel](/images/job/job_scheduler_cancel.jpg)
 
 
 
