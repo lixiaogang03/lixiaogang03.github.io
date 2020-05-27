@@ -150,6 +150,41 @@ public class ScheduleService extends JobService {
 
 ![job_scheduler_cancel](/images/job/job_scheduler_cancel.jpg)
 
+### 策略实现
+
+```java
+
+    public JobSchedulerService(Context context) {
+        super(context);
+
+        // Create the controllers.
+        mControllers = new ArrayList<StateController>();
+        mControllers.add(new ConnectivityController(this));            // 注册监听网络连接状态的广播
+        mControllers.add(new TimeController(this));                    // 用来控制截止时间和延迟时间对Job的约束，仅对设置了setOverrideDeadline()和setMinimumLatency()的Job有效
+        mControllers.add(new IdleController(this));                    // 注册监听屏幕亮/灭,dream进入/退出,状态改变的广播
+        mBatteryController = new BatteryController(this);              // 用来控制充电状态和低电量模式对Job的约束，仅仅对设置过setRequiresBatteryNotLow(true)或setRequiresCharging(true)的Job有效
+        mControllers.add(mBatteryController);
+        mStorageController = new StorageController(this);              // 用来控制存储空间对Job的约束，仅仅对设置过setRequiresStorageNotLow(true)的Job有效
+        mControllers.add(mStorageController);                          // 其内部也是通过广播的形式获取设备是否处于低存储状态
+        mControllers.add(new BackgroundJobsController(this));          // BackgroundJobsController用来控制Job后台的运行。由于AppStandby机制，当应用处于后台时，会进行一些功能的限制
+        mControllers.add(new ContentObserverController(this));         // ContentObserverController用来监测content URIS对Job的约束，
+                                                                       // 仅仅对设置过addTriggerContentUri(Uri)的Job有效，当该URI发生变化后，将运行Job
+        mDeviceIdleJobsController = new DeviceIdleJobsController(this);    // DeviceIdleJobsController用来控制Job对Doze的依赖条件，或者也可以说Doze对Job的限制
+        mControllers.add(mDeviceIdleJobsController);
+
+    }
+
+```
+
+![state_controller](/images/job/state_controller.jpg)
+
+图片来自Gityuan
+
+## 总结
+
+[Android P JobScheduler服务源码解析-简书](https://www.jianshu.com/p/3f9bdd69776f)
+
+![job_scheduler_arch](/images/job/job_scheduler_arch.webp)
 
 
 
