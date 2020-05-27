@@ -104,43 +104,15 @@ public class ScheduleService extends JobService {
 
 ```
 
-## dumpsys jobscheduler package
-
-```txt
-                                                                                                                                                         
-  JOB #u0a80/1024: e61d7bf com.sunmi.toolbox/.antirush.ScheduleService
-    u0a80 tag=*job*/com.sunmi.toolbox/.antirush.ScheduleService
-    Source: uid=u0a80 user=0 pkg=com.sunmi.toolbox
-    JobInfo:
-      Service: com.sunmi.toolbox/.antirush.ScheduleService
-      PERIODIC: interval=+15m0s0ms flex=+5m0s0ms
-      PERSISTED
-      Requires: charging=false batteryNotLow=false deviceIdle=false
-      Network type: NetworkRequest [ NONE id=0, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&VALIDATED Unwanted:  Uid: 10080] ]
-      Backoff: policy=1 initial=+30s0ms
-      Has early constraint
-      Has late constraint
-    Required constraints: TIMING_DELAY DEADLINE CONNECTIVITY [0xd0000000]
-    Satisfied constraints: CONNECTIVITY DEVICE_NOT_DOZING BACKGROUND_NOT_RESTRICTED [0x12400000]
-    Unsatisfied constraints: TIMING_DELAY DEADLINE [0xc0000000]
-    Tracking: CONNECTIVITY TIME
-    Network: 100
-    Standby bucket: ACTIVE
-    Enqueue time: -1m42s81ms
-    Run time: earliest=+13m17s891ms, latest=+18m17s891ms
-    Last successful run: 2020-05-27 15:27:42
-    Last run heartbeat: 0
-    Ready: false (job=false user=true !pending=true !active=true !backingup=true comp=true)
-
-```
-
 ## Framework
-
-[JobSchedulerService.java](http://androidxref.com/9.0.0_r3/xref/frameworks/base/services/core/java/com/android/server/job/)
 
 [理解JobScheduler机制-Gityuan](http://gityuan.com/2017/03/10/job_scheduler_service/)
 
 [任务调度JobScheduler源码剖析-简书](https://www.jianshu.com/p/34c7d7529d9cc)
+
+### 源码
+
+[JobSchedulerService.java](http://androidxref.com/9.0.0_r3/xref/frameworks/base/services/core/java/com/android/server/job/)
 
 ### UML-schedule
 
@@ -179,6 +151,50 @@ public class ScheduleService extends JobService {
 ![state_controller](/images/job/state_controller.jpg)
 
 图片来自Gityuan
+
+## 持久化
+
+**/data/system/job/jobs.xml**
+
+```txt
+
+    <job jobid="1024" package="com.sunmi.toolbox" class="com.sunmi.toolbox.antirush.ScheduleService" sourcePackageName="com.sunmi.toolbox" sourceUserId="0" uid="10080" priority="0" flags="0" lastSuccessfulRunTime="0" lastFailedRunTime="0">
+        <constraints net-capabilities="94208" net-unwanted-capabilities="0" net-transport-types="0" />
+        <periodic period="900000" flex="300000" deadline="1590569023038" delay="1590568723038" />
+        <extras />
+    </job>
+
+```
+
+## dumpsys jobscheduler package
+
+```txt
+
+  JOB #u0a80/1024: e61d7bf com.sunmi.toolbox/.antirush.ScheduleService
+    u0a80 tag=*job*/com.sunmi.toolbox/.antirush.ScheduleService
+    Source: uid=u0a80 user=0 pkg=com.sunmi.toolbox
+    JobInfo:
+      Service: com.sunmi.toolbox/.antirush.ScheduleService
+      PERIODIC: interval=+15m0s0ms flex=+5m0s0ms
+      PERSISTED
+      Requires: charging=false batteryNotLow=false deviceIdle=false
+      Network type: NetworkRequest [ NONE id=0, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&VALIDATED Unwanted:  Uid: 10080] ]
+      Backoff: policy=1 initial=+30s0ms
+      Has early constraint
+      Has late constraint
+    Required constraints: TIMING_DELAY DEADLINE CONNECTIVITY [0xd0000000]
+    Satisfied constraints: CONNECTIVITY DEVICE_NOT_DOZING BACKGROUND_NOT_RESTRICTED [0x12400000]
+    Unsatisfied constraints: TIMING_DELAY DEADLINE [0xc0000000]
+    Tracking: CONNECTIVITY TIME
+    Network: 100
+    Standby bucket: ACTIVE
+    Enqueue time: -1m42s81ms
+    Run time: earliest=+13m17s891ms, latest=+18m17s891ms
+    Last successful run: 2020-05-27 15:27:42
+    Last run heartbeat: 0
+    Ready: false (job=false user=true !pending=true !active=true !backingup=true comp=true)
+
+```
 
 ## 总结
 
