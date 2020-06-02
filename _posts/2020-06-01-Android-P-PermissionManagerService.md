@@ -11,3 +11,15 @@ tags:
 ---
 
 
+## UML
+
+![permssion_manager_service](/images/pms/permssion_manager_service.png)
+
+## systrace
+
+![pms_systrace](/images/pms/pms_systrace.png)
+
+![pms_systrace_2](images/pms/pms_systrace_2.png)
+
+
+
