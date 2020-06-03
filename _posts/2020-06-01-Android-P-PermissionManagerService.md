@@ -19,7 +19,7 @@ tags:
 
 ![pms_systrace](/images/pms/pms_systrace.png)
 
-![pms_systrace_2](images/pms/pms_systrace_2.png)
+![pms_systrace_2](/images/pms/pms_systrace_2.png)
 
 ## PackageManagerService
 
@@ -107,6 +107,22 @@ tags:
                 PermissionManagerInternal.class, new PermissionManagerInternalImpl());
     }
 
+
+    private void updatePermissions(String packageName, PackageParser.Package pkg,
+            boolean replaceGrant, Collection<PackageParser.Package> allPackages,
+            PermissionCallback callback) {
+        final int flags = (pkg != null ? UPDATE_PERMISSIONS_ALL : 0) |
+                (replaceGrant ? UPDATE_PERMISSIONS_REPLACE_PKG : 0);
+        updatePermissions(
+                packageName, pkg, getVolumeUuidForPackage(pkg), flags, allPackages, callback);
+        if (pkg != null && pkg.childPackages != null) {
+            for (PackageParser.Package childPkg : pkg.childPackages) {
+                updatePermissions(childPkg.packageName, childPkg,
+                        getVolumeUuidForPackage(childPkg), flags, allPackages, callback);
+            }
+        }
+    }
+
     private void updateAllPermissions(String volumeUuid, boolean sdkUpdated,
             Collection<PackageParser.Package> allPackages, PermissionCallback callback) {
         final int flags = UPDATE_PERMISSIONS_ALL |
@@ -116,6 +132,8 @@ tags:
         updatePermissions(null, null, volumeUuid, flags, allPackages, callback);
     }
 
+
+    // 更新权限
     private void updatePermissions(String changingPkgName, PackageParser.Package changingPkg,
             String replaceVolumeUuid, int flags, Collection<PackageParser.Package> allPackages,
             PermissionCallback callback) {
@@ -192,10 +210,12 @@ tags:
                     }
                 // 系统签名权限
                 } else if (bp.isSignature()) {
+                    // 普通应用授予系统签名权限
                     // For all apps signature permissions are install time ones.
                     if ("com.sunmi.superpermissiontest".equals(pkg.packageName)) {
                         Slog.i(TAG, "SuperPowerApp Granting permission " + perm + " to package " + pkg.packageName);
                         grant = GRANT_INSTALL;
+                        allowedSig = true;
                     } else{
                         allowedSig = grantSignaturePermission(perm, pkg, bp, origPermissions);
                         if (allowedSig) {
@@ -400,6 +420,15 @@ tags:
     }
 
 
+    // 安装权限的动态授权实现
+    private void grantInstallPermissions(String changingPkgName, PackageParser.Package changingPkg,
+                                         boolean replace, PermissionCallback callback) {
+        Slog.d(TAG, "grantInstallPermissions: " + changingPkgName);
+        grantPermissions(changingPkg, replace, changingPkgName, callback);
+
+    }
+
+
     private class PermissionManagerInternalImpl extends PermissionManagerInternal {
 
         @Override
@@ -409,10 +438,27 @@ tags:
                     volumeUuid, sdkUpdated, allPackages, callback);
         }
 
+
+        @Override
+        public void updatePermissions(String packageName, Package pkg, boolean replaceGrant,
+                Collection<PackageParser.Package> allPackages, PermissionCallback callback) {
+            PermissionManagerService.this.updatePermissions(
+                    packageName, pkg, replaceGrant, allPackages, callback);
+        }
+
+        // 安装权限的动态授权实现
+        @Override
+        public void grantInstallPermissions(String packageName, Package pkg, boolean replaceGrant,
+                                            PermissionCallback callback) {
+            PermissionManagerService.this.grantInstallPermissions(
+                    packageName, pkg, replaceGrant, callback);
+        }
+
     }
 
 
 ```
+
 
 
 
