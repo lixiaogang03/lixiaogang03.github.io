@@ -28,6 +28,8 @@ tags:
 
 ![super_power_app](/images/pms/super_power_app.png)
 
+![grantInstallPermission](/images/pms/grantInstallPermission.png)
+
 ## PackageManagerService
 
 ```java
