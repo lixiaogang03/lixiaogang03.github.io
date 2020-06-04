@@ -12,6 +12,8 @@ tags:
 
 [Android Permissions-简书](https://www.jianshu.com/p/ffd583f720f4)
 
+[PackageParser解析APK-简书](https://www.jianshu.com/p/2fcd22326efb)
+
 ## systrace
 
 ![pms_systrace](/images/pms/pms_systrace.png)
@@ -255,9 +257,7 @@ tags:
 
 ## 数据结构
 
-[PackageParser解析APK-简书](https://www.jianshu.com/p/2fcd22326efb)
-
-![package_parse](/images/pms/package_parse.png)
+![permission_class](/images/pms/permission_class.png)
 
 ### PackageParser.Package
 
@@ -320,12 +320,6 @@ public class PackageParser {
 }
 
 ```
-
-### 构建多个 APK
-
-[构建多个APK-Google](https://developer.android.google.cn/studio/build/configure-apk-splits?hl=zh-cn)
-
-[FeatureSplit-xref](http://androidxref.com/9.0.0_r3/xref/frameworks/base/tests/FeatureSplit/)
 
 ### PackageSetting
 
