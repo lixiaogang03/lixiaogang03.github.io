@@ -15,6 +15,8 @@ tags:
 
 [AMS-ActivityStack-简书](https://www.jianshu.com/p/94816e52cd77)
 
+[AMS-WMS-刘望舒](https://www.jianshu.com/nb/15245431)
+
 ## AMS
 
 ![ams_activity_stack](/images/ams/ams_activity_stack.png)
