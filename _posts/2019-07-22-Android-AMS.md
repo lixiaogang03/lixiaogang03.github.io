@@ -17,11 +17,15 @@ tags:
 
 [AMS-WMS-刘望舒](https://www.jianshu.com/nb/15245431)
 
+[ActivityManagerService架构剖析-简书](https://www.jianshu.com/p/17b2844b2a27)
+
 ## AMS
 
 ![ams_activity_stack](/images/ams/ams_activity_stack.png)
 
 ### ActivityStackSupervisor
+
+ActivityStackSupervisor是管理ActivityStack的重要类，操作ActivityStack
 
 ```java
 
@@ -41,6 +45,8 @@ public final class ActivityStackSupervisor implements DisplayListener {
 }
 
 ```
+
+![activity_stack](/images/ams/activity_stack.webp)
 
 
 ### ActivityStack
@@ -93,5 +99,17 @@ final class ActivityRecord {
 }
 
 ```
+
+## 时序图
+
+### AMS 启动
+
+![ams_init](/images/ams/init.webp)
+
+### startActivity 概述
+
+![start_activity](/images/ams/start_activity.webp)
+
+
 
 
