@@ -23,6 +23,28 @@ tags:
 
 ![ams_activity_stack](/images/ams/ams_activity_stack.png)
 
+### ActivityStarter
+
+```java
+
+class ActivityStarter {
+
+    private final ActivityManagerService mService;
+    private final ActivityStackSupervisor mSupervisor;
+    private ActivityStartInterceptor mInterceptor;
+    private WindowManagerService mWindowManager;
+
+    // Share state variable among methods when starting an activity.
+    private ActivityRecord mStartActivity;
+    private Intent mIntent;
+
+    private ActivityStack mSourceStack;
+    private ActivityStack mTargetStack;
+
+}
+
+```
+
 ### ActivityStackSupervisor
 
 ActivityStackSupervisor是管理ActivityStack的重要类，操作ActivityStack
