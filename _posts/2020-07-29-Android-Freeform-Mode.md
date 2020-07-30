@@ -682,6 +682,19 @@ class WindowContainer<E extends WindowContainer> implements Comparable<WindowCon
 
 }
 
+/** A window in the window manager. */
+class WindowState extends WindowContainer<WindowState> implements WindowManagerPolicy.WindowState {
+
+    final Session mSession;
+    final IWindow mClient;
+
+    // The same object as mToken if this is an app window and null for non-app windows.
+    AppWindowToken mAppToken;
+
+}
+
 ```
+
+![ams_vs_wms](/images/ams/ams_vs_wms.png)
 
 

@@ -133,5 +133,7 @@ final class ActivityRecord {
 ![start_activity](/images/ams/start_activity.webp)
 
 
+## AMS vs WMS
 
+![ams_vs_wms](/images/ams/ams_vs_wms.png)
 
