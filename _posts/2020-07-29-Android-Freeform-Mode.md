@@ -698,3 +698,151 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
 ![ams_vs_wms](/images/ams/ams_vs_wms.png)
 
 
+### 小结
+
+```java
+
+public class WindowManagerService extends IWindowManager.Stub
+        implements Watchdog.Monitor, WindowManagerPolicy.WindowManagerFuncs {
+
+    private WindowManagerService(Context context, InputManagerService inputManager,
+            boolean haveInputMethods, boolean showBootMsgs, boolean onlyCore,
+            WindowManagerPolicy policy) {
+        mRoot = new RootWindowContainer(this);
+
+        mDisplayManager = (DisplayManager)context.getSystemService(Context.DISPLAY_SERVICE);
+        mDisplays = mDisplayManager.getDisplays();
+        for (Display display : mDisplays) {
+            createDisplayContentLocked(display);
+        }
+
+    }
+
+    private void createDisplayContentLocked(final Display display) {
+        if (display == null) {
+            throw new IllegalArgumentException("getDisplayContent: display must not be null");
+        }
+        mRoot.getDisplayContentOrCreate(display.getDisplayId());
+    }
+
+}
+
+class RootWindowContainer extends WindowContainer<DisplayContent> {
+
+    WindowManagerService mService;
+
+    private final WindowLayersController mLayersController;
+    final WallpaperController mWallpaperController;
+
+    RootWindowContainer(WindowManagerService service) {
+        mService = service;
+        mLayersController = new WindowLayersController(mService);
+        mWallpaperController = new WallpaperController(mService);
+    }
+
+    DisplayContent getDisplayContentOrCreate(int displayId) {
+        DisplayContent dc = getDisplayContent(displayId);
+
+        if (dc == null) {
+            final Display display = mService.mDisplayManager.getDisplay(displayId);
+            if (display != null) {
+                final long callingIdentity = Binder.clearCallingIdentity();
+                try {
+                    dc = createDisplayContent(display);
+                } finally {
+                    Binder.restoreCallingIdentity(callingIdentity);
+                }
+            }
+        }
+        return dc;
+    }
+
+}
+
+
+class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowContainer> {
+
+    // Contains all window containers that are related to apps (Activities)
+    private final TaskStackContainers mTaskStackContainers = new TaskStackContainers();
+
+
+    DisplayContent(Display display, WindowManagerService service,
+            WindowLayersController layersController, WallpaperController wallpaperController) {
+
+        // These are the only direct children we should ever have and they are permanent.
+        super.addChild(mBelowAppWindowsContainers, null);
+        super.addChild(mTaskStackContainers, null);
+        super.addChild(mAboveAppWindowsContainers, null);
+        super.addChild(mImeWindowsContainers, null);
+
+        // Add itself as a child to the root container.
+        mService.mRoot.addChild(this, null);
+
+    }
+
+}
+
+
+class ActivityDisplay extends ConfigurationContainer<ActivityStack>
+        implements WindowContainerListener {
+
+
+    private ActivityStackSupervisor mSupervisor;
+    /** Actual Display this object tracks. */
+    int mDisplayId;
+    Display mDisplay;
+
+    private final ArrayList<ActivityStack> mStacks = new ArrayList<>();
+
+    private ActivityStack mHomeStack = null;
+    private ActivityStack mRecentsStack = null;
+
+    private DisplayWindowController mWindowContainerController;
+
+    ActivityDisplay(ActivityStackSupervisor supervisor, Display display) {
+        mSupervisor = supervisor;
+        mDisplayId = display.getDisplayId();
+        mDisplay = display;
+        mWindowContainerController = createWindowContainerController();
+        updateBounds();
+    }
+
+    protected DisplayWindowController createWindowContainerController() {
+        return new DisplayWindowController(mDisplay, this);
+    }
+
+}
+
+
+public class DisplayWindowController
+        extends WindowContainerController<DisplayContent, WindowContainerListener> {
+
+    private final int mDisplayId;
+
+    public DisplayWindowController(Display display, WindowContainerListener listener) {
+        super(listener, WindowManagerService.getInstance());
+        mDisplayId = display.getDisplayId();
+
+        synchronized (mWindowMap) {
+            final long callingIdentity = Binder.clearCallingIdentity();
+            try {
+                mRoot.createDisplayContent(display, this /* controller */);
+            } finally {
+                Binder.restoreCallingIdentity(callingIdentity);
+            }
+
+            if (mContainer == null) {
+                throw new IllegalArgumentException("Trying to add display=" + display
+                        + " dc=" + mRoot.getDisplayContent(mDisplayId));
+            }
+        }
+    }
+
+}
+
+```
+
+![wms_window_container](/images/wms/wms_window_container.webp)
+
+
+
