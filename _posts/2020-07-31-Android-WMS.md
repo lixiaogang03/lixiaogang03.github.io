@@ -48,4 +48,14 @@ public class Activity extends ContextThemeWrapper
 
 ![activity_window](/images/wms/activity_window.png)
 
+## WindowManager WindowManagerImpl WindowManagerGlobal
+
+![view_root_impl](/images/wms/view_root_impl.png)
+
+下图引用自[窗口管理-简书](https://www.jianshu.com/p/3b5b6f2469d8)
+
+![window_global](/images/wms/window_global.png)
+
+
+
 
