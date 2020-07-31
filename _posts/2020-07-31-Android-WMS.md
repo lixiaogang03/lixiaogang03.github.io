@@ -56,6 +56,8 @@ public class Activity extends ContextThemeWrapper
 
 ![window_global](/images/wms/window_global.png)
 
+## AMS App WMS Token
 
+![apptoken](/images/wms/apptoken.png)
 
 
