@@ -1,0 +1,51 @@
+---
+layout:     post
+title:      Android WMS
+subtitle:   WindowManagerService
+date:       2020-07-31
+author:     LXG
+header-img: img/post-bg-android.jpg
+catalog: true
+tags:
+    - android
+---
+
+## Activity Window View
+
+```java
+
+public class Activity extends ContextThemeWrapper
+        implements LayoutInflater.Factory2,
+        Window.Callback, KeyEvent.Callback,
+        OnCreateContextMenuListener, ComponentCallbacks2,
+        Window.OnWindowDismissedCallback, WindowControllerCallback,
+        AutofillManager.AutofillClient {
+
+
+    private IBinder mToken;
+
+
+    private Window mWindow;
+
+    final void attach(Context context, ActivityThread aThread,
+            Instrumentation instr, IBinder token, int ident,
+            Application application, Intent intent, ActivityInfo info,
+            CharSequence title, Activity parent, String id,
+            NonConfigurationInstances lastNonConfigurationInstances,
+            Configuration config, String referrer, IVoiceInteractor voiceInteractor,
+            Window window, ActivityConfigCallback activityConfigCallback) {
+        attachBaseContext(context);
+
+        mWindow = new PhoneWindow(this, window, activityConfigCallback);
+
+        mToken = token;
+
+    }
+
+}
+
+```
+
+![activity_window](/images/wms/activity_window.png)
+
+
