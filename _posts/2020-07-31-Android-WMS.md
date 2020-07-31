@@ -60,4 +60,6 @@ public class Activity extends ContextThemeWrapper
 
 ![apptoken](/images/wms/apptoken.png)
 
+[AMS_WMS_APP 中Token惟一性-简书](https://www.jianshu.com/p/5e2efbaa2949)
+
 
