@@ -62,4 +62,14 @@ public class Activity extends ContextThemeWrapper
 
 [AMS_WMS_APP 中Token惟一性-简书](https://www.jianshu.com/p/5e2efbaa2949)
 
+## Window 加载视图过程
+
+[Window加载视图过程-简书](https://www.jianshu.com/p/b3a1ea7923e7)
+
+![start_activity_gityuan](/images/wms/start_activity_gityuan.webp)
+
+![wms_add_view](/images/wms/wms_add_view.png)
+
+
+
 
