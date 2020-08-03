@@ -70,6 +70,22 @@ public class Activity extends ContextThemeWrapper
 
 ![wms_add_view](/images/wms/wms_add_view.png)
 
+## Input ViewRootImpl
+
+[ViewRootImpl接收事件-简书](https://www.jianshu.com/p/4b4ce5f30ab6)
+
+![input_viewrootimpl](/images/input_manager/input_viewrootimpl.png)
+
+## InputChannel
+
+### 数据结构
+
+![input_channel](/images/input_manager/input_channel.png)
+
+### 事件处理
+
+![input_handle](/images/input_manager/input_handle.png)
+
 
 
 
