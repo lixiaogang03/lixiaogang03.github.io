@@ -308,6 +308,122 @@ class WindowToken extends WindowContainer<WindowState> {
 
 ```
 
+## 应用窗口
+
+android屏幕边界划分，屏幕有overscan区域、状态栏、导航栏、输入法，PhoneWindowManager定义了这些区域代表了屏幕上不同的组合
+
+![window_size](/images/wms/window_size.png)
+
+### PhoneWindowManager
+
+```java
+
+public final class SystemServer {
+    private static final String TAG = "SystemServer";
+
+    private void startOtherServices() {
+
+            wm = WindowManagerService.main(context, inputManager,
+                    mFactoryTestMode != FactoryTest.FACTORY_TEST_LOW_LEVEL,
+                    !mFirstBoot, mOnlyCore, new PhoneWindowManager());
+
+    }
+
+}
+
+public class WindowManagerService extends IWindowManager.Stub
+        implements Watchdog.Monitor, WindowManagerPolicy.WindowManagerFuncs {
+
+    final WindowManagerPolicy mPolicy;
+
+    private void initPolicy() {
+        UiThread.getHandler().runWithScissors(new Runnable() {
+            @Override
+            public void run() {
+                WindowManagerPolicyThread.set(Thread.currentThread(), Looper.myLooper());
+
+                mPolicy.init(mContext, WindowManagerService.this, WindowManagerService.this);
+            }
+        }, 0);
+    }
+
+    private WindowManagerService(Context context, InputManagerService inputManager,
+            boolean haveInputMethods, boolean showBootMsgs, boolean onlyCore,
+            WindowManagerPolicy policy) {
+
+        mPolicy = policy;
+        initPolicy();
+
+    }
+
+}
+
+public class PhoneWindowManager implements WindowManagerPolicy {
+    static final String TAG = "WindowManager";
+
+    WindowState mStatusBar = null;
+
+    int mStatusBarHeight;
+
+    WindowState mNavigationBar = null;
+
+    // The last window we were told about in focusChanged.
+    WindowState mFocusedWindow;
+
+    IApplicationToken mFocusedApp;
+
+    // 屏幕大小
+    int mOverscanScreenLeft, mOverscanScreenTop;
+    int mOverscanScreenWidth, mOverscanScreenHeight;
+
+    // Unrestricted区域，不包含overscan区域，包含导航条
+    int mUnrestrictedScreenLeft, mUnrestrictedScreenTop;
+    int mUnrestrictedScreenWidth, mUnrestrictedScreenHeight;
+
+    // RestrictedOverscan区域， 包含overscan区域，不包含导航条
+    int mRestrictedOverscanScreenLeft, mRestrictedOverscanScreenTop;
+    int mRestrictedOverscanScreenWidth, mRestrictedOverscanScreenHeight;
+
+    // Restricted区域，不包含overscan区域，不包含导航条
+    int mRestrictedScreenLeft, mRestrictedScreenTop;
+    int mRestrictedScreenWidth, mRestrictedScreenHeight;
+
+    int mSystemLeft, mSystemTop, mSystemRight, mSystemBottom;
+
+    int mStableLeft, mStableTop, mStableRight, mStableBottom;
+
+    int mStableFullscreenLeft, mStableFullscreenTop;
+    int mStableFullscreenRight, mStableFullscreenBottom;
+
+    int mCurLeft, mCurTop, mCurRight, mCurBottom;
+
+    int mContentLeft, mContentTop, mContentRight, mContentBottom;
+
+    int mDockLeft, mDockTop, mDockRight, mDockBottom;
+
+    @Override
+    public void beginLayoutLw(boolean isDefaultDisplay, int displayWidth, int displayHeight,
+                              int displayRotation, int uiMode) {
+
+        // 初始化窗口参数
+
+    }
+
+    @Override
+    public void layoutWindowLw(WindowState win, WindowState attached) {
+
+        // 
+
+    }
+
+}
+
+```
+
+### Activity窗口大小的计算
+
+![window_relayout](/images/wms/window_relayout.png)
+
 
 
 
