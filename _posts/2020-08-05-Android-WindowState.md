@@ -26,8 +26,6 @@ tags:
 
 ## 窗口的分组
 
-### WindowManager.LayoutParams
-
 ```java
 
 public interface WindowManager extends ViewManager {
@@ -258,6 +256,9 @@ class WindowContainer<E extends WindowContainer> implements Comparable<WindowCon
 
 ```
 
+## 窗口树
+
+![window_tree](/images/wms/window_tree.webp)
 
 ### WindowState
 
@@ -306,11 +307,6 @@ class WindowToken extends WindowContainer<WindowState> {
 }
 
 ```
-
-WindowToken包含一个 WindowList windows = new WindowList()，其实就是WindowState列表；
-而WindowState有一个WindowToken mToken，也就是WindowToken包含一个WindowState列表，而每个WindowState附属一个WindowToken窗口组;
-
-![window_tree](/images/wms/window_tree.webp)
 
 
 
