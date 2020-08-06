@@ -12,6 +12,10 @@ tags:
 
 [Android Display的初始化-简书](https://www.jianshu.com/p/764c132a5026)
 
+## DMS
+
+![display_manager](/images/wms/display_manager.png)
+
 ## WMS Display
 
 ![wms_display](/images/wms/wms_display.png)
@@ -306,6 +310,127 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
 
 ```
 
+## AMS Display
+
+### ActivityManagerService
+
+```java
+
+public class ActivityManagerService extends IActivityManager.Stub
+        implements Watchdog.Monitor, BatteryStatsImpl.BatteryCallback {
+
+    public void setWindowManager(WindowManagerService wm) {
+        mWindowManager = wm;
+        mStackSupervisor.setWindowManager(wm);
+        mActivityStarter.setWindowManager(wm);
+    }
+
+}
+
+```
+
+### ActivityStackSupervisor
+
+```java
+
+public class ActivityStackSupervisor extends ConfigurationContainer implements DisplayListener {
+    private static final String TAG = TAG_WITH_CLASS_NAME ? "ActivityStackSupervisor" : TAG_AM;
+
+    void setWindowManager(WindowManagerService wm) {
+        synchronized (mService) {
+            mWindowManager = wm;
+
+            mDisplayManager =
+                    (DisplayManager)mService.mContext.getSystemService(Context.DISPLAY_SERVICE);
+            mDisplayManager.registerDisplayListener(this, null);
+            mDisplayManagerInternal = LocalServices.getService(DisplayManagerInternal.class);
+
+        }
+    }
+
+    @Override
+    public void onDisplayAdded(int displayId) {
+        if (DEBUG_STACK) Slog.v(TAG, "Display added displayId=" + displayId);
+        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_DISPLAY_ADDED, displayId, 0));
+    }
+
+    @Override
+    public void onDisplayRemoved(int displayId) {
+        if (DEBUG_STACK) Slog.v(TAG, "Display removed displayId=" + displayId);
+        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_DISPLAY_REMOVED, displayId, 0));
+    }
+
+    @Override
+    public void onDisplayChanged(int displayId) {
+        if (DEBUG_STACK) Slog.v(TAG, "Display changed displayId=" + displayId);
+        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_DISPLAY_CHANGED, displayId, 0));
+    }
+
+}
+
+```
+
+## App Display
+
+### ViewRootImpl
+
+```java
+
+public final class ViewRootImpl implements ViewParent,
+        View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
+
+    @NonNull Display mDisplay;
+    final DisplayManager mDisplayManager;
+
+
+    public ViewRootImpl(Context context, Display display) {
+
+        mDisplay = display;
+
+        mDisplayManager = (DisplayManager)context.getSystemService(Context.DISPLAY_SERVICE);
+
+    }
+
+    public void setView(View view, WindowManager.LayoutParams attrs, View panelParentView) {
+        synchronized (this) {
+            if (mView == null) {
+                mView = view;
+                mAttachInfo.mDisplayState = mDisplay.getState();
+                mDisplayManager.registerDisplayListener(mDisplayListener, mHandler);
+            }
+        }
+    }
+
+
+    private final DisplayListener mDisplayListener = new DisplayListener() {
+        @Override
+        public void onDisplayChanged(int displayId) {
+            if (mView != null && mDisplay.getDisplayId() == displayId) {
+                final int oldDisplayState = mAttachInfo.mDisplayState;
+                final int newDisplayState = mDisplay.getState();
+                if (oldDisplayState != newDisplayState) {
+                    mAttachInfo.mDisplayState = newDisplayState;
+                    pokeDrawLockIfNeeded();
+                    if (oldDisplayState != Display.STATE_UNKNOWN) {
+                        final int oldScreenState = toViewScreenState(oldDisplayState);
+                        final int newScreenState = toViewScreenState(newDisplayState);
+                        if (oldScreenState != newScreenState) {
+                            mView.dispatchScreenStateChanged(newScreenState);
+                        }
+                        if (oldDisplayState == Display.STATE_OFF) {
+                            // Draw was suppressed so we need to for it to happen here.
+                            mFullRedrawNeeded = true;
+                            scheduleTraversals();
+                        }
+                    }
+                }
+            }
+        }
+     }
+
+}
+
+```
 
 
 
