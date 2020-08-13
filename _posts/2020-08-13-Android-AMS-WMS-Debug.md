@@ -1144,4 +1144,738 @@ WINDOW MANAGER WINDOWS (dumpsys window windows)
 
 ```
 
+## 代码
+
+### WindowManagerService
+
+```java
+
+public class WindowManagerService extends IWindowManager.Stub
+        implements Watchdog.Monitor, WindowManagerPolicy.WindowManagerFuncs {
+
+    final WindowManagerPolicy mPolicy;
+
+    final ArraySet<Session> mSessions = new ArraySet<>();
+
+    final WindowAnimator mAnimator;
+
+    // The root of the device window hierarchy.
+    RootWindowContainer mRoot;
+
+    private void dumpPolicyLocked(PrintWriter pw, String[] args, boolean dumpAll) {
+        pw.println("WINDOW MANAGER POLICY STATE (dumpsys window policy)");
+        mPolicy.dump("    ", pw, args);
+    }
+
+    private void dumpAnimatorLocked(PrintWriter pw, String[] args, boolean dumpAll) {
+        pw.println("WINDOW MANAGER ANIMATOR STATE (dumpsys window animator)");
+        mAnimator.dumpLocked(pw, "    ", dumpAll);
+    }
+
+    private void dumpTokensLocked(PrintWriter pw, boolean dumpAll) {
+        pw.println("WINDOW MANAGER TOKENS (dumpsys window tokens)");
+        mRoot.dumpTokens(pw, dumpAll);
+        if (!mOpeningApps.isEmpty() || !mClosingApps.isEmpty()) {
+            pw.println();
+            if (mOpeningApps.size() > 0) {
+                pw.print("  mOpeningApps="); pw.println(mOpeningApps);
+            }
+            if (mClosingApps.size() > 0) {
+                pw.print("  mClosingApps="); pw.println(mClosingApps);
+            }
+        }
+    }
+
+    private void dumpSessionsLocked(PrintWriter pw, boolean dumpAll) {
+        pw.println("WINDOW MANAGER SESSIONS (dumpsys window sessions)");
+        for (int i=0; i<mSessions.size(); i++) {
+            Session s = mSessions.valueAt(i);
+            pw.print("  Session "); pw.print(s); pw.println(':');
+            s.dump(pw, "    ");
+        }
+    }
+
+    private void dumpWindowsLocked(PrintWriter pw, boolean dumpAll,
+            ArrayList<WindowState> windows) {
+        pw.println("WINDOW MANAGER WINDOWS (dumpsys window windows)");
+        dumpWindowsNoHeaderLocked(pw, dumpAll, windows);
+    }
+
+    private void dumpWindowsNoHeaderLocked(PrintWriter pw, boolean dumpAll,
+            ArrayList<WindowState> windows) {
+
+        mRoot.dumpWindowsNoHeader(pw, dumpAll, windows);
+
+        if (!mHidingNonSystemOverlayWindows.isEmpty()) {
+            pw.println();
+            pw.println("  Hiding System Alert Windows:");
+            for (int i = mHidingNonSystemOverlayWindows.size() - 1; i >= 0; i--) {
+                final WindowState w = mHidingNonSystemOverlayWindows.get(i);
+                pw.print("  #"); pw.print(i); pw.print(' ');
+                pw.print(w);
+                if (dumpAll) {
+                    pw.println(":");
+                    w.dump(pw, "    ", true);
+                } else {
+                    pw.println();
+                }
+            }
+        }
+        if (mPendingRemove.size() > 0) {
+            pw.println();
+            pw.println("  Remove pending for:");
+            for (int i=mPendingRemove.size()-1; i>=0; i--) {
+                WindowState w = mPendingRemove.get(i);
+                if (windows == null || windows.contains(w)) {
+                    pw.print("  Remove #"); pw.print(i); pw.print(' ');
+                            pw.print(w);
+                    if (dumpAll) {
+                        pw.println(":");
+                        w.dump(pw, "    ", true);
+                    } else {
+                        pw.println();
+                    }
+                }
+            }
+        }
+        if (mForceRemoves != null && mForceRemoves.size() > 0) {
+            pw.println();
+            pw.println("  Windows force removing:");
+            for (int i=mForceRemoves.size()-1; i>=0; i--) {
+                WindowState w = mForceRemoves.get(i);
+                pw.print("  Removing #"); pw.print(i); pw.print(' ');
+                        pw.print(w);
+                if (dumpAll) {
+                    pw.println(":");
+                    w.dump(pw, "    ", true);
+                } else {
+                    pw.println();
+                }
+            }
+        }
+        if (mDestroySurface.size() > 0) {
+            pw.println();
+            pw.println("  Windows waiting to destroy their surface:");
+            for (int i=mDestroySurface.size()-1; i>=0; i--) {
+                WindowState w = mDestroySurface.get(i);
+                if (windows == null || windows.contains(w)) {
+                    pw.print("  Destroy #"); pw.print(i); pw.print(' ');
+                            pw.print(w);
+                    if (dumpAll) {
+                        pw.println(":");
+                        w.dump(pw, "    ", true);
+                    } else {
+                        pw.println();
+                    }
+                }
+            }
+        }
+        if (mLosingFocus.size() > 0) {
+            pw.println();
+            pw.println("  Windows losing focus:");
+            for (int i=mLosingFocus.size()-1; i>=0; i--) {
+                WindowState w = mLosingFocus.get(i);
+                if (windows == null || windows.contains(w)) {
+                    pw.print("  Losing #"); pw.print(i); pw.print(' ');
+                            pw.print(w);
+                    if (dumpAll) {
+                        pw.println(":");
+                        w.dump(pw, "    ", true);
+                    } else {
+                        pw.println();
+                    }
+                }
+            }
+        }
+        if (mResizingWindows.size() > 0) {
+            pw.println();
+            pw.println("  Windows waiting to resize:");
+            for (int i=mResizingWindows.size()-1; i>=0; i--) {
+                WindowState w = mResizingWindows.get(i);
+                if (windows == null || windows.contains(w)) {
+                    pw.print("  Resizing #"); pw.print(i); pw.print(' ');
+                            pw.print(w);
+                    if (dumpAll) {
+                        pw.println(":");
+                        w.dump(pw, "    ", true);
+                    } else {
+                        pw.println();
+                    }
+                }
+            }
+        }
+        if (mWaitingForDrawn.size() > 0) {
+            pw.println();
+            pw.println("  Clients waiting for these windows to be drawn:");
+            for (int i=mWaitingForDrawn.size()-1; i>=0; i--) {
+                WindowState win = mWaitingForDrawn.get(i);
+                pw.print("  Waiting #"); pw.print(i); pw.print(' '); pw.print(win);
+            }
+        }
+        pw.println();
+        pw.print("  mGlobalConfiguration="); pw.println(mRoot.getConfiguration());
+        pw.print("  mHasPermanentDpad="); pw.println(mHasPermanentDpad);
+        pw.print("  mCurrentFocus="); pw.println(mCurrentFocus);
+        if (mLastFocus != mCurrentFocus) {
+            pw.print("  mLastFocus="); pw.println(mLastFocus);
+        }
+        pw.print("  mFocusedApp="); pw.println(mFocusedApp);
+        if (mInputMethodTarget != null) {
+            pw.print("  mInputMethodTarget="); pw.println(mInputMethodTarget);
+        }
+        pw.print("  mInTouchMode="); pw.println(mInTouchMode);
+        pw.print("  mLastDisplayFreezeDuration=");
+                TimeUtils.formatDuration(mLastDisplayFreezeDuration, pw);
+                if ( mLastFinishedFreezeSource != null) {
+                    pw.print(" due to ");
+                    pw.print(mLastFinishedFreezeSource);
+                }
+                pw.println();
+        pw.print("  mLastWakeLockHoldingWindow=");pw.print(mLastWakeLockHoldingWindow);
+                pw.print(" mLastWakeLockObscuringWindow="); pw.print(mLastWakeLockObscuringWindow);
+                pw.println();
+
+        mInputMonitor.dump(pw, "  ");
+        mUnknownAppVisibilityController.dump(pw, "  ");
+        mTaskSnapshotController.dump(pw, "  ");
+
+        if (dumpAll) {
+            pw.print("  mSystemDecorLayer="); pw.print(mSystemDecorLayer);
+                    pw.print(" mScreenRect="); pw.println(mScreenRect.toShortString());
+            if (mLastStatusBarVisibility != 0) {
+                pw.print("  mLastStatusBarVisibility=0x");
+                        pw.println(Integer.toHexString(mLastStatusBarVisibility));
+            }
+            if (mInputMethodWindow != null) {
+                pw.print("  mInputMethodWindow="); pw.println(mInputMethodWindow);
+            }
+            mWindowPlacerLocked.dump(pw, "  ");
+            mRoot.mWallpaperController.dump(pw, "  ");
+            pw.print("  mSystemBooted="); pw.print(mSystemBooted);
+                    pw.print(" mDisplayEnabled="); pw.println(mDisplayEnabled);
+
+            mRoot.dumpLayoutNeededDisplayIds(pw);
+
+            pw.print("  mTransactionSequence="); pw.println(mTransactionSequence);
+            pw.print("  mDisplayFrozen="); pw.print(mDisplayFrozen);
+                    pw.print(" windows="); pw.print(mWindowsFreezingScreen);
+                    pw.print(" client="); pw.print(mClientFreezingScreen);
+                    pw.print(" apps="); pw.print(mAppsFreezingScreen);
+                    pw.print(" waitingForConfig="); pw.println(mWaitingForConfig);
+            final DisplayContent defaultDisplayContent = getDefaultDisplayContentLocked();
+            pw.print("  mRotation="); pw.print(defaultDisplayContent.getRotation());
+                    pw.print(" mAltOrientation=");
+                            pw.println(defaultDisplayContent.getAltOrientation());
+            pw.print("  mLastWindowForcedOrientation=");
+                    pw.print(defaultDisplayContent.getLastWindowForcedOrientation());
+                    pw.print(" mLastOrientation=");
+                            pw.println(defaultDisplayContent.getLastOrientation());
+            pw.print("  mDeferredRotationPauseCount="); pw.println(mDeferredRotationPauseCount);
+            pw.print("  Animation settings: disabled="); pw.print(mAnimationsDisabled);
+                    pw.print(" window="); pw.print(mWindowAnimationScaleSetting);
+                    pw.print(" transition="); pw.print(mTransitionAnimationScaleSetting);
+                    pw.print(" animator="); pw.println(mAnimatorDurationScaleSetting);
+            pw.print("  mSkipAppTransitionAnimation=");pw.println(mSkipAppTransitionAnimation);
+            pw.println("  mLayoutToAnim:");
+            mAppTransition.dump(pw, "    ");
+            if (mRecentsAnimationController != null) {
+                pw.print("  mRecentsAnimationController="); pw.println(mRecentsAnimationController);
+                mRecentsAnimationController.dump(pw, "    ");
+            }
+        }
+    }
+
+    private boolean dumpWindows(PrintWriter pw, String name, String[] args, int opti,
+            boolean dumpAll) {
+        final ArrayList<WindowState> windows = new ArrayList();
+        if ("apps".equals(name) || "visible".equals(name) || "visible-apps".equals(name)) {
+            final boolean appsOnly = name.contains("apps");
+            final boolean visibleOnly = name.contains("visible");
+            synchronized(mWindowMap) {
+                if (appsOnly) {
+                    mRoot.dumpDisplayContents(pw);
+                }
+
+                mRoot.forAllWindows((w) -> {
+                    if ((!visibleOnly || w.mWinAnimator.getShown())
+                            && (!appsOnly || w.mAppToken != null)) {
+                        windows.add(w);
+                    }
+                }, true /* traverseTopToBottom */);
+            }
+        } else {
+            synchronized(mWindowMap) {
+                mRoot.getWindowsByName(windows, name);
+            }
+        }
+
+        if (windows.size() <= 0) {
+            return false;
+        }
+
+        synchronized(mWindowMap) {
+            dumpWindowsLocked(pw, dumpAll, windows);
+        }
+        return true;
+    }
+}
+
+```
+
+### PhoneWindowManager
+
+```java
+
+public class PhoneWindowManager implements WindowManagerPolicy {
+
+    @Override
+    public void dump(String prefix, PrintWriter pw, String[] args) {
+        pw.print(prefix); pw.print("mSafeMode="); pw.print(mSafeMode);
+                pw.print(" mSystemReady="); pw.print(mSystemReady);
+                pw.print(" mSystemBooted="); pw.println(mSystemBooted);
+        pw.print(prefix); pw.print("mLidState=");
+                pw.print(WindowManagerFuncs.lidStateToString(mLidState));
+                pw.print(" mLidOpenRotation=");
+                pw.println(Surface.rotationToString(mLidOpenRotation));
+        pw.print(prefix); pw.print("mCameraLensCoverState=");
+                pw.print(WindowManagerFuncs.cameraLensStateToString(mCameraLensCoverState));
+                pw.print(" mHdmiPlugged="); pw.println(mHdmiPlugged);
+        if (mLastSystemUiFlags != 0 || mResettingSystemUiFlags != 0
+                || mForceClearedSystemUiFlags != 0) {
+            pw.print(prefix); pw.print("mLastSystemUiFlags=0x");
+                    pw.print(Integer.toHexString(mLastSystemUiFlags));
+                    pw.print(" mResettingSystemUiFlags=0x");
+                    pw.print(Integer.toHexString(mResettingSystemUiFlags));
+                    pw.print(" mForceClearedSystemUiFlags=0x");
+                    pw.println(Integer.toHexString(mForceClearedSystemUiFlags));
+        }
+        if (mLastFocusNeedsMenu) {
+            pw.print(prefix); pw.print("mLastFocusNeedsMenu=");
+                    pw.println(mLastFocusNeedsMenu);
+        }
+        pw.print(prefix); pw.print("mWakeGestureEnabledSetting=");
+                pw.println(mWakeGestureEnabledSetting);
+
+        pw.print(prefix);
+                pw.print("mSupportAutoRotation="); pw.print(mSupportAutoRotation);
+                pw.print(" mOrientationSensorEnabled="); pw.println(mOrientationSensorEnabled);
+        pw.print(prefix); pw.print("mUiMode="); pw.print(Configuration.uiModeToString(mUiMode));
+                pw.print(" mDockMode="); pw.println(Intent.dockStateToString(mDockMode));
+        pw.print(prefix); pw.print("mEnableCarDockHomeCapture=");
+                pw.print(mEnableCarDockHomeCapture);
+                pw.print(" mCarDockRotation=");
+                pw.print(Surface.rotationToString(mCarDockRotation));
+                pw.print(" mDeskDockRotation=");
+                pw.println(Surface.rotationToString(mDeskDockRotation));
+        pw.print(prefix); pw.print("mUserRotationMode=");
+                pw.print(WindowManagerPolicy.userRotationModeToString(mUserRotationMode));
+                pw.print(" mUserRotation="); pw.print(Surface.rotationToString(mUserRotation));
+                pw.print(" mAllowAllRotations=");
+                pw.println(allowAllRotationsToString(mAllowAllRotations));
+        pw.print(prefix); pw.print("mCurrentAppOrientation=");
+                pw.println(ActivityInfo.screenOrientationToString(mCurrentAppOrientation));
+        pw.print(prefix); pw.print("mCarDockEnablesAccelerometer=");
+                pw.print(mCarDockEnablesAccelerometer);
+                pw.print(" mDeskDockEnablesAccelerometer=");
+                pw.println(mDeskDockEnablesAccelerometer);
+        pw.print(prefix); pw.print("mLidKeyboardAccessibility=");
+                pw.print(mLidKeyboardAccessibility);
+                pw.print(" mLidNavigationAccessibility="); pw.print(mLidNavigationAccessibility);
+                pw.print(" mLidControlsScreenLock="); pw.println(mLidControlsScreenLock);
+        pw.print(prefix); pw.print("mLidControlsSleep="); pw.println(mLidControlsSleep);
+        pw.print(prefix);
+                pw.print("mLongPressOnBackBehavior=");
+                pw.println(longPressOnBackBehaviorToString(mLongPressOnBackBehavior));
+        pw.print(prefix);
+                pw.print("mLongPressOnHomeBehavior=");
+                pw.println(longPressOnHomeBehaviorToString(mLongPressOnHomeBehavior));
+        pw.print(prefix);
+                pw.print("mDoubleTapOnHomeBehavior=");
+                pw.println(doubleTapOnHomeBehaviorToString(mDoubleTapOnHomeBehavior));
+        pw.print(prefix);
+                pw.print("mShortPressOnPowerBehavior=");
+                pw.println(shortPressOnPowerBehaviorToString(mShortPressOnPowerBehavior));
+        pw.print(prefix);
+                pw.print("mLongPressOnPowerBehavior=");
+                pw.println(longPressOnPowerBehaviorToString(mLongPressOnPowerBehavior));
+        pw.print(prefix);
+                pw.print("mVeryLongPressOnPowerBehavior=");
+                pw.println(veryLongPressOnPowerBehaviorToString(mVeryLongPressOnPowerBehavior));
+        pw.print(prefix);
+                pw.print("mDoublePressOnPowerBehavior=");
+                pw.println(multiPressOnPowerBehaviorToString(mDoublePressOnPowerBehavior));
+        pw.print(prefix);
+                pw.print("mTriplePressOnPowerBehavior=");
+                pw.println(multiPressOnPowerBehaviorToString(mTriplePressOnPowerBehavior));
+        pw.print(prefix);
+                pw.print("mShortPressOnSleepBehavior=");
+                pw.println(shortPressOnSleepBehaviorToString(mShortPressOnSleepBehavior));
+        pw.print(prefix);
+                pw.print("mShortPressOnWindowBehavior=");
+                pw.println(shortPressOnWindowBehaviorToString(mShortPressOnWindowBehavior));
+        pw.print(prefix);
+                pw.print("mAllowStartActivityForLongPressOnPowerDuringSetup=");
+                pw.println(mAllowStartActivityForLongPressOnPowerDuringSetup);
+        pw.print(prefix);
+                pw.print("mHasSoftInput="); pw.print(mHasSoftInput);
+                pw.print(" mDismissImeOnBackKeyPressed="); pw.println(mDismissImeOnBackKeyPressed);
+        pw.print(prefix);
+                pw.print("mIncallPowerBehavior=");
+                pw.print(incallPowerBehaviorToString(mIncallPowerBehavior));
+                pw.print(" mIncallBackBehavior=");
+                pw.print(incallBackBehaviorToString(mIncallBackBehavior));
+                pw.print(" mEndcallBehavior=");
+                pw.println(endcallBehaviorToString(mEndcallBehavior));
+        pw.print(prefix); pw.print("mHomePressed="); pw.println(mHomePressed);
+        pw.print(prefix);
+                pw.print("mAwake="); pw.print(mAwake);
+                pw.print("mScreenOnEarly="); pw.print(mScreenOnEarly);
+                pw.print(" mScreenOnFully="); pw.println(mScreenOnFully);
+        pw.print(prefix); pw.print("mKeyguardDrawComplete="); pw.print(mKeyguardDrawComplete);
+                pw.print(" mWindowManagerDrawComplete="); pw.println(mWindowManagerDrawComplete);
+        pw.print(prefix); pw.print("mDockLayer="); pw.print(mDockLayer);
+                pw.print(" mStatusBarLayer="); pw.println(mStatusBarLayer);
+        pw.print(prefix); pw.print("mShowingDream="); pw.print(mShowingDream);
+                pw.print(" mDreamingLockscreen="); pw.print(mDreamingLockscreen);
+                pw.print(" mDreamingSleepToken="); pw.println(mDreamingSleepToken);
+        if (mLastInputMethodWindow != null) {
+            pw.print(prefix); pw.print("mLastInputMethodWindow=");
+                    pw.println(mLastInputMethodWindow);
+        }
+        if (mLastInputMethodTargetWindow != null) {
+            pw.print(prefix); pw.print("mLastInputMethodTargetWindow=");
+                    pw.println(mLastInputMethodTargetWindow);
+        }
+        //---------------------------------------状态栏------------------------------------
+        if (mStatusBar != null) {
+            pw.print(prefix); pw.print("mStatusBar=");
+                    pw.print(mStatusBar); pw.print(" isStatusBarKeyguard=");
+                    pw.println(isStatusBarKeyguard());
+        }
+        if (mNavigationBar != null) {
+            pw.print(prefix); pw.print("mNavigationBar=");
+                    pw.println(mNavigationBar);
+        }
+        if (mFocusedWindow != null) {
+            pw.print(prefix); pw.print("mFocusedWindow=");
+                    pw.println(mFocusedWindow);
+        }
+        if (mFocusedApp != null) {
+            pw.print(prefix); pw.print("mFocusedApp=");
+                    pw.println(mFocusedApp);
+        }
+        //-------------------------------------------------------------------------------
+        if (mTopFullscreenOpaqueWindowState != null) {
+            pw.print(prefix); pw.print("mTopFullscreenOpaqueWindowState=");
+                    pw.println(mTopFullscreenOpaqueWindowState);
+        }
+        if (mTopFullscreenOpaqueOrDimmingWindowState != null) {
+            pw.print(prefix); pw.print("mTopFullscreenOpaqueOrDimmingWindowState=");
+                    pw.println(mTopFullscreenOpaqueOrDimmingWindowState);
+        }
+        if (mForcingShowNavBar) {
+            pw.print(prefix); pw.print("mForcingShowNavBar=");
+                    pw.println(mForcingShowNavBar); pw.print( "mForcingShowNavBarLayer=");
+                    pw.println(mForcingShowNavBarLayer);
+        }
+        pw.print(prefix); pw.print("mTopIsFullscreen="); pw.print(mTopIsFullscreen);
+                pw.print(" mKeyguardOccluded="); pw.println(mKeyguardOccluded);
+        pw.print(prefix);
+                pw.print("mKeyguardOccludedChanged="); pw.print(mKeyguardOccludedChanged);
+                pw.print(" mPendingKeyguardOccluded="); pw.println(mPendingKeyguardOccluded);
+        pw.print(prefix); pw.print("mForceStatusBar="); pw.print(mForceStatusBar);
+                pw.print(" mForceStatusBarFromKeyguard=");
+                pw.println(mForceStatusBarFromKeyguard);
+        pw.print(prefix); pw.print("mAllowLockscreenWhenOn="); pw.print(mAllowLockscreenWhenOn);
+                pw.print(" mLockScreenTimeout="); pw.print(mLockScreenTimeout);
+                pw.print(" mLockScreenTimerActive="); pw.println(mLockScreenTimerActive);
+        pw.print(prefix); pw.print("mLandscapeRotation=");
+                pw.print(Surface.rotationToString(mLandscapeRotation));
+                pw.print(" mSeascapeRotation=");
+                pw.println(Surface.rotationToString(mSeascapeRotation));
+        pw.print(prefix); pw.print("mPortraitRotation=");
+                pw.print(Surface.rotationToString(mPortraitRotation));
+                pw.print(" mUpsideDownRotation=");
+                pw.println(Surface.rotationToString(mUpsideDownRotation));
+        pw.print(prefix); pw.print("mDemoHdmiRotation=");
+                pw.print(Surface.rotationToString(mDemoHdmiRotation));
+                pw.print(" mDemoHdmiRotationLock="); pw.println(mDemoHdmiRotationLock);
+        pw.print(prefix); pw.print("mUndockedHdmiRotation=");
+                pw.println(Surface.rotationToString(mUndockedHdmiRotation));
+        if (mHasFeatureLeanback) {
+            pw.print(prefix);
+            pw.print("mAccessibilityTvKey1Pressed="); pw.println(mAccessibilityTvKey1Pressed);
+            pw.print(prefix);
+            pw.print("mAccessibilityTvKey2Pressed="); pw.println(mAccessibilityTvKey2Pressed);
+            pw.print(prefix);
+            pw.print("mAccessibilityTvScheduled="); pw.println(mAccessibilityTvScheduled);
+        }
+
+        mGlobalKeyManager.dump(prefix, pw);
+        mStatusBarController.dump(pw, prefix);
+        mNavigationBarController.dump(pw, prefix);
+        PolicyControl.dump(prefix, pw);
+
+        if (mWakeGestureListener != null) {
+            mWakeGestureListener.dump(pw, prefix);
+        }
+        if (mOrientationListener != null) {
+            mOrientationListener.dump(pw, prefix);
+        }
+        if (mBurnInProtectionHelper != null) {
+            mBurnInProtectionHelper.dump(prefix, pw);
+        }
+        if (mKeyguardDelegate != null) {
+            mKeyguardDelegate.dump(prefix, pw);
+        }
+
+        pw.print(prefix); pw.println("Looper state:");
+        mHandler.getLooper().dump(new PrintWriterPrinter(pw), prefix + "  ");
+    }
+
+}
+
+```
+
+### RootWindowContainer
+
+```java
+
+class RootWindowContainer extends WindowContainer<DisplayContent> {
+
+    void dumpTokens(PrintWriter pw, boolean dumpAll) {
+        pw.println("  All tokens:");
+        for (int i = mChildren.size() - 1; i >= 0; --i) {
+            mChildren.get(i).dumpTokens(pw, dumpAll);
+        }
+    }
+
+    void dumpWindowsNoHeader(PrintWriter pw, boolean dumpAll, ArrayList<WindowState> windows) {
+        final int[] index = new int[1];
+        forAllWindows((w) -> {
+            if (windows == null || windows.contains(w)) {
+                pw.println("  Window #" + index[0] + " " + w + ":");
+                w.dump(pw, "    ", dumpAll || windows != null);
+                index[0] = index[0] + 1;
+            }
+        }, true /* traverseTopToBottom */);
+    }
+
+}
+
+```
+
+### WindowState
+
+```java
+
+/** A window in the window manager. */
+class WindowState extends WindowContainer<WindowState> implements WindowManagerPolicy.WindowState {
+
+    @Override
+    void dump(PrintWriter pw, String prefix, boolean dumpAll) {
+        final TaskStack stack = getStack();
+        pw.print(prefix); pw.print("mDisplayId="); pw.print(getDisplayId());
+                if (stack != null) {
+                    pw.print(" stackId="); pw.print(stack.mStackId);
+                }
+                pw.print(" mSession="); pw.print(mSession);
+                pw.print(" mClient="); pw.println(mClient.asBinder());
+        pw.print(prefix); pw.print("mOwnerUid="); pw.print(mOwnerUid);
+                pw.print(" mShowToOwnerOnly="); pw.print(mShowToOwnerOnly);
+                pw.print(" package="); pw.print(mAttrs.packageName);
+                pw.print(" appop="); pw.println(AppOpsManager.opToName(mAppOp));
+        pw.print(prefix); pw.print("mAttrs="); pw.println(mAttrs.toString(prefix));
+        pw.print(prefix); pw.print("Requested w="); pw.print(mRequestedWidth);
+                pw.print(" h="); pw.print(mRequestedHeight);
+                pw.print(" mLayoutSeq="); pw.println(mLayoutSeq);
+        if (mRequestedWidth != mLastRequestedWidth || mRequestedHeight != mLastRequestedHeight) {
+            pw.print(prefix); pw.print("LastRequested w="); pw.print(mLastRequestedWidth);
+                    pw.print(" h="); pw.println(mLastRequestedHeight);
+        }
+        if (mIsChildWindow || mLayoutAttached) {
+            pw.print(prefix); pw.print("mParentWindow="); pw.print(getParentWindow());
+                    pw.print(" mLayoutAttached="); pw.println(mLayoutAttached);
+        }
+        if (mIsImWindow || mIsWallpaper || mIsFloatingLayer) {
+            pw.print(prefix); pw.print("mIsImWindow="); pw.print(mIsImWindow);
+                    pw.print(" mIsWallpaper="); pw.print(mIsWallpaper);
+                    pw.print(" mIsFloatingLayer="); pw.print(mIsFloatingLayer);
+                    pw.print(" mWallpaperVisible="); pw.println(mWallpaperVisible);
+        }
+        if (dumpAll) {
+            pw.print(prefix); pw.print("mBaseLayer="); pw.print(mBaseLayer);
+                    pw.print(" mSubLayer="); pw.print(mSubLayer);
+                    pw.print(" mAnimLayer="); pw.print(mLayer); pw.print("+");
+                    pw.print("="); pw.print(mWinAnimator.mAnimLayer);
+                    pw.print(" mLastLayer="); pw.println(mWinAnimator.mLastLayer);
+        }
+        if (dumpAll) {
+            pw.print(prefix); pw.print("mToken="); pw.println(mToken);
+            if (mAppToken != null) {
+                pw.print(prefix); pw.print("mAppToken="); pw.println(mAppToken);
+                pw.print(prefix); pw.print(" isAnimatingWithSavedSurface()=");
+                pw.print(" mAppDied=");pw.print(mAppDied);
+                pw.print(prefix); pw.print("drawnStateEvaluated=");
+                        pw.print(getDrawnStateEvaluated());
+                pw.print(prefix); pw.print("mightAffectAllDrawn=");
+                        pw.println(mightAffectAllDrawn());
+            }
+            pw.print(prefix); pw.print("mViewVisibility=0x");
+            pw.print(Integer.toHexString(mViewVisibility));
+            pw.print(" mHaveFrame="); pw.print(mHaveFrame);
+            pw.print(" mObscured="); pw.println(mObscured);
+            pw.print(prefix); pw.print("mSeq="); pw.print(mSeq);
+            pw.print(" mSystemUiVisibility=0x");
+            pw.println(Integer.toHexString(mSystemUiVisibility));
+        }
+        if (!mPolicyVisibility || !mPolicyVisibilityAfterAnim || !mAppOpVisibility
+                || isParentWindowHidden()|| mPermanentlyHidden || mForceHideNonSystemOverlayWindow
+                || mHiddenWhileSuspended) {
+            pw.print(prefix); pw.print("mPolicyVisibility=");
+                    pw.print(mPolicyVisibility);
+                    pw.print(" mPolicyVisibilityAfterAnim=");
+                    pw.print(mPolicyVisibilityAfterAnim);
+                    pw.print(" mAppOpVisibility=");
+                    pw.print(mAppOpVisibility);
+                    pw.print(" parentHidden="); pw.print(isParentWindowHidden());
+                    pw.print(" mPermanentlyHidden="); pw.print(mPermanentlyHidden);
+                    pw.print(" mHiddenWhileSuspended="); pw.print(mHiddenWhileSuspended);
+                    pw.print(" mForceHideNonSystemOverlayWindow="); pw.println(
+                    mForceHideNonSystemOverlayWindow);
+        }
+        if (!mRelayoutCalled || mLayoutNeeded) {
+            pw.print(prefix); pw.print("mRelayoutCalled="); pw.print(mRelayoutCalled);
+                    pw.print(" mLayoutNeeded="); pw.println(mLayoutNeeded);
+        }
+        if (dumpAll) {
+            pw.print(prefix); pw.print("mGivenContentInsets=");
+                    mGivenContentInsets.printShortString(pw);
+                    pw.print(" mGivenVisibleInsets=");
+                    mGivenVisibleInsets.printShortString(pw);
+                    pw.println();
+            if (mTouchableInsets != 0 || mGivenInsetsPending) {
+                pw.print(prefix); pw.print("mTouchableInsets="); pw.print(mTouchableInsets);
+                        pw.print(" mGivenInsetsPending="); pw.println(mGivenInsetsPending);
+                Region region = new Region();
+                getTouchableRegion(region);
+                pw.print(prefix); pw.print("touchable region="); pw.println(region);
+            }
+            pw.print(prefix); pw.print("mFullConfiguration="); pw.println(getConfiguration());
+            pw.print(prefix); pw.print("mLastReportedConfiguration=");
+                    pw.println(getLastReportedConfiguration());
+        }
+        pw.print(prefix); pw.print("mHasSurface="); pw.print(mHasSurface);
+                pw.print(" isReadyForDisplay()="); pw.print(isReadyForDisplay());
+                pw.print(" mWindowRemovalAllowed="); pw.println(mWindowRemovalAllowed);
+        if (dumpAll) {
+            pw.print(prefix); pw.print("mFrame="); mFrame.printShortString(pw);
+                    pw.print(" last="); mLastFrame.printShortString(pw);
+                    pw.println();
+        }
+        if (mEnforceSizeCompat) {
+            pw.print(prefix); pw.print("mCompatFrame="); mCompatFrame.printShortString(pw);
+                    pw.println();
+        }
+        if (dumpAll) {
+            pw.print(prefix); pw.print("Frames: containing=");
+                    mContainingFrame.printShortString(pw);
+                    pw.print(" parent="); mParentFrame.printShortString(pw);
+                    pw.println();
+            pw.print(prefix); pw.print("    display="); mDisplayFrame.printShortString(pw);
+                    pw.print(" overscan="); mOverscanFrame.printShortString(pw);
+                    pw.println();
+            pw.print(prefix); pw.print("    content="); mContentFrame.printShortString(pw);
+                    pw.print(" visible="); mVisibleFrame.printShortString(pw);
+                    pw.println();
+            pw.print(prefix); pw.print("    decor="); mDecorFrame.printShortString(pw);
+                    pw.println();
+            pw.print(prefix); pw.print("    outset="); mOutsetFrame.printShortString(pw);
+                    pw.println();
+            pw.print(prefix); pw.print("Cur insets: overscan=");
+                    mOverscanInsets.printShortString(pw);
+                    pw.print(" content="); mContentInsets.printShortString(pw);
+                    pw.print(" visible="); mVisibleInsets.printShortString(pw);
+                    pw.print(" stable="); mStableInsets.printShortString(pw);
+                    pw.print(" surface="); mAttrs.surfaceInsets.printShortString(pw);
+                    pw.print(" outsets="); mOutsets.printShortString(pw);
+            pw.print(" cutout=" + mDisplayCutout.getDisplayCutout());
+                    pw.println();
+            pw.print(prefix); pw.print("Lst insets: overscan=");
+                    mLastOverscanInsets.printShortString(pw);
+                    pw.print(" content="); mLastContentInsets.printShortString(pw);
+                    pw.print(" visible="); mLastVisibleInsets.printShortString(pw);
+                    pw.print(" stable="); mLastStableInsets.printShortString(pw);
+                    pw.print(" physical="); mLastOutsets.printShortString(pw);
+                    pw.print(" outset="); mLastOutsets.printShortString(pw);
+                    pw.print(" cutout=" + mLastDisplayCutout);
+                    pw.println();
+        }
+        super.dump(pw, prefix, dumpAll);
+        pw.print(prefix); pw.print(mWinAnimator); pw.println(":");
+        mWinAnimator.dump(pw, prefix + "  ", dumpAll);
+        if (mAnimatingExit || mRemoveOnExit || mDestroying || mRemoved) {
+            pw.print(prefix); pw.print("mAnimatingExit="); pw.print(mAnimatingExit);
+                    pw.print(" mRemoveOnExit="); pw.print(mRemoveOnExit);
+                    pw.print(" mDestroying="); pw.print(mDestroying);
+                    pw.print(" mRemoved="); pw.println(mRemoved);
+        }
+        if (getOrientationChanging() || mAppFreezing || mReportOrientationChanged) {
+            pw.print(prefix); pw.print("mOrientationChanging=");
+                    pw.print(mOrientationChanging);
+                    pw.print(" configOrientationChanging=");
+                    pw.print(getLastReportedConfiguration().orientation
+                            != getConfiguration().orientation);
+                    pw.print(" mAppFreezing="); pw.print(mAppFreezing);
+                    pw.print(" mReportOrientationChanged="); pw.println(mReportOrientationChanged);
+        }
+        if (mLastFreezeDuration != 0) {
+            pw.print(prefix); pw.print("mLastFreezeDuration=");
+                    TimeUtils.formatDuration(mLastFreezeDuration, pw); pw.println();
+        }
+        if (mForceSeamlesslyRotate) {
+            pw.print(prefix); pw.print("forceSeamlesslyRotate: pending=");
+            if (mPendingForcedSeamlessRotate != null) {
+                mPendingForcedSeamlessRotate.dump(pw);
+            } else {
+                pw.print("null");
+            }
+            pw.print(" finishedFrameNumber="); pw.print(mFinishForcedSeamlessRotateFrameNumber);
+            pw.println();
+        }
+        if (mHScale != 1 || mVScale != 1) {
+            pw.print(prefix); pw.print("mHScale="); pw.print(mHScale);
+                    pw.print(" mVScale="); pw.println(mVScale);
+        }
+        if (mWallpaperX != -1 || mWallpaperY != -1) {
+            pw.print(prefix); pw.print("mWallpaperX="); pw.print(mWallpaperX);
+                    pw.print(" mWallpaperY="); pw.println(mWallpaperY);
+        }
+        if (mWallpaperXStep != -1 || mWallpaperYStep != -1) {
+            pw.print(prefix); pw.print("mWallpaperXStep="); pw.print(mWallpaperXStep);
+                    pw.print(" mWallpaperYStep="); pw.println(mWallpaperYStep);
+        }
+        if (mWallpaperDisplayOffsetX != Integer.MIN_VALUE
+                || mWallpaperDisplayOffsetY != Integer.MIN_VALUE) {
+            pw.print(prefix); pw.print("mWallpaperDisplayOffsetX=");
+                    pw.print(mWallpaperDisplayOffsetX);
+                    pw.print(" mWallpaperDisplayOffsetY=");
+                    pw.println(mWallpaperDisplayOffsetY);
+        }
+        if (mDrawLock != null) {
+            pw.print(prefix); pw.println("mDrawLock=" + mDrawLock);
+        }
+        if (isDragResizing()) {
+            pw.print(prefix); pw.println("isDragResizing=" + isDragResizing());
+        }
+        if (computeDragResizing()) {
+            pw.print(prefix); pw.println("computeDragResizing=" + computeDragResizing());
+        }
+        pw.print(prefix); pw.println("isOnScreen=" + isOnScreen());
+        pw.print(prefix); pw.println("isVisible=" + isVisible());
+    }
+}
+
+```
+
 
