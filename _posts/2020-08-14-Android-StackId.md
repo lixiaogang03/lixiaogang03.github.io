@@ -10,8 +10,17 @@ tags:
     - android
 ---
 
+[Android Stack与Task-简书](https://www.jianshu.com/p/82f3af2135a8)
+
 ## android 8
 
+### Home Stack
+
+![home_stack](/images/ams/home_stack.webp)
+
+### App Stack
+
+![app_stack](/images/ams/app_stack.webp)
 
 ### ActivityManager
 
@@ -24,21 +33,27 @@ public class ActivityManager {
         /** First static stack ID. */
         public static final int FIRST_STATIC_STACK_ID = 0;
 
+        // Home应用
         /** Home activity stack ID. */
         public static final int HOME_STACK_ID = FIRST_STATIC_STACK_ID;
 
+        // 一般应用所在的栈
         /** ID of stack where fullscreen activities are normally launched into. */
         public static final int FULLSCREEN_WORKSPACE_STACK_ID = 1;
 
+        // 类似桌面操作系统
         /** ID of stack where freeform/resized activities are normally launched into. */
         public static final int FREEFORM_WORKSPACE_STACK_ID = FULLSCREEN_WORKSPACE_STACK_ID + 1;
 
+        // 占用屏幕专用区域的堆栈ID
         /** ID of stack that occupies a dedicated region of the screen. */
         public static final int DOCKED_STACK_ID = FREEFORM_WORKSPACE_STACK_ID + 1;
 
+        // 画中画栈
         /** ID of stack that always on top (always visible) when it exist. */
         public static final int PINNED_STACK_ID = DOCKED_STACK_ID + 1;
 
+        // recents app所在的栈
         /** ID of stack that contains the Recents activity. */
         public static final int RECENTS_STACK_ID = PINNED_STACK_ID + 1;
 
@@ -51,10 +66,14 @@ public class ActivityManager {
         /** Start of ID range used by stacks that are created dynamically. */
         public static final int FIRST_DYNAMIC_STACK_ID = LAST_STATIC_STACK_ID + 1;
 
+        /*
+         * 判断是否是一个静态堆栈
+         */
         public static boolean isStaticStack(int stackId) {
             return stackId >= FIRST_STATIC_STACK_ID && stackId <= LAST_STATIC_STACK_ID;
         }
 
+        // 判断是否是一个动态堆栈
         public static boolean isDynamicStack(int stackId) {
             return stackId >= FIRST_DYNAMIC_STACK_ID;
         }
@@ -122,38 +141,45 @@ public class ActivityStackSupervisor extends ConfigurationContainer implements D
     }
 
 
-    /**
-     * Get a topmost stack on the display, that is a valid launch stack for specified activity.
-     * If there is no such stack, new dynamic stack can be created.
-     * @param displayId Target display.
-     * @param r Activity that should be launched there.
-     * @return Existing stack if there is a valid one, new dynamic stack if it is valid or null.
+    void postStartActivityProcessing(
+            ActivityRecord r, int result, int prevFocusedStackId, ActivityRecord sourceRecord,
+            ActivityStack targetStack) {
+
+            // Home ActivityStack
+            final ActivityStack homeStack = mSupervisor.getStack(HOME_STACK_ID);
+
+    }
+
+    private ActivityStack computeStackFocus(ActivityRecord r, boolean newTask, Rect bounds,
+            int launchFlags, ActivityOptions aOptions) {
+
+                // If there is no suitable dynamic stack then we figure out which static stack to use.
+                final int stackId = task != null ? task.getLaunchStackId() :
+                        bounds != null ? FREEFORM_WORKSPACE_STACK_ID :       // FreeForm ActivityStack
+                                FULLSCREEN_WORKSPACE_STACK_ID;               // 普通ActivityStack
+                // 创建ActivityStack
+                stack = mSupervisor.getStack(stackId, CREATE_IF_NEEDED, ON_TOP);
+
+    }
+
+    /*
+     * 一般调用此方法创建ActivityStack
      */
-    ActivityStack getValidLaunchStackOnDisplay(int displayId, @NonNull ActivityRecord r) {
-        final ActivityDisplay activityDisplay = getActivityDisplayOrCreateLocked(displayId);
-        if (activityDisplay == null) {
-            throw new IllegalArgumentException(
-                    "Display with displayId=" + displayId + " not found.");
+    protected <T extends ActivityStack> T getStack(int stackId, boolean createStaticStackIfNeeded,
+            boolean createOnTop) {
+        final ActivityStack stack = mStacks.get(stackId);
+        if (stack != null) {
+            return (T) stack;
         }
-
-        // Return the topmost valid stack on the display.
-        for (int i = activityDisplay.mStacks.size() - 1; i >= 0; --i) {
-            final ActivityStack stack = activityDisplay.mStacks.get(i);
-            if (mService.mActivityStarter.isValidLaunchStackId(stack.mStackId, displayId, r)) {
-                return stack;
-            }
+        if (!createStaticStackIfNeeded || !StackId.isStaticStack(stackId)) {
+            return null;
         }
-
-        // If there is no valid stack on the external display - check if new dynamic stack will do.
-        if (displayId != Display.DEFAULT_DISPLAY) {
-            final int newDynamicStackId = getNextStackId();
-            if (mService.mActivityStarter.isValidLaunchStackId(newDynamicStackId, displayId, r)) {
-                return createStackOnDisplay(newDynamicStackId, displayId, true /*onTop*/);
-            }
+        if (stackId == DOCKED_STACK_ID) {
+            // Make sure recents stack exist when creating a dock stack as it normally need to be on
+            // the other side of the docked stack and we make visibility decisions based on that.
+            getStack(RECENTS_STACK_ID, CREATE_IF_NEEDED, createOnTop);
         }
-
-        Slog.w(TAG, "getValidLaunchStackOnDisplay: can't launch on displayId " + displayId);
-        return null;
+        return (T) createStackOnDisplay(stackId, DEFAULT_DISPLAY, createOnTop);
     }
 
 
