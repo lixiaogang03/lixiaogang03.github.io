@@ -16,5 +16,12 @@ tags:
 
 ![window_structure](/images/ams/window_structure.png)
 
+## APP 数据结构
+
+![window_structure_2](/images/ams/window_structure_2.png)
+
+## uml
+
+![activity_window](/images/ams/activity_window.png)
 
 
