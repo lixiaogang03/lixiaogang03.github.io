@@ -199,4 +199,169 @@ public class ActivityManagerService extends IActivityManager.Stub
 
 ```
 
+## 窗口大小变更
+
+### 服务端
+
+```txt
+
+1970-03-20 05:47:11.109 1448-1618/system_process D/WWW: ActivityRecord scheduleConfigurationChanged:
+    java.lang.Throwable
+        at com.android.server.am.ActivityRecord.scheduleConfigurationChanged(ActivityRecord.java:654)
+        at com.android.server.am.ActivityRecord.ensureActivityConfiguration(ActivityRecord.java:2538)
+        at com.android.server.am.ActivityRecord.ensureActivityConfiguration(ActivityRecord.java:2436)
+        at com.android.server.am.TaskRecord.resize(TaskRecord.java:561)
+        at com.android.server.am.ActivityManagerService.resizeTask(ActivityManagerService.java:11037)
+        at com.android.server.wm.TaskPositioner$WindowPositionerEventReceiver.onInputEvent(TaskPositioner.java:168)
+        at android.view.InputEventReceiver.dispatchInputEvent(InputEventReceiver.java:187)
+        at android.view.InputEventReceiver.nativeConsumeBatchedInputEvents(Native Method)
+        at android.view.InputEventReceiver.consumeBatchedInputEvents(InputEventReceiver.java:178)
+        at android.view.BatchedInputEventReceiver.doConsumeBatchedInput(BatchedInputEventReceiver.java:49)
+        at android.view.BatchedInputEventReceiver$BatchedInputRunnable.run(BatchedInputEventReceiver.java:78)
+        at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1012)
+        at android.view.Choreographer.doCallbacks(Choreographer.java:823)
+        at android.view.Choreographer.doFrame(Choreographer.java:752)
+        at android.view.Choreographer$FrameDisplayEventReceiver.run(Choreographer.java:998)
+        at android.os.Handler.handleCallback(Handler.java:873)
+        at android.os.Handler.dispatchMessage(Handler.java:99)
+        at android.os.Looper.loop(Looper.java:193)
+        at android.os.HandlerThread.run(HandlerThread.java:65)
+        at com.android.server.ServiceThread.run(ServiceThread.java:
+
+```
+
+### ActivityRecord
+
+```java
+
+final class ActivityRecord extends ConfigurationContainer implements AppWindowContainerListener {
+
+    private void scheduleConfigurationChanged(Configuration config) {
+        if (app == null || app.thread == null) {
+            if (DEBUG_CONFIGURATION) Slog.w(TAG,
+                    "Can't report activity configuration update - client not running"
+                            + ", activityRecord=" + this);
+            return;
+        }
+        try {
+            if (DEBUG_CONFIGURATION) Slog.v(TAG, "Sending new config to " + this + ", config: "
+                    + config);
+
+            // Binder 调用到客户端
+            service.getLifecycleManager().scheduleTransaction(app.thread, appToken,
+                    ActivityConfigurationChangeItem.obtain(config));
+        } catch (RemoteException e) {
+            // If process died, whatever.
+        }
+    }
+
+}
+
+```
+
+### 客户端Trace
+
+```txt
+
+// 1
+1970-03-20 05:47:11.219 3726-3726/com.android.calculator2 D/WWW: Activity onConfigurationChanged:
+    java.lang.Throwable
+        at android.app.Activity.onConfigurationChanged(Activity.java:2271)
+        at android.app.ActivityThread.performActivityConfigurationChanged(ActivityThread.java:5070)
+        at android.app.ActivityThread.performConfigurationChangedForActivity(ActivityThread.java:4937)
+        at android.app.ActivityThread.performConfigurationChangedForActivity(ActivityThread.java:4915)
+        at android.app.ActivityThread.handleActivityConfigurationChanged(ActivityThread.java:5288)
+        at android.app.servertransaction.ActivityConfigurationChangeItem.execute(ActivityConfigurationChangeItem.java:43)
+        at android.app.servertransaction.TransactionExecutor.executeCallbacks(TransactionExecutor.java:108)
+        at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:68)
+        at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1817)
+        at android.os.Handler.dispatchMessage(Handler.java:106)
+        at android.os.Looper.loop(Looper.java:193)
+        at android.app.ActivityThread.main(ActivityThread.java:6746)
+        at java.lang.reflect.Method.invoke(Native Method)
+        at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:493)
+        at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:858)
+
+// 2
+1970-03-20 05:47:11.220 3726-3726/com.android.calculator2 D/WWW: DecorView onConfigurationChanged:
+    java.lang.Throwable
+        at com.android.internal.policy.DecorView.onConfigurationChanged(DecorView.java:1850)
+        at android.view.View.dispatchConfigurationChanged(View.java:13049)
+        at android.view.ViewGroup.dispatchConfigurationChanged(ViewGroup.java:1575)
+        at android.view.ViewRootImpl.updateConfiguration(ViewRootImpl.java:3956)
+        at android.app.ActivityThread.handleActivityConfigurationChanged(ActivityThread.java:5293)
+        at android.app.servertransaction.ActivityConfigurationChangeItem.execute(ActivityConfigurationChangeItem.java:43)
+        at android.app.servertransaction.TransactionExecutor.executeCallbacks(TransactionExecutor.java:108)
+        at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:68)
+        at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1817)
+        at android.os.Handler.dispatchMessage(Handler.java:106)
+        at android.os.Looper.loop(Looper.java:193)
+        at android.app.ActivityThread.main(ActivityThread.java:6746)
+        at java.lang.reflect.Method.invoke(Native Method)
+        at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:493)
+        at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:858)
+
+```
+
+### 客户端代码
+
+```java
+
+public final class ActivityThread extends ClientTransactionHandler {
+
+    /**
+     * Handle new activity configuration and/or move to a different display.
+     * @param activityToken Target activity token.
+     * @param overrideConfig Activity override config.
+     * @param displayId Id of the display where activity was moved to, -1 if there was no move and
+     *                  value didn't change.
+     */
+    @Override
+    public void handleActivityConfigurationChanged(IBinder activityToken,
+            Configuration overrideConfig, int displayId) {
+        ActivityClientRecord r = mActivities.get(activityToken);
+        // Check input params.
+        if (r == null || r.activity == null) {
+            if (DEBUG_CONFIGURATION) Slog.w(TAG, "Not found target activity to report to: " + r);
+            return;
+        }
+        final boolean movedToDifferentDisplay = displayId != INVALID_DISPLAY
+                && displayId != r.activity.getDisplay().getDisplayId();
+
+        // Perform updates.
+        r.overrideConfig = overrideConfig;
+        final ViewRootImpl viewRoot = r.activity.mDecor != null
+            ? r.activity.mDecor.getViewRootImpl() : null;
+
+        if (movedToDifferentDisplay) {
+            if (DEBUG_CONFIGURATION) Slog.v(TAG, "Handle activity moved to display, activity:"
+                    + r.activityInfo.name + ", displayId=" + displayId
+                    + ", config=" + overrideConfig);
+
+            final Configuration reportedConfig = performConfigurationChangedForActivity(r,
+                    mCompatConfiguration, displayId, true /* movedToDifferentDisplay */);
+            if (viewRoot != null) {
+                viewRoot.onMovedToDisplay(displayId, reportedConfig);
+            }
+        } else {
+            if (DEBUG_CONFIGURATION) Slog.v(TAG, "Handle activity config changed: "
+                    + r.activityInfo.name + ", config=" + overrideConfig);
+
+            // 1
+            performConfigurationChangedForActivity(r, mCompatConfiguration);
+        }
+
+        // 2
+        // Notify the ViewRootImpl instance about configuration changes. It may have initiated this
+        // update to make sure that resources are updated before updating itself.
+        if (viewRoot != null) {
+            viewRoot.updateConfiguration(displayId);
+        }
+        mSomeActivitiesChanged = true;
+    }
+
+}
+
+```
+
 
