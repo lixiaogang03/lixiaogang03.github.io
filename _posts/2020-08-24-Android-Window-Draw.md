@@ -26,6 +26,8 @@ tags:
 
 ## startWindow
 
+![start_window](/images/ams/start_window.png)
+
 ```txt
 
 system_process D/WWW: scheduleAddStartingWindow:java.lang.Throwable
