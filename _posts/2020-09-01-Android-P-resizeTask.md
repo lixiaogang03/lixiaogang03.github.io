@@ -10,6 +10,11 @@ tags:
     - android
 ---
 
+
+## Systrace
+
+![systrace_resize_task](/images/wms/systrace_resize_task.png)
+
 ## System
 
 ![resize_task](/images/wms/resize_task.png)
@@ -48,6 +53,91 @@ tags:
 ```
 
 ## APP
+
+![resize_task_2](/images/wms/resize_task_2.png)
+
+## 代码
+
+### AMS
+
+```java
+
+    @Override
+    public void resizeTask(int taskId, Rect bounds, int resizeMode) {
+
+        -------------------------------------------------------------------------
+
+                TaskRecord task = mStackSupervisor.anyTaskForIdLocked(taskId);
+
+        ------------------------------------------------------------------------------------
+
+                // After reparenting (which only resizes the task to the stack bounds), resize the
+                // task to the actual bounds provided
+                task.resize(bounds, resizeMode, preserveWindow, !DEFER_RESUME);
+    }
+
+```
+
+### TaskRecord
+
+```java
+
+    boolean resize(Rect bounds, int resizeMode, boolean preserveWindow, boolean deferResume) {
+
+        mService.mWindowManager.deferSurfaceLayout();          // 开始推迟布局传递, 在进行多项更改时很有用，但为了优化性能，仅应执行一次布局遍历
+
+        try {
+
+            ---------------------------------------------------------------------------------------
+
+            // Do not move the task to another stack here.
+            // This method assumes that the task is already placed in the right stack.
+            // we do not mess with that decision and we only do the resize!
+
+            Trace.traceBegin(TRACE_TAG_ACTIVITY_MANAGER, "am.resizeTask_" + taskId);
+
+            final boolean updatedConfig = updateOverrideConfiguration(bounds);   // 处理configChange
+
+            // This variable holds information whether the configuration didn't change in a significant
+            // way and the activity was kept the way it was. If it's false, it means the activity
+            // had to be relaunched due to configuration change.
+            boolean kept = true;
+            if (updatedConfig) {
+                final ActivityRecord r = topRunningActivityLocked();
+                if (r != null && !deferResume) {
+                    kept = r.ensureActivityConfiguration(0 /* globalChanges */,
+                            preserveWindow);
+                    mService.mStackSupervisor.ensureActivitiesVisibleLocked(r, 0,
+                            !PRESERVE_WINDOWS);
+                    if (!kept) {
+                        mService.mStackSupervisor.resumeFocusedStackTopActivityLocked();
+                    }
+                }
+            }
+            mWindowContainerController.resize(kept, forced);
+
+            Trace.traceEnd(TRACE_TAG_ACTIVITY_MANAGER);
+            return kept;
+        } finally {
+            mService.mWindowManager.continueSurfaceLayout();          //  Resumes layout passes after deferring them. See {@link #deferSurfaceLayout()}
+        }
+   }
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
