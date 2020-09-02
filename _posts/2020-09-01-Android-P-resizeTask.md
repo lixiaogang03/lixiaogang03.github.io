@@ -125,6 +125,134 @@ tags:
 
 ```
 
+### ActivityRecord
+
+```java
+
+
+    /**
+     * Make sure the given activity matches the current configuration. Ensures the HistoryRecord
+     * is updated with the correct configuration and all other bookkeeping is handled.
+     *
+     * @param globalChanges The changes to the global configuration.
+     * @param preserveWindow If the activity window should be preserved on screen if the activity
+     *                       is relaunched.
+     * @param ignoreStopState If we should try to relaunch the activity even if it is in the stopped
+     *                        state. This is useful for the case where we know the activity will be
+     *                        visible soon and we want to ensure its configuration before we make it
+     *                        visible.
+     * @return True if the activity was relaunched and false if it wasn't relaunched because we
+     *         can't or the app handles the specific configuration that is changing.
+     */
+    boolean ensureActivityConfiguration(int globalChanges, boolean preserveWindow,
+            boolean ignoreStopState) {
+
+        --------------------------------------------------------------------------
+
+        if (DEBUG_SWITCH || DEBUG_CONFIGURATION) Slog.v(TAG_CONFIGURATION,
+                "Ensuring correct configuration: " + this);
+
+        --------------------------------------------------------------------------
+
+        // TODO(b/36505427): Is there a better place to do this?
+        updateOverrideConfiguration();
+
+        // Short circuit: if the two full configurations are equal (the common case), then there is
+        // nothing to do.  We test the full configuration instead of the global and merged override
+        // configurations because there are cases (like moving a task to the pinned stack) where
+        // the combine configurations are equal, but would otherwise differ in the override config
+        mTmpConfig.setTo(mLastReportedConfiguration.getMergedConfiguration());
+        if (getConfiguration().equals(mTmpConfig) && !forceNewConfig && !displayChanged) {
+            if (DEBUG_SWITCH || DEBUG_CONFIGURATION) Slog.v(TAG_CONFIGURATION,
+                    "Configuration & display unchanged in " + this);
+            return true;
+        }
+
+        // Okay we now are going to make this activity have the new config.
+        // But then we need to figure out how it needs to deal with that.
+
+        // Find changes between last reported merged configuration and the current one. This is used
+        // to decide whether to relaunch an activity or just report a configuration change.
+        final int changes = getConfigurationChanges(mTmpConfig);
+
+        // Update last reported values.
+        final Configuration newMergedOverrideConfig = getMergedOverrideConfiguration();
+
+        setLastReportedConfiguration(service.getGlobalConfiguration(), newMergedOverrideConfig);
+
+        ----------------------------------------------------------------------------------
+
+        if (changes == 0 && !forceNewConfig) {
+            if (DEBUG_SWITCH || DEBUG_CONFIGURATION) Slog.v(TAG_CONFIGURATION,
+                    "Configuration no differences in " + this);
+            // There are no significant differences, so we won't relaunch but should still deliver
+            // the new configuration to the client process.
+            if (displayChanged) {
+                scheduleActivityMovedToDisplay(newDisplayId, newMergedOverrideConfig);
+            } else {
+                scheduleConfigurationChanged(newMergedOverrideConfig);
+            }
+            return true;
+        }
+
+        if (DEBUG_SWITCH || DEBUG_CONFIGURATION) Slog.v(TAG_CONFIGURATION,
+                "Configuration changes for " + this + ", allChanges="
+                        + Configuration.configurationDiffToString(changes));
+
+        --------------------------------------------------------------------------------
+
+        // Figure out how to handle the changes between the configurations.
+        if (DEBUG_SWITCH || DEBUG_CONFIGURATION) Slog.v(TAG_CONFIGURATION,
+                "Checking to restart " + info.name + ": changed=0x"
+                        + Integer.toHexString(changes) + ", handles=0x"
+                        + Integer.toHexString(info.getRealConfigChanged())
+                        + ", mLastReportedConfiguration=" + mLastReportedConfiguration);
+
+        if (shouldRelaunchLocked(changes, mTmpConfig) || forceNewConfig) {
+            // Aha, the activity isn't handling the change, so DIE DIE DIE.
+            configChangeFlags |= changes;
+            startFreezingScreenLocked(app, globalChanges);
+            forceNewConfig = false;
+            preserveWindow &= isResizeOnlyChange(changes);
+            if (app == null || app.thread == null) {
+
+                ------------------------------------------------------------------------
+
+            } else if (mState == PAUSING) {
+
+                -------------------------------------------------------------------------
+
+            } else if (mState == RESUMED) {
+                // Try to optimize this case: the configuration is changing and we need to restart
+                // the top, resumed activity. Instead of doing the normal handshaking, just say
+                // "restart!".
+                if (DEBUG_SWITCH || DEBUG_CONFIGURATION) Slog.v(TAG_CONFIGURATION,
+                        "Config is relaunching resumed " + this);
+
+                if (DEBUG_STATES && !visible) {
+                    Slog.v(TAG_STATES, "Config is relaunching resumed invisible activity " + this
+                            + " called by " + Debug.getCallers(4));
+                }
+
+                relaunchActivityLocked(true /* andResume */, preserveWindow);
+            } else {
+                if (DEBUG_SWITCH || DEBUG_CONFIGURATION) Slog.v(TAG_CONFIGURATION,
+                        "Config is relaunching non-resumed " + this);
+                relaunchActivityLocked(false /* andResume */, preserveWindow);
+            }
+
+            // All done...  tell the caller we weren't able to keep this activity around.
+            return false;
+        }
+
+        ----------------------------------------------------------------------------------
+
+        return true;
+    }
+
+
+```
+
 
 
 
