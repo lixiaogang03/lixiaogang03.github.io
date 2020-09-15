@@ -197,6 +197,29 @@ public class WindowManagerService extends IWindowManager.Stub
 
 public class DockedStackDividerController {
 
+    DockedStackDividerController(WindowManagerService service, DisplayContent displayContent) {
+        mService = service;
+        mDisplayContent = displayContent;
+        final Context context = service.mContext;
+        mMinimizedDockInterpolator = AnimationUtils.loadInterpolator(
+                context, android.R.interpolator.fast_out_slow_in);
+        loadDimens();
+    }
+
+    private void loadDimens() {
+        final Context context = mService.mContext;
+        mDividerWindowWidth = context.getResources().getDimensionPixelSize(
+                com.android.internal.R.dimen.docked_stack_divider_thickness);
+        mDividerInsets = context.getResources().getDimensionPixelSize(
+                com.android.internal.R.dimen.docked_stack_divider_insets);
+        mDividerWindowWidthInactive = WindowManagerService.dipToPixel(
+                DIVIDER_WIDTH_INACTIVE_DP, mDisplayContent.getDisplayMetrics());
+
+        // 启动分屏后的最小化宽度
+        mTaskHeightInMinimizedMode = getTaskHeightInMinimizedMode();
+        initSnapAlgorithmForRotations();
+    }
+
     void checkMinimizeChanged(boolean animate) {
         
         ------------------------------------------------------------
@@ -209,6 +232,42 @@ public class DockedStackDividerController {
 
 ```
 
+## SystemUI
+
+```java
+
+public class Divider extends SystemUI {
+
+    @Override
+    public void start() {
+        mWindowManager = new DividerWindowManager(mContext);
+        update(mContext.getResources().getConfiguration());
+        putComponent(Divider.class, this);
+        mDockDividerVisibilityListener = new DockDividerVisibilityListener();
+        SystemServicesProxy ssp = Recents.getSystemServices();
+        ssp.registerDockedStackListener(mDockDividerVisibilityListener);
+        mForcedResizableController = new ForcedResizableInfoActivityController(mContext);
+        EventBus.getDefault().register(this);
+    }
+
+    // 分割线
+    private void addDivider(Configuration configuration) {
+        mView = (DividerView)
+                LayoutInflater.from(mContext).inflate(R.layout.docked_stack_divider, null);
+        mView.injectDependencies(mWindowManager, mDividerState);
+        mView.setVisibility(mVisible ? View.VISIBLE : View.INVISIBLE);
+        mView.setMinimizedDockStack(mMinimized, mHomeStackResizable);
+        final int size = mContext.getResources().getDimensionPixelSize(
+                com.android.internal.R.dimen.docked_stack_divider_thickness);
+        final boolean landscape = configuration.orientation == ORIENTATION_LANDSCAPE;
+        final int width = landscape ? size : MATCH_PARENT;
+        final int height = landscape ? MATCH_PARENT : size;
+        mWindowManager.add(mView, width, height);
+    }
+
+}
+
+```
 
 ## setMinimizedDockedStack Trace
 
