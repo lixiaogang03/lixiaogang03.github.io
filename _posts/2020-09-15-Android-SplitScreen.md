@@ -14,6 +14,8 @@ tags:
 
 从Recent启动分屏模式
 
+![recent_split_screen](/images/ams/recent_split_screen.png)
+
 ### Launcher
 
 packages/apps/Launcher3/quickstep/src/com/android/quickstep/TaskSystemShortcut.java
@@ -180,10 +182,35 @@ public class ActivityStackSupervisor extends ConfigurationContainer implements D
 
 }
 
+
+public class WindowManagerService extends IWindowManager.Stub
+        implements Watchdog.Monitor, WindowManagerPolicy.WindowManagerFuncs {
+
+    public void checkSplitScreenMinimizedChanged(boolean animate) {
+        synchronized (mWindowMap) {
+            final DisplayContent displayContent = getDefaultDisplayContentLocked();
+            displayContent.getDockedDividerController().checkMinimizeChanged(animate);
+        }
+    }
+
+}
+
+public class DockedStackDividerController {
+
+    void checkMinimizeChanged(boolean animate) {
+        
+        ------------------------------------------------------------
+
+        setMinimizedDockedStack(homeVisible || minimizedForRecentsAnimation, animate);
+
+    }
+
+}
+
 ```
 
 
-## Trace
+## setMinimizedDockedStack Trace
 
 ```txt
 
