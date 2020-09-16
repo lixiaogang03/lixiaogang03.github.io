@@ -1,8 +1,8 @@
 ---
 layout:     post
-title:      Android StatusBar
+title:      Android P StatusBar
 subtitle:   StatusBarManagerService
-date:       2020-05-22
+date:       2020-09-16
 author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
@@ -11,7 +11,7 @@ tags:
     - statusbar
 ---
 
-[控制系统界面可见性](https://developer.android.google.cn/training/system-ui?hl=zh-cn)
+
 
 
 
