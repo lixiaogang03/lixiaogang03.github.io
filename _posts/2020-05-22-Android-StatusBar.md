@@ -11,7 +11,7 @@ tags:
     - statusbar
 ---
 
-[十分钟了解Android触摸事件原理-简书](https://www.jianshu.com/p/f05d6b05ba17)
+[十分钟了解Android触摸事件原理-简书](https://www.jianshu.com/p/0a72736a9a4a)
 
 ## View
 
@@ -57,6 +57,16 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
 }
 
 ```
+
+## 触摸事件模型
+
+![touch_event](/images/view/touch_event.webp)
+
+## 触摸时间派发
+
+![touch_event_dispatch](/images/view/touch_event_dispatch.webp)
+
+
 
 
 
