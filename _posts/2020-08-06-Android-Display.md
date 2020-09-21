@@ -12,6 +12,8 @@ tags:
 
 [Android Display的初始化-简书](https://www.jianshu.com/p/764c132a5026)
 
+[单手模式的实现-简书](https://github.com/komamj/SingleHandMode)
+
 ## DMS
 
 ![display_manager](/images/wms/display_manager.png)
@@ -372,6 +374,160 @@ public class ActivityStackSupervisor extends ConfigurationContainer implements D
 
 ## App Display
 
+### DisplayManagerGlobal
+
+```java
+
+public final class DisplayManagerGlobal {
+    private static final String TAG = "DisplayManager";
+
+
+    private final SparseArray<DisplayInfo> mDisplayInfoCache = new SparseArray<DisplayInfo>();
+
+    /**
+     * Gets an instance of the display manager global singleton.
+     *
+     * @return The display manager instance, may be null early in system startup
+     * before the display manager has been fully initialized.
+     */
+    public static DisplayManagerGlobal getInstance() {
+        synchronized (DisplayManagerGlobal.class) {
+            if (sInstance == null) {
+                IBinder b = ServiceManager.getService(Context.DISPLAY_SERVICE);
+                if (b != null) {
+                    sInstance = new DisplayManagerGlobal(IDisplayManager.Stub.asInterface(b));
+                }
+            }
+            return sInstance;
+        }
+    }
+
+
+    public void addView(View view, ViewGroup.LayoutParams params,
+            Display display, Window parentWindow) {
+
+            ------------------------------------------------------------------
+
+            root = new ViewRootImpl(view.getContext(), display);
+
+            -----------------------------------------------------------------
+
+    }
+
+
+    /**
+     * Get information about a particular logical display.
+     *
+     * @param displayId The logical display id.
+     * @return Information about the specified display, or null if it does not exist.
+     * This object belongs to an internal cache and should be treated as if it were immutable.
+     */
+    public DisplayInfo getDisplayInfo(int displayId) {
+        try {
+            synchronized (mLock) {
+                DisplayInfo info;
+                if (USE_CACHE) {
+                    info = mDisplayInfoCache.get(displayId);
+                    if (info != null) {
+                        return info;
+                    }
+                }
+
+                info = mDm.getDisplayInfo(displayId);
+                if (info == null) {
+                    return null;
+                }
+
+                if (USE_CACHE) {
+                    mDisplayInfoCache.put(displayId, info);
+                }
+                registerCallbackIfNeededLocked();
+
+                if (DEBUG) {
+                    Log.d(TAG, "getDisplayInfo: displayId=" + displayId + ", info=" + info);
+                }
+                return info;
+            }
+        } catch (RemoteException ex) {
+            throw ex.rethrowFromSystemServer();
+        }
+    }
+
+    /**
+     * Gets information about a logical display.
+     *
+     * The display metrics may be adjusted to provide compatibility
+     * for legacy applications or limited screen areas.
+     *
+     * @param displayId The logical display id.
+     * @param resources Resources providing compatibility info.
+     * @return The display object, or null if there is no display with the given id.
+     */
+    public Display getCompatibleDisplay(int displayId, Resources resources) {
+        DisplayInfo displayInfo = getDisplayInfo(displayId);
+        if (displayInfo == null) {
+            return null;
+        }
+        return new Display(this, displayId, displayInfo, resources);
+    }
+
+}
+
+```
+
+## DMS Display
+
+### DisplayManagerService
+
+```java
+
+public final class DisplayManagerService extends SystemService {
+    private static final String TAG = "DisplayManagerService";
+
+    // List of all logical displays indexed by logical display id.
+    private final SparseArray<LogicalDisplay> mLogicalDisplays =
+            new SparseArray<LogicalDisplay>();
+
+
+    @VisibleForTesting
+    final class BinderService extends IDisplayManager.Stub {
+        /**
+         * Returns information about the specified logical display.
+         *
+         * @param displayId The logical display id.
+         * @return The logical display info, or null if the display does not exist.  The
+         * returned object must be treated as immutable.
+         */
+        @Override // Binder call
+        public DisplayInfo getDisplayInfo(int displayId) {
+            final int callingUid = Binder.getCallingUid();
+            final long token = Binder.clearCallingIdentity();
+            try {
+                return getDisplayInfoInternal(displayId, callingUid);
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
+        }
+    }
+
+    private DisplayInfo getDisplayInfoInternal(int displayId, int callingUid) {
+        synchronized (mSyncRoot) {
+            LogicalDisplay display = mLogicalDisplays.get(displayId);
+            if (display != null) {
+                DisplayInfo info = display.getDisplayInfoLocked();
+                if (info.hasAccess(callingUid)
+                        || isUidPresentOnDisplayInternal(callingUid, displayId)) {
+                    return info;
+                }
+            }
+            return null;
+        }
+    }
+
+}
+
+```
+
 ### ViewRootImpl
 
 ```java
@@ -429,6 +585,35 @@ public final class ViewRootImpl implements ViewParent,
      }
 
 }
+
+```
+
+### trace
+
+```txt
+
+D/MMM: getCompatibleDisplay-----2----: DisplayInfo{"内置屏幕", uniqueId "local:0", app 1200 x 1848, real 1200 x 1920, largest app 1920 x 1812, smallest app 1200 x 1092, mode 1, defaultMode 1, modes [{id=1, width=1200, height=1920, fps=60.000004}], colorMode 0, supportedColorModes [0], hdrCapabilities android.view.Display$HdrCapabilities@40f16308, rotation 0, density 240 (320.842 x 320.842) dpi, layerStack 0, appVsyncOff 1000000, presDeadline 16666666, type BUILT_IN, state ON, FLAG_SECURE, FLAG_SUPPORTS_PROTECTED_BUFFERS, removeMode 0}
+    java.lang.Throwable
+        at android.hardware.display.DisplayManagerGlobal.getCompatibleDisplay(DisplayManagerGlobal.java:187)
+        at android.app.ResourcesManager.getAdjustedDisplay(ResourcesManager.java:274)
+        at android.app.ResourcesManager.getDisplayMetrics(ResourcesManager.java:206)
+        at android.app.ResourcesManager.createResourcesImpl(ResourcesManager.java:512)
+        at android.app.ResourcesManager.getOrCreateResources(ResourcesManager.java:804)
+        at android.app.ResourcesManager.createBaseActivityResources(ResourcesManager.java:733)
+        at android.app.ContextImpl.createActivityContext(ContextImpl.java:2384)
+        at android.app.ActivityThread.createBaseContextForActivity(ActivityThread.java:3037)
+        at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2866)
+        at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:3087)
+        at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:78)
+        at android.app.servertransaction.TransactionExecutor.executeCallbacks(TransactionExecutor.java:108)
+        at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:68)
+        at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1817)
+        at android.os.Handler.dispatchMessage(Handler.java:106)
+        at android.os.Looper.loop(Looper.java:193)
+        at android.app.ActivityThread.main(ActivityThread.java:6746)
+        at java.lang.reflect.Method.invoke(Native Method)
+        at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:493)
+        at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:858)
 
 ```
 
