@@ -10,12 +10,17 @@ tags:
     - android
 ---
 
-## 类图
+[理解Android Context-Gityuan](http://gityuan.com/2017/04/09/android_context/)
+
+## Context作用域
+
+![](/images/app/context.png)
+
+## Resources类图
 
 ![ResourcesImpl](/images/app/ResourcesImpl.png)
 
-
-## 应用冷启动日志
+## 应用冷启动ResourcesManager日志
 
 ```txt
 
