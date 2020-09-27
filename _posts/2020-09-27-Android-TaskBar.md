@@ -140,6 +140,8 @@ public abstract class UIHostService extends Service implements UIHost {
 
 public class TaskbarController extends UIController {
 
+    private LinearLayout taskbar;
+
     private void drawTaskbar(UIHost host) {
 
         ----------------------------------------------------------------------
@@ -149,8 +151,11 @@ public class TaskbarController extends UIController {
         ---------------------------------------------------------------------
 
         layout = (LinearLayout) LayoutInflater.from(U.wrapContext(context)).inflate(layoutId, null);
+        taskbar = layout.findViewById(R.id.taskbar);
 
         ---------------------------------------------------------------------
+
+        startRefreshingRecents();
 
         host.addView(layout, params);
 
@@ -159,6 +164,43 @@ public class TaskbarController extends UIController {
 
     int getTaskbarLayoutId(String taskbarPosition) {
         int layoutId = R.layout.tb_taskbar_left;
+    }
+
+    // 获取最近启动的应用列表
+    private void startRefreshingRecents() {
+
+            updateRecentApps(true);
+
+    }
+
+
+    private void updateRecentApps(final boolean firstRefresh) {
+
+        ---------------------------------------------------------
+
+                        taskbar.removeAllViews();
+                        for(int i = 0; i < entries.size(); i++) {
+                            taskbar.addView(getView(entries, i));
+                        }
+
+        ---------------------------------------------------------
+    }
+
+    private View getView(List<AppEntry> list, int position) {
+        View convertView = View.inflate(context, R.layout.tb_icon, null);
+
+        ----------------------------------------------------------------
+
+        FrameLayout layout = convertView.findViewById(R.id.entry);
+        layout.setOnClickListener(view -> U.launchApp(
+                context,
+                entry,
+                null,
+                true,
+                false,
+                view
+        ));
+
     }
 
 }
@@ -186,6 +228,9 @@ public class StartMenuService extends UIHostService {
 
 public class StartMenuController extends UIController {
 
+    private StartMenuLayout layout;
+    private GridView startMenu;
+
     @Override
     public void onCreateHost(UIHost host) {
         init(context, host, () -> drawStartMenu(host));
@@ -196,6 +241,18 @@ public class StartMenuController extends UIController {
         layoutId = getStartMenuLayoutId(taskbarPosition);
 
         layout = (StartMenuLayout) LayoutInflater.from(U.wrapContext(context)).inflate(layoutId, null);
+
+
+        startMenu = layout.findViewById(R.id.start_menu);
+
+            startMenu.setOnItemClickListener((viewParent, view, position, id) -> {
+                hideStartMenu(true);
+
+                AppEntry entry = (AppEntry) viewParent.getAdapter().getItem(position);
+
+                // 启动应用
+                U.launchApp(context, entry, null, false, false, view);
+            });
 
         host.addView(layout, params);
 
@@ -208,4 +265,68 @@ public class StartMenuController extends UIController {
 }
 
 ```
+
+## 启动参数
+
+```java
+
+public class U {
+
+    private static void launchApp(final Context context,
+                                  final AppEntry entry,                 // 应用信息
+                                  final String windowSize,              // 窗口大小
+                                  final boolean launchedFromTaskbar,    // 是否从任务栏启动
+                                  final boolean isPersistentShortcut,
+                                  final boolean openInNewWindow,        // 是否在新的窗口打开
+                                  final ShortcutInfo shortcut,
+                                  final View view,
+                                  final Runnable onError) {
+        launchApp(context, launchedFromTaskbar, isPersistentShortcut, () ->
+                continueLaunchingApp(context, entry, windowSize, openInNewWindow, shortcut, view, onError)
+        );
+    }
+
+
+    private static void continueLaunchingApp(Context context,
+                                             AppEntry entry,
+                                             String windowSize,
+                                             boolean openInNewWindow,
+                                             ShortcutInfo shortcut,
+                                             View view,
+                                             Runnable onError) {
+
+        Intent intent = new Intent();
+        intent.setComponent(ComponentName.unflattenFromString(entry.getComponentName()));
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        // 关闭动画
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+        -------------------------------------------------------------------------------------------
+
+        // 获取启动参数
+        // android.activity.windowingMode=5 (freeform)
+        // android:activity.launchBounds=Rect(600, 36 - 1200, 1280)
+        Bundle bundle = getActivityOptionsBundle(context, type, windowSize, view, entry.getPackageName());
+
+        prepareToStartActivity(context, realOpenInNewWindow, () -> {
+                        context.startActivity(intent, bundle);
+        });
+
+        if(shouldCollapse(context, true)) {
+            sendBroadcast(context, ACTION_HIDE_TASKBAR);
+        } else {
+            sendBroadcast(context, ACTION_HIDE_START_MENU);
+        }
+    }
+
+}
+
+```
+
+
+
 
