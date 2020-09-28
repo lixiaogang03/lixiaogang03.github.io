@@ -327,6 +327,48 @@ public class U {
 
 ```
 
+## 主界面-AboutFragment
+
+```java
+
+public class AboutFragment extends SettingsFragment {
+
+    @Override
+    public boolean onPreferenceClick(final Preference p) {
+        final SharedPreferences pref = U.getSharedPreferences(getActivity());
+
+        switch(p.getKey()) {
+            case PREF_PREF_SCREEN_GENERAL:
+                navigateTo(new GeneralFragment());          // 常规设置
+                break;
+            case PREF_PREF_SCREEN_APPEARANCE:               // 外观
+                navigateTo(new AppearanceFragment());
+                break;
+            case PREF_PREF_SCREEN_RECENT_APPS:              // 最近应用
+                navigateTo(new RecentAppsFragment());
+                break;
+            case PREF_PREF_SCREEN_FREEFORM:
+                navigateTo(new FreeformModeFragment());     // 自由模式
+                break;
+            case PREF_PREF_SCREEN_DESKTOP_MODE:
+                navigateTo(new DesktopModeFragment());      // 桌面模式
+                break;
+            case PREF_PREF_SCREEN_ADVANCED:
+                navigateTo(new AdvancedFragment());         // 高级功能
+                break;
+        }
+
+        return super.onPreferenceClick(p);
+    }
+
+}
+
+```
+
+
+
+
+
 
 
 
