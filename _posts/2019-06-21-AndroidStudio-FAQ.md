@@ -10,6 +10,8 @@ tags:
     - androidstudio
 ---
 
+[AS快捷键](https://developer.android.google.cn/studio/intro/keyboard-shortcuts?hl=zh-cn)
+
 ## 常见问题解决方法
 
 ### gradle下载慢问题
