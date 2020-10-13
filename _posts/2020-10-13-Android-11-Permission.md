@@ -10,6 +10,14 @@ tags:
     - android
 ---
 
+## 类图
+
+![android_r_permission_2](/images/android_r/android_r_permission_2.png)
+
+## 时序图
+
+![android_r_permission_1](/images/android_r/android_r_permission_1.png)
+
 ## SystemServer
 
 ```java
