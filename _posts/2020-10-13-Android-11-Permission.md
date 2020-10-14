@@ -321,3 +321,249 @@ public final class SystemServiceRegistry {
 }
 
 ```
+
+## android 11 权限校验变更
+
+### ContextImpl
+
+```java
+
+class ContextImpl extends Context {
+
+    @Override
+    public int checkPermission(String permission, int pid, int uid) {
+        if (permission == null) {
+            throw new IllegalArgumentException("permission is null");
+        }
+        return PermissionManager.checkPermission(permission, pid, uid);
+    }
+
+}
+
+```
+
+### PermissionManager
+
+```java
+
+public final class PermissionManager {
+
+    /** @hide */
+    private static final PropertyInvalidatedCache<PermissionQuery, Integer> sPermissionCache =
+            new PropertyInvalidatedCache<PermissionQuery, Integer>(
+                    16, CACHE_KEY_PACKAGE_INFO) {
+                @Override
+                protected Integer recompute(PermissionQuery query) {
+                    return checkPermissionUncached(query.permission, query.pid, query.uid);
+                }
+            };
+
+    /** @hide */
+    public static int checkPermission(@Nullable String permission, int pid, int uid) {
+        return sPermissionCache.query(new PermissionQuery(permission, pid, uid));
+    }
+
+
+    private static final class PermissionQuery {
+        final String permission;
+        final int pid;
+        final int uid;
+
+        PermissionQuery(@Nullable String permission, int pid, int uid) {
+            this.permission = permission;
+            this.pid = pid;
+            this.uid = uid;
+        }
+    }
+
+    /* @hide */
+    private static int checkPermissionUncached(@Nullable String permission, int pid, int uid) {
+        final IActivityManager am = ActivityManager.getService();
+        if (am == null) {
+            // Well this is super awkward; we somehow don't have an active ActivityManager
+            // instance. If we're testing a root or system UID, then they totally have whatever
+            // permission this is.
+            final int appId = UserHandle.getAppId(uid);
+            if (appId == Process.ROOT_UID || appId == Process.SYSTEM_UID) {
+                Slog.w(TAG, "Missing ActivityManager; assuming " + uid + " holds " + permission);
+                return PackageManager.PERMISSION_GRANTED;
+            }
+            Slog.w(TAG, "Missing ActivityManager; assuming " + uid + " does not hold "
+                    + permission);
+            return PackageManager.PERMISSION_DENIED;
+        }
+        try {
+            return am.checkPermission(permission, pid, uid);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+}
+
+```
+
+### PropertyInvalidatedCache
+
+```java
+
+public abstract class PropertyInvalidatedCache<Query, Result> {
+
+    private final LinkedHashMap<Query, Result> mCache;
+
+    /**
+     * Get a value from the cache or recompute it.
+     */
+    public Result query(Query query) {
+
+        ------------------------------------------------------------------------------
+
+        for (;;) {
+
+            --------------------------------------------------------------------------
+
+            final Result result = recompute(query);
+            synchronized (mLock) {
+                // If someone else invalidated the cache while we did the recomputation, don't
+                // update the cache with a potentially stale result.
+                if (mLastSeenNonce == currentNonce && result != null) {
+                    mCache.put(query, result);
+                }
+                mMisses++;
+            }
+            return maybeCheckConsistency(query, result);
+        }
+    }
+
+}
+
+```
+
+### ActivityManagerService
+
+```java
+
+public class ActivityManagerService extends IActivityManager.Stub
+        implements Watchdog.Monitor, BatteryStatsImpl.BatteryCallback {
+
+    @Override
+    public int checkPermission(String permission, int pid, int uid) {
+        if (permission == null) {
+            return PackageManager.PERMISSION_DENIED;
+        }
+        return checkComponentPermission(permission, pid, uid, -1, true);
+    }
+
+    public static int checkComponentPermission(String permission, int pid, int uid,
+            int owningUid, boolean exported) {
+        if (pid == MY_PID) {
+            return PackageManager.PERMISSION_GRANTED;
+        }
+        // If there is an explicit permission being checked, and this is coming from a process
+        // that has been denied access to that permission, then just deny.  Ultimately this may
+        // not be quite right -- it means that even if the caller would have access for another
+        // reason (such as being the owner of the component it is trying to access), it would still
+        // fail.  This also means the system and root uids would be able to deny themselves
+        // access to permissions, which...  well okay. ¯\_(ツ)_/¯
+        if (permission != null) {
+            synchronized (sActiveProcessInfoSelfLocked) {
+                ProcessInfo procInfo = sActiveProcessInfoSelfLocked.get(pid);
+                if (procInfo != null && procInfo.deniedPermissions != null
+                        && procInfo.deniedPermissions.contains(permission)) {
+                    return PackageManager.PERMISSION_DENIED;
+                }
+            }
+        }
+        return ActivityManager.checkComponentPermission(permission, uid,
+                owningUid, exported);
+    }
+
+}
+
+```
+
+### ActivityManager
+
+```java
+
+public class ActivityManager {
+
+    /** @hide */
+    @UnsupportedAppUsage
+    public static int checkComponentPermission(String permission, int uid,
+            int owningUid, boolean exported) {
+
+        -------------------------------------------------------------------
+
+        try {
+            return AppGlobals.getPackageManager()
+                    .checkUidPermission(permission, uid);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+    }
+
+}
+
+```
+
+### PackageManagerService
+
+```java
+
+public class PackageManagerService extends IPackageManager.Stub
+        implements PackageSender {
+
+
+    // NOTE: Can't remove without a major refactor. Keep around for now.
+    @Override
+    public int checkUidPermission(String permName, int uid) {
+        try {
+            // Because this is accessed via the package manager service AIDL,
+            // go through the permission manager service AIDL
+            return mPermissionManagerService.checkUidPermission(permName, uid);
+        } catch (RemoteException ignore) { }
+        return PackageManager.PERMISSION_DENIED;
+    }
+
+}
+
+```
+
+### PermissionManagerService
+
+```java
+
+public class PermissionManagerService extends IPermissionManager.Stub {
+
+    @Override
+    public int checkUidPermission(String permName, int uid) {
+        // Not using Objects.requireNonNull() here for compatibility reasons.
+        if (permName == null) {
+            return PackageManager.PERMISSION_DENIED;
+        }
+        final int userId = UserHandle.getUserId(uid);
+        if (!mUserManagerInt.exists(userId)) {
+            return PackageManager.PERMISSION_DENIED;
+        }
+
+        final CheckPermissionDelegate checkPermissionDelegate;
+        synchronized (mLock) {
+            checkPermissionDelegate = mCheckPermissionDelegate;
+        }
+        if (checkPermissionDelegate == null)  {
+            return checkUidPermissionImpl(permName, uid);
+        }
+        return checkPermissionDelegate.checkUidPermission(permName, uid,
+                this::checkUidPermissionImpl);
+    }
+
+}
+
+```
+
+
+
+
+
+
