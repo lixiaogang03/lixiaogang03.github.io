@@ -711,6 +711,169 @@ public final class PermissionsState {
 
 ```
 
+## 调试 dumpsys package
+
+```txt
+
+generic_x86_arm:/ $ dumpsys package -h
+Package manager dump options:
+  [-h] [-f] [--checkin] [--all-components] [cmd] ...
+    --checkin: dump for a checkin
+    -f: print details of intent filters
+    -h: print this help
+    --all-components: include all component names in package dump
+  cmd may be one of:
+    apex: list active APEXes and APEX session state
+    l[ibraries]: list known shared libraries
+    f[eatures]: list device features
+    k[eysets]: print known keysets
+    r[esolvers] [activity|service|receiver|content]: dump intent resolvers
+    perm[issions]: dump permissions
+    permission [name ...]: dump declaration and use of given permission
+    pref[erred]: print preferred package settings
+    preferred-xml [--full]: print preferred package settings as xml
+    prov[iders]: dump content providers
+    p[ackages]: dump installed packages
+    q[ueries]: dump app queryability calculations
+    s[hared-users]: dump shared user IDs
+    m[essages]: print collected runtime messages
+    v[erifiers]: print package verifier info
+    d[omain-preferred-apps]: print domains preferred apps
+    i[ntent-filter-verifiers]|ifv: print intent filter verifier info
+    version: print database version info
+    write: write current settings now
+    installs: details about install sessions
+    check-permission <permission> <package> [<user>]: does pkg hold perm?
+    dexopt: dump dexopt state
+    compiler-stats: dump compiler statistics
+    service-permissions: dump permissions required by services
+    <package.name>: info about given package
+
+```
+
+## dumpsys package packagename
+
+```txt
+
+generic_x86_arm:/ $ dumpsys package com.sunmi.displaydemo
+Activity Resolver Table:
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        65c8be5 com.sunmi.displaydemo/.MainActivity filter 2586ba
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+
+Key Set Manager:
+  [com.sunmi.displaydemo]
+      Signing KeySets: 33
+
+Packages:
+  Package [com.sunmi.displaydemo] (368e481):
+    userId=10152
+    pkg=Package{60ec926 com.sunmi.displaydemo}
+    codePath=/data/app/~~DBqq7mV3srVVGpM_fd20wQ==/com.sunmi.displaydemo-cTBH9g95Necb_htjCdQlOg==
+    resourcePath=/data/app/~~DBqq7mV3srVVGpM_fd20wQ==/com.sunmi.displaydemo-cTBH9g95Necb_htjCdQlOg==
+    legacyNativeLibraryDir=/data/app/~~DBqq7mV3srVVGpM_fd20wQ==/com.sunmi.displaydemo-cTBH9g95Necb_htjCdQlOg==/lib
+    primaryCpuAbi=null
+    secondaryCpuAbi=null
+    versionCode=1 minSdk=29 targetSdk=30
+    versionName=1.0
+    splits=[base]
+    apkSigningVersion=2
+    applicationInfo=ApplicationInfo{60ec926 com.sunmi.displaydemo}
+    flags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA TEST_ONLY ALLOW_BACKUP ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    queriesPackages=[]
+    dataDir=/data/user/0/com.sunmi.displaydemo
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2020-10-13 09:51:33
+    firstInstallTime=2020-10-13 09:51:33
+    lastUpdateTime=2020-10-13 09:51:33
+    signatures=PackageSignatures{ef96967 version:2, signatures:[acbaf040], past signatures:[]}
+    installPermissionsFixed=true
+    pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA TEST_ONLY ALLOW_BACKUP ]
+    requested permissions:
+      android.permission.CAMERA
+      android.permission.ACCESS_BACKGROUND_LOCATION: restricted=true
+      android.permission.ACCESS_COARSE_LOCATION
+      android.permission.ACCESS_FINE_LOCATION
+    User 0: ceDataInode=131478 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false
+      runtime permissions:
+        android.permission.ACCESS_FINE_LOCATION: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|ONE_TIME]
+        android.permission.ACCESS_COARSE_LOCATION: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|ONE_TIME]
+        android.permission.CAMERA: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|ONE_TIME]
+        android.permission.ACCESS_BACKGROUND_LOCATION: granted=false, flags=[ USER_SET|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|RESTRICTION_INSTALLER_EXEMPT]
+
+Queries:
+  system apps queryable: false
+  queries via package name:
+  queries via intent:
+  queryable via interaction:
+    User 0:
+      [com.android.localtransport,com.android.location.fused,com.android.wallpaperbackup,com.android.settings,com.android.keychain,com.android.providers.settings,com.android.inputdevices,com.android.server.telecom,android,com.android.dynsystem,com.android.emulator.multidisplay]:
+        com.sunmi.displaydemo
+      com.google.android.inputmethod.latin:
+        com.sunmi.displaydemo
+      com.google.android.permissioncontroller:
+        com.sunmi.displaydemo
+
+Package Changes:
+  Sequence number=479
+  User 0:
+    seq=0, package=com.google.android.permissioncontroller
+    seq=1, package=com.android.systemui
+    seq=4, package=com.google.android.cellbroadcastreceiver
+    seq=114, package=com.google.android.dialer
+    seq=116, package=com.google.android.sdksetup
+    seq=117, package=com.google.android.inputmethod.latin
+    seq=124, package=com.google.android.youtube
+    seq=139, package=com.google.android.music
+    seq=276, package=com.google.android.partnersetup
+    seq=380, package=com.google.android.gsf
+    seq=386, package=com.google.android.calendar
+    seq=388, package=com.android.camera2
+    seq=389, package=com.google.android.apps.docs
+    seq=413, package=com.android.nfc
+    seq=417, package=com.android.stk
+    seq=419, package=com.android.traceur
+    seq=420, package=com.google.android.apps.maps
+    seq=430, package=com.google.android.apps.photos
+    seq=432, package=com.android.vending
+    seq=447, package=com.google.android.apps.enterprise.dmagent
+    seq=455, package=com.google.android.projection.gearhead
+    seq=456, package=com.google.android.setupwizard
+    seq=461, package=com.google.android.videos
+    seq=462, package=com.google.android.apps.messaging
+    seq=471, package=com.android.settings
+    seq=472, package=com.google.android.gm
+    seq=473, package=com.google.android.gms
+    seq=474, package=com.google.android.googlequicksearchbox
+    seq=478, package=com.sunmi.displaydemo
+
+
+Dexopt state:
+  [com.sunmi.displaydemo]
+    path: /data/app/~~DBqq7mV3srVVGpM_fd20wQ==/com.sunmi.displaydemo-cTBH9g95Necb_htjCdQlOg==/base.apk
+      x86: [status=run-from-apk] [reason=unknown]
+
+
+Compiler stats:
+  [com.sunmi.displaydemo]
+    (No recorded stats)
+
+APEX session state:
+
+Active APEX packages:
+
+
+Inactive APEX packages:
+
+
+Factory APEX packages:
+
+```
+
 
 
 
