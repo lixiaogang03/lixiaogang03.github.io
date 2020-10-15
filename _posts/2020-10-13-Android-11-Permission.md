@@ -562,6 +562,156 @@ public class PermissionManagerService extends IPermissionManager.Stub {
 
 ```
 
+## PMS 数据结构
+
+[Android包管理总结](https://www.jianshu.com/p/f47e45602ad2)
+
+![pms_permission](/images/android_r/pms_permission.png)
+
+### Settings
+
+```java
+
+public final class Settings {
+    private static final String TAG = "PackageSettings";
+
+    private final File mSettingsFilename;             // data/system/packages.xml
+    private final File mBackupSettingsFilename;
+    private final File mPackageListFilename;
+    private final File mStoppedPackagesFilename;
+    private final File mBackupStoppedPackagesFilename;
+    /** The top level directory in configfs for sdcardfs to push the package->uid,userId mappings */
+    private final File mKernelMappingFilename;
+
+    /** Map from package name to settings */
+    final ArrayMap<String, PackageSetting> mPackages = new ArrayMap<>();  // 所有应用的配置信息
+
+    Settings(File dataDir, PermissionSettings permission,
+            Object lock) {
+        mLock = lock;
+        mPermissions = permission;
+        mRuntimePermissionsPersistence = new RuntimePermissionPersistence(mLock);
+
+        mSystemDir = new File(dataDir, "system");
+        mSystemDir.mkdirs();
+        FileUtils.setPermissions(mSystemDir.toString(),
+                FileUtils.S_IRWXU|FileUtils.S_IRWXG
+                |FileUtils.S_IROTH|FileUtils.S_IXOTH,
+                -1, -1);
+        mSettingsFilename = new File(mSystemDir, "packages.xml");                           // data/system/packages.xml
+        mBackupSettingsFilename = new File(mSystemDir, "packages-backup.xml");
+        mPackageListFilename = new File(mSystemDir, "packages.list");
+        FileUtils.setPermissions(mPackageListFilename, 0640, SYSTEM_UID, PACKAGE_INFO_GID);
+
+        final File kernelDir = new File("/config/sdcardfs");
+        mKernelMappingFilename = kernelDir.exists() ? kernelDir : null;
+
+        // Deprecated: Needed for migration
+        mStoppedPackagesFilename = new File(mSystemDir, "packages-stopped.xml");
+        mBackupStoppedPackagesFilename = new File(mSystemDir, "packages-stopped-backup.xml");
+    }
+}
+
+```
+
+### PackageSetting
+
+```java
+
+public class PackageSetting extends PackageSettingBase {
+
+    int appId;
+
+    @Nullable
+    public AndroidPackage pkg;
+    /**
+     * WARNING. The object reference is important. We perform integer equality and NOT
+     * object equality to check whether shared user settings are the same.
+     */
+    SharedUserSetting sharedUser;
+    /**
+     * Temporary holding space for the shared user ID. While parsing package settings, the
+     * shared users tag may come after the packages. In this case, we must delay linking the
+     * shared user setting with the package setting. The shared user ID lets us link the
+     * two objects.
+     */
+    private int sharedUserId;
+
+    @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
+    public PackageSetting(String name, String realName, File codePath, File resourcePath,
+            String legacyNativeLibraryPathString, String primaryCpuAbiString,
+            String secondaryCpuAbiString, String cpuAbiOverrideString,
+            long pVersionCode, int pkgFlags, int privateFlags,
+            int sharedUserId, String[] usesStaticLibraries,
+            long[] usesStaticLibrariesVersions, Map<String, ArraySet<String>> mimeGroups) {
+        super(name, realName, codePath, resourcePath, legacyNativeLibraryPathString,
+                primaryCpuAbiString, secondaryCpuAbiString, cpuAbiOverrideString,
+                pVersionCode, pkgFlags, privateFlags,
+                usesStaticLibraries, usesStaticLibrariesVersions);
+        this.sharedUserId = sharedUserId;
+        copyMimeGroups(mimeGroups);
+    }
+
+    public boolean isPrivileged() {
+        return (pkgPrivateFlags & ApplicationInfo.PRIVATE_FLAG_PRIVILEGED) != 0;
+    }
+
+    public boolean isSystem() {
+        return (pkgFlags & ApplicationInfo.FLAG_SYSTEM) != 0;
+    }
+
+    @Override
+    public PermissionsState getPermissionsState() {
+        return (sharedUser != null)
+                ? sharedUser.getPermissionsState()
+                : super.getPermissionsState();
+    }
+
+}
+
+```
+
+### PermissionsState
+
+```java
+
+public final class PermissionsState {
+
+    @GuardedBy("mLock")
+    private ArrayMap<String, PermissionData> mPermissions;
+
+
+    // 授权动作在此类中实现
+    private static final class PermissionData {
+
+        private final BasePermission mPerm;
+
+        // 多用户权限使用
+        @GuardedBy("mLock")
+        private SparseArray<PermissionState> mUserStates = new SparseArray<>();
+
+
+        public boolean isGranted(int userId) {}
+
+        public boolean grant(int userId) {}
+
+        public boolean revoke(int userId) {}
+
+        public PermissionState getPermissionState(int userId) {}
+
+    }
+
+    public static final class PermissionState {
+        private final String mName;
+        private boolean mGranted;
+        private int mFlags;
+    }
+
+}
+
+```
+
+
 
 
 
