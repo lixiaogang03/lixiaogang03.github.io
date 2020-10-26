@@ -16,7 +16,9 @@ tags:
 
 ![immesive_mode](/images/statusbar/immesive_mode.png)
 
-## WindowInsets
+## Android 9
+
+### WindowInsets
 
 在Android源码的注释中解释为 window content 的一系列插入集合，final 型，不可修改，但后期可能继续扩展。其主要成员包括 mSystemWindowInsets， mWindowDecorInsets， mStableInsets。
 
@@ -119,7 +121,7 @@ public final class WindowInsets {
 
 ```
 
-## View
+### View
 
 ```java
 
@@ -160,11 +162,55 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
         return insets;
     }
 
+    @Deprecated
+    protected boolean fitSystemWindows(Rect insets) {
+        if ((mPrivateFlags3 & PFLAG3_APPLYING_INSETS) == 0) {
+            if (insets == null) {
+                // Null insets by definition have already been consumed.
+                // This call cannot apply insets since there are none to apply,
+                // so return false.
+                return false;
+            }
+            // If we're not in the process of dispatching the newer apply insets call,
+            // that means we're not in the compatibility path. Dispatch into the newer
+            // apply insets path and take things from there.
+            try {
+                mPrivateFlags3 |= PFLAG3_FITTING_SYSTEM_WINDOWS;
+                return dispatchApplyWindowInsets(new WindowInsets(insets)).isConsumed();
+            } finally {
+                mPrivateFlags3 &= ~PFLAG3_FITTING_SYSTEM_WINDOWS;
+            }
+        } else {
+            // We're being called from the newer apply insets path.
+            // Perform the standard fallback behavior.
+            return fitSystemWindowsInt(insets);
+        }
+    }
+
+    private boolean fitSystemWindowsInt(Rect insets) {
+        if ((mViewFlags & FITS_SYSTEM_WINDOWS) == FITS_SYSTEM_WINDOWS) {
+            mUserPaddingStart = UNDEFINED_PADDING;
+            mUserPaddingEnd = UNDEFINED_PADDING;
+            Rect localInsets = sThreadLocal.get();
+            if (localInsets == null) {
+                localInsets = new Rect();
+                sThreadLocal.set(localInsets);
+            }
+            boolean res = computeFitSystemWindows(insets, localInsets);
+            mUserPaddingLeftInitial = localInsets.left;
+            mUserPaddingRightInitial = localInsets.right;
+            internalSetPadding(localInsets.left, localInsets.top,
+                    localInsets.right, localInsets.bottom);
+            return res;
+        }
+        return false;
+    }
+
 }
 
 ```
 
-## ViewGroup
+### ViewGroup
 
 ViewGroup自身也会Apply WindowInsets，如果该过程中没有消耗掉WindowInsets，则会继续传递给 child 处理WindwInsets，如果child中消耗了WindowInsets, 则会退出分发循环
 
@@ -185,6 +231,243 @@ public abstract class ViewGroup extends View implements ViewParent, ViewManager 
             }
         }
         return insets;
+    }
+
+}
+
+```
+
+### ViewRootImpl
+
+```java
+
+public final class ViewRootImpl implements ViewParent,
+        View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
+
+    void dispatchApplyInsets(View host) {
+        WindowInsets insets = getWindowInsets(true /* forceConstruct */);
+        final boolean dispatchCutout = (mWindowAttributes.layoutInDisplayCutoutMode
+                == LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS);
+        if (!dispatchCutout) {
+            // Window is either not laid out in cutout or the status bar inset takes care of
+            // clearing the cutout, so we don't need to dispatch the cutout to the hierarchy.
+            insets = insets.consumeDisplayCutout();
+        }
+        host.dispatchApplyWindowInsets(insets);
+    }
+
+    private void performTraversals() {
+
+        -----------------------------------------------------------------
+
+            dispatchApplyInsets(host);
+
+        ----------------------------------------------------------------
+
+    }
+
+}
+
+```
+
+## Android 11
+
+### WindowInsets
+
+```java
+
+public final class WindowInsets {
+
+    private final Insets[] mTypeInsetsMap;
+    private final Insets[] mTypeMaxInsetsMap;
+    private final boolean[] mTypeVisibilityMap;
+
+    @Nullable private Rect mTempRect;
+    private final boolean mIsRound;
+    @Nullable private final DisplayCutout mDisplayCutout;
+
+}
+
+```
+
+### WindowInsetsController
+
+```java
+
+/**
+ * Interface to control windows that generate insets.
+ *
+ * TODO(118118435): Needs more information and examples once the API is more baked.
+ */
+public interface WindowInsetsController {
+
+    int BEHAVIOR_SHOW_BARS_BY_TOUCH = 0;
+
+    int BEHAVIOR_SHOW_BARS_BY_SWIPE = 1;
+
+    int BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE = 2;
+
+    /**
+     * Determines the behavior of system bars when hiding them by calling {@link #hide}.
+     * @hide
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(value = {BEHAVIOR_SHOW_BARS_BY_TOUCH, BEHAVIOR_SHOW_BARS_BY_SWIPE,
+            BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE})
+    @interface Behavior {
+    }
+
+    void show(@InsetsType int types);
+
+    void hide(@InsetsType int types);
+
+    void setSystemBarsAppearance(@Appearance int appearance, @Appearance int mask);
+
+    @Appearance int getSystemBarsAppearance();
+
+}
+
+```
+
+### InsetsController
+
+```java
+
+/**
+ * Implements {@link WindowInsetsController} on the client.
+ * @hide
+ */
+public class InsetsController implements WindowInsetsController, InsetsAnimationControlCallbacks {
+
+
+    public interface Host {
+
+        /**
+         * @see WindowInsetsController#setSystemBarsAppearance
+         */
+        void setSystemBarsAppearance(@Appearance int appearance, @Appearance int mask);
+
+        /**
+         * @see WindowInsetsController#getSystemBarsAppearance()
+         */
+        @Appearance int getSystemBarsAppearance();
+
+        /**
+         * @see WindowInsetsController#setSystemBarsBehavior
+         */
+        void setSystemBarsBehavior(@Behavior int behavior);
+
+        /**
+         * @see WindowInsetsController#getSystemBarsBehavior
+         */
+        @Behavior int getSystemBarsBehavior();
+
+    }
+
+
+    public InsetsController(Host host) {}
+
+    @Override
+    public void setSystemBarsAppearance(@Appearance int appearance, @Appearance int mask) {
+        mHost.setSystemBarsAppearance(appearance, mask);
+    }
+
+    @Override
+    public @Appearance int getSystemBarsAppearance() {
+        return mHost.getSystemBarsAppearance();
+    }
+
+    @Override
+    public void setCaptionInsetsHeight(int height) {
+        mCaptionInsetsHeight = height;
+    }
+
+    @Override
+    public void setSystemBarsBehavior(@Behavior int behavior) {
+        mHost.setSystemBarsBehavior(behavior);
+    }
+
+    @Override
+    public @Appearance int getSystemBarsBehavior() {
+        return mHost.getSystemBarsBehavior();
+    }
+
+}
+
+```
+
+### ViewRootImpl
+
+```java
+
+public final class ViewRootImpl implements ViewParent,
+        View.AttachInfo.Callbacks, ThreadedRenderer.DrawCallbacks {
+
+    private final InsetsController mInsetsController;
+    private final ImeFocusController mImeFocusController;
+
+    public ViewRootImpl(Context context, Display display, IWindowSession session,
+            boolean useSfChoreographer) {
+
+        mInsetsController = new InsetsController(new ViewRootInsetsControllerHost(this));
+
+    }
+
+    private void showInsets(@InsetsType int types, boolean fromIme) {
+        mHandler.obtainMessage(MSG_SHOW_INSETS, types, fromIme ? 1 : 0).sendToTarget();
+    }
+
+    private void hideInsets(@InsetsType int types, boolean fromIme) {
+        mHandler.obtainMessage(MSG_HIDE_INSETS, types, fromIme ? 1 : 0).sendToTarget();
+    }
+
+}
+
+```
+
+### ViewRootInsetsControllerHost
+
+```java
+
+public class ViewRootInsetsControllerHost implements InsetsController.Host {
+
+    @Override
+    public void setSystemBarsAppearance(int appearance, int mask) {
+        mViewRoot.mWindowAttributes.privateFlags |= PRIVATE_FLAG_APPEARANCE_CONTROLLED;
+        final InsetsFlags insetsFlags = mViewRoot.mWindowAttributes.insetsFlags;
+        if (insetsFlags.appearance != appearance) {
+            insetsFlags.appearance = (insetsFlags.appearance & ~mask) | (appearance & mask);
+            mViewRoot.mWindowAttributesChanged = true;
+            mViewRoot.scheduleTraversals();
+        }
+    }
+
+    @Override
+    public int getSystemBarsAppearance() {
+        if ((mViewRoot.mWindowAttributes.privateFlags & PRIVATE_FLAG_APPEARANCE_CONTROLLED) == 0) {
+            // We only return the requested appearance, not the implied one.
+            return 0;
+        }
+        return mViewRoot.mWindowAttributes.insetsFlags.appearance;
+    }
+
+    @Override
+    public void setSystemBarsBehavior(int behavior) {
+        mViewRoot.mWindowAttributes.privateFlags |= PRIVATE_FLAG_BEHAVIOR_CONTROLLED;
+        if (mViewRoot.mWindowAttributes.insetsFlags.behavior != behavior) {
+            mViewRoot.mWindowAttributes.insetsFlags.behavior = behavior;
+            mViewRoot.mWindowAttributesChanged = true;
+            mViewRoot.scheduleTraversals();
+        }
+    }
+
+    @Override
+    public int getSystemBarsBehavior() {
+        if ((mViewRoot.mWindowAttributes.privateFlags & PRIVATE_FLAG_BEHAVIOR_CONTROLLED) == 0) {
+            // We only return the requested behavior, not the implied one.
+            return 0;
+        }
+        return mViewRoot.mWindowAttributes.insetsFlags.behavior;
     }
 
 }
