@@ -12,7 +12,11 @@ tags:
 
 ## 安装Docker
 
-> curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+```txt
+
+$ curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+
+```
 
 ## 编译Image
 
@@ -116,11 +120,11 @@ FAILED: out/target/common/obj/JAVA_LIBRARIES/sdk_v16_intermediates/classes.jack
 /bin/bash -c "(mkdir -p out/target/common/obj/JAVA_LIBRARIES/sdk_v16_intermediates/classes.jack.tmpjill.res ) && (unzip -qo prebuilts/sdk/16/android.jar -d out/target/common/obj/JAVA_LIBRARIES/sdk_v16_intermediates/classes.jack.tmpjill.res ) && (find out/target/common/obj/JAVA_LIBRARIES/sdk_v16_intermediates/classes.jack.tmpjill.res -iname \"*.class\" -delete ) && (JACK_VERSION=4.31.CANDIDATE out/host/linux-x86/bin/jack @build/core/jack-default.args    -D jack.import.resource.policy=keep-first -D jack.import.type.policy=keep-first -D jack.android.min-api-level=16 --import prebuilts/sdk/16/android.jar --import-resource out/target/common/obj/JAVA_LIBRARIES/sdk_v16_intermediates/classes.jack.tmpjill.res --output-jack out/target/common/obj/JAVA_LIBRARIES/sdk_v16_intermediates/classes.jack ) && (rm -rf out/target/common/obj/JAVA_LIBRARIES/sdk_v16_intermediates/classes.jack.tmpjill.res )"
 out/host/linux-x86/bin/jack: line 80: USER: unbound variable
 
-```
-
 解决方法：
 
 $ export USER=$(whoami)
+
+```
 
 ### 问题二
 
@@ -129,13 +133,14 @@ $ export USER=$(whoami)
 Notice file: system/extras/ext4_utils/NOTICE -- out-E8909/target/product/msm8909/obj/NOTICE_FILES/src//system/lib/libext4_utils_static.a.txt
 /bin/bash: mkisofs: command not found
 
-```
-
 解决方法：
 
 $ sudo apt-get update
 $ sudo apt-get install mkisofs
 $ sudo apt-get install genisoimage
+
+```
+
 
 
 
