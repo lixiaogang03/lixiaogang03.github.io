@@ -141,6 +141,22 @@ $ sudo apt-get install genisoimage
 
 ```
 
+### 问题三
+
+```txt
+
+/tmp/tmp.i3X3uQIvsx/bin/brillo_update_payload: line 368: xxd: command not found
+/tmp/tmp.i3X3uQIvsx/bin/brillo_update_payload: line 378: cgpt: command not found
+brillo_update_payload: error: Couldn't detect the image format of /aosp/project/dev/L2s_dev_backup/android/out/dist/merged-qssi_bengal-target_files.zip
+
+xxd is in vim common
+
+解决方法：
+
+1. sudo apt-get install cgpt
+2. sudo apt-get install vim-common
+
+```
 
 
 
