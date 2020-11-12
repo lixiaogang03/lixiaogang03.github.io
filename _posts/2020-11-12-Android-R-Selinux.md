@@ -92,9 +92,9 @@ allow untrusted_app_all gpu_service:service_manager find;
 
 ## 调试
 
-adb shell su root dmesg | grep 'avc: '
-
 ```txt
+
+adb shell su root dmesg | grep 'avc: '
 
 10-30 17:25:18.904   510   510 E SELinux : avc:  denied  { add } for pid=976 uid=1000 name=sunmi_perception_service scontext=u:r:system_server:s0 tcontext=u:object_r:default_android_service:s0 tclass=service_manager permissive=0
 10-30 17:25:37.514   510   510 E SELinux : avc:  denied  { find } for pid=1676 uid=1000 name=sunmi_perception_service scontext=u:r:system_server:s0 tcontext=u:object_r:default_android_service:s0 tclass=service_manager permissive=0
