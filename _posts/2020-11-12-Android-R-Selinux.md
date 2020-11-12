@@ -22,6 +22,7 @@ type activity_service, app_api_service, ephemeral_app_api_service, system_server
 type package_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type statusbar_service, app_api_service, ephemeral_app_api_service, system_server_service, service_manager_type;
 type nfc_service,               service_manager_type;
+type default_android_service,   service_manager_type;
 
 
 ```
@@ -34,6 +35,8 @@ activity                                  u:object_r:activity_service:s0
 package                                   u:object_r:package_service:s0
 statusbar                                 u:object_r:statusbar_service:s0
 nfc                                       u:object_r:nfc_service:s0
+window                                    u:object_r:window_service:s0
+*                                         u:object_r:default_android_service:s0
 
 ```
 
@@ -86,5 +89,29 @@ allow untrusted_app_all vr_manager_service:service_manager find;
 allow untrusted_app_all gpu_service:service_manager find;
 
 ```
+
+## 调试
+
+adb shell su root dmesg | grep 'avc: '
+
+```txt
+
+10-30 17:25:18.904   510   510 E SELinux : avc:  denied  { add } for pid=976 uid=1000 name=sunmi_perception_service scontext=u:r:system_server:s0 tcontext=u:object_r:default_android_service:s0 tclass=service_manager permissive=0
+10-30 17:25:37.514   510   510 E SELinux : avc:  denied  { find } for pid=1676 uid=1000 name=sunmi_perception_service scontext=u:r:system_server:s0 tcontext=u:object_r:default_android_service:s0 tclass=service_manager permissive=0
+10-30 17:25:37.520   510   510 E SELinux : avc:  denied  { find } for pid=1676 uid=1000 name=sunmi_system_server scontext=u:r:system_server:s0 tcontext=u:object_r:default_android_service:s0 tclass=service_manager permissive=0
+
+```
+
+以下是此拒绝事件的关键元素：
+
+* 操作 - 试图进行的操作会使用括号突出显示：read write 或 setenforce
+* 操作方 - scontext（来源环境）条目表示操作方；在此例中为 rmt_storage 守护程序
+* 对象 - tcontext（目标环境）条目表示对哪个对象执行操作；在此例中为 kmem
+* 结果 - tclass（目标类别）条目表示操作对象的类型；在此例中为 chr_file（字符设备）
+
+
+
+
+
 
 
