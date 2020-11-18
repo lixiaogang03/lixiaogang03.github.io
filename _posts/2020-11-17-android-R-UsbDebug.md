@@ -25,9 +25,8 @@ tags:
 Enter pairing code: 863900
 Successfully paired to 10.10.162.71:40473 [guid=adb-1faa4c6c-9wDPhJ]
 
-# adb connect ipaddr:port
-
-failed to connect to '10.10.162.71:40473': Connection refused
+$ adb connect 10.10.162.71:42491
+connected to 10.10.162.71:42491
 
 ```
 
@@ -394,7 +393,623 @@ failed to connect to '10.10.162.71:40473': Connection refused
 
 ```
 
+### 停用adb授权超时功能
 
+**WirelessDebuggingPreferenceController.java**
 
+```java
+
+    private void writeSetting(boolean isEnabled) {
+        long authTimeout = 0;
+        if (!isEnabled) {
+            authTimeout = Settings.Global.DEFAULT_ADB_ALLOWED_CONNECTION_TIME;
+        }
+        Settings.Global.putLong(mContext.getContentResolver(),
+                Settings.Global.ADB_ALLOWED_CONNECTION_TIME,
+                authTimeout);
+    }
+
+```
+
+## 调试服务
+
+**IAdbManager.aidl**
+
+```java
+
+interface IAdbManager {
+    /**
+     * Allow ADB debugging from the attached host. If {@code alwaysAllow} is
+     * {@code true}, add {@code publicKey} to list of host keys that the
+     * user has approved.
+     *
+     * @param alwaysAllow if true, add permanently to list of allowed keys
+     * @param publicKey RSA key in mincrypt format and Base64-encoded
+     */
+    void allowDebugging(boolean alwaysAllow, String publicKey);
+
+    /**
+     * Deny ADB debugging from the attached host.
+     */
+    void denyDebugging();
+
+    /**
+     * Clear all public keys installed for secure ADB debugging.
+     */
+    void clearDebuggingKeys();
+
+    /**
+     * Allow ADB wireless debugging on the connected network. If {@code alwaysAllow}
+     * is {@code true}, add {@code bssid} to list of networks that the user has
+     * approved.
+     *
+     * @param alwaysAllow if true, add permanently to list of allowed networks
+     * @param bssid BSSID of the network
+     */
+    void allowWirelessDebugging(boolean alwaysAllow, String bssid);
+
+    /**
+     * Deny ADB wireless debugging on the connected network.
+     */
+    void denyWirelessDebugging();
+
+    /**
+     * Returns a Map<String, PairDevice> with the key fingerprint mapped to the device information.
+     */
+    Map getPairedDevices();
+
+    /**
+     * Unpair the device identified by the key fingerprint it uses.
+     *
+     * @param fingerprint fingerprint of the key the device is using.
+     */
+    void unpairDevice(String fingerprint);
+
+    /**
+     * Enables pairing by pairing code. The result of the enable will be sent via intent action
+     * {@link android.debug.AdbManager#WIRELESS_DEBUG_ENABLE_DISCOVER_ACTION}. Furthermore, the
+     * pairing code will also be sent in the intent as an extra
+     * @{link android.debug.AdbManager#WIRELESS_PAIRING_CODE_EXTRA}. Note that only one
+     * pairing method can be enabled at a time, either by pairing code, or by QR code.
+     */
+    void enablePairingByPairingCode();
+
+    /**
+     * Enables pairing by QR code. The result of the enable will be sent via intent action
+     * {@link android.debug.AdbManager#WIRELESS_DEBUG_ENABLE_DISCOVER_ACTION}. Note that only one
+     * pairing method can be enabled at a time, either by pairing code, or by QR code.
+     *
+     * @param serviceName The MDNS service name parsed from the QR code.
+     * @param password The password parsed from the QR code.
+     */
+    void enablePairingByQrCode(String serviceName, String password);
+
+    /**
+     * Returns the network port that adb wireless server is running on.
+     */
+    int getAdbWirelessPort();
+
+    /**
+     * Disables pairing.
+     */
+    void disablePairing();
+
+    /**
+     * Returns true if device supports secure Adb over Wi-Fi.
+     */
+    boolean isAdbWifiSupported();
+
+    /**
+     * Returns true if device supports secure Adb over Wi-Fi and device pairing by
+     * QR code.
+     */
+    boolean isAdbWifiQrSupported();
+}
+
+```
+
+**AdbService**
+
+```java
+
+/**
+ * The Android Debug Bridge (ADB) service. This controls the availability of ADB and authorization
+ * of devices allowed to connect to ADB.
+ */
+public class AdbService extends IAdbManager.Stub {
+    /**
+     * Adb native daemon.
+     */
+    static final String ADBD = "adbd";
+
+    /**
+     * Command to start native service.
+     */
+    static final String CTL_START = "ctl.start";
+
+    /**
+     * Command to start native service.
+     */
+    static final String CTL_STOP = "ctl.stop";
+
+    /**
+     * The persistent property which stores whether adb is enabled or not.
+     * May also contain vendor-specific default functions for testing purposes.
+     */
+    private static final String USB_PERSISTENT_CONFIG_PROPERTY = "persist.sys.usb.config";
+    private static final String WIFI_PERSISTENT_CONFIG_PROPERTY = "persist.adb.tls_server.enable";
+
+    private AdbDebuggingManager mDebuggingManager;
+
+    private AdbService(Context context) {
+        mContext = context;
+        mContentResolver = context.getContentResolver();
+        mDebuggingManager = new AdbDebuggingManager(context);
+
+        initAdbState();
+        LocalServices.addService(AdbManagerInternal.class, new AdbManagerInternalImpl());
+    }
+
+    private void initAdbState() {
+        try {
+            /*
+             * Use the normal bootmode persistent prop to maintain state of adb across
+             * all boot modes.
+             */
+            mIsAdbUsbEnabled = containsFunction(
+                    SystemProperties.get(USB_PERSISTENT_CONFIG_PROPERTY, ""),
+                    UsbManager.USB_FUNCTION_ADB);
+            mIsAdbWifiEnabled = "1".equals(
+                    SystemProperties.get(WIFI_PERSISTENT_CONFIG_PROPERTY, "0"));
+
+            // register observer to listen for settings changes
+            mObserver = new AdbSettingsObserver();
+            mContentResolver.registerContentObserver(
+                    Settings.Global.getUriFor(Settings.Global.ADB_ENABLED),
+                    false, mObserver);
+            mContentResolver.registerContentObserver(
+                    Settings.Global.getUriFor(Settings.Global.ADB_WIFI_ENABLED),
+                    false, mObserver);
+        } catch (Exception e) {
+            Slog.e(TAG, "Error in initAdbState", e);
+        }
+    }
+
+    // 调试开关监听
+    private class AdbSettingsObserver extends ContentObserver {
+        private final Uri mAdbUsbUri = Settings.Global.getUriFor(Settings.Global.ADB_ENABLED);
+        private final Uri mAdbWifiUri = Settings.Global.getUriFor(Settings.Global.ADB_WIFI_ENABLED);
+
+        AdbSettingsObserver() {
+            super(null);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, @NonNull Uri uri, @UserIdInt int userId) {
+            if (mAdbUsbUri.equals(uri)) {
+                boolean shouldEnable = (Settings.Global.getInt(mContentResolver,
+                        Settings.Global.ADB_ENABLED, 0) > 0);
+                FgThread.getHandler().sendMessage(obtainMessage(
+                        AdbService::setAdbEnabled, AdbService.this, shouldEnable,
+                            AdbTransportType.USB));
+            } else if (mAdbWifiUri.equals(uri)) {
+                boolean shouldEnable = (Settings.Global.getInt(mContentResolver,
+                        Settings.Global.ADB_WIFI_ENABLED, 0) > 0);
+                FgThread.getHandler().sendMessage(obtainMessage(
+                        AdbService::setAdbEnabled, AdbService.this, shouldEnable,
+                            AdbTransportType.WIFI));
+            }
+        }
+    }
+
+    // 开启调试
+    private void setAdbEnabled(boolean enable, byte transportType) {
+        if (DEBUG) {
+            Slog.d(TAG, "setAdbEnabled(" + enable + "), mIsAdbUsbEnabled=" + mIsAdbUsbEnabled
+                    + ", mIsAdbWifiEnabled=" + mIsAdbWifiEnabled + ", transportType="
+                        + transportType);
+        }
+
+        if (transportType == AdbTransportType.USB && enable != mIsAdbUsbEnabled) {
+            mIsAdbUsbEnabled = enable;
+        } else if (transportType == AdbTransportType.WIFI && enable != mIsAdbWifiEnabled) {
+            mIsAdbWifiEnabled = enable;
+            if (mIsAdbWifiEnabled) {
+                if (!AdbProperties.secure().orElse(false) && mDebuggingManager == null) {
+                    // Start adbd. If this is secure adb, then we defer enabling adb over WiFi.
+                    SystemProperties.set(WIFI_PERSISTENT_CONFIG_PROPERTY, "1");
+                    mConnectionPortPoller =
+                            new AdbDebuggingManager.AdbConnectionPortPoller(mPortListener);
+                    mConnectionPortPoller.start();
+                }
+            } else {
+                // Stop adb over WiFi.
+                SystemProperties.set(WIFI_PERSISTENT_CONFIG_PROPERTY, "0");
+                if (mConnectionPortPoller != null) {
+                    mConnectionPortPoller.cancelAndWait();
+                    mConnectionPortPoller = null;
+                }
+            }
+        } else {
+            // No change
+            return;
+        }
+
+        if (enable) {
+            startAdbd();
+        } else {
+            stopAdbd();
+        }
+
+        for (IAdbTransport transport : mTransports.values()) {
+            try {
+                transport.onAdbEnabled(enable, transportType);
+            } catch (RemoteException e) {
+                Slog.w(TAG, "Unable to send onAdbEnabled to transport " + transport.toString());
+            }
+        }
+
+        if (mDebuggingManager != null) {
+            mDebuggingManager.setAdbEnabled(enable, transportType);
+        }
+    }
+
+    private void startAdbd() {
+        SystemProperties.set(CTL_START, ADBD);
+    }
+
+    private void stopAdbd() {
+        if (!mIsAdbUsbEnabled && !mIsAdbWifiEnabled) {
+            SystemProperties.set(CTL_STOP, ADBD);
+        }
+    }
+
+    @Override
+    public void allowDebugging(boolean alwaysAllow, @NonNull String publicKey) {
+        mContext.enforceCallingOrSelfPermission(android.Manifest.permission.MANAGE_DEBUGGING, null);
+        Preconditions.checkStringNotEmpty(publicKey);
+        if (mDebuggingManager != null) {
+            mDebuggingManager.allowDebugging(alwaysAllow, publicKey);
+        }
+    }
+
+    @Override
+    public void denyDebugging() {
+        mContext.enforceCallingOrSelfPermission(android.Manifest.permission.MANAGE_DEBUGGING, null);
+        if (mDebuggingManager != null) {
+            mDebuggingManager.denyDebugging();
+        }
+    }
+
+    @Override
+    public void clearDebuggingKeys() {
+        mContext.enforceCallingOrSelfPermission(android.Manifest.permission.MANAGE_DEBUGGING, null);
+        if (mDebuggingManager != null) {
+            mDebuggingManager.clearDebuggingKeys();
+        } else {
+            throw new RuntimeException("Cannot clear ADB debugging keys, "
+                    + "AdbDebuggingManager not enabled");
+        }
+    }
+
+    /**
+     * @return true if the device supports secure ADB over Wi-Fi.
+     * @hide
+     */
+    @Override
+    public boolean isAdbWifiSupported() {
+        mContext.enforceCallingPermission(
+                android.Manifest.permission.MANAGE_DEBUGGING, "AdbService");
+        return mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI);
+    }
+
+    /**
+     * @return true if the device supports secure ADB over Wi-Fi and device pairing by
+     * QR code.
+     * @hide
+     */
+    @Override
+    public boolean isAdbWifiQrSupported() {
+        mContext.enforceCallingPermission(
+                android.Manifest.permission.MANAGE_DEBUGGING, "AdbService");
+        return isAdbWifiSupported() && mContext.getPackageManager().hasSystemFeature(
+                PackageManager.FEATURE_CAMERA_ANY);
+    }
+
+    @Override
+    public void allowWirelessDebugging(boolean alwaysAllow, @NonNull String bssid) {
+        mContext.enforceCallingOrSelfPermission(android.Manifest.permission.MANAGE_DEBUGGING, null);
+        Preconditions.checkStringNotEmpty(bssid);
+        if (mDebuggingManager != null) {
+            mDebuggingManager.allowWirelessDebugging(alwaysAllow, bssid);
+        }
+    }
+
+    @Override
+    public void denyWirelessDebugging() {
+        mContext.enforceCallingOrSelfPermission(android.Manifest.permission.MANAGE_DEBUGGING, null);
+        if (mDebuggingManager != null) {
+            mDebuggingManager.denyWirelessDebugging();
+        }
+    }
+
+    @Override
+    public Map<String, PairDevice> getPairedDevices() {
+        mContext.enforceCallingOrSelfPermission(android.Manifest.permission.MANAGE_DEBUGGING, null);
+        if (mDebuggingManager != null) {
+            return mDebuggingManager.getPairedDevices();
+        }
+        return null;
+    }
+
+    @Override
+    public void unpairDevice(@NonNull String fingerprint) {
+        mContext.enforceCallingOrSelfPermission(android.Manifest.permission.MANAGE_DEBUGGING, null);
+        Preconditions.checkStringNotEmpty(fingerprint);
+        if (mDebuggingManager != null) {
+            mDebuggingManager.unpairDevice(fingerprint);
+        }
+    }
+
+    @Override
+    public void enablePairingByPairingCode() {
+        mContext.enforceCallingOrSelfPermission(android.Manifest.permission.MANAGE_DEBUGGING, null);
+        if (mDebuggingManager != null) {
+            mDebuggingManager.enablePairingByPairingCode();
+        }
+    }
+
+    @Override
+    public void enablePairingByQrCode(@NonNull String serviceName, @NonNull String password) {
+        mContext.enforceCallingOrSelfPermission(android.Manifest.permission.MANAGE_DEBUGGING, null);
+        Preconditions.checkStringNotEmpty(serviceName);
+        Preconditions.checkStringNotEmpty(password);
+        if (mDebuggingManager != null) {
+            mDebuggingManager.enablePairingByQrCode(serviceName, password);
+        }
+    }
+
+    @Override
+    public void disablePairing() {
+        mContext.enforceCallingOrSelfPermission(android.Manifest.permission.MANAGE_DEBUGGING, null);
+        if (mDebuggingManager != null) {
+            mDebuggingManager.disablePairing();
+        }
+    }
+
+    @Override
+    public int getAdbWirelessPort() {
+        mContext.enforceCallingOrSelfPermission(android.Manifest.permission.MANAGE_DEBUGGING, null);
+        if (mDebuggingManager != null) {
+            return mDebuggingManager.getAdbWirelessPort();
+        }
+        // If ro.adb.secure=0
+        return mConnectionPort.get();
+    }
+
+}
+
+```
+
+**AdbDebuggingManager**
+
+```java
+
+public class AdbDebuggingManager {
+
+    public void setAdbEnabled(boolean enabled, byte transportType) {
+        if (transportType == AdbTransportType.USB) {
+            mHandler.sendEmptyMessage(enabled ? AdbDebuggingHandler.MESSAGE_ADB_ENABLED
+                                              : AdbDebuggingHandler.MESSAGE_ADB_DISABLED);
+        } else if (transportType == AdbTransportType.WIFI) {
+            mHandler.sendEmptyMessage(enabled ? AdbDebuggingHandler.MSG_ADBDWIFI_ENABLE
+                                              : AdbDebuggingHandler.MSG_ADBDWIFI_DISABLE);
+        } else {
+            throw new IllegalArgumentException(
+                    "setAdbEnabled called with unimplemented transport type=" + transportType);
+        }
+    }
+
+    class AdbDebuggingHandler extends Handler {
+        static final int MESSAGE_ADB_ENABLED = 1;
+        static final int MESSAGE_ADB_DISABLED = 2;
+        static final int MESSAGE_ADB_ALLOW = 3;
+        static final int MESSAGE_ADB_DENY = 4;
+        static final int MESSAGE_ADB_CONFIRM = 5;
+        static final int MESSAGE_ADB_CLEAR = 6;
+        static final int MESSAGE_ADB_DISCONNECT = 7;
+        static final int MESSAGE_ADB_PERSIST_KEYSTORE = 8;
+        static final int MESSAGE_ADB_UPDATE_KEYSTORE = 9;
+        static final int MESSAGE_ADB_CONNECTED_KEY = 10;
+
+        // === Messages from the UI ==============
+        // UI asks adbd to enable adbdwifi
+        static final int MSG_ADBDWIFI_ENABLE = 11;
+        // UI asks adbd to disable adbdwifi
+        static final int MSG_ADBDWIFI_DISABLE = 12;
+        // Cancel pairing
+        static final int MSG_PAIRING_CANCEL = 14;
+        // Enable pairing by pairing code
+        static final int MSG_PAIR_PAIRING_CODE = 15;
+        // Enable pairing by QR code
+        static final int MSG_PAIR_QR_CODE = 16;
+        // UI asks to unpair (forget) a device.
+        static final int MSG_REQ_UNPAIR = 17;
+        // User allows debugging on the current network
+        static final int MSG_ADBWIFI_ALLOW = 18;
+        // User denies debugging on the current network
+        static final int MSG_ADBWIFI_DENY = 19;
+
+        // === Messages from the PairingThread ===========
+        // Result of the pairing
+        static final int MSG_RESPONSE_PAIRING_RESULT = 20;
+        // The port opened for pairing
+        static final int MSG_RESPONSE_PAIRING_PORT = 21;
+
+        // === Messages from adbd ================
+        // Notifies us a wifi device connected.
+        static final int MSG_WIFI_DEVICE_CONNECTED = 22;
+        // Notifies us a wifi device disconnected.
+        static final int MSG_WIFI_DEVICE_DISCONNECTED = 23;
+        // Notifies us the TLS server is connected and listening
+        static final int MSG_SERVER_CONNECTED = 24;
+        // Notifies us the TLS server is disconnected
+        static final int MSG_SERVER_DISCONNECTED = 25;
+        // Notification when adbd socket successfully connects.
+        static final int MSG_ADBD_SOCKET_CONNECTED = 26;
+        // Notification when adbd socket is disconnected.
+        static final int MSG_ADBD_SOCKET_DISCONNECTED = 27;
+
+        // === Messages we can send to adbd ===========
+        static final String MSG_DISCONNECT_DEVICE = "DD";
+        static final String MSG_DISABLE_ADBDWIFI = "DA";
+
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MESSAGE_ADB_ENABLED:
+                    if (mAdbUsbEnabled) {
+                        break;
+                    }
+                    startAdbDebuggingThread();
+                    mAdbUsbEnabled = true;
+                    break;
+                case MSG_ADBDWIFI_ENABLE: {
+                    if (mAdbWifiEnabled) {
+                        break;
+                    }
+
+                    AdbConnectionInfo currentInfo = getCurrentWifiApInfo();
+                    if (currentInfo == null) {
+                        Settings.Global.putInt(mContentResolver,
+                                Settings.Global.ADB_WIFI_ENABLED, 0);
+                        break;
+                    }
+
+                    if (!verifyWifiNetwork(currentInfo.getBSSID(),
+                            currentInfo.getSSID())) {
+                        // This means that the network is not in the list of trusted networks.
+                        // We'll give user a prompt on whether to allow wireless debugging on
+                        // the current wifi network.
+                        Settings.Global.putInt(mContentResolver,
+                                Settings.Global.ADB_WIFI_ENABLED, 0);
+                        break;
+                    }
+
+                    setAdbConnectionInfo(currentInfo);
+                    IntentFilter intentFilter =
+                            new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION);
+                    intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+                    mContext.registerReceiver(mBroadcastReceiver, intentFilter);
+
+                    SystemProperties.set(WIFI_PERSISTENT_CONFIG_PROPERTY, "1");
+                    mConnectionPortPoller =
+                            new AdbDebuggingManager.AdbConnectionPortPoller(mPortListener);
+                    mConnectionPortPoller.start();
+
+                    startAdbDebuggingThread();
+                    mAdbWifiEnabled = true;
+
+                    if (DEBUG) Slog.i(TAG, "adb start wireless adb");
+                    break;
+                    }
+                }
+        }
+
+        private void startAdbDebuggingThread() {
+            ++mAdbEnabledRefCount;
+            if (DEBUG) Slog.i(TAG, "startAdbDebuggingThread ref=" + mAdbEnabledRefCount);
+            if (mAdbEnabledRefCount > 1) {
+                return;
+            }
+
+            registerForAuthTimeChanges();
+            mThread = new AdbDebuggingThread();
+            mThread.start();
+
+            mAdbKeyStore.updateKeyStore();
+            scheduleJobToUpdateAdbKeyStore();
+        }
+
+    }
+
+    // 与adbd进程进行通讯
+    class AdbDebuggingThread extends Thread {
+
+        @Override
+        public void run() {
+            if (DEBUG) Slog.d(TAG, "Entering thread");
+            while (true) {
+                synchronized (this) {
+                    if (mStopped) {
+                        if (DEBUG) Slog.d(TAG, "Exiting thread");
+                        return;
+                    }
+                    try {
+                        openSocketLocked();
+                    } catch (Exception e) {
+                        /* Don't loop too fast if adbd dies, before init restarts it */
+                        SystemClock.sleep(1000);
+                    }
+                }
+                try {
+                    listenToSocket();
+                } catch (Exception e) {
+                    /* Don't loop too fast if adbd dies, before init restarts it */
+                    SystemClock.sleep(1000);
+                }
+            }
+        }
+
+        private void openSocketLocked() throws IOException {
+            try {
+                LocalSocketAddress address = new LocalSocketAddress(ADBD_SOCKET,
+                        LocalSocketAddress.Namespace.RESERVED);
+                mInputStream = null;
+
+                if (DEBUG) Slog.d(TAG, "Creating socket");
+                mSocket = new LocalSocket(LocalSocket.SOCKET_SEQPACKET);
+                mSocket.connect(address);
+
+                mOutputStream = mSocket.getOutputStream();
+                mInputStream = mSocket.getInputStream();
+                mHandler.sendEmptyMessage(AdbDebuggingHandler.MSG_ADBD_SOCKET_CONNECTED);
+            } catch (IOException ioe) {
+                Slog.e(TAG, "Caught an exception opening the socket: " + ioe);
+                closeSocketLocked();
+                throw ioe;
+            }
+        }
+    }
+
+}
+
+```
+
+## dumpsys adb
+
+```txt
+
+$ adb devices
+List of devices attached
+1faa4c6c	device
+10.10.162.71:42491	device
+
+$ dumpsys adb
+ADB MANAGER STATE (dumpsys adb):
+{
+  debugging_manager={
+    connected_to_adb=true
+    user_keys=QAAAAIFpKkR/KRDM04Q8mvugciY4O9rfbvRzmNXpidTdGFoREvrdb83KQWhUQPLlH4oZ5C8co/RDGEM/uiHqpHdMSA7j042Hl6x/yboggvhHBLiSFEhT1iiQDbWhPB2BSDwellhGs8eOpD99mTv9vgemBmXXvDLAnOeoAP4rvX939XCETilHy3Zzzf/bpLEfq4BZkio4+bHzzN7qxOxliwLlxFGXPOr/XnUvSq6DpAaX9LG8il4I5ipFxKH0myprcWuw+lu1cnswbSgDzcvKSWW2bzia8Vc5mEwmL7B/04WNRtx50QuvtmDWFmrya/NQ9JqzmdjLw2Op2t8N6WA/aXUA5duwzf3KDclaoTSXOBzr89J0Z1ne1+DG4drJx4Yh1moQ00Ibfru4K3OY29OjFJkOdyK5CK0WdVmD9MDIOIr9CVp0Unu1WIshcmECthVfmXSq8PdYWuG1338LA00fiDE2ahfoLVdxu4UH4XujJ8Nrw8Z5fyobQx/fqzGFoayvZfWdQIrhjz3Bv2XPNexh25Rk5B4FbpRJ4c0QUFoH8QwzP9ZW90fGXLjJ/Ew/p3lupjp2rhYBJTLhXLwYmaMtDO4zz3cXU/ZIn+TIBJDmr45um/1/4A+cwlhdnCtV3sKFVx3Zj1bZnYu6LvZkTHO7pm1TkZoRxRIiJJixUyyDWo0CNxa/fTQaMAEAAQA= lxg@lxg
+
+    keystore=<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+    <keyStore version="1">
+    <adbKey key="QAAAAIFpKkR/KRDM04Q8mvugciY4O9rfbvRzmNXpidTdGFoREvrdb83KQWhUQPLlH4oZ5C8co/RDGEM/uiHqpHdMSA7j042Hl6x/yboggvhHBLiSFEhT1iiQDbWhPB2BSDwellhGs8eOpD99mTv9vgemBmXXvDLAnOeoAP4rvX939XCETilHy3Zzzf/bpLEfq4BZkio4+bHzzN7qxOxliwLlxFGXPOr/XnUvSq6DpAaX9LG8il4I5ipFxKH0myprcWuw+lu1cnswbSgDzcvKSWW2bzia8Vc5mEwmL7B/04WNRtx50QuvtmDWFmrya/NQ9JqzmdjLw2Op2t8N6WA/aXUA5duwzf3KDclaoTSXOBzr89J0Z1ne1+DG4drJx4Yh1moQ00Ibfru4K3OY29OjFJkOdyK5CK0WdVmD9MDIOIr9CVp0Unu1WIshcmECthVfmXSq8PdYWuG1338LA00fiDE2ahfoLVdxu4UH4XujJ8Nrw8Z5fyobQx/fqzGFoayvZfWdQIrhjz3Bv2XPNexh25Rk5B4FbpRJ4c0QUFoH8QwzP9ZW90fGXLjJ/Ew/p3lupjp2rhYBJTLhXLwYmaMtDO4zz3cXU/ZIn+TIBJDmr45um/1/4A+cwlhdnCtV3sKFVx3Zj1bZnYu6LvZkTHO7pm1TkZoRxRIiJJixUyyDWo0CNxa/fTQaMAEAAQA= lxg@lxg" lastConnection="1605679423157" />
+    <wifiAP bssid="f8:e7:1e:0d:70:fc" />
+    </keyStore>
+
+  }
+}
+
+```
 
 
