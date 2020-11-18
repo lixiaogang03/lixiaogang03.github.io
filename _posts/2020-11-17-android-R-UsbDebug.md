@@ -12,14 +12,9 @@ tags:
 
 [android 11 无线调试-Google](https://developer.android.google.cn/studio/command-line/adb?hl=zh-cn)
 
-## 效果图
+## 调试菜单
 
 ![usb_debug_1](/images/usb/usb_debug_1.png)
-
-![usb_debug_3](/images/usb/usb_debug_3.png)
-
-![usb_debug_4](/images/usb/usb_debug_4.png)
-
 
 ## 调试命令
 
@@ -219,14 +214,84 @@ failed to connect to '10.10.162.71:40473': Connection refused
 
 ```java
 
+    private AdbWirelessDialog mPairingCodeDialog;
+
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (AdbManager.WIRELESS_DEBUG_PAIRED_DEVICES_ACTION.equals(action)) {
+                Map<String, PairDevice> newPairedDevicesList =
+                        (HashMap<String, PairDevice>) intent.getSerializableExtra(
+                            AdbManager.WIRELESS_DEVICES_EXTRA);
+            } else if (AdbManager.WIRELESS_DEBUG_STATE_CHANGED_ACTION.equals(action)) {
+                int status = intent.getIntExtra(AdbManager.WIRELESS_STATUS_EXTRA,
+                        AdbManager.WIRELESS_STATUS_DISCONNECTED);
+                if (status == AdbManager.WIRELESS_STATUS_CONNECTED
+                        || status == AdbManager.WIRELESS_STATUS_DISCONNECTED) {
+
+                }
+            } else if (AdbManager.WIRELESS_DEBUG_PAIRING_RESULT_ACTION.equals(action)) {
+                Integer res = intent.getIntExtra(
+                        AdbManager.WIRELESS_STATUS_EXTRA,
+                        AdbManager.WIRELESS_STATUS_FAIL);
+
+                if (res.equals(AdbManager.WIRELESS_STATUS_PAIRING_CODE)) {
+
+                } else if (res.equals(AdbManager.WIRELESS_STATUS_SUCCESS)) {
+
+                } else if (res.equals(AdbManager.WIRELESS_STATUS_FAIL)) {
+
+                } else if (res.equals(AdbManager.WIRELESS_STATUS_CONNECTED)) {
+
+                }
+            }
+        }
+    };
+
+    class PairingCodeDialogListener implements AdbWirelessDialog.AdbWirelessDialogListener {
+        @Override
+        public void onDismiss() {
+            Log.i(TAG, "onDismiss");
+            mPairingCodeDialog = null;
+            try {
+                mAdbManager.disablePairing();
+            } catch (RemoteException e) {
+                Log.e(TAG, "Unable to cancel pairing");
+            }
+        }
+    }
+
     @Override
     protected int getPreferenceScreenResId() {
         return R.xml.adb_wireless_settings;
     }
 
+    @Override
+    public Dialog onCreateDialog(int dialogId) {
+        Dialog d = AdbWirelessDialog.createModal(getActivity(),
+                dialogId == AdbWirelessDialogUiBase.MODE_PAIRING
+                    ? mPairingCodeDialogListener : null, dialogId);
+        if (dialogId == AdbWirelessDialogUiBase.MODE_PAIRING) {
+            mPairingCodeDialog = (AdbWirelessDialog) d;
+            try {
+                mAdbManager.enablePairingByPairingCode();
+            } catch (RemoteException e) {
+                Log.e(TAG, "Unable to enable pairing");
+                mPairingCodeDialog = null;
+                d = AdbWirelessDialog.createModal(getActivity(), null,
+                        AdbWirelessDialogUiBase.MODE_PAIRING_FAILED);
+            }
+        }
+        if (d != null) {
+            return d;
+        }
+        return super.onCreateDialog(dialogId);
+    }
+
 ```
 
-**AdbDeviceNamePreferenceController.java**
+**设备名称---AdbDeviceNamePreferenceController.java**
 
 ```java
 
@@ -244,7 +309,7 @@ failed to connect to '10.10.162.71:40473': Connection refused
 
 ```
 
-**AdbIpAddressPreferenceController.java**
+**IP地址和端口---AdbIpAddressPreferenceController.java**
 
 ```java
 
@@ -272,6 +337,62 @@ failed to connect to '10.10.162.71:40473': Connection refused
 
 ```
 
+**二维码配对---AdbQrCodePreferenceController.java**
+
+```java
+
+    @Override
+    public boolean handlePreferenceTreeClick(Preference preference) {
+        if (!TextUtils.equals(preference.getKey(), getPreferenceKey())) {
+            return false;
+        }
+
+        new SubSettingLauncher(preference.getContext())
+                .setDestination(AdbQrcodeScannerFragment.class.getName())
+                .setSourceMetricsCategory(SettingsEnums.SETTINGS_ADB_WIRELESS)
+                .setResultListener(mParentFragment,
+                    WirelessDebuggingFragment.PAIRING_DEVICE_REQUEST)
+                .launch();
+        return true;
+    }
+
+```
+
+**配对码配对---AdbWirelessDialog.java**
+
+![usb_debug_3](/images/usb/usb_debug_3.png)
+
+```java
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        mView = getLayoutInflater().inflate(R.layout.adb_wireless_dialog, null);
+        setView(mView);
+        mController = new AdbWirelessDialogController(this, mView, mMode);
+        super.onCreate(savedInstanceState);
+    }
+
+```
+
+**已经配对的设备**
+
+![usb_debug_4](/images/usb/usb_debug_4.png)
+
+```java
+
+    private void launchPairedDeviceDetailsFragment(AdbPairedDevicePreference p) {
+        // For sending to the device details fragment.
+        p.savePairedDeviceToExtras(p.getExtras());
+        new SubSettingLauncher(getContext())
+                .setTitleRes(R.string.adb_wireless_device_details_title)
+                .setDestination(AdbDeviceDetailsFragment.class.getName())
+                .setArguments(p.getExtras())
+                .setSourceMetricsCategory(getMetricsCategory())
+                .setResultListener(this, PAIRED_DEVICE_REQUEST)
+                .launch();
+    }
+
+```
 
 
 
