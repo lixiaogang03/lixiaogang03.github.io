@@ -85,6 +85,43 @@ connected to 10.10.162.71:42491
 
 ```
 
+**SystemUI---UsbDebuggingActivity**
+
+![usb_debug_fingerprint](/images/usb/usb_debug_fingerprint.png)
+
+```java
+
+public class UsbDebuggingActivity extends AlertActivity
+                                  implements DialogInterface.OnClickListener {
+
+
+    /**
+     * Notifies the ADB service as to whether the current ADB request should be allowed, and if
+     * subsequent requests from this key should be allowed without user consent.
+     *
+     * @param allow whether the connection should be allowed
+     * @param alwaysAllow whether subsequent requests from this key should be allowed without user
+     *                    consent
+     */
+    private void notifyService(boolean allow, boolean alwaysAllow) {
+        try {
+            IBinder b = ServiceManager.getService(ADB_SERVICE);
+            IAdbManager service = IAdbManager.Stub.asInterface(b);
+            if (allow) {
+                service.allowDebugging(alwaysAllow, mKey);
+            } else {
+                service.denyDebugging();
+            }
+            mServiceNotified = true;
+        } catch (Exception e) {
+            Log.e(TAG, "Unable to notify Usb service", e);
+        }
+    }
+
+}
+
+```
+
 ### 撤消 USB 调试授权
 
 **ClearAdbKeysPreferenceController.java**
@@ -111,6 +148,39 @@ connected to 10.10.162.71:42491
 ```
 
 ### 无线调试
+
+![usb_debug_wifi](/images/usb/usb_debug_wifi.png)
+
+**SystemUI---WifiDebuggingActivity.java**
+
+```java
+
+public class WifiDebuggingActivity extends AlertActivity
+                                  implements DialogInterface.OnClickListener {
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        mClicked = true;
+        boolean allow = (which == AlertDialog.BUTTON_POSITIVE);
+        boolean alwaysAllow = allow && mAlwaysAllow.isChecked();
+        try {
+            IBinder b = ServiceManager.getService(ADB_SERVICE);
+            IAdbManager service = IAdbManager.Stub.asInterface(b);
+            if (allow) {
+                service.allowWirelessDebugging(alwaysAllow, mBssid);
+            } else {
+                service.denyWirelessDebugging();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Unable to notify Adb service", e);
+        }
+        finish();
+    }
+
+}
+
+```
+
 
 **WirelessDebuggingPreferenceController.java**
 
