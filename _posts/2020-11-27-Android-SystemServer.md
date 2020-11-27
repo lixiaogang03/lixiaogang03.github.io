@@ -11,6 +11,8 @@ tags:
     - android
 ---
 
+[进程的Binder线程池工作过程-Gityuan](http://gityuan.com/2016/10/29/binder-thread-pool/)
+
 ## Thread
 
 ```txt
@@ -389,5 +391,37 @@ public final class BackgroundThread extends HandlerThread {
 }
 
 ```
+
+## Binder线程
+
+```txt
+
+1	27841	Runnable	30	28	main
+2	12870	Runnable	0	0	Binder:27841_4
+*6	27856	Wait	0	0	Signal Catcher
+*7	27857	Runnable	0	0
+*8	27858	Runnable	0	3	ADB-JDWP Connection Control Thread
+*9	27859	Runnable	3	3	Jit thread pool worker thread 0
+*10	27860	Wait	0	2	HeapTaskDaemon
+*11	27861	Wait	0	0	ReferenceQueueDaemon
+*12	27862	Wait	0	0	FinalizerDaemon
+*13	27863	Wait	0	0	FinalizerWatchdogDaemon
+14	27864	Runnable	0	0	Binder:27841_1	              //Binder主线程
+15	27865	Runnable	0	0	Binder:27841_2
+16	27867	Runnable	0	0	Binder:27841_3
+*17	27870	Runnable	1	0	Profile Saver
+*18	27872	Runnable	21	19	RenderThread
+19	28086	Runnable	0	0	Thread-2
+20	28073	Runnable	77130	10908	Thread-3
+*21	28119	Runnable	184	82	Thread-4
+*22	28121	Runnable	20	105	Thread-5
+23	28153	TimedWait	555	611	Studio:InputCon
+
+
+```
+
+Binder主线程：进程创建过程会调用startThreadPool()过程中再进入spawnPooledThread(true)，来创建Binder主线程。编号从1开始，也就是意味着binder主线程名为binder_1，并且主线程是不会退出的。
+Binder普通线程：是由Binder Driver来根据是否有空闲的binder线程来决定是否创建binder线程，回调spawnPooledThread(false) ，isMain=false，该线程名格式为binder_x。
+Binder其他线程：其他线程是指并没有调用spawnPooledThread方法，而是直接调用IPC.joinThreadPool()，将当前线程直接加入binder线程队列。例如： mediaserver和servicemanager的主线程都是binder线程，但system_server的主线程并非binder线程。
 
 
