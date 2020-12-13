@@ -16,7 +16,7 @@ tags:
 
 ## 通过设备获取bugreport
 
-![device_bugreport](/images/device_bugreport.png)
+![device_bugreport](/images/bugreport/device_bugreport.png)
 
 ## 通过命令获取bugreport
 
@@ -31,6 +31,10 @@ Bug report copied to bugreport.zip
 ## ChkBugReport
 
 [BugReport分析利器-ChkBugReport-简书](https://www.jianshu.com/p/9c4a8642ccbf)
+
+## UML
+
+![settings_bugreport](/images/bugreport/settings_bugreport.png)
 
 ## 源码
 
