@@ -749,7 +749,7 @@ service bugreportd /system/bin/dumpstate -w
 
 **dumpstate_aidl**
 
-```txt
+```java
 
 package android.os;
 
@@ -1624,6 +1624,8 @@ static Dumpstate::RunStatus dumpstate() {
 
 ## bugreport.zip
 
+生成报告路径： /data/user_de/0/com.android.shell/files/bugreports/
+
 ```txt
 
 bugreport$ tree -L 2
@@ -1657,79 +1659,209 @@ bugreport$ tree -L 2
 
 ```
 
-## dumpstate_log.txt
+## 交互式生成错误报告
 
 ```txt
 
-Module metadata package name: com.android.modulemetadata
-Duration of 'DUMPSYS CRITICAL': 0.72s
-Duration of 'SYSTEM LOG': 6.70s
-Duration of 'EVENT LOG': 0.47s
-Duration of 'STATS LOG': 0.12s
-Duration of 'RADIO LOG': 0.25s
-logcat: Logcat read failure: No such file or directory
-*** command 'logcat -L -b all -v threadtime -v printable -v uid -d *:v' failed: exit code 1
-Duration of 'DUMP TRACES': 23.29s
-Adding dir /cache/recovery (recursive: 1)
-Adding dir /data/misc/recovery (recursive: 1)
-Adding dir /data/misc/update_engine_log (recursive: 1)
-Adding dir /data/misc/logd (recursive: 0)
-Adding dir /data/misc/profiles/cur (recursive: 1)
-Adding dir /data/misc/profiles/ref (recursive: 1)
-Adding dir /data/misc/prereboot (recursive: 0)
-MOUNT INFO: 55 entries added to zip file
-Duration of 'LPDUMP': 1.15s
-Duration of 'DEVICE-MAPPER': 1.14s
-Adding dir /metadata/ota (recursive: 1)
-Duration of 'DETAILED SOCKET STATE': 1.14s
-Duration of 'IOTOP': 1.96s
-Duration of 'CPU INFO': 5.24s
-*** command '/system/xbin/su root procrank' timed out after 20.009s (killing pid 15850)
-Duration of 'PROCRANK': 23.46s
-Duration of 'PROCESSES AND THREADS': 2.59s
-*** command '/system/xbin/su root librank' timed out after 10.008s (killing pid 15999)
-could not kill command '/system/xbin/su root librank' (pid 15999) even with SIGKILL.
-Duration of 'LIBRANK': 20.02s
-*** command '/system/xbin/su root lshal -lVSietrpc --types=b,c,l,z' timed out after 4.393s (killing pid 16087)
-Duration of 'HARDWARE HALS': 4.45s
-Duration of 'DUMP HALS': 47.63s
-Duration of 'LIST OF OPEN FILES': 5.82s
-*** command '/system/xbin/su root showmap -q 9537' failed: exit code 1
-Duration of 'for_each_pid(SMAPS OF ALL PROCESSES)': 80.05s
-Duration of 'for_each_tid(BLOCKED PROCESS WAIT-CHANNELS)': 1.13s
-Adding dir /data/misc/bluetooth/logs (recursive: 1)
-AddAnrTraceDir(): dump_traces_file=/data/anr/dumptrace_vBYadv, anr_traces_dir=/data/anr
-Dumping current ANR traces (/data/anr/dumptrace_vBYadv) to the main bugreport entry
-Error unlinking temporary trace path /data/anr/dumptrace_vBYadv: Permission denied
-Duration of 'DUMP ROUTE TABLES': 1.74s
-Duration of 'DUMPSYS HIGH': 13.50s
-Adding dir /data/misc/wmtrace (recursive: 0)
-Adding dir /data/misc/snapshotctl_log (recursive: 0)
-No IDumpstateDevice implementation
-Failed to unlink file (/data/user_de/0/com.android.shell/files/bugreports/dumpstate_board.bin): No such file or directory
-Failed to unlink file (/data/user_de/0/com.android.shell/files/bugreports/dumpstate_board.txt): No such file or directory
-Error dumping service info status_t: FAILED_TRANSACTION android.hardware.power.IPower/default
-Error dumping service info status_t: FAILED_TRANSACTION android.os.UpdateEngineService
-Can't find service: android.service.gatekeeper.IGateKeeperService
-Error dumping service info status_t: FAILED_TRANSACTION suspend_control
-Can't find service: vold
-Duration of 'DUMPSYS': 10.31s
-Duration of 'CHECKIN MEMINFO': 8.87s
-Duration of 'APP SERVICES PLATFORM': 6.48s
-Duration of 'APP PROVIDERS PLATFORM': 0.67s
-Adding dir /linkerconfig (recursive: 1)
-section 1000 status 1
-section 1000 status 2
-section 1002 status 1
-..............................
-done
-Duration of 'INCIDENT REPORT': 40.46s
-Duration of 'DUMPSTATE': 274.39s
-Duration of 'SYSTEM LOG': 0.84s
-Adding main entry (bugreport-qssi-RKQ1.200903.002-2020-12-13-14-28-06.txt) from /data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-14-28-06.tmp to .zip bugreport
-dumpstate id 3 finished around 2020/12/13 14:33:23 (317 s)
-Adding zip text entry main_entry.txt
-dumpstate_log.txt entry on zip file logged up to here
+--------- beginning of main
+12-13 15:59:10.127 11924 11924 I dumpstate: 'dumpstate' service started and will wait for a call to startBugreport()
+12-13 15:59:10.579 11924 11925 I dumpstate: startBugreport() with mode: 1
+12-13 15:59:10.598 11924 11927 I dumpstate: do_zip_file: 1 do_vibrate: 1 use_socket: 0 use_control_socket: 0 do_screenshot: 0 is_remote_mode: 0 show_header_only: 0 do_start_service: 1 telephony_only: 0 wifi_only: 0 do_progress_updates: 1 fd: 9 bugreport_mode: BUGREPORT_INTERACTIVE dumpstate_hal_mode: INTERACTIVE limited_only: 0 args: 
+12-13 15:59:10.603 11924 11927 D dumpstate: dumpstate calling_uid = 2000 ; calling package = com.android.shell 
+12-13 15:59:10.604 11924 11927 D dumpstate: Loading stats from /bugreports/dumpstate-stats.txt
+12-13 15:59:10.605 11924 11927 I dumpstate: Average max progress: 8016 in 3 runs; estimated max: 8016
+12-13 15:59:10.615 11924 11927 D dumpstate: Wake lock acquired.
+12-13 15:59:10.616 11924 11927 I dumpstate: Starting 'dumpstate' service
+12-13 15:59:10.619 11924 11927 I dumpstate: dumpstate info: id=4, args='', bugreport_mode= BUGREPORT_INTERACTIVE bugreport format version: 2.0
+12-13 15:59:10.625 11924 11927 D dumpstate: Bugreport dir: [[fd:9]] Base name: [bugreport-qssi-RKQ1.200903.002] Suffix: [2020-12-13-15-59-10] Log path: [/data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-15-59-10-dumpstate_log-11924.txt] Temporary path: [/data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-15-59-10.tmp] Screenshot path: []
+12-13 15:59:10.625 11924 11927 D dumpstate: Creating initial .zip file (/data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-15-59-10-zip.tmp)
+12-13 15:59:10.629 11924 11927 D dumpstate: Adding zip text entry version.txt
+12-13 15:59:10.632 11924 11927 I dumpstate: Sending broadcast: '/system/bin/cmd activity broadcast --user 0 --receiver-foreground --receiver-include-background -a com.android.internal.intent.action.BUGREPORT_STARTED --receiver-permission android.permission.DUMP'
+12-13 15:59:10.752 11924 11927 D dumpstate: Setting progress: 20/8016 (0%)
+12-13 15:59:10.754 11924 11927 I dumpstate: Vibrate: 'cmd vibrator vibrate -f 150 dumpstate'
+12-13 15:59:10.882 11924 11927 D dumpstate: Setting progress: 30/8016 (0%)
+12-13 15:59:10.893 11924 11927 D dumpstate: Module metadata package name: com.android.modulemetadata
+12-13 15:59:17.440 11924 11927 D dumpstate: Setting progress: 80/8016 (0%)
+12-13 15:59:17.442 11924 11927 D dumpstate: Duration of 'SYSTEM LOG': 6.00s
+12-13 15:59:17.921 11924 11927 D dumpstate: Duration of 'EVENT LOG': 0.48s
+12-13 15:59:18.028 11924 11927 D dumpstate: Duration of 'STATS LOG': 0.11s
+12-13 15:59:18.278 11924 11927 D dumpstate: Duration of 'RADIO LOG': 0.25s
+12-13 15:59:18.474 11924 11927 E dumpstate: *** command 'logcat -L -b all -v threadtime -v printable -v uid -d *:v' failed: exit code 1
+12-13 15:59:18.559 11924 11927 I dumpstate: libdebuggerd_client: started dumping process 544
+12-13 15:59:18.795 11924 11927 I dumpstate: libdebuggerd_client: done dumping process 544
+.................................................................................................
+12-13 15:59:41.066 11924 11927 I dumpstate: libdebuggerd_client: started dumping process 16448
+12-13 15:59:41.236 11924 11927 I dumpstate: libdebuggerd_client: done dumping process 16448
+12-13 15:59:41.252 11924 11927 I dumpstate: libdebuggerd_client: started dumping process 19886
+12-13 15:59:41.449 11924 11927 I dumpstate: libdebuggerd_client: done dumping process 19886
+12-13 15:59:41.461 11924 11927 I dumpstate: libdebuggerd_client: started dumping process 20036
+12-13 15:59:41.665 11924 11927 I dumpstate: libdebuggerd_client: done dumping process 20036
+12-13 15:59:41.668 11924 11927 D dumpstate: Duration of 'DUMP TRACES': 23.19s
+12-13 15:59:41.687 11924 11927 D dumpstate: Adding dir /cache/recovery (recursive: 1)
+12-13 15:59:41.688 11924 11927 D dumpstate: Adding dir /data/misc/recovery (recursive: 1)
+12-13 15:59:41.693 11924 11927 D dumpstate: Adding dir /data/misc/update_engine_log (recursive: 1)
+12-13 15:59:41.699 11924 11927 D dumpstate: Adding dir /data/misc/logd (recursive: 0)
+12-13 15:59:41.700 11924 11927 D dumpstate: Adding dir /data/misc/profiles/cur (recursive: 1)
+12-13 15:59:41.778 11924 11927 D dumpstate: Adding dir /data/misc/profiles/ref (recursive: 1)
+12-13 15:59:41.807 11924 11927 D dumpstate: Adding dir /data/misc/prereboot (recursive: 0)
+12-13 15:59:42.201 11924 11927 D dumpstate: MOUNT INFO: 53 entries added to zip file
+12-13 15:59:44.086 11924 11927 D dumpstate: Duration of 'LPDUMP': 1.16s
+12-13 15:59:45.213 11924 11927 D dumpstate: Duration of 'DEVICE-MAPPER': 1.13s
+12-13 15:59:45.214 11924 11927 D dumpstate: Adding dir /metadata/ota (recursive: 1)
+12-13 15:59:46.367 11924 11927 D dumpstate: Duration of 'DETAILED SOCKET STATE': 1.08s
+12-13 15:59:48.462 11924 11927 D dumpstate: Duration of 'IOTOP': 2.09s
+12-13 15:59:54.327 11924 11927 D dumpstate: Duration of 'CPU INFO': 5.48s
+12-13 16:00:14.338 11924 11927 E dumpstate: *** command '/system/xbin/su root procrank' timed out after 20.009s (killing pid 12241)
+12-13 16:00:17.971 11924 11927 D dumpstate: Duration of 'PROCRANK': 23.64s
+12-13 16:00:21.380 11924 11927 D dumpstate: Duration of 'PROCESSES AND THREADS': 2.94s
+12-13 16:00:31.391 11924 11927 E dumpstate: *** command '/system/xbin/su root librank' timed out after 10.009s (killing pid 12363)
+12-13 16:00:41.393 11924 11927 E dumpstate: could not kill command '/system/xbin/su root librank' (pid 12363) even with SIGKILL.
+12-13 16:00:41.394 11924 11927 D dumpstate: Duration of 'LIBRANK': 20.01s
+12-13 16:00:45.850 11924 11927 E dumpstate: *** command '/system/xbin/su root lshal -lVSietrpc --types=b,c,l,z' timed out after 4.442s (killing pid 12455)
+12-13 16:00:45.907 11924 11927 D dumpstate: Duration of 'HARDWARE HALS': 4.51s
+12-13 16:01:27.746 11924 11927 D dumpstate: Duration of 'DUMP HALS': 46.35s
+12-13 16:01:34.299 11924 11927 D dumpstate: Duration of 'LIST OF OPEN FILES': 5.93s
+12-13 16:01:36.769 11924 11927 D dumpstate: Setting progress: 805/8016 (10%)
+12-13 16:01:45.735 11924 11927 D dumpstate: Setting progress: 1605/8016 (20%)
+12-13 16:01:54.484 11924 11927 D dumpstate: Setting progress: 2405/8016 (30%)
+12-13 16:02:03.818 11924 11927 D dumpstate: Setting progress: 3215/8016 (40%)
+12-13 16:02:13.306 11924 11927 D dumpstate: Setting progress: 4015/8016 (50%)
+12-13 16:02:22.923 11924 11927 D dumpstate: Setting progress: 4815/8016 (60%)
+12-13 16:02:32.876 11924 11927 D dumpstate: Setting progress: 5615/8016 (70%)
+12-13 16:02:44.813 11924 11927 D dumpstate: Setting progress: 6415/8016 (80%)
+12-13 16:02:50.879 11924 11927 D dumpstate: Duration of 'for_each_pid(SMAPS OF ALL PROCESSES)': 76.58s
+12-13 16:02:51.936 11924 11927 D dumpstate: Duration of 'for_each_tid(BLOCKED PROCESS WAIT-CHANNELS)': 1.06s
+12-13 16:02:52.133 11924 11927 D dumpstate: Adding dir /data/misc/bluetooth/logs (recursive: 1)
+12-13 16:02:52.133 11924 11927 D dumpstate: AddAnrTraceDir(): dump_traces_file=/data/anr/dumptrace_qAMyGl, anr_traces_dir=/data/anr
+12-13 16:02:52.133 11924 11927 D dumpstate: Dumping current ANR traces (/data/anr/dumptrace_qAMyGl) to the main bugreport entry
+12-13 16:02:52.159 11924 11927 W dumpstate: Error unlinking temporary trace path /data/anr/dumptrace_qAMyGl: Permission denied
+12-13 16:02:55.100 11924 11927 D dumpstate: Duration of 'DUMP ROUTE TABLES': 1.55s
+12-13 16:02:55.401 11924 11927 D dumpstate: Setting progress: 7215/8016 (90%)
+12-13 16:03:08.992 11924 11927 D dumpstate: Duration of 'DUMPSYS HIGH': 13.59s
+12-13 16:03:09.585 11924 11927 D dumpstate: Adding dir /data/misc/wmtrace (recursive: 0)
+12-13 16:03:09.586 11924 11927 D dumpstate: Adding dir /data/misc/snapshotctl_log (recursive: 0)
+12-13 16:03:09.590 11924 11927 E dumpstate: No IDumpstateDevice implementation
+12-13 16:03:09.590 11924 11927 E dumpstate: Failed to unlink file (/data/user_de/0/com.android.shell/files/bugreports/dumpstate_board.bin): No such file or directory
+12-13 16:03:09.590 11924 11927 E dumpstate: Failed to unlink file (/data/user_de/0/com.android.shell/files/bugreports/dumpstate_board.txt): No such file or directory
+12-13 16:03:09.978 11924 11924 W Binder:11924_3: type=1400 audit(0.0:561): avc: denied { use } for path="pipe:[1255084]" dev="pipefs" ino=1255084 scontext=u:r:hal_power_default:s0 tcontext=u:r:dumpstate:s0 tclass=fd permissive=0
+12-13 16:03:18.518 11924 11924 W Binder:11924_3: type=1400 audit(0.0:562): avc: denied { use } for path="pipe:[1258953]" dev="pipefs" ino=1258953 scontext=u:r:system_suspend:s0 tcontext=u:r:dumpstate:s0 tclass=fd permissive=0
+12-13 16:03:19.853 11924 11927 D dumpstate: Duration of 'DUMPSYS': 10.26s
+12-13 16:03:29.073 11924 11927 D dumpstate: Duration of 'CHECKIN MEMINFO': 8.70s
+12-13 16:03:35.362 11924 11927 D dumpstate: Duration of 'APP SERVICES PLATFORM': 5.56s
+12-13 16:03:36.374 11924 11927 D dumpstate: Duration of 'APP PROVIDERS PLATFORM': 0.68s
+12-13 16:03:36.821 11924 11927 D dumpstate: Adding dir /linkerconfig (recursive: 1)
+12-13 16:04:13.545 11924 11927 D dumpstate: Duration of 'INCIDENT REPORT': 36.70s
+12-13 16:04:13.546 11924 11927 D dumpstate: Duration of 'DUMPSTATE': 265.07s
+12-13 16:04:14.279 11924 11927 D dumpstate: Duration of 'SYSTEM LOG': 0.73s
+12-13 16:04:14.280 11924 11927 D dumpstate: Adding main entry (bugreport-qssi-RKQ1.200903.002-2020-12-13-15-59-10.txt) from /data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-15-59-10.tmp to .zip bugreport
+12-13 16:04:14.280 11924 11927 D dumpstate: dumpstate id 4 finished around 2020/12/13 16:04:14 (304 s)
+12-13 16:04:18.108 11924 11927 D dumpstate: Adding zip text entry main_entry.txt
+12-13 16:04:18.110 11924 11927 D dumpstate: Removing temporary file /data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-15-59-10.tmp
+12-13 16:04:18.141 11924 11927 D dumpstate: Going to copy file (/data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-15-59-10-zip.tmp) to 9
+12-13 16:04:18.229 11924 11927 I dumpstate: Vibrate: 'cmd vibrator vibrate -f 75 dumpstate'
+12-13 16:04:18.469 11924 11927 I dumpstate: Vibrate: 'cmd vibrator vibrate -f 75 dumpstate'
+12-13 16:04:18.712 11924 11927 I dumpstate: Vibrate: 'cmd vibrator vibrate -f 75 dumpstate'
+12-13 16:04:18.970 11924 11927 D dumpstate: Final progress: 7920/8016 (estimated 8016)
+12-13 16:04:18.972 11924 11927 I dumpstate: Saving stats (total=31968, runs=4, average=7992) on /bugreports/dumpstate-stats.txt
+12-13 16:04:18.976 11924 11927 I dumpstate: done (id 4)
+12-13 16:04:19.024 11924 11927 D dumpstate: Finished taking a bugreport. Exiting.
 
 ```
+
+## 生成完整报告
+
+```txt
+
+--------- beginning of main
+12-13 16:09:42.064 17920 17920 I dumpstate: 'dumpstate' service started and will wait for a call to startBugreport()
+12-13 16:09:42.515 17920 17922 I dumpstate: startBugreport() with mode: 0
+12-13 16:09:42.538 17920 17923 I dumpstate: do_zip_file: 1 do_vibrate: 1 use_socket: 0 use_control_socket: 0 do_screenshot: 1 is_remote_mode: 0 show_header_only: 0 do_start_service: 0 telephony_only: 0 wifi_only: 0 do_progress_updates: 0 fd: 9 bugreport_mode: BUGREPORT_FULL dumpstate_hal_mode: FULL limited_only: 0 args: 
+12-13 16:09:42.542 17920 17923 D dumpstate: dumpstate calling_uid = 2000 ; calling package = com.android.shell 
+12-13 16:09:42.542 17920 17923 D dumpstate: Loading stats from /bugreports/dumpstate-stats.txt
+12-13 16:09:42.543 17920 17923 I dumpstate: Average max progress: 7992 in 4 runs; estimated max: 7992
+12-13 16:09:42.557 17920 17923 D dumpstate: Wake lock acquired.
+12-13 16:09:42.558 17920 17923 I dumpstate: dumpstate info: id=5, args='', bugreport_mode= BUGREPORT_FULL bugreport format version: 2.0
+12-13 16:09:42.563 17920 17923 D dumpstate: Bugreport dir: [[fd:9]] Base name: [bugreport-qssi-RKQ1.200903.002] Suffix: [2020-12-13-16-09-42] Log path: [/data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-16-09-42-dumpstate_log-17920.txt] Temporary path: [/data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-16-09-42.tmp] Screenshot path: [/data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-16-09-42-png.tmp]
+12-13 16:09:42.563 17920 17923 D dumpstate: Creating initial .zip file (/data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-16-09-42-zip.tmp)
+12-13 16:09:42.566 17920 17923 D dumpstate: Adding zip text entry version.txt
+12-13 16:09:42.570 17920 17923 I dumpstate: Vibrate: 'cmd vibrator vibrate -f 150 dumpstate'
+12-13 16:09:42.681 17920 17923 D dumpstate: Module metadata package name: com.android.modulemetadata
+12-13 16:09:43.435 17920 17923 D dumpstate: Duration of 'DUMPSYS CRITICAL': 0.68s
+12-13 16:09:46.286 17920 17923 D dumpstate: Duration of 'SYSTEM LOG': 2.80s
+12-13 16:09:46.757 17920 17923 D dumpstate: Duration of 'EVENT LOG': 0.47s
+12-13 16:09:46.851 17920 17923 D dumpstate: Duration of 'STATS LOG': 0.09s
+12-13 16:09:47.150 17920 17923 D dumpstate: Duration of 'RADIO LOG': 0.30s
+12-13 16:09:47.387 17920 17923 E dumpstate: *** command 'logcat -L -b all -v threadtime -v printable -v uid -d *:v' failed: exit code 1
+12-13 16:09:47.496 17920 17923 I dumpstate: libdebuggerd_client: started dumping process 544
+12-13 16:09:47.714 17920 17923 I dumpstate: libdebuggerd_client: done dumping process 544
+....................................................................................................................
+12-13 16:10:14.869 17920 17923 I dumpstate: libdebuggerd_client: started dumping process 20036
+12-13 16:10:15.046 17920 17923 I dumpstate: libdebuggerd_client: done dumping process 20036
+12-13 16:10:15.049 17920 17923 D dumpstate: Duration of 'DUMP TRACES': 27.66s
+12-13 16:10:15.071 17920 17923 D dumpstate: Adding dir /cache/recovery (recursive: 1)
+12-13 16:10:15.073 17920 17923 D dumpstate: Adding dir /data/misc/recovery (recursive: 1)
+12-13 16:10:15.080 17920 17923 D dumpstate: Adding dir /data/misc/update_engine_log (recursive: 1)
+12-13 16:10:15.083 17920 17923 D dumpstate: Adding dir /data/misc/logd (recursive: 0)
+12-13 16:10:15.084 17920 17923 D dumpstate: Adding dir /data/misc/profiles/cur (recursive: 1)
+12-13 16:10:15.168 17920 17923 D dumpstate: Adding dir /data/misc/profiles/ref (recursive: 1)
+12-13 16:10:15.199 17920 17923 D dumpstate: Adding dir /data/misc/prereboot (recursive: 0)
+12-13 16:10:15.553 17920 17923 D dumpstate: MOUNT INFO: 52 entries added to zip file
+12-13 16:10:17.303 17920 17923 D dumpstate: Duration of 'LPDUMP': 1.16s
+12-13 16:10:18.463 17920 17923 D dumpstate: Duration of 'DEVICE-MAPPER': 1.16s
+12-13 16:10:18.463 17920 17923 D dumpstate: Adding dir /metadata/ota (recursive: 1)
+12-13 16:10:19.624 17920 17923 D dumpstate: Duration of 'DETAILED SOCKET STATE': 1.08s
+12-13 16:10:21.604 17920 17923 D dumpstate: Duration of 'IOTOP': 1.98s
+12-13 16:10:26.764 17920 17923 D dumpstate: Duration of 'CPU INFO': 4.84s
+12-13 16:10:46.775 17920 17923 E dumpstate: *** command '/system/xbin/su root procrank' timed out after 20.009s (killing pid 18252)
+12-13 16:10:49.948 17920 17923 D dumpstate: Duration of 'PROCRANK': 23.18s
+12-13 16:10:52.788 17920 17923 D dumpstate: Duration of 'PROCESSES AND THREADS': 2.34s
+12-13 16:11:02.800 17920 17923 E dumpstate: *** command '/system/xbin/su root librank' timed out after 10.009s (killing pid 18389)
+12-13 16:11:12.805 17920 17923 E dumpstate: could not kill command '/system/xbin/su root librank' (pid 18389) even with SIGKILL.
+12-13 16:11:12.808 17920 17923 D dumpstate: Duration of 'LIBRANK': 20.02s
+12-13 16:11:16.811 17920 17923 E dumpstate: *** command '/system/xbin/su root lshal -lVSietrpc --types=b,c,l,z' timed out after 3.971s (killing pid 18476)
+12-13 16:11:17.345 17920 17923 D dumpstate: Duration of 'HARDWARE HALS': 4.54s
+12-13 16:12:00.612 17920 17923 D dumpstate: Duration of 'DUMP HALS': 47.80s
+12-13 16:12:06.605 17920 17923 D dumpstate: Duration of 'LIST OF OPEN FILES': 5.35s
+12-13 16:13:25.766 17920 17923 D dumpstate: Duration of 'for_each_pid(SMAPS OF ALL PROCESSES)': 79.16s
+12-13 16:13:26.659 17920 17923 D dumpstate: Duration of 'for_each_tid(BLOCKED PROCESS WAIT-CHANNELS)': 0.89s
+12-13 16:13:26.855 17920 17923 D dumpstate: Adding dir /data/misc/bluetooth/logs (recursive: 1)
+12-13 16:13:26.855 17920 17923 I dumpstate: taking late screenshot
+12-13 16:13:27.670 17920 17923 D dumpstate: Screenshot saved on /data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-16-09-42-png.tmp
+12-13 16:13:27.671 17920 17923 D dumpstate: AddAnrTraceDir(): dump_traces_file=/data/anr/dumptrace_2oVVjc, anr_traces_dir=/data/anr
+12-13 16:13:27.671 17920 17923 D dumpstate: Dumping current ANR traces (/data/anr/dumptrace_2oVVjc) to the main bugreport entry
+12-13 16:13:27.685 17920 17923 W dumpstate: Error unlinking temporary trace path /data/anr/dumptrace_2oVVjc: Permission denied
+12-13 16:13:30.940 17920 17923 D dumpstate: Duration of 'DUMP ROUTE TABLES': 1.80s
+12-13 16:13:44.155 17920 17923 D dumpstate: Duration of 'DUMPSYS HIGH': 12.92s
+12-13 16:13:44.765 17920 17923 D dumpstate: Adding dir /data/misc/wmtrace (recursive: 0)
+12-13 16:13:44.765 17920 17923 D dumpstate: Adding dir /data/misc/snapshotctl_log (recursive: 0)
+12-13 16:13:44.771 17920 17923 E dumpstate: No IDumpstateDevice implementation
+12-13 16:13:44.772 17920 17923 E dumpstate: Failed to unlink file (/data/user_de/0/com.android.shell/files/bugreports/dumpstate_board.bin): No such file or directory
+12-13 16:13:44.772 17920 17923 E dumpstate: Failed to unlink file (/data/user_de/0/com.android.shell/files/bugreports/dumpstate_board.txt): No such file or directory
+12-13 16:13:45.358 17920 17920 W Binder:17920_3: type=1400 audit(0.0:574): avc: denied { use } for path="pipe:[1386776]" dev="pipefs" ino=1386776 scontext=u:r:hal_power_default:s0 tcontext=u:r:dumpstate:s0 tclass=fd permissive=0
+12-13 16:13:54.268 17920 17920 W Binder:17920_3: type=1400 audit(0.0:575): avc: denied { use } for path="pipe:[1374086]" dev="pipefs" ino=1374086 scontext=u:r:system_suspend:s0 tcontext=u:r:dumpstate:s0 tclass=fd permissive=0
+12-13 16:13:55.715 17920 17923 D dumpstate: Duration of 'DUMPSYS': 10.94s
+12-13 16:14:04.611 17920 17923 D dumpstate: Duration of 'CHECKIN MEMINFO': 8.25s
+12-13 16:14:11.429 17920 17923 D dumpstate: Duration of 'APP SERVICES PLATFORM': 6.13s
+12-13 16:14:12.331 17920 17923 D dumpstate: Duration of 'APP PROVIDERS PLATFORM': 0.54s
+12-13 16:14:12.844 17920 17923 D dumpstate: Adding dir /linkerconfig (recursive: 1)
+12-13 16:14:52.943 17920 17923 D dumpstate: Duration of 'INCIDENT REPORT': 40.07s
+12-13 16:14:52.943 17920 17923 D dumpstate: Duration of 'DUMPSTATE': 271.33s
+12-13 16:14:53.739 17920 17923 D dumpstate: Duration of 'SYSTEM LOG': 0.80s
+12-13 16:14:53.739 17920 17923 D dumpstate: Adding main entry (bugreport-qssi-RKQ1.200903.002-2020-12-13-16-09-42.txt) from /data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-16-09-42.tmp to .zip bugreport
+12-13 16:14:53.739 17920 17923 D dumpstate: dumpstate id 5 finished around 2020/12/13 16:14:53 (311 s)
+12-13 16:14:57.497 17920 17923 D dumpstate: Adding zip text entry main_entry.txt
+12-13 16:14:57.499 17920 17923 D dumpstate: Removing temporary file /data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-16-09-42.tmp
+12-13 16:14:57.530 17920 17923 D dumpstate: Going to copy file (/data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-16-09-42-zip.tmp) to 9
+12-13 16:14:57.616 17920 17923 D dumpstate: Going to copy file (/data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-16-09-42-png.tmp) to 10
+12-13 16:14:57.618 17920 17923 I dumpstate: Vibrate: 'cmd vibrator vibrate -f 75 dumpstate'
+12-13 16:14:57.827 17920 17923 I dumpstate: Vibrate: 'cmd vibrator vibrate -f 75 dumpstate'
+12-13 16:14:58.042 17920 17923 I dumpstate: Vibrate: 'cmd vibrator vibrate -f 75 dumpstate'
+12-13 16:14:58.326 17920 17923 D dumpstate: Final progress: 7980/7992 (estimated 7992)
+12-13 16:14:58.328 17920 17923 I dumpstate: Saving stats (total=39948, runs=5, average=7989) on /bugreports/dumpstate-stats.txt
+12-13 16:14:58.331 17920 17923 I dumpstate: done (id 5)
+12-13 16:14:58.369 17920 17923 D dumpstate: Finished taking a bugreport. Exiting.
+
+```
+
+
 
