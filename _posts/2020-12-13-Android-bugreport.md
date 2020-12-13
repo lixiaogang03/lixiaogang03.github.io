@@ -875,7 +875,861 @@ interface IDumpstateListener {
 
 ```
 
+**main.cpp**
+
+```cpp
+
+int main(int argc, char* argv[]) {
+    if (ShouldStartServiceAndWait(argc, argv)) {
+        int ret;
+        if ((ret = android::os::DumpstateService::Start()) != android::OK) {
+            MYLOGE("Unable to start 'dumpstate' service: %d", ret);
+            exit(1);
+        }
+        MYLOGI("'dumpstate' service started and will wait for a call to startBugreport()");
+
+        // Waits forever for an incoming connection.
+        // TODO(b/111441001): should this time out?
+        android::IPCThreadState::self()->joinThreadPool();
+        return 0;
+    } else {
+        return run_main(argc, argv);
+    }
+}
+
+```
+
+**DumpstateService.cpp**
+
+```cpp
+
+struct DumpstateInfo {
+  public:
+    Dumpstate* ds = nullptr;
+    int32_t calling_uid = -1;
+    std::string calling_package;
+};
+
+// Creates a bugreport and exits, thus preserving the oneshot nature of the service.
+// Note: takes ownership of data.
+[[noreturn]] static void* dumpstate_thread_main(void* data) {
+    std::unique_ptr<DumpstateInfo> ds_info(static_cast<DumpstateInfo*>(data));
+    ds_info->ds->Run(ds_info->calling_uid, ds_info->calling_package);   // 进入dumpstate.cpp
+    MYLOGD("Finished taking a bugreport. Exiting.\n");
+    exit(0);
+}
+
+DumpstateService::DumpstateService() : ds_(nullptr) {
+}
+
+char const* DumpstateService::getServiceName() {
+    return "dumpstate";
+}
+
+status_t DumpstateService::Start() {
+    IPCThreadState::self()->disableBackgroundScheduling(true);
+    status_t ret = BinderService<DumpstateService>::publish();
+    if (ret != android::OK) {
+        return ret;
+    }
+    sp<ProcessState> ps(ProcessState::self());
+    ps->startThreadPool();
+    ps->giveThreadPoolName();
+    return android::OK;
+}
+
+binder::Status DumpstateService::startBugreport(int32_t calling_uid,
+                                                const std::string& calling_package,
+                                                android::base::unique_fd bugreport_fd,
+                                                android::base::unique_fd screenshot_fd,
+                                                int bugreport_mode,
+                                                const sp<IDumpstateListener>& listener,
+                                                bool is_screenshot_requested) {
+    MYLOGI("startBugreport() with mode: %d\n", bugreport_mode);
+
+    // Ensure there is only one bugreport in progress at a time.
+    std::lock_guard<std::mutex> lock(lock_);
+    if (ds_ != nullptr) {
+        MYLOGE("Error! There is already a bugreport in progress. Returning.");
+        if (listener != nullptr) {
+            listener->onError(IDumpstateListener::BUGREPORT_ERROR_ANOTHER_REPORT_IN_PROGRESS);
+        }
+        return exception(binder::Status::EX_SERVICE_SPECIFIC,
+                         "There is already a bugreport in progress");
+    }
+
+    // From here on, all conditions that indicate we are done with this incoming request should
+    // result in exiting the service to free it up for next invocation.
+    if (listener == nullptr) {
+        MYLOGE("Invalid input: no listener");
+        exit(0);
+    }
+
+    if (bugreport_mode != Dumpstate::BugreportMode::BUGREPORT_FULL &&
+        bugreport_mode != Dumpstate::BugreportMode::BUGREPORT_INTERACTIVE &&
+        bugreport_mode != Dumpstate::BugreportMode::BUGREPORT_REMOTE &&
+        bugreport_mode != Dumpstate::BugreportMode::BUGREPORT_WEAR &&
+        bugreport_mode != Dumpstate::BugreportMode::BUGREPORT_TELEPHONY &&
+        bugreport_mode != Dumpstate::BugreportMode::BUGREPORT_WIFI &&
+        bugreport_mode != Dumpstate::BugreportMode::BUGREPORT_DEFAULT) {
+        MYLOGE("Invalid input: bad bugreport mode: %d", bugreport_mode);
+        signalErrorAndExit(listener, IDumpstateListener::BUGREPORT_ERROR_INVALID_INPUT);
+    }
+
+    std::unique_ptr<Dumpstate::DumpOptions> options = std::make_unique<Dumpstate::DumpOptions>();
+    options->Initialize(static_cast<Dumpstate::BugreportMode>(bugreport_mode), bugreport_fd,
+                        screenshot_fd, is_screenshot_requested);
+
+    if (bugreport_fd.get() == -1 || (options->do_screenshot && screenshot_fd.get() == -1)) {
+        MYLOGE("Invalid filedescriptor");
+        signalErrorAndExit(listener, IDumpstateListener::BUGREPORT_ERROR_INVALID_INPUT);
+    }
 
 
+    ds_ = &(Dumpstate::GetInstance());
+    ds_->SetOptions(std::move(options));
+    ds_->listener_ = listener;
 
+    DumpstateInfo* ds_info = new DumpstateInfo();
+    ds_info->ds = ds_;
+    ds_info->calling_uid = calling_uid;
+    ds_info->calling_package = calling_package;
+
+    pthread_t thread;
+    // Initialize dumpstate
+    ds_->Initialize();
+    status_t err = pthread_create(&thread, nullptr, dumpstate_thread_main, ds_info); // 开始执行dumpstate指令
+    if (err != 0) {
+        delete ds_info;
+        ds_info = nullptr;
+        MYLOGE("Could not create a thread");
+        signalErrorAndExit(listener, IDumpstateListener::BUGREPORT_ERROR_RUNTIME_ERROR);
+    }
+    return binder::Status::ok();
+}
+
+```
+
+**Dumpstate.cpp**
+
+```cpp
+
+// TODO: temporary variables and functions used during C++ refactoring
+static Dumpstate& ds = Dumpstate::GetInstance();
+static int RunCommand(const std::string& title, const std::vector<std::string>& full_command,
+                      const CommandOptions& options = CommandOptions::DEFAULT,
+                      bool verbose_duration = false) {
+    return ds.RunCommand(title, full_command, options, verbose_duration);
+}
+
+Dumpstate::RunStatus Dumpstate::Run(int32_t calling_uid, const std::string& calling_package) {
+    Dumpstate::RunStatus status = RunInternal(calling_uid, calling_package);
+    // 给客户端的回调
+    if (listener_ != nullptr) {
+        switch (status) {
+            case Dumpstate::RunStatus::OK:
+                listener_->onFinished();
+                break;
+            case Dumpstate::RunStatus::HELP:
+                break;
+            case Dumpstate::RunStatus::INVALID_INPUT:
+                listener_->onError(IDumpstateListener::BUGREPORT_ERROR_INVALID_INPUT);
+                break;
+            case Dumpstate::RunStatus::ERROR:
+                listener_->onError(IDumpstateListener::BUGREPORT_ERROR_RUNTIME_ERROR);
+                break;
+            case Dumpstate::RunStatus::USER_CONSENT_DENIED:
+                listener_->onError(IDumpstateListener::BUGREPORT_ERROR_USER_DENIED_CONSENT);
+                break;
+            case Dumpstate::RunStatus::USER_CONSENT_TIMED_OUT:
+                listener_->onError(IDumpstateListener::BUGREPORT_ERROR_USER_CONSENT_TIMED_OUT);
+                break;
+        }
+    }
+    return status;
+}
+
+
+Dumpstate::RunStatus Dumpstate::RunInternal(int32_t calling_uid,
+                                            const std::string& calling_package) {
+    LogDumpOptions(*options_);
+    if (!options_->ValidateOptions()) {
+        MYLOGE("Invalid options specified\n");
+        return RunStatus::INVALID_INPUT;
+    }
+    /* set as high priority, and protect from OOM killer */
+    setpriority(PRIO_PROCESS, 0, -20);
+
+    FILE* oom_adj = fopen("/proc/self/oom_score_adj", "we");
+    if (oom_adj) {
+        fputs("-1000", oom_adj);
+        fclose(oom_adj);
+    } else {
+        /* fallback to kernels <= 2.6.35 */
+        oom_adj = fopen("/proc/self/oom_adj", "we");
+        if (oom_adj) {
+            fputs("-17", oom_adj);
+            fclose(oom_adj);
+        }
+    }
+
+    if (version_ == VERSION_DEFAULT) {
+        version_ = VERSION_CURRENT;
+    }
+
+    if (version_ != VERSION_CURRENT && version_ != VERSION_SPLIT_ANR) {
+        MYLOGE("invalid version requested ('%s'); suppported values are: ('%s', '%s', '%s')\n",
+               version_.c_str(), VERSION_DEFAULT.c_str(), VERSION_CURRENT.c_str(),
+               VERSION_SPLIT_ANR.c_str());
+        return RunStatus::INVALID_INPUT;
+    }
+
+    if (options_->show_header_only) {
+        PrintHeader();
+        return RunStatus::OK;
+    }
+
+    MYLOGD("dumpstate calling_uid = %d ; calling package = %s \n",
+            calling_uid, calling_package.c_str());
+
+    // Redirect output if needed
+    bool is_redirecting = options_->OutputToFile();
+
+    // TODO: temporarily set progress until it's part of the Dumpstate constructor
+    std::string stats_path =
+        is_redirecting
+            ? android::base::StringPrintf("%s/dumpstate-stats.txt", bugreport_internal_dir_.c_str())
+            : "";
+    progress_.reset(new Progress(stats_path));
+
+    if (acquire_wake_lock(PARTIAL_WAKE_LOCK, WAKE_LOCK_NAME) < 0) {
+        MYLOGE("Failed to acquire wake lock: %s\n", strerror(errno));
+    } else {
+        // Wake lock will be released automatically on process death
+        MYLOGD("Wake lock acquired.\n");
+    }
+
+    register_sig_handler();
+
+    // TODO(b/111441001): maybe skip if already started?
+    if (options_->do_start_service) {
+        MYLOGI("Starting 'dumpstate' service\n");
+        android::status_t ret;
+        if ((ret = android::os::DumpstateService::Start()) != android::OK) {
+            MYLOGE("Unable to start DumpstateService: %d\n", ret);
+        }
+    }
+
+    if (PropertiesHelper::IsDryRun()) {
+        MYLOGI("Running on dry-run mode (to disable it, call 'setprop dumpstate.dry_run false')\n");
+    }
+
+    MYLOGI("dumpstate info: id=%d, args='%s', bugreport_mode= %s bugreport format version: %s\n",
+           id_, options_->args.c_str(), options_->bugreport_mode.c_str(), version_.c_str());
+
+    do_early_screenshot_ = options_->do_progress_updates;
+
+    // If we are going to use a socket, do it as early as possible
+    // to avoid timeouts from bugreport.
+    if (options_->use_socket) {
+        if (!redirect_to_socket(stdout, "dumpstate")) {
+            return ERROR;
+        }
+    }
+
+    if (options_->use_control_socket) {
+        MYLOGD("Opening control socket\n");
+        control_socket_fd_ = open_socket("dumpstate");
+        if (control_socket_fd_ == -1) {
+            return ERROR;
+        }
+        options_->do_progress_updates = 1;
+    }
+
+    if (is_redirecting) {
+        PrepareToWriteToFile();
+
+        if (options_->do_progress_updates) {
+            // clang-format off
+            std::vector<std::string> am_args = {
+                 "--receiver-permission", "android.permission.DUMP",
+            };
+            // clang-format on
+            // Send STARTED broadcast for apps that listen to bugreport generation events
+            SendBroadcast("com.android.internal.intent.action.BUGREPORT_STARTED", am_args);
+            if (options_->use_control_socket) {
+                dprintf(control_socket_fd_, "BEGIN:%s\n", path_.c_str());
+            }
+        }
+    }
+
+    /* read /proc/cmdline before dropping root */
+    FILE *cmdline = fopen("/proc/cmdline", "re");
+    if (cmdline) {
+        fgets(cmdline_buf, sizeof(cmdline_buf), cmdline);
+        fclose(cmdline);
+    }
+
+    if (options_->do_vibrate) {
+        Vibrate(150);
+    }
+
+    if (options_->do_zip_file && zip_file != nullptr) {
+        if (chown(path_.c_str(), AID_SHELL, AID_SHELL)) {
+            MYLOGE("Unable to change ownership of zip file %s: %s\n", path_.c_str(),
+                   strerror(errno));
+        }
+    }
+
+    int dup_stdout_fd;
+    int dup_stderr_fd;
+    if (is_redirecting) {
+        // Redirect stderr to log_path_ for debugging.
+        TEMP_FAILURE_RETRY(dup_stderr_fd = dup(fileno(stderr)));
+        if (!redirect_to_file(stderr, const_cast<char*>(log_path_.c_str()))) {
+            return ERROR;
+        }
+        if (chown(log_path_.c_str(), AID_SHELL, AID_SHELL)) {
+            MYLOGE("Unable to change ownership of dumpstate log file %s: %s\n", log_path_.c_str(),
+                   strerror(errno));
+        }
+
+        // Redirect stdout to tmp_path_. This is the main bugreport entry and will be
+        // moved into zip file later, if zipping.
+        TEMP_FAILURE_RETRY(dup_stdout_fd = dup(fileno(stdout)));
+        // TODO: why not write to a file instead of stdout to overcome this problem?
+        /* TODO: rather than generating a text file now and zipping it later,
+           it would be more efficient to redirect stdout to the zip entry
+           directly, but the libziparchive doesn't support that option yet. */
+        if (!redirect_to_file(stdout, const_cast<char*>(tmp_path_.c_str()))) {
+            return ERROR;
+        }
+        if (chown(tmp_path_.c_str(), AID_SHELL, AID_SHELL)) {
+            MYLOGE("Unable to change ownership of temporary bugreport file %s: %s\n",
+                   tmp_path_.c_str(), strerror(errno));
+        }
+    }
+
+    // Don't buffer stdout
+    setvbuf(stdout, nullptr, _IONBF, 0);
+
+    // NOTE: there should be no stdout output until now, otherwise it would break the header.
+    // In particular, DurationReport objects should be created passing 'title, NULL', so their
+    // duration is logged into MYLOG instead.
+    PrintHeader();
+
+    // TODO(b/158737089) reduce code repetition in if branches
+    if (options_->telephony_only) {
+        MaybeTakeEarlyScreenshot();
+        onUiIntensiveBugreportDumpsFinished(calling_uid, calling_package);
+        MaybeCheckUserConsent(calling_uid, calling_package);
+        DumpstateTelephonyOnly(calling_package);
+        DumpstateBoard();
+    } else if (options_->wifi_only) {
+        MaybeTakeEarlyScreenshot();
+        onUiIntensiveBugreportDumpsFinished(calling_uid, calling_package);
+        MaybeCheckUserConsent(calling_uid, calling_package);
+        DumpstateWifiOnly();
+    } else if (options_->limited_only) {
+        MaybeTakeEarlyScreenshot();
+        onUiIntensiveBugreportDumpsFinished(calling_uid, calling_package);
+        MaybeCheckUserConsent(calling_uid, calling_package);
+        DumpstateLimitedOnly();
+    } else {
+        // 首先调用dumpsys 以保留系统状态
+        // Invoke critical dumpsys first to preserve system state, before doing anything else.
+        RunDumpsysCritical();
+
+        // Take screenshot and get consent only after critical dumpsys has finished.
+        MaybeTakeEarlyScreenshot();
+        onUiIntensiveBugreportDumpsFinished(calling_uid, calling_package);
+        MaybeCheckUserConsent(calling_uid, calling_package);
+
+        // 获取默认bugreport默认case
+        // Dump state for the default case. This also drops root.
+        RunStatus s = DumpstateDefaultAfterCritical();
+        if (s != RunStatus::OK) {
+            if (s == RunStatus::USER_CONSENT_DENIED) {
+                HandleUserConsentDenied();
+            }
+            return s;
+        }
+    }
+
+    /* close output if needed */
+    if (is_redirecting) {
+        TEMP_FAILURE_RETRY(dup2(dup_stdout_fd, fileno(stdout)));
+    }
+
+    // Zip the (now complete) .tmp file within the internal directory.
+    if (options_->OutputToFile()) {
+        FinalizeFile();
+    }
+
+    // Share the final file with the caller if the user has consented or Shell is the caller.
+    Dumpstate::RunStatus status = Dumpstate::RunStatus::OK;
+    if (CalledByApi()) {
+        status = CopyBugreportIfUserConsented(calling_uid);
+        if (status != Dumpstate::RunStatus::OK &&
+            status != Dumpstate::RunStatus::USER_CONSENT_TIMED_OUT) {
+            // Do an early return if there were errors. We make an exception for consent
+            // timing out because it's possible the user got distracted. In this case the
+            // bugreport is not shared but made available for manual retrieval.
+            MYLOGI("User denied consent. Returning\n");
+            return status;
+        }
+        if (status == Dumpstate::RunStatus::USER_CONSENT_TIMED_OUT) {
+            MYLOGI(
+                "Did not receive user consent yet."
+                " Will not copy the bugreport artifacts to caller.\n");
+            const String16 incidentcompanion("incidentcompanion");
+            sp<android::IBinder> ics(defaultServiceManager()->getService(incidentcompanion));
+            if (ics != nullptr) {
+                MYLOGD("Canceling user consent request via incidentcompanion service\n");
+                android::interface_cast<android::os::IIncidentCompanion>(ics)->cancelAuthorization(
+                        consent_callback_.get());
+            } else {
+                MYLOGD("Unable to cancel user consent; incidentcompanion service unavailable\n");
+            }
+        }
+    }
+
+    /* vibrate a few but shortly times to let user know it's finished */
+    if (options_->do_vibrate) {
+        for (int i = 0; i < 3; i++) {
+            Vibrate(75);
+            usleep((75 + 50) * 1000);
+        }
+    }
+
+    MYLOGD("Final progress: %d/%d (estimated %d)\n", progress_->Get(), progress_->GetMax(),
+           progress_->GetInitialMax());
+    progress_->Save();
+    MYLOGI("done (id %d)\n", id_);
+
+    if (is_redirecting) {
+        TEMP_FAILURE_RETRY(dup2(dup_stderr_fd, fileno(stderr)));
+    }
+
+    if (options_->use_control_socket && control_socket_fd_ != -1) {
+        MYLOGD("Closing control socket\n");
+        close(control_socket_fd_);
+    }
+
+    tombstone_data_.clear();
+    anr_data_.clear();
+
+    return (consent_callback_ != nullptr &&
+            consent_callback_->getResult() == UserConsentResult::UNAVAILABLE)
+               ? USER_CONSENT_TIMED_OUT
+               : RunStatus::OK;
+}
+
+
+/*
+ * Dumps state for the default case; drops root after it's no longer necessary.
+ *
+ * Returns RunStatus::OK if everything went fine.
+ * Returns RunStatus::ERROR if there was an error.
+ * Returns RunStatus::USER_DENIED_CONSENT if user explicitly denied consent to sharing the bugreport
+ * with the caller.
+ */
+Dumpstate::RunStatus Dumpstate::DumpstateDefaultAfterCritical() {
+    // Capture first logcat early on; useful to take a snapshot before dumpstate logs take over the
+    // buffer.
+    // 抓取日志
+    DoLogcat();
+    // Capture timestamp after first logcat to use in next logcat
+    time_t logcat_ts = time(nullptr);
+
+    /* collect stack traces from Dalvik and native processes (needs root) */
+    RUN_SLOW_FUNCTION_WITH_CONSENT_CHECK(ds.DumpTraces, &dump_traces_path);
+
+    /* Run some operations that require root. */
+    ds.tombstone_data_ = GetDumpFds(TOMBSTONE_DIR, TOMBSTONE_FILE_PREFIX, !ds.IsZipping());
+    ds.anr_data_ = GetDumpFds(ANR_DIR, ANR_FILE_PREFIX, !ds.IsZipping());
+
+    ds.AddDir(RECOVERY_DIR, true);
+    ds.AddDir(RECOVERY_DATA_DIR, true);
+    ds.AddDir(UPDATE_ENGINE_LOG_DIR, true);
+    ds.AddDir(LOGPERSIST_DATA_DIR, false);
+    if (!PropertiesHelper::IsUserBuild()) {
+        ds.AddDir(PROFILE_DATA_DIR_CUR, true);
+        ds.AddDir(PROFILE_DATA_DIR_REF, true);
+        ds.AddZipEntry(ZIP_ROOT_DIR + PACKAGE_DEX_USE_LIST, PACKAGE_DEX_USE_LIST);
+    }
+    ds.AddDir(PREREBOOT_DATA_DIR, false);
+    add_mountinfo();
+    DumpIpTablesAsRoot();
+    DumpDynamicPartitionInfo();
+    ds.AddDir(OTA_METADATA_DIR, true);
+
+    // Capture any IPSec policies in play. No keys are exposed here.
+    RunCommand("IP XFRM POLICY", {"ip", "xfrm", "policy"}, CommandOptions::WithTimeout(10).Build());
+
+    // Dump IPsec stats. No keys are exposed here.
+    DumpFile("XFRM STATS", XFRM_STAT_PROC_FILE);
+
+    // Run ss as root so we can see socket marks.
+    RunCommand("DETAILED SOCKET STATE", {"ss", "-eionptu"}, CommandOptions::WithTimeout(10).Build());
+
+    // Run iotop as root to show top 100 IO threads
+    RunCommand("IOTOP", {"iotop", "-n", "1", "-m", "100"});
+
+    // Gather shared memory buffer info if the product implements it
+    struct stat st;
+    if (!stat("/product/bin/dmabuf_dump", &st)) {
+        RunCommand("Dmabuf dump", {"/product/bin/dmabuf_dump"});
+    }
+
+    DumpFile("PSI cpu", "/proc/pressure/cpu");
+    DumpFile("PSI memory", "/proc/pressure/memory");
+    DumpFile("PSI io", "/proc/pressure/io");
+
+    if (!DropRootUser()) {
+        return Dumpstate::RunStatus::ERROR;
+    }
+
+    RETURN_IF_USER_DENIED_CONSENT();
+    Dumpstate::RunStatus status = dumpstate();
+    // Capture logcat since the last time we did it.
+    DoSystemLogcat(logcat_ts);
+    return status;
+}
+
+
+// Dumps various things. Returns early with status USER_CONSENT_DENIED if user denies consent
+// via the consent they are shown. Ignores other errors that occur while running various
+// commands. The consent checking is currently done around long running tasks, which happen to
+// be distributed fairly evenly throughout the function.
+static Dumpstate::RunStatus dumpstate() {
+    DurationReporter duration_reporter("DUMPSTATE");
+
+    // Dump various things. Note that anything that takes "long" (i.e. several seconds) should
+    // check intermittently (if it's intrerruptable like a foreach on pids) and/or should be wrapped
+    // in a consent check (via RUN_SLOW_FUNCTION_WITH_CONSENT_CHECK).
+    dump_dev_files("TRUSTY VERSION", "/sys/bus/platform/drivers/trusty", "trusty_version");
+    RunCommand("UPTIME", {"uptime"});
+    DumpBlockStatFiles();
+    DumpFile("MEMORY INFO", "/proc/meminfo");
+    RunCommand("CPU INFO", {"top", "-b", "-n", "1", "-H", "-s", "6", "-o",
+                            "pid,tid,user,pr,ni,%cpu,s,virt,res,pcy,cmd,name"});
+
+    RUN_SLOW_FUNCTION_WITH_CONSENT_CHECK(RunCommand, "PROCRANK", {"procrank"}, AS_ROOT_20);
+
+    RUN_SLOW_FUNCTION_WITH_CONSENT_CHECK(DumpVisibleWindowViews);
+
+    DumpFile("VIRTUAL MEMORY STATS", "/proc/vmstat");
+    DumpFile("VMALLOC INFO", "/proc/vmallocinfo");
+    DumpFile("SLAB INFO", "/proc/slabinfo");
+    DumpFile("ZONEINFO", "/proc/zoneinfo");
+    DumpFile("PAGETYPEINFO", "/proc/pagetypeinfo");
+    DumpFile("BUDDYINFO", "/proc/buddyinfo");
+    DumpExternalFragmentationInfo();
+
+    DumpFile("KERNEL WAKE SOURCES", "/d/wakeup_sources");
+    DumpFile("KERNEL CPUFREQ", "/sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state");
+
+    RunCommand("PROCESSES AND THREADS",
+               {"ps", "-A", "-T", "-Z", "-O", "pri,nice,rtprio,sched,pcy,time"});
+
+    RUN_SLOW_FUNCTION_WITH_CONSENT_CHECK(RunCommand, "LIBRANK", {"librank"},
+                                         CommandOptions::AS_ROOT);
+
+    DumpHals();
+
+    RunCommand("PRINTENV", {"printenv"});
+    RunCommand("NETSTAT", {"netstat", "-nW"});
+    struct stat s;
+    if (stat("/proc/modules", &s) != 0) {
+        MYLOGD("Skipping 'lsmod' because /proc/modules does not exist\n");
+    } else {
+        RunCommand("LSMOD", {"lsmod"});
+    }
+
+    if (__android_logger_property_get_bool(
+            "ro.logd.kernel", BOOL_DEFAULT_TRUE | BOOL_DEFAULT_FLAG_ENG | BOOL_DEFAULT_FLAG_SVELTE)) {
+        DoKernelLogcat();
+    } else {
+        do_dmesg();
+    }
+
+    RunCommand("LIST OF OPEN FILES", {"lsof"}, CommandOptions::AS_ROOT);
+
+    RUN_SLOW_FUNCTION_WITH_CONSENT_CHECK(for_each_pid, do_showmap, "SMAPS OF ALL PROCESSES");
+
+    for_each_tid(show_wchan, "BLOCKED PROCESS WAIT-CHANNELS");
+    for_each_pid(show_showtime, "PROCESS TIMES (pid cmd user system iowait+percentage)");
+
+    /* Dump Bluetooth HCI logs */
+    ds.AddDir("/data/misc/bluetooth/logs", true);
+
+    if (ds.options_->do_screenshot && !ds.do_early_screenshot_) {
+        MYLOGI("taking late screenshot\n");
+        ds.TakeScreenshot();
+    }
+
+    AddAnrTraceFiles();
+
+    // NOTE: tombstones are always added as separate entries in the zip archive
+    // and are not interspersed with the main report.
+    const bool tombstones_dumped = AddDumps(ds.tombstone_data_.begin(), ds.tombstone_data_.end(),
+                                            "TOMBSTONE", true /* add_to_zip */);
+    if (!tombstones_dumped) {
+        printf("*** NO TOMBSTONES to dump in %s\n\n", TOMBSTONE_DIR.c_str());
+    }
+
+    DumpPacketStats();
+
+    RunDumpsys("EBPF MAP STATS", {"netd", "trafficcontroller"});
+
+    DoKmsg();
+
+    DumpIpAddrAndRules();
+
+    dump_route_tables();
+
+    RunCommand("ARP CACHE", {"ip", "-4", "neigh", "show"});
+    RunCommand("IPv6 ND CACHE", {"ip", "-6", "neigh", "show"});
+    RunCommand("MULTICAST ADDRESSES", {"ip", "maddr"});
+
+    RUN_SLOW_FUNCTION_WITH_CONSENT_CHECK(RunDumpsysHigh);
+
+    RunCommand("SYSTEM PROPERTIES", {"getprop"});
+
+    RunCommand("STORAGED IO INFO", {"storaged", "-u", "-p"});
+
+    RunCommand("FILESYSTEMS & FREE SPACE", {"df"});
+
+    /* Binder state is expensive to look at as it uses a lot of memory. */
+    std::string binder_logs_dir = access("/dev/binderfs/binder_logs", R_OK) ?
+            "/sys/kernel/debug/binder" : "/dev/binderfs/binder_logs";
+
+    DumpFile("BINDER FAILED TRANSACTION LOG", binder_logs_dir + "/failed_transaction_log");
+    DumpFile("BINDER TRANSACTION LOG", binder_logs_dir + "/transaction_log");
+    DumpFile("BINDER TRANSACTIONS", binder_logs_dir + "/transactions");
+    DumpFile("BINDER STATS", binder_logs_dir + "/stats");
+    DumpFile("BINDER STATE", binder_logs_dir + "/state");
+
+    /* Add window and surface trace files. */
+    if (!PropertiesHelper::IsUserBuild()) {
+        ds.AddDir(WMTRACE_DATA_DIR, false);
+    }
+
+    ds.AddDir(SNAPSHOTCTL_LOG_DIR, false);
+
+    RUN_SLOW_FUNCTION_WITH_CONSENT_CHECK(ds.DumpstateBoard);
+
+    /* Migrate the ril_dumpstate to a device specific dumpstate? */
+    int rilDumpstateTimeout = android::base::GetIntProperty("ril.dumpstate.timeout", 0);
+    if (rilDumpstateTimeout > 0) {
+        // su does not exist on user builds, so try running without it.
+        // This way any implementations of vril-dump that do not require
+        // root can run on user builds.
+        CommandOptions::CommandOptionsBuilder options =
+            CommandOptions::WithTimeout(rilDumpstateTimeout);
+        if (!PropertiesHelper::IsUserBuild()) {
+            options.AsRoot();
+        }
+        RunCommand("DUMP VENDOR RIL LOGS", {"vril-dump"}, options.Build());
+    }
+
+    printf("========================================================\n");
+    printf("== Android Framework Services\n");
+    printf("========================================================\n");
+
+    RUN_SLOW_FUNCTION_WITH_CONSENT_CHECK(RunDumpsysNormal);
+
+    printf("========================================================\n");
+    printf("== Checkins\n");
+    printf("========================================================\n");
+
+    RunDumpsys("CHECKIN BATTERYSTATS", {"batterystats", "-c"});
+
+    RUN_SLOW_FUNCTION_WITH_CONSENT_CHECK(RunDumpsys, "CHECKIN MEMINFO", {"meminfo", "--checkin"});
+
+    RunDumpsys("CHECKIN NETSTATS", {"netstats", "--checkin"});
+    RunDumpsys("CHECKIN PROCSTATS", {"procstats", "-c"});
+    RunDumpsys("CHECKIN USAGESTATS", {"usagestats", "-c"});
+    RunDumpsys("CHECKIN PACKAGE", {"package", "--checkin"});
+
+    printf("========================================================\n");
+    printf("== Running Application Activities\n");
+    printf("========================================================\n");
+
+    // The following dumpsys internally collects output from running apps, so it can take a long
+    // time. So let's extend the timeout.
+
+    const CommandOptions DUMPSYS_COMPONENTS_OPTIONS = CommandOptions::WithTimeout(60).Build();
+
+    RunDumpsys("APP ACTIVITIES", {"activity", "-v", "all"}, DUMPSYS_COMPONENTS_OPTIONS);
+
+    printf("========================================================\n");
+    printf("== Running Application Services (platform)\n");
+    printf("========================================================\n");
+
+    RunDumpsys("APP SERVICES PLATFORM", {"activity", "service", "all-platform-non-critical"},
+            DUMPSYS_COMPONENTS_OPTIONS);
+
+    printf("========================================================\n");
+    printf("== Running Application Services (non-platform)\n");
+    printf("========================================================\n");
+
+    RunDumpsys("APP SERVICES NON-PLATFORM", {"activity", "service", "all-non-platform"},
+            DUMPSYS_COMPONENTS_OPTIONS);
+
+    printf("========================================================\n");
+    printf("== Running Application Providers (platform)\n");
+    printf("========================================================\n");
+
+    RunDumpsys("APP PROVIDERS PLATFORM", {"activity", "provider", "all-platform"},
+            DUMPSYS_COMPONENTS_OPTIONS);
+
+    printf("========================================================\n");
+    printf("== Running Application Providers (non-platform)\n");
+    printf("========================================================\n");
+
+    RunDumpsys("APP PROVIDERS NON-PLATFORM", {"activity", "provider", "all-non-platform"},
+            DUMPSYS_COMPONENTS_OPTIONS);
+
+    printf("========================================================\n");
+    printf("== Dropbox crashes\n");
+    printf("========================================================\n");
+
+    RunDumpsys("DROPBOX SYSTEM SERVER CRASHES", {"dropbox", "-p", "system_server_crash"});
+    RunDumpsys("DROPBOX SYSTEM APP CRASHES", {"dropbox", "-p", "system_app_crash"});
+
+    printf("========================================================\n");
+    printf("== Final progress (pid %d): %d/%d (estimated %d)\n", ds.pid_, ds.progress_->Get(),
+           ds.progress_->GetMax(), ds.progress_->GetInitialMax());
+    printf("========================================================\n");
+    printf("== dumpstate: done (id %d)\n", ds.id_);
+    printf("========================================================\n");
+
+    printf("========================================================\n");
+    printf("== Obtaining statsd metadata\n");
+    printf("========================================================\n");
+    // This differs from the usual dumpsys stats, which is the stats report data.
+    RunDumpsys("STATSDSTATS", {"stats", "--metadata"});
+
+    // Add linker configuration directory
+    ds.AddDir(LINKERCONFIG_DIR, true);
+
+    RUN_SLOW_FUNCTION_WITH_CONSENT_CHECK(DumpIncidentReport);
+
+    return Dumpstate::RunStatus::OK;
+}
+
+```
+
+## bugreport.zip
+
+```txt
+
+bugreport$ tree -L 2
+.
+├── bugreport-qssi-RKQ1.200903.002-2020-12-13-14-28-06.txt
+├── dumpstate_log.txt
+├── FS
+│   ├── data
+│   ├── linkerconfig
+│   └── proc
+├── lshal-debug
+│   ├── android.hardware.audio.effect@6.0::IEffectsFactory_default.txt
+│   ├── android.hardware.bluetooth@1.0::IBluetoothHci_default.txt
+│   ├── android.hardware.drm@1.3::IDrmFactory_clearkey.txt
+│   ├── android.hardware.health@2.1::IHealth_default.txt
+│   ├── android.hardware.media.c2@1.1::IComponentStore_software.txt
+│   ├── android.hardware.sensors@2.0::ISensors_default.txt
+│   └── android.hardware.wifi@1.4::IWifi_default.txt
+├── main_entry.txt
+├── proto
+│   ├── activity_CRITICAL.proto
+│   ├── activity.proto
+│   ├── incident_report.proto
+│   ├── SurfaceFlinger_CRITICAL.proto
+│   └── window_CRITICAL.proto
+├── version.txt
+├── visible_windows
+│   ├── 6ab5864 StatusBar
+│   └── d2fcfdc com.android.settings
+└── visible_windows.zip
+
+```
+
+## dumpstate_log.txt
+
+```txt
+
+Module metadata package name: com.android.modulemetadata
+Duration of 'DUMPSYS CRITICAL': 0.72s
+Duration of 'SYSTEM LOG': 6.70s
+Duration of 'EVENT LOG': 0.47s
+Duration of 'STATS LOG': 0.12s
+Duration of 'RADIO LOG': 0.25s
+logcat: Logcat read failure: No such file or directory
+*** command 'logcat -L -b all -v threadtime -v printable -v uid -d *:v' failed: exit code 1
+Duration of 'DUMP TRACES': 23.29s
+Adding dir /cache/recovery (recursive: 1)
+Adding dir /data/misc/recovery (recursive: 1)
+Adding dir /data/misc/update_engine_log (recursive: 1)
+Adding dir /data/misc/logd (recursive: 0)
+Adding dir /data/misc/profiles/cur (recursive: 1)
+Adding dir /data/misc/profiles/ref (recursive: 1)
+Adding dir /data/misc/prereboot (recursive: 0)
+MOUNT INFO: 55 entries added to zip file
+Duration of 'LPDUMP': 1.15s
+Duration of 'DEVICE-MAPPER': 1.14s
+Adding dir /metadata/ota (recursive: 1)
+Duration of 'DETAILED SOCKET STATE': 1.14s
+Duration of 'IOTOP': 1.96s
+Duration of 'CPU INFO': 5.24s
+*** command '/system/xbin/su root procrank' timed out after 20.009s (killing pid 15850)
+Duration of 'PROCRANK': 23.46s
+Duration of 'PROCESSES AND THREADS': 2.59s
+*** command '/system/xbin/su root librank' timed out after 10.008s (killing pid 15999)
+could not kill command '/system/xbin/su root librank' (pid 15999) even with SIGKILL.
+Duration of 'LIBRANK': 20.02s
+*** command '/system/xbin/su root lshal -lVSietrpc --types=b,c,l,z' timed out after 4.393s (killing pid 16087)
+Duration of 'HARDWARE HALS': 4.45s
+Duration of 'DUMP HALS': 47.63s
+Duration of 'LIST OF OPEN FILES': 5.82s
+*** command '/system/xbin/su root showmap -q 9537' failed: exit code 1
+Duration of 'for_each_pid(SMAPS OF ALL PROCESSES)': 80.05s
+Duration of 'for_each_tid(BLOCKED PROCESS WAIT-CHANNELS)': 1.13s
+Adding dir /data/misc/bluetooth/logs (recursive: 1)
+AddAnrTraceDir(): dump_traces_file=/data/anr/dumptrace_vBYadv, anr_traces_dir=/data/anr
+Dumping current ANR traces (/data/anr/dumptrace_vBYadv) to the main bugreport entry
+Error unlinking temporary trace path /data/anr/dumptrace_vBYadv: Permission denied
+Duration of 'DUMP ROUTE TABLES': 1.74s
+Duration of 'DUMPSYS HIGH': 13.50s
+Adding dir /data/misc/wmtrace (recursive: 0)
+Adding dir /data/misc/snapshotctl_log (recursive: 0)
+No IDumpstateDevice implementation
+Failed to unlink file (/data/user_de/0/com.android.shell/files/bugreports/dumpstate_board.bin): No such file or directory
+Failed to unlink file (/data/user_de/0/com.android.shell/files/bugreports/dumpstate_board.txt): No such file or directory
+Error dumping service info status_t: FAILED_TRANSACTION android.hardware.power.IPower/default
+Error dumping service info status_t: FAILED_TRANSACTION android.os.UpdateEngineService
+Can't find service: android.service.gatekeeper.IGateKeeperService
+Error dumping service info status_t: FAILED_TRANSACTION suspend_control
+Can't find service: vold
+Duration of 'DUMPSYS': 10.31s
+Duration of 'CHECKIN MEMINFO': 8.87s
+Duration of 'APP SERVICES PLATFORM': 6.48s
+Duration of 'APP PROVIDERS PLATFORM': 0.67s
+Adding dir /linkerconfig (recursive: 1)
+section 1000 status 1
+section 1000 status 2
+section 1002 status 1
+..............................
+done
+Duration of 'INCIDENT REPORT': 40.46s
+Duration of 'DUMPSTATE': 274.39s
+Duration of 'SYSTEM LOG': 0.84s
+Adding main entry (bugreport-qssi-RKQ1.200903.002-2020-12-13-14-28-06.txt) from /data/user_de/0/com.android.shell/files/bugreports/bugreport-qssi-RKQ1.200903.002-2020-12-13-14-28-06.tmp to .zip bugreport
+dumpstate id 3 finished around 2020/12/13 14:33:23 (317 s)
+Adding zip text entry main_entry.txt
+dumpstate_log.txt entry on zip file logged up to here
+
+```
 
