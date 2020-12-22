@@ -30,6 +30,10 @@ connected to 10.10.162.71:42491
 
 ```
 
+## 开机初始化流程
+
+![adb_service_init](/images/adb/adb_service_init.png)
+
 ## Settings
 
 ### 开发者选项

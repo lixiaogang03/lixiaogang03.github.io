@@ -332,7 +332,7 @@ int register_android_os_SystemProperties(JNIEnv *env)
 
 bionic/libc/include/sys/system_properties.h
 
-```h
+```cpp
 
 #define PROP_VALUE_MAX  92
 
