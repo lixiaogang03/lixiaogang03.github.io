@@ -2,7 +2,7 @@
 layout:     post
 title:      Android Location
 subtitle:   位置信息服务
-date:       2020-01-07
+date:       2021-01-07
 author:     LXG
 header-img: img/post-bg-os-metro.jpg
 catalog: true
