@@ -64,6 +64,19 @@ public class LocationManager {
 
 ```
 
+## ServiceWatcher
+
+```txt
+
+2020-12-31 17:55:32.031 972-1015/system_process I/ServiceWatcher: [com.android.location.service.FusedLocationProvider] binding to {com.android.location.fused/com.android.location.fused.FusedLocationService}@0[u0]
+2020-12-31 17:55:33.670 972-1015/system_process I/ServiceWatcher: [com.android.location.service.FusedLocationProvider] connected to {com.android.location.fused/com.android.location.fused.FusedLocationService}
+2020-12-31 17:55:41.120 972-1015/system_process I/ServiceWatcher: [com.android.location.service.v3.NetworkLocationProvider] binding to {com.baidu.map.location/com.baidu.map.location.BaiduNetworkLocationService}@10[u0]
+2020-12-31 17:55:41.232 972-1015/system_process I/ServiceWatcher: [com.android.location.service.GeocodeProvider] binding to {com.baidu.map.location/com.baidu.map.location.BaiduNetworkLocationService}@10[u0]
+2020-12-31 17:55:43.174 972-1015/system_process I/ServiceWatcher: [com.android.location.service.v3.NetworkLocationProvider] connected to {com.baidu.map.location/com.baidu.map.location.BaiduNetworkLocationService}
+2020-12-31 17:55:43.175 972-1015/system_process I/ServiceWatcher: [com.android.location.service.GeocodeProvider] connected to {com.baidu.map.location/com.baidu.map.location.BaiduNetworkLocationService}
+
+```
+
 ## LocationManagerServcie
 
 [Android网络定位源码分析-简书](https://www.jianshu.com/p/071722bd9f1c)
