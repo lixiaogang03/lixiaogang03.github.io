@@ -64,6 +64,16 @@ public class LocationManager {
 
 ```
 
+## LocationManagerServcie
+
+[Android网络定位源码分析-简书](https://www.jianshu.com/p/071722bd9f1c)
+
+![location_service](/images/location/location_service.webp)
+
+### 位置信息请求时序图
+
+![location_manager](/images/location/location_manager.png)
+
 ## dumpsys location
 
 ```txt
