@@ -66,21 +66,6 @@ public class LocationManager {
 
 ```
 
-## ServiceWatcher
-
-开机日志
-
-```txt
-
-2020-12-31 17:55:32.031 972-1015/system_process I/ServiceWatcher: [com.android.location.service.FusedLocationProvider] binding to {com.android.location.fused/com.android.location.fused.FusedLocationService}@0[u0]
-2020-12-31 17:55:33.670 972-1015/system_process I/ServiceWatcher: [com.android.location.service.FusedLocationProvider] connected to {com.android.location.fused/com.android.location.fused.FusedLocationService}
-2020-12-31 17:55:41.120 972-1015/system_process I/ServiceWatcher: [com.android.location.service.v3.NetworkLocationProvider] binding to {com.baidu.map.location/com.baidu.map.location.BaiduNetworkLocationService}@10[u0]
-2020-12-31 17:55:41.232 972-1015/system_process I/ServiceWatcher: [com.android.location.service.GeocodeProvider] binding to {com.baidu.map.location/com.baidu.map.location.BaiduNetworkLocationService}@10[u0]
-2020-12-31 17:55:43.174 972-1015/system_process I/ServiceWatcher: [com.android.location.service.v3.NetworkLocationProvider] connected to {com.baidu.map.location/com.baidu.map.location.BaiduNetworkLocationService}
-2020-12-31 17:55:43.175 972-1015/system_process I/ServiceWatcher: [com.android.location.service.GeocodeProvider] connected to {com.baidu.map.location/com.baidu.map.location.BaiduNetworkLocationService}
-
-```
-
 ## LocationManagerServcie
 
 ### 位置服务类图
@@ -93,7 +78,20 @@ public class LocationManager {
 
 ![location_manager](/images/location/location_manager.png)
 
-## 开机日志-LocationManagerService
+## ServiceWatcher开机日志
+
+```txt
+
+2020-12-31 17:55:32.031 972-1015/system_process I/ServiceWatcher: [com.android.location.service.FusedLocationProvider] binding to {com.android.location.fused/com.android.location.fused.FusedLocationService}@0[u0]
+2020-12-31 17:55:33.670 972-1015/system_process I/ServiceWatcher: [com.android.location.service.FusedLocationProvider] connected to {com.android.location.fused/com.android.location.fused.FusedLocationService}
+2020-12-31 17:55:41.120 972-1015/system_process I/ServiceWatcher: [com.android.location.service.v3.NetworkLocationProvider] binding to {com.baidu.map.location/com.baidu.map.location.BaiduNetworkLocationService}@10[u0]
+2020-12-31 17:55:41.232 972-1015/system_process I/ServiceWatcher: [com.android.location.service.GeocodeProvider] binding to {com.baidu.map.location/com.baidu.map.location.BaiduNetworkLocationService}@10[u0]
+2020-12-31 17:55:43.174 972-1015/system_process I/ServiceWatcher: [com.android.location.service.v3.NetworkLocationProvider] connected to {com.baidu.map.location/com.baidu.map.location.BaiduNetworkLocationService}
+2020-12-31 17:55:43.175 972-1015/system_process I/ServiceWatcher: [com.android.location.service.GeocodeProvider] connected to {com.baidu.map.location/com.baidu.map.location.BaiduNetworkLocationService}
+
+```
+
+## LBS开机日志
 
 ```txt
 
@@ -153,55 +151,55 @@ public class LocationManager {
 
 ```txt
 
-2021-01-08 15:28:55.172 3483-3483/com.baidu.map.location I/Perf: Connecting to perf service.
-2021-01-08 15:28:55.197 3483-3483/com.baidu.map.location D/NetworkSecurityConfig: No Network Security Config specified, using platform default
-2021-01-08 15:28:55.222 3483-3483/com.baidu.map.location D/NetworkSecurityConfig: No Network Security Config specified, using platform default
-2021-01-08 15:28:55.307 3483-3483/com.baidu.map.location I/NLP: init BaiduNetworkLocationProvider for action:[ com.android.location.service.v3.NetworkLocationProvider ]
-2021-01-08 15:29:07.407 3483-3483/com.baidu.map.location I/NLP: ------sdk init at first location request------
-2021-01-08 15:29:07.411 3483-3483/com.baidu.map.location D/NLP_parseConfigInfor: [oem:sunmi][channel:nl.nl1139][version:5.2.0][build:n924]
-2021-01-08 15:29:07.412 3483-3483/com.baidu.map.location D/NLPLOC: start first
-2021-01-08 15:29:07.424 3483-3483/com.baidu.map.location W/DeviceId: galaxy lib host missing meta-data,make sure you know the right way to integrate galaxy
-2021-01-08 15:29:07.425 3483-3483/com.baidu.map.location I/chatty: uid=10133(com.baidu.map.location) identical 1 line
-2021-01-08 15:29:07.425 3483-3483/com.baidu.map.location W/DeviceId: galaxy lib host missing meta-data,make sure you know the right way to integrate galaxy
-2021-01-08 15:29:07.542 3483-3483/com.baidu.map.location I/NLP: --------start定位组件-------
-2021-01-08 15:29:07.542 3483-3483/com.baidu.map.location I/NLP: 百度SDK响应值为：1
-2021-01-08 15:29:07.543 3483-3483/com.baidu.map.location I/NLP: --------restart service-------
-2021-01-08 15:29:07.544 3483-3483/com.baidu.map.location I/NLP: 百度SDK响应值为：1
-2021-01-08 15:29:07.544 3483-3483/com.baidu.map.location I/NLP: --------restart service-------
-2021-01-08 15:29:07.624 3483-4158/com.baidu.map.location D/NLPLOC: upDataStr = :null
-2021-01-08 15:29:07.628 3483-3483/com.baidu.map.location D/CompatibilityChangeReporter: Compat change id reported: 147600208; UID 10133; state: ENABLED
-2021-01-08 15:29:07.645 3483-3483/com.baidu.map.location D/CompatibilityChangeReporter: Compat change id reported: 144027538; UID 10133; state: DISABLED
-2021-01-08 15:29:07.670 3483-3483/com.baidu.map.location D/NLPLOC: baidu location service start1 ...3483
-2021-01-08 15:29:07.685 3483-3483/com.baidu.map.location I/TetheringManager: registerTetheringEventCallback:com.baidu.map.location
-2021-01-08 15:29:07.729 3483-4159/com.baidu.map.location I/baidu_offline_db: DBconf file dont exist
-2021-01-08 15:29:07.782 3483-4159/com.baidu.map.location I/baidu_offline_db: DBconf file dont exist
-2021-01-08 15:29:07.811 3483-4161/com.baidu.map.location I/DpmTcmClient: RegisterTcmMonitor from: $Proxy1
-2021-01-08 15:29:07.832 3483-4161/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
-2021-01-08 15:29:07.832 3483-4161/com.baidu.map.location I/NLPLOC: finally 
-2021-01-08 15:29:07.834 3483-4161/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
-2021-01-08 15:29:07.834 3483-4161/com.baidu.map.location I/NLPLOC: finally 
-2021-01-08 15:29:07.836 3483-4161/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
-2021-01-08 15:29:07.836 3483-4161/com.baidu.map.location I/NLPLOC: finally 
-2021-01-08 15:29:07.883 3483-4158/com.baidu.map.location I/NLPLOC: first result 
-2021-01-08 15:29:07.885 3483-4158/com.baidu.map.location D/NLPLOC: receive start1
-2021-01-08 15:29:07.885 3483-3483/com.baidu.map.location I/NLP: Location result:[location successful by Baidu], reason:[network location] locType=161, NetworkLocationType = wf
-2021-01-08 15:29:07.897 3483-4159/com.baidu.map.location D/NLPLOC: start network locating ...true  true
-2021-01-08 15:29:07.897 3483-4159/com.baidu.map.location D/NLP_STA: network locating ...true  true
-2021-01-08 15:29:08.030 3483-4169/com.baidu.map.location D/NLPLOC: upDataStr = :null
-2021-01-08 15:29:08.196 3483-4175/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
-2021-01-08 15:29:08.196 3483-4175/com.baidu.map.location I/NLPLOC: finally 
-2021-01-08 15:29:08.198 3483-4175/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
-2021-01-08 15:29:08.199 3483-4175/com.baidu.map.location I/NLPLOC: finally 
-2021-01-08 15:29:08.204 3483-4175/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
-2021-01-08 15:29:08.204 3483-4175/com.baidu.map.location I/NLPLOC: finally 
-2021-01-08 15:29:08.556 3483-3515/com.baidu.map.location I/NLP:  开始RGC onGetFromLocation:org.codeaurora.imsmaxResults = 1
-2021-01-08 15:29:08.754 3483-3515/com.baidu.map.location I/NLP: rgeo result:[rego successful by Baidu]
-2021-01-08 15:29:17.462 3483-3483/com.baidu.map.location I/NLP: 百度SDK响应值为：0
-2021-01-08 15:29:17.489 3483-4159/com.baidu.map.location I/NLPLOC: wifi start scan
-2021-01-08 15:29:20.589 3483-3483/com.baidu.map.location D/NLPLOC: start network locating ...false  false
-2021-01-08 15:29:20.590 3483-3483/com.baidu.map.location D/NLP_STA: network locating ...false  false
-2021-01-08 15:29:20.616 3483-3483/com.baidu.map.location I/NLP: Location result:[location successful by Baidu], reason:[network location] locType=161, NetworkLocationType = wf
-2021-01-08 15:29:21.377 3483-3483/com.baidu.map.location D/NLPLOC: WifiScan finished, in callback.
+2021-01-08 15:50:46.347 3472-3472/com.baidu.map.location I/NLP: init BaiduNetworkLocationProvider for action:[ com.android.location.service.v3.NetworkLocationProvider ]
+2021-01-08 15:50:58.179 3472-3472/com.baidu.map.location I/NLP: ------sdk init at first location request------
+2021-01-08 15:50:58.190 3472-3472/com.baidu.map.location D/NLP_parseConfigInfor: [oem:sunmi][channel:nl.nl1139][version:5.2.0][build:n924]
+2021-01-08 15:50:58.191 3472-3472/com.baidu.map.location D/NLPLOC: start first
+2021-01-08 15:50:58.350 3472-3472/com.baidu.map.location I/NLP: --------start定位组件-------
+2021-01-08 15:50:58.351 3472-3472/com.baidu.map.location I/NLP: 百度SDK响应值为：1
+2021-01-08 15:50:58.351 3472-3472/com.baidu.map.location I/NLP: --------restart service-------
+2021-01-08 15:50:58.352 3472-3472/com.baidu.map.location I/NLP: 百度SDK响应值为：1
+2021-01-08 15:50:58.352 3472-3472/com.baidu.map.location I/NLP: --------restart service-------
+2021-01-08 15:50:58.440 3472-4118/com.baidu.map.location D/NLPLOC: upDataStr = :null
+2021-01-08 15:50:58.487 3472-3472/com.baidu.map.location D/NLPLOC: baidu location service start1 ...3472
+2021-01-08 15:50:58.674 3472-4147/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
+2021-01-08 15:50:58.679 3472-4147/com.baidu.map.location I/NLPLOC: finally 
+2021-01-08 15:50:58.681 3472-4147/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
+2021-01-08 15:50:58.681 3472-4147/com.baidu.map.location I/NLPLOC: finally 
+2021-01-08 15:50:58.686 3472-4147/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
+2021-01-08 15:50:58.686 3472-4147/com.baidu.map.location I/NLPLOC: finally 
+2021-01-08 15:50:58.693 3472-4118/com.baidu.map.location I/NLPLOC: first result 
+2021-01-08 15:50:58.697 3472-4118/com.baidu.map.location D/NLPLOC: receive start1
+2021-01-08 15:50:58.698 3472-3472/com.baidu.map.location I/NLP: Location result:[location successful by Baidu], reason:[network location] locType=161, NetworkLocationType = wf
+2021-01-08 15:50:58.749 3472-4120/com.baidu.map.location D/NLPLOC: start network locating ...true  true
+2021-01-08 15:50:58.750 3472-4120/com.baidu.map.location D/NLP_STA: network locating ...true  true
+2021-01-08 15:50:58.919 3472-4173/com.baidu.map.location D/NLPLOC: upDataStr = :null
+2021-01-08 15:50:59.082 3472-4175/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
+2021-01-08 15:50:59.083 3472-4175/com.baidu.map.location I/NLPLOC: finally 
+2021-01-08 15:50:59.084 3472-4175/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
+2021-01-08 15:50:59.084 3472-4175/com.baidu.map.location I/NLPLOC: finally 
+2021-01-08 15:50:59.091 3472-4175/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
+2021-01-08 15:50:59.092 3472-4175/com.baidu.map.location I/NLPLOC: finally 
+2021-01-08 15:50:59.406 3472-4138/com.baidu.map.location I/NLP:  开始RGC onGetFromLocation:org.codeaurora.imsmaxResults = 1
+
+```
+
+## 位置信息更新日志
+
+```txt
+
+2021-01-08 15:41:12.127 3483-3483/com.baidu.map.location I/NLP: 百度SDK响应值为：0
+2021-01-08 15:41:12.155 3483-4159/com.baidu.map.location I/NLPLOC: wifi start scan
+2021-01-08 15:41:12.172 3483-3483/com.baidu.map.location D/NLPLOC: WifiScan finished, in callback.
+2021-01-08 15:41:12.217 3483-8332/com.baidu.map.location D/NLPLOC: start network locating ...true  false
+2021-01-08 15:41:12.218 3483-8332/com.baidu.map.location D/NLP_STA: network locating ...true  false
+2021-01-08 15:41:12.345 3483-8333/com.baidu.map.location D/NLPLOC: upDataStr = :null
+2021-01-08 15:41:12.632 3483-3483/com.baidu.map.location I/NLP: Location result:[location successful by Baidu], reason:[network location] locType=161, NetworkLocationType = wf
+2021-01-08 15:41:12.655 3483-3515/com.baidu.map.location I/NLP:  开始RGC onGetFromLocation:com.sunmi.baseservicemaxResults = 1
+2021-01-08 15:41:12.656 3483-3515/com.baidu.map.location I/NLP: use rgeo cache
+2021-01-08 15:41:12.706 3483-3483/com.baidu.map.location I/NLP: 百度SDK响应值为：0
+2021-01-08 15:41:12.708 3483-4159/com.baidu.map.location D/NLPLOC: wifi valid time < 10S
+2021-01-08 15:41:12.710 3483-3483/com.baidu.map.location I/NLP: Location result:[location successful by Baidu], reason:[network location] locType=161, NetworkLocationType = wf
 
 ```
 
