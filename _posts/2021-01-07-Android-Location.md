@@ -12,6 +12,8 @@ tags:
 
 [构建位置感知应用-Google](https://developer.android.google.cn/training/location?hl=zh-cn)
 
+[Android Q 集成百度定位-简书](https://www.jianshu.com/p/46f13b2da965)
+
 ## 架构
 
 ![android_location](/images/location/android_location.png)
@@ -66,6 +68,8 @@ public class LocationManager {
 
 ## ServiceWatcher
 
+开机日志
+
 ```txt
 
 2020-12-31 17:55:32.031 972-1015/system_process I/ServiceWatcher: [com.android.location.service.FusedLocationProvider] binding to {com.android.location.fused/com.android.location.fused.FusedLocationService}@0[u0]
@@ -79,6 +83,8 @@ public class LocationManager {
 
 ## LocationManagerServcie
 
+### 位置服务类图
+
 [Android网络定位源码分析-简书](https://www.jianshu.com/p/071722bd9f1c)
 
 ![location_service](/images/location/location_service.webp)
@@ -86,6 +92,118 @@ public class LocationManager {
 ### 位置信息请求时序图
 
 ![location_manager](/images/location/location_manager.png)
+
+## 开机日志-LocationManagerService
+
+```txt
+
+2021-01-08 13:44:14.024 977-977/system_process I/SystemServerTiming: StartLocationManagerService
+2021-01-08 13:44:14.024 977-977/system_process I/SystemServiceManager: Starting com.android.server.location.LocationManagerService$Lifecycle
+2021-01-08 13:44:14.032 977-977/system_process D/SystemServerTiming: StartLocationManagerService took to complete: 8ms
+2021-01-08 13:44:15.014 977-977/system_process I/SystemServerTiming: OnBootPhase_480_com.android.server.location.LocationManagerService$Lifecycle
+2021-01-08 13:44:15.014 977-977/system_process D/SystemServerTiming: OnBootPhase_480_com.android.server.location.LocationManagerService$Lifecycle took to complete: 0ms
+2021-01-08 13:44:15.227 977-977/system_process I/SystemServerTiming: OnBootPhase_500_com.android.server.location.LocationManagerService$Lifecycle
+2021-01-08 13:44:15.237 977-977/system_process D/SystemServerTiming: OnBootPhase_500_com.android.server.location.LocationManagerService$Lifecycle took to complete: 10ms
+2021-01-08 13:44:15.798 977-977/system_process I/SystemServerTiming: OnBootPhase_520_com.android.server.location.LocationManagerService$Lifecycle
+2021-01-08 13:44:15.798 977-977/system_process D/SystemServerTiming: OnBootPhase_520_com.android.server.location.LocationManagerService$Lifecycle took to complete: 0ms
+2021-01-08 13:44:16.078 977-977/system_process I/SystemServerTiming: OnBootPhase_550_com.android.server.location.LocationManagerService$Lifecycle
+2021-01-08 13:44:16.078 977-977/system_process D/SystemServerTiming: OnBootPhase_550_com.android.server.location.LocationManagerService$Lifecycle took to complete: 0ms
+2021-01-08 13:44:16.354 977-998/system_process V/LocationManagerService: location appop changed for com.android.bluetooth
+2021-01-08 13:44:16.367 977-998/system_process V/LocationManagerService: location appop changed for com.android.systemui
+2021-01-08 13:44:16.546 977-977/system_process I/SystemServerTiming: OnBootPhase_600_com.android.server.location.LocationManagerService$Lifecycle
+2021-01-08 13:44:16.560 977-977/system_process E/LocationManagerService: unable to bind ActivityRecognitionProxy
+2021-01-08 13:44:16.587 977-977/system_process D/LocationManagerService: [u0] gps provider enabled = true
+2021-01-08 13:44:16.589 977-977/system_process E/LocationManagerService: unable to bind to GeofenceProxy
+2021-01-08 13:44:16.589 977-977/system_process D/SystemServerTiming: OnBootPhase_600_com.android.server.location.LocationManagerService$Lifecycle took to complete: 43ms
+2021-01-08 13:44:16.752 977-998/system_process W/LocationManagerService: passive provider saw user 0 unexpectedly
+2021-01-08 13:44:16.752 977-998/system_process D/LocationManagerService: [u0] passive provider enabled = true
+2021-01-08 13:44:16.997 977-998/system_process V/LocationManagerService: location appop changed for com.android.networkstack
+2021-01-08 13:44:16.998 977-998/system_process V/LocationManagerService: location appop changed for com.android.cellbroadcastservice
+2021-01-08 13:44:16.998 977-998/system_process V/LocationManagerService: location appop changed for com.android.networkstack.tethering
+2021-01-08 13:44:16.999 977-998/system_process V/LocationManagerService: location appop changed for com.android.networkstack.permissionconfig
+2021-01-08 13:44:17.135 977-977/system_process I/SystemServerTiming: ssm.onStartUser-0_com.android.server.location.LocationManagerService$Lifecycle
+2021-01-08 13:44:17.135 977-977/system_process D/LocationManagerService: u0 started
+2021-01-08 13:44:17.136 977-977/system_process D/LocationManagerService: [u0] passive provider enabled = true
+2021-01-08 13:44:17.145 977-977/system_process D/LocationManagerService: [u0] network provider enabled = false
+2021-01-08 13:44:17.153 977-977/system_process D/LocationManagerService: [u0] fused provider enabled = false
+2021-01-08 13:44:17.154 977-977/system_process D/LocationManagerService: [u0] gps provider enabled = true
+2021-01-08 13:44:17.159 977-977/system_process D/SystemServerTiming: ssm.onStartUser-0_com.android.server.location.LocationManagerService$Lifecycle took to complete: 20ms
+2021-01-08 13:44:17.557 977-998/system_process V/LocationManagerService: location appop changed for com.android.providers.telephony
+2021-01-08 13:44:17.568 977-998/system_process V/LocationManagerService: location appop changed for com.android.phone
+2021-01-08 13:44:17.569 977-998/system_process V/LocationManagerService: location appop changed for com.qualcomm.qti.networksetting
+2021-01-08 13:44:17.616 977-998/system_process D/LocationManagerService: location setting changed [u0]: content://settings/secure/location_mode
+2021-01-08 13:44:17.619 977-998/system_process D/LocationManagerService: [u0] location enabled = true
+2021-01-08 13:44:17.908 977-998/system_process D/LocationManagerService: [u0] fused provider enabled = true
+2021-01-08 13:44:19.380 977-998/system_process V/LocationManagerService: location appop changed for android.ext.services
+2021-01-08 13:44:21.492 977-1001/system_process I/ActivityManagerTiming: OnBootPhase_1000_com.android.server.location.LocationManagerService$Lifecycle
+2021-01-08 13:44:21.492 977-1001/system_process D/ActivityManagerTiming: OnBootPhase_1000_com.android.server.location.LocationManagerService$Lifecycle took to complete: 0ms
+2021-01-08 13:44:24.396 977-998/system_process V/LocationManagerService: location appop changed for com.android.bluetooth
+2021-01-08 13:44:24.519 977-1014/system_process I/SystemServerTimingAsync: ssm.onUnlockingUser-0_com.android.server.location.LocationManagerService$Lifecycle
+2021-01-08 13:44:24.519 977-1014/system_process D/SystemServerTimingAsync: ssm.onUnlockingUser-0_com.android.server.location.LocationManagerService$Lifecycle took to complete: 0ms
+2021-01-08 13:44:24.816 977-1014/system_process I/SystemServerTimingAsync: ssm.onUnlockedUser-0_com.android.server.location.LocationManagerService$Lifecycle
+2021-01-08 13:44:24.816 977-1014/system_process D/SystemServerTimingAsync: ssm.onUnlockedUser-0_com.android.server.location.LocationManagerService$Lifecycle took to complete: 0ms
+2021-01-08 13:44:27.056 977-3078/system_process D/LocationManagerService: [u0] network provider enabled = true
+2021-01-08 13:44:38.833 977-998/system_process I/LocationManagerService: remove b964a97
+
+```
+
+## Baidu Location 开机日志
+
+/system_ext/priv-app/BaiduNLP/BaiduNLP.apk
+
+```txt
+
+2021-01-08 15:28:55.172 3483-3483/com.baidu.map.location I/Perf: Connecting to perf service.
+2021-01-08 15:28:55.197 3483-3483/com.baidu.map.location D/NetworkSecurityConfig: No Network Security Config specified, using platform default
+2021-01-08 15:28:55.222 3483-3483/com.baidu.map.location D/NetworkSecurityConfig: No Network Security Config specified, using platform default
+2021-01-08 15:28:55.307 3483-3483/com.baidu.map.location I/NLP: init BaiduNetworkLocationProvider for action:[ com.android.location.service.v3.NetworkLocationProvider ]
+2021-01-08 15:29:07.407 3483-3483/com.baidu.map.location I/NLP: ------sdk init at first location request------
+2021-01-08 15:29:07.411 3483-3483/com.baidu.map.location D/NLP_parseConfigInfor: [oem:sunmi][channel:nl.nl1139][version:5.2.0][build:n924]
+2021-01-08 15:29:07.412 3483-3483/com.baidu.map.location D/NLPLOC: start first
+2021-01-08 15:29:07.424 3483-3483/com.baidu.map.location W/DeviceId: galaxy lib host missing meta-data,make sure you know the right way to integrate galaxy
+2021-01-08 15:29:07.425 3483-3483/com.baidu.map.location I/chatty: uid=10133(com.baidu.map.location) identical 1 line
+2021-01-08 15:29:07.425 3483-3483/com.baidu.map.location W/DeviceId: galaxy lib host missing meta-data,make sure you know the right way to integrate galaxy
+2021-01-08 15:29:07.542 3483-3483/com.baidu.map.location I/NLP: --------start定位组件-------
+2021-01-08 15:29:07.542 3483-3483/com.baidu.map.location I/NLP: 百度SDK响应值为：1
+2021-01-08 15:29:07.543 3483-3483/com.baidu.map.location I/NLP: --------restart service-------
+2021-01-08 15:29:07.544 3483-3483/com.baidu.map.location I/NLP: 百度SDK响应值为：1
+2021-01-08 15:29:07.544 3483-3483/com.baidu.map.location I/NLP: --------restart service-------
+2021-01-08 15:29:07.624 3483-4158/com.baidu.map.location D/NLPLOC: upDataStr = :null
+2021-01-08 15:29:07.628 3483-3483/com.baidu.map.location D/CompatibilityChangeReporter: Compat change id reported: 147600208; UID 10133; state: ENABLED
+2021-01-08 15:29:07.645 3483-3483/com.baidu.map.location D/CompatibilityChangeReporter: Compat change id reported: 144027538; UID 10133; state: DISABLED
+2021-01-08 15:29:07.670 3483-3483/com.baidu.map.location D/NLPLOC: baidu location service start1 ...3483
+2021-01-08 15:29:07.685 3483-3483/com.baidu.map.location I/TetheringManager: registerTetheringEventCallback:com.baidu.map.location
+2021-01-08 15:29:07.729 3483-4159/com.baidu.map.location I/baidu_offline_db: DBconf file dont exist
+2021-01-08 15:29:07.782 3483-4159/com.baidu.map.location I/baidu_offline_db: DBconf file dont exist
+2021-01-08 15:29:07.811 3483-4161/com.baidu.map.location I/DpmTcmClient: RegisterTcmMonitor from: $Proxy1
+2021-01-08 15:29:07.832 3483-4161/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
+2021-01-08 15:29:07.832 3483-4161/com.baidu.map.location I/NLPLOC: finally 
+2021-01-08 15:29:07.834 3483-4161/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
+2021-01-08 15:29:07.834 3483-4161/com.baidu.map.location I/NLPLOC: finally 
+2021-01-08 15:29:07.836 3483-4161/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
+2021-01-08 15:29:07.836 3483-4161/com.baidu.map.location I/NLPLOC: finally 
+2021-01-08 15:29:07.883 3483-4158/com.baidu.map.location I/NLPLOC: first result 
+2021-01-08 15:29:07.885 3483-4158/com.baidu.map.location D/NLPLOC: receive start1
+2021-01-08 15:29:07.885 3483-3483/com.baidu.map.location I/NLP: Location result:[location successful by Baidu], reason:[network location] locType=161, NetworkLocationType = wf
+2021-01-08 15:29:07.897 3483-4159/com.baidu.map.location D/NLPLOC: start network locating ...true  true
+2021-01-08 15:29:07.897 3483-4159/com.baidu.map.location D/NLP_STA: network locating ...true  true
+2021-01-08 15:29:08.030 3483-4169/com.baidu.map.location D/NLPLOC: upDataStr = :null
+2021-01-08 15:29:08.196 3483-4175/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
+2021-01-08 15:29:08.196 3483-4175/com.baidu.map.location I/NLPLOC: finally 
+2021-01-08 15:29:08.198 3483-4175/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
+2021-01-08 15:29:08.199 3483-4175/com.baidu.map.location I/NLPLOC: finally 
+2021-01-08 15:29:08.204 3483-4175/com.baidu.map.location D/NLPLOC: NetworkCommunicationException!
+2021-01-08 15:29:08.204 3483-4175/com.baidu.map.location I/NLPLOC: finally 
+2021-01-08 15:29:08.556 3483-3515/com.baidu.map.location I/NLP:  开始RGC onGetFromLocation:org.codeaurora.imsmaxResults = 1
+2021-01-08 15:29:08.754 3483-3515/com.baidu.map.location I/NLP: rgeo result:[rego successful by Baidu]
+2021-01-08 15:29:17.462 3483-3483/com.baidu.map.location I/NLP: 百度SDK响应值为：0
+2021-01-08 15:29:17.489 3483-4159/com.baidu.map.location I/NLPLOC: wifi start scan
+2021-01-08 15:29:20.589 3483-3483/com.baidu.map.location D/NLPLOC: start network locating ...false  false
+2021-01-08 15:29:20.590 3483-3483/com.baidu.map.location D/NLP_STA: network locating ...false  false
+2021-01-08 15:29:20.616 3483-3483/com.baidu.map.location I/NLP: Location result:[location successful by Baidu], reason:[network location] locType=161, NetworkLocationType = wf
+2021-01-08 15:29:21.377 3483-3483/com.baidu.map.location D/NLPLOC: WifiScan finished, in callback.
+
+```
 
 ## dumpsys location
 
