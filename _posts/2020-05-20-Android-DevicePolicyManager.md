@@ -35,6 +35,8 @@ DeviceOwner完善了行业用户的MDM(Mobile Device Manager)行业管理能力�
 12. 获取wifi地址
 13. 重启系统
 
+![device_owner_settings](/images/device_owner_settings.png)
+
 ### device_admin.xml
 
 ```xml
@@ -229,3 +231,351 @@ ProfileOwner 译为配置文件所有者，在Android5.0系统推出。ProfileOw
     }
 
 ```
+
+## DevicePolicyManager
+
+```java
+
+@SystemService(Context.DEVICE_POLICY_SERVICE)
+@RequiresFeature(PackageManager.FEATURE_DEVICE_ADMIN)
+public class DevicePolicyManager {
+
+    /**
+     * Return a list of all currently active device administrators' component
+     * names.  If there are no administrators {@code null} may be
+     * returned.
+     */
+    public @Nullable List<ComponentName> getActiveAdmins() {
+        throwIfParentInstance("getActiveAdmins");
+        return getActiveAdminsAsUser(myUserId());
+    }
+
+    /**
+     * Returns the device owner package name, only if it's running on the calling user.
+     *
+     * <p>Bundled components should use {@code getDeviceOwnerComponentOnCallingUser()} for clarity.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
+    public @Nullable String getDeviceOwner() {
+        throwIfParentInstance("getDeviceOwner");
+        final ComponentName name = getDeviceOwnerComponentOnCallingUser();
+        return name != null ? name.getPackageName() : null;
+    }
+
+    @SystemApi
+    @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
+    public boolean isManagedKiosk() {
+        throwIfParentInstance("isManagedKiosk");
+        if (mService != null) {
+            try {
+                return mService.isManagedKiosk();
+            } catch (RemoteException e) {
+                throw e.rethrowFromSystemServer();
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @hide
+     */
+    @UnsupportedAppUsage
+    public void setActiveAdmin(@NonNull ComponentName policyReceiver, boolean refreshing) {
+        setActiveAdmin(policyReceiver, refreshing, myUserId());
+    }
+
+    /**
+     * @hide
+     * Sets the given package as the device owner.
+     * Same as {@link #setDeviceOwner(ComponentName, String)} but without setting a device owner name.
+     * @param who the component name to be registered as device owner.
+     * @return whether the package was successfully registered as the device owner.
+     * @throws IllegalArgumentException if the package name is null or invalid
+     * @throws IllegalStateException If the preconditions mentioned are not met.
+     */
+    public boolean setDeviceOwner(ComponentName who) {
+        return setDeviceOwner(who, null);
+    }
+
+    public boolean setProfileOwner(@NonNull ComponentName admin, @Deprecated String ownerName,
+            int userHandle) throws IllegalArgumentException {
+        if (mService != null) {
+            try {
+                if (ownerName == null) {
+                    ownerName = "";
+                }
+                return mService.setProfileOwner(admin, ownerName, userHandle);
+            } catch (RemoteException re) {
+                throw re.rethrowFromSystemServer();
+            }
+        }
+        return false;
+    }
+
+
+}
+
+```
+
+## data/system/device_policies.xml
+
+```xml
+
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<policies setup-complete="true" provisioning-state="3">
+    <admin name="com.example.android.deviceowner/com.example.android.deviceowner.DeviceOwnerReceiver">
+        <policies flags="479" />
+        <strong-auth-unlock-timeout value="0" />
+        <cross-profile-calendar-packages />
+        <cross-profile-packages />
+    </admin>
+    <lock-task-features value="16" />
+</policies>
+
+```
+
+## data/system/device_owner_2.xml
+
+```xml
+
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<root>
+    <device-owner package="com.example.android.deviceowner"
+        name=""
+        component="com.example.android.deviceowner/com.example.android.deviceowner.DeviceOwnerReceiver"
+        userRestrictionsMigrated="true"
+        isPoOrganizationOwnedDevice="true" />
+    <device-owner-context userId="0" />
+</root>
+
+```
+
+## DevicePolicyManagerService
+
+```java
+
+public class DevicePolicyManagerService extends BaseIDevicePolicyManager {
+
+    /**
+     * Instantiates the service.
+     */
+    public DevicePolicyManagerService(Context context) {
+        this(new Injector(context));
+    }
+
+    @VisibleForTesting
+    DevicePolicyManagerService(Injector injector) {
+        mInjector = injector;
+        mContext = Objects.requireNonNull(injector.mContext);
+        mHandler = new Handler(Objects.requireNonNull(injector.getMyLooper()));
+
+        mConstantsObserver = new DevicePolicyConstantsObserver(mHandler);
+        mConstantsObserver.register();
+        mConstants = loadConstants();
+
+        mOwners = Objects.requireNonNull(injector.newOwners());
+
+        mUserManager = Objects.requireNonNull(injector.getUserManager());
+        mUserManagerInternal = Objects.requireNonNull(injector.getUserManagerInternal());
+        mUsageStatsManagerInternal = Objects.requireNonNull(
+                injector.getUsageStatsManagerInternal());
+        mIPackageManager = Objects.requireNonNull(injector.getIPackageManager());
+        mIPlatformCompat = Objects.requireNonNull(injector.getIPlatformCompat());
+        mIPermissionManager = Objects.requireNonNull(injector.getIPermissionManager());
+        mTelephonyManager = Objects.requireNonNull(injector.getTelephonyManager());
+
+        mLocalService = new LocalService();
+        mLockPatternUtils = injector.newLockPatternUtils();
+        mLockSettingsInternal = injector.getLockSettingsInternal();
+        // TODO: why does SecurityLogMonitor need to be created even when mHasFeature == false?
+        mSecurityLogMonitor = new SecurityLogMonitor(this);
+
+        mHasFeature = mInjector.hasFeature();
+        mIsWatch = mInjector.getPackageManager()
+                .hasSystemFeature(PackageManager.FEATURE_WATCH);
+        mHasTelephonyFeature = mInjector.getPackageManager()
+                .hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+        mBackgroundHandler = BackgroundThread.getHandler();
+
+        // Needed when mHasFeature == false, because it controls the certificate warning text.
+        mCertificateMonitor = new CertificateMonitor(this, mInjector, mBackgroundHandler);
+
+        mDeviceAdminServiceController = new DeviceAdminServiceController(this, mConstants);
+
+        mOverlayPackagesProvider = new OverlayPackagesProvider(mContext);
+
+        mTransferOwnershipMetadataManager = mInjector.newTransferOwnershipMetadataManager();
+
+        if (!mHasFeature) {
+            // Skip the rest of the initialization
+            mSetupContentObserver = null;
+            return;
+        }
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_BOOT_COMPLETED);
+        filter.addAction(ACTION_EXPIRED_PASSWORD_NOTIFICATION);
+        filter.addAction(ACTION_TURN_PROFILE_ON_NOTIFICATION);
+        filter.addAction(ACTION_PROFILE_OFF_DEADLINE);
+        filter.addAction(Intent.ACTION_USER_ADDED);
+        filter.addAction(Intent.ACTION_USER_REMOVED);
+        filter.addAction(Intent.ACTION_USER_STARTED);
+        filter.addAction(Intent.ACTION_USER_STOPPED);
+        filter.addAction(Intent.ACTION_USER_SWITCHED);
+        filter.addAction(Intent.ACTION_USER_UNLOCKED);
+        filter.addAction(Intent.ACTION_MANAGED_PROFILE_UNAVAILABLE);
+        filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+        mContext.registerReceiverAsUser(mReceiver, UserHandle.ALL, filter, null, mHandler);
+        filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addAction(Intent.ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE);
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addDataScheme("package");
+        mContext.registerReceiverAsUser(mReceiver, UserHandle.ALL, filter, null, mHandler);
+        filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_MANAGED_PROFILE_ADDED);
+        filter.addAction(Intent.ACTION_TIME_CHANGED);
+        filter.addAction(Intent.ACTION_DATE_CHANGED);
+        mContext.registerReceiverAsUser(mReceiver, UserHandle.ALL, filter, null, mHandler);
+
+        LocalServices.addService(DevicePolicyManagerInternal.class, mLocalService);
+
+        mSetupContentObserver = new SetupContentObserver(mHandler);
+
+        mUserManagerInternal.addUserRestrictionsListener(new RestrictionsListener(mContext));
+
+        loadOwners();
+    }
+
+}
+
+```
+
+## dumpsys device_policy
+
+```txt
+
+qssi:/ $ dumpsys device_policy
+Current Device Policy Manager state:
+  Device Owner: 
+    admin=ComponentInfo{com.example.android.deviceowner/com.example.android.deviceowner.DeviceOwnerReceiver}
+    name=
+    package=com.example.android.deviceowner
+    isOrganizationOwnedDevice=true
+    User ID: 0
+  
+  
+  
+  Enabled Device Admins (User 0, provisioningState: 3):
+    com.example.android.deviceowner/.DeviceOwnerReceiver:
+      uid=10163
+      testOnlyAdmin=false
+      policies:
+        wipe-data
+        reset-password
+        limit-password
+        watch-login
+        force-lock
+        expire-password
+        encrypted-storage
+        disable-camera
+      passwordQuality=0x0
+      minimumPasswordLength=0
+      passwordHistoryLength=0
+      minimumPasswordUpperCase=0
+      minimumPasswordLowerCase=0
+      minimumPasswordLetters=1
+      minimumPasswordNumeric=1
+      minimumPasswordSymbols=1
+      minimumPasswordNonLetter=0
+      maximumTimeToUnlock=0
+      strongAuthUnlockTimeout=0
+      maximumFailedPasswordsForWipe=0
+      specifiesGlobalProxy=false
+      passwordExpirationTimeout=0
+      passwordExpirationDate=0
+      encryptionRequested=false
+      disableCamera=false
+      disableCallerId=false
+      disableContactsSearch=false
+      disableBluetoothContactSharing=true
+      disableScreenCapture=false
+      requireAutoTime=false
+      forceEphemeralUsers=false
+      isNetworkLoggingEnabled=false
+      disabledKeyguardFeatures=0
+      crossProfileWidgetProviders=null
+      organizationColor=-16746133
+      userRestrictions:
+        none
+      defaultEnabledRestrictionsAlreadySet={}
+      isParent=false
+      mCrossProfileCalendarPackages=[]
+      mCrossProfilePackages=[]
+      mSuspendPersonalApps=false
+      mProfileMaximumTimeOffMillis=0
+      mProfileOffDeadline=0
+      mAlwaysOnVpnPackage=null
+      mAlwaysOnVpnLockdown=false
+      mCommonCriteriaMode=false
+  
+    mPasswordOwner=-1
+    mUserControlDisabledPackages=[]
+    mAppsSuspended=false
+  
+  Constants:
+    DAS_DIED_SERVICE_RECONNECT_BACKOFF_SEC: 3600
+    DAS_DIED_SERVICE_RECONNECT_BACKOFF_INCREASE: 2.0
+    DAS_DIED_SERVICE_RECONNECT_MAX_BACKOFF_SEC: 86400
+    DAS_DIED_SERVICE_STABLE_CONNECTION_THRESHOLD_SEC: 120
+  
+  Stats:
+    LockGuard.guard(): count=846, total=5.6ms, avg=0.007ms, max calls/s=96 max dur/s=0.5ms max time=0.1ms
+  
+  Encryption Status: per-user
+  
+  Device policy cache:
+    Screen capture disabled: {0=false}
+    Password quality: {0=0}
+  
+  Device state cache:
+    Device provisioned: true
+
+```
+
+## dpm
+
+adb shell dpm set-device-owner com.sscience.deviceowner/.MyDeviceAdminReceiver
+
+```txt
+
+qssi:/ $ dpm
+usage: dpm [subcommand] [options]
+usage: dpm set-active-admin [ --user <USER_ID> | current ] <COMPONENT>
+usage: dpm set-device-owner [ --user <USER_ID> | current *EXPERIMENTAL* ] [ --name <NAME> ] <COMPONENT>
+usage: dpm set-profile-owner [ --user <USER_ID> | current ] [ --name <NAME> ] <COMPONENT>
+usage: dpm remove-active-admin [ --user <USER_ID> | current ] [ --name <NAME> ] <COMPONENT>
+
+dpm set-active-admin: Sets the given component as active admin for an existing user.
+
+dpm set-device-owner: Sets the given component as active admin, and its package as device owner.
+
+dpm set-profile-owner: Sets the given component as active admin and profile owner for an existing user.
+
+dpm remove-active-admin: Disables an active admin, the admin must have declared android:testOnly in the application in its manifest. This will also remove device and profile owners.
+
+dpm clear-freeze-period-record: clears framework-maintained record of past freeze periods that the device went through. For use during feature development to prevent triggering restriction on setting freeze periods.
+
+dpm force-network-logs: makes all network logs available to the DPC and triggers DeviceAdminReceiver.onNetworkLogsAvailable() if needed.
+
+dpm force-security-logs: makes all security logs available to the DPC and triggers DeviceAdminReceiver.onSecurityLogsAvailable() if needed.
+usage: dpm mark-profile-owner-on-organization-owned-device: [ --user <USER_ID> | current ] <COMPONENT>
+
+```
+
+
+
