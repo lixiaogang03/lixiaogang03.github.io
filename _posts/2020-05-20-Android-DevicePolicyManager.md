@@ -353,6 +353,517 @@ public class DevicePolicyManager {
 
 ```
 
+## IDevicePolicyManager
+
+```java
+
+interface IDevicePolicyManager {
+
+    // 设置密码质量
+    void setPasswordQuality(in ComponentName who, int quality, boolean parent);
+
+    // 设置密码长度
+    void setPasswordMinimumLength(in ComponentName who, int length, boolean parent);
+
+    // 设置密码大小写，字母，数字，符号
+    void setPasswordMinimumUpperCase(in ComponentName who, int length, boolean parent);
+    void setPasswordMinimumLowerCase(in ComponentName who, int length, boolean parent);
+    void setPasswordMinimumLetters(in ComponentName who, int length, boolean parent);
+    void setPasswordMinimumNumeric(in ComponentName who, int length, boolean parent);
+    void setPasswordMinimumSymbols(in ComponentName who, int length, boolean parent);
+    void setPasswordMinimumNonLetter(in ComponentName who, int length, boolean parent);
+
+    PasswordMetrics getPasswordMinimumMetrics(int userHandle);
+
+    void setPasswordHistoryLength(in ComponentName who, int length, boolean parent);
+    void setPasswordExpirationTimeout(in ComponentName who, long expiration, boolean parent);
+    long getPasswordExpiration(in ComponentName who, int userHandle, boolean parent);
+
+    boolean isActivePasswordSufficient(int userHandle, boolean parent);
+    boolean isProfileActivePasswordSufficientForParent(int userHandle);
+    boolean isPasswordSufficientAfterProfileUnification(int userHandle, int profileUser);
+    int getPasswordComplexity(boolean parent);
+    boolean isUsingUnifiedPassword(in ComponentName admin);
+    int getCurrentFailedPasswordAttempts(int userHandle, boolean parent);
+    int getProfileWithMinimumFailedPasswordsForWipe(int userHandle, boolean parent);
+
+    void setMaximumFailedPasswordsForWipe(in ComponentName admin, int num, boolean parent);
+
+    // 重置密码
+    boolean resetPassword(String password, int flags);
+
+    // 设置设备可以使用的时间
+    void setMaximumTimeToLock(in ComponentName who, long timeMs, boolean parent);
+    long getMaximumTimeToLock(in ComponentName who, int userHandle, boolean parent);
+
+    // 设置超时时间，超时后需要身份验证才能继续使用
+    void setRequiredStrongAuthTimeout(in ComponentName who, long timeMs, boolean parent);
+    long getRequiredStrongAuthTimeout(in ComponentName who, int userId, boolean parent);
+
+    // 立即锁定
+    void lockNow(int flags, boolean parent);
+
+    // 清除数据
+    void wipeDataWithReason(int flags, String wipeReasonForUser, boolean parent);
+
+    // 设置恢复出厂设置的保护策略
+    void setFactoryResetProtectionPolicy(in ComponentName who, in FactoryResetProtectionPolicy policy);
+    FactoryResetProtectionPolicy getFactoryResetProtectionPolicy(in ComponentName who);
+    boolean isFactoryResetProtectionPolicySupported();
+
+    // 设置全局代理
+    ComponentName setGlobalProxy(in ComponentName admin, String proxySpec, String exclusionList);
+    ComponentName getGlobalProxyAdmin(int userHandle);
+    void setRecommendedGlobalProxy(in ComponentName admin, in ProxyInfo proxyInfo);
+
+    // 设置存储加密
+    int setStorageEncryption(in ComponentName who, boolean encrypt);
+    boolean getStorageEncryption(in ComponentName who, int userHandle);
+    int getStorageEncryptionStatus(in String callerPackage, int userHandle);
+
+    // 请求bugreport
+    boolean requestBugreport(in ComponentName who);
+
+    // 禁止使用摄像头
+    void setCameraDisabled(in ComponentName who, boolean disabled, boolean parent);
+    boolean getCameraDisabled(in ComponentName who, int userHandle, boolean parent);
+
+    // 禁止使用屏幕截图
+    void setScreenCaptureDisabled(in ComponentName who, boolean disabled, boolean parent);
+    boolean getScreenCaptureDisabled(in ComponentName who, int userHandle, boolean parent);
+
+    // 禁止在锁屏上显示指定内容
+    void setKeyguardDisabledFeatures(in ComponentName who, int which, boolean parent);
+    int getKeyguardDisabledFeatures(in ComponentName who, int userHandle, boolean parent);
+
+    // 激活设备管理器
+    void setActiveAdmin(in ComponentName policyReceiver, boolean refreshing, int userHandle);
+    boolean isAdminActive(in ComponentName policyReceiver, int userHandle);
+    List<ComponentName> getActiveAdmins(int userHandle);
+
+    @UnsupportedAppUsage
+    // 应用是否可以被卸载
+    boolean packageHasActiveAdmins(String packageName, int userHandle);
+
+    void getRemoveWarning(in ComponentName policyReceiver, in RemoteCallback result, int userHandle);
+
+    // 移除激活的设备管理器
+    void removeActiveAdmin(in ComponentName policyReceiver, int userHandle);
+    void forceRemoveActiveAdmin(in ComponentName policyReceiver, int userHandle);
+
+    // 检查是否已向管理员授予策略
+    boolean hasGrantedPolicy(in ComponentName policyReceiver, int usesPolicy, int userHandle);
+
+    // 报告密码变更
+    void reportPasswordChanged(int userId);
+    // 报告错误的密码尝试
+    void reportFailedPasswordAttempt(int userHandle);
+    // 报告成功的密码尝试
+    void reportSuccessfulPasswordAttempt(int userHandle);
+    // 报告失败的生物密码尝试
+    void reportFailedBiometricAttempt(int userHandle);
+    void reportSuccessfulBiometricAttempt(int userHandle);
+
+    // 报告锁屏解锁
+    void reportKeyguardDismissed(int userHandle);
+    // 报告锁屏锁定
+    void reportKeyguardSecured(int userHandle);
+
+    // 设置设备拥有者
+    boolean setDeviceOwner(in ComponentName who, String ownerName, int userId);
+    ComponentName getDeviceOwnerComponent(boolean callingUserOnly);
+    boolean hasDeviceOwner();
+    String getDeviceOwnerName();
+    // 清除设备owner
+    void clearDeviceOwner(String packageName);
+    int getDeviceOwnerUserId();
+
+    // 设置配置信息拥有者
+    boolean setProfileOwner(in ComponentName who, String ownerName, int userHandle);
+    ComponentName getProfileOwnerAsUser(int userHandle);
+    ComponentName getProfileOwner(int userHandle);
+    ComponentName getProfileOwnerOrDeviceOwnerSupervisionComponent(in UserHandle userHandle);
+    String getProfileOwnerName(int userHandle);
+
+    // 启用配置
+    void setProfileEnabled(in ComponentName who);
+    void setProfileName(in ComponentName who, String profileName);
+    void clearProfileOwner(in ComponentName who);
+
+    // 是否开机向导已经完成
+    boolean hasUserSetupCompleted();
+
+    // 设备是否已经配置为具有托管配置文件的组织专用设备
+    boolean isOrganizationOwnedDeviceWithManagedProfile();
+
+    // 是否有读取设备标识符的权限
+    boolean checkDeviceIdentifierAccess(in String packageName, int pid, int uid);
+
+    // 设置在锁屏上显示的设备所有者信息
+    void setDeviceOwnerLockScreenInfo(in ComponentName who, CharSequence deviceOwnerInfo);
+    CharSequence getDeviceOwnerLockScreenInfo();
+
+    // 禁用某个软件包
+    String[] setPackagesSuspended(in ComponentName admin, in String callerPackage, in String[] packageNames, boolean suspended);
+    boolean isPackageSuspended(in ComponentName admin, in String callerPackage, String packageName);
+
+    // 安装CA证书
+    boolean installCaCert(in ComponentName admin, String callerPackage, in byte[] certBuffer);
+    void uninstallCaCerts(in ComponentName admin, String callerPackage, in String[] aliases);
+    void enforceCanManageCaCerts(in ComponentName admin, in String callerPackage);
+    boolean approveCaCert(in String alias, int userHandle, boolean approval);
+    boolean isCaCertApproved(in String alias, int userHandle);
+
+    
+    boolean installKeyPair(in ComponentName who, in String callerPackage, in byte[] privKeyBuffer,
+            in byte[] certBuffer, in byte[] certChainBuffer, String alias, boolean requestAccess,
+            boolean isUserSelectable);
+    boolean removeKeyPair(in ComponentName who, in String callerPackage, String alias);
+    boolean generateKeyPair(in ComponentName who, in String callerPackage, in String algorithm,
+            in ParcelableKeyGenParameterSpec keySpec,
+            in int idAttestationFlags, out KeymasterCertificateChain attestationChain);
+    boolean setKeyPairCertificate(in ComponentName who, in String callerPackage, in String alias,
+            in byte[] certBuffer, in byte[] certChainBuffer, boolean isUserSelectable);
+    void choosePrivateKeyAlias(int uid, in Uri uri, in String alias, IBinder aliasCallback);
+
+    // 向其他应用授予特权API的访问权限
+    void setDelegatedScopes(in ComponentName who, in String delegatePackage, in List<String> scopes);
+
+    // 获取向某个应用授权的访问权限列表
+    List<String> getDelegatedScopes(in ComponentName who, String delegatePackage);
+
+    // 获取已经授予某个权限的应用列表
+    List<String> getDelegatePackages(in ComponentName who, String scope);
+
+    // 将需要签名权限授予三方应用
+    void setCertInstallerPackage(in ComponentName who, String installerPackage);
+    String getCertInstallerPackage(in ComponentName who);
+
+    // 指定一组在VPN时能够直接访问网络的应用程序
+    boolean setAlwaysOnVpnPackage(in ComponentName who, String vpnPackage, boolean lockdown, in List<String> lockdownWhitelist);
+    String getAlwaysOnVpnPackage(in ComponentName who);
+    String getAlwaysOnVpnPackageForUser(int userHandle);
+    boolean isAlwaysOnVpnLockdownEnabled(in ComponentName who);
+    boolean isAlwaysOnVpnLockdownEnabledForUser(int userHandle);
+    List<String> getAlwaysOnVpnLockdownWhitelist(in ComponentName who);
+
+    // 设置默认首选项（默认桌面，电话，短信等）    
+    void addPersistentPreferredActivity(in ComponentName admin, in IntentFilter filter, in ComponentName activity);
+    void clearPackagePersistentPreferredActivities(in ComponentName admin, String packageName);
+
+    // 设置默认短信
+    void setDefaultSmsApplication(in ComponentName admin, String packageName, boolean parent);
+
+    // 给应用程序设置权限
+    void setApplicationRestrictions(in ComponentName who, in String callerPackage, in String packageName, in Bundle settings);
+    Bundle getApplicationRestrictions(in ComponentName who, in String callerPackage, in String packageName);
+    
+    // 给应用授予管理软件包的权限
+    boolean setApplicationRestrictionsManagingPackage(in ComponentName admin, in String packageName);
+    String getApplicationRestrictionsManagingPackage(in ComponentName admin);
+    boolean isCallerApplicationRestrictionsManagingPackage(in String callerPackage);
+
+    // 给Provider设置权限
+    void setRestrictionsProvider(in ComponentName who, in ComponentName provider);
+    ComponentName getRestrictionsProvider(int userHandle);
+
+    // 给用户设置权限
+    void setUserRestriction(in ComponentName who, in String key, boolean enable, boolean parent);
+    Bundle getUserRestrictions(in ComponentName who, boolean parent);
+
+    void addCrossProfileIntentFilter(in ComponentName admin, in IntentFilter filter, int flags);
+    void clearCrossProfileIntentFilters(in ComponentName admin);
+
+    // 无障碍服务
+    boolean setPermittedAccessibilityServices(in ComponentName admin,in List packageList);
+    List getPermittedAccessibilityServices(in ComponentName admin);
+    List getPermittedAccessibilityServicesForUser(int userId);
+    boolean isAccessibilityServicePermittedByAdmin(in ComponentName admin, String packageName, int userId);
+
+    // 设置被允许的输入法
+    boolean setPermittedInputMethods(in ComponentName admin,in List packageList);
+    List getPermittedInputMethods(in ComponentName admin);
+    List getPermittedInputMethodsForCurrentUser();
+    boolean isInputMethodPermittedByAdmin(in ComponentName admin, String packageName, int userId);
+
+    // 设置被允许的通知监听
+    boolean setPermittedCrossProfileNotificationListeners(in ComponentName admin, in List<String> packageList);
+    List<String> getPermittedCrossProfileNotificationListeners(in ComponentName admin);
+    boolean isNotificationListenerServicePermitted(in String packageName, int userId);
+
+    // Called by any app to display a support dialog when a feature was disabled by an admin.
+    // This returns an intent that can be used with {@link Context#startActivity(Intent)} to display the dialog. 
+    // It will tell the user that the feature indicated by {@code restriction}was disabled by an admin, and include a link for more information.
+    Intent createAdminSupportIntent(in String restriction);
+
+    // 隐藏某个应用，将保留数据setApplicationHiddenSettingAsUser
+    boolean setApplicationHidden(in ComponentName admin, in String callerPackage, in String packageName, boolean hidden, boolean parent);
+    boolean isApplicationHidden(in ComponentName admin, in String callerPackage, in String packageName, boolean parent);
+
+    // 创建和管理用户
+    UserHandle createAndManageUser(in ComponentName who, in String name, in ComponentName profileOwner, in PersistableBundle adminExtras, in int flags);
+    boolean removeUser(in ComponentName who, in UserHandle userHandle);
+    boolean switchUser(in ComponentName who, in UserHandle userHandle);
+    int startUserInBackground(in ComponentName who, in UserHandle userHandle);
+    int stopUser(in ComponentName who, in UserHandle userHandle);
+    int logoutUser(in ComponentName who);
+    List<UserHandle> getSecondaryUsers(in ComponentName who);
+
+    // 启用系统应用
+    void enableSystemApp(in ComponentName admin, in String callerPackage, in String packageName);
+    int enableSystemAppWithIntent(in ComponentName admin, in String callerPackage, in Intent intent);
+    
+    // 安装已经存在的包
+    boolean installExistingPackage(in ComponentName admin, in String callerPackage, in String packageName);
+
+    // 禁用账户管理
+    void setAccountManagementDisabled(in ComponentName who, in String accountType, in boolean disabled, in boolean parent);
+    String[] getAccountTypesWithManagementDisabled();
+    String[] getAccountTypesWithManagementDisabledAsUser(int userId, in boolean parent);
+
+    void setSecondaryLockscreenEnabled(in ComponentName who, boolean enabled);
+    boolean isSecondaryLockscreenEnabled(in UserHandle userHandle);
+
+    // 设置可以进入任务锁定的包
+    void setLockTaskPackages(in ComponentName who, in String[] packages);
+    String[] getLockTaskPackages(in ComponentName who);
+    boolean isLockTaskPermitted(in String pkg);
+
+    void setLockTaskFeatures(in ComponentName who, int flags);
+    int getLockTaskFeatures(in ComponentName who);
+
+    // 设置系统数据库
+    void setGlobalSetting(in ComponentName who, in String setting, in String value);
+    void setSystemSetting(in ComponentName who, in String setting, in String value);
+    void setSecureSetting(in ComponentName who, in String setting, in String value);
+
+    // 锁定网络配置
+    void setConfiguredNetworksLockdownState(in ComponentName who, boolean lockdown);
+    boolean hasLockdownAdminConfiguredNetworks(in ComponentName who);
+
+    // 启用位置信息
+    void setLocationEnabled(in ComponentName who, boolean locationEnabled);
+
+    // 设置时间和时区
+    boolean setTime(in ComponentName who, long millis);
+    boolean setTimeZone(in ComponentName who, String timeZone);
+
+    // 设置静音模式
+    void setMasterVolumeMuted(in ComponentName admin, boolean on);
+    boolean isMasterVolumeMuted(in ComponentName admin);
+
+    void notifyLockTaskModeChanged(boolean isEnabled, String pkg, int userId);
+
+    // 设置是否允许卸载软件包
+    void setUninstallBlocked(in ComponentName admin, in String callerPackage, in String packageName, boolean uninstallBlocked);
+    boolean isUninstallBlocked(in ComponentName admin, in String packageName);
+
+    void setCrossProfileCallerIdDisabled(in ComponentName who, boolean disabled);
+    boolean getCrossProfileCallerIdDisabled(in ComponentName who);
+    boolean getCrossProfileCallerIdDisabledForUser(int userId);
+    void setCrossProfileContactsSearchDisabled(in ComponentName who, boolean disabled);
+    boolean getCrossProfileContactsSearchDisabled(in ComponentName who);
+    boolean getCrossProfileContactsSearchDisabledForUser(int userId);
+    void startManagedQuickContact(String lookupKey, long contactId, boolean isContactIdIgnored, long directoryId, in Intent originalIntent);
+
+    void setBluetoothContactSharingDisabled(in ComponentName who, boolean disabled);
+    boolean getBluetoothContactSharingDisabled(in ComponentName who);
+    boolean getBluetoothContactSharingDisabledForUser(int userId);
+
+    void setTrustAgentConfiguration(in ComponentName admin, in ComponentName agent,
+            in PersistableBundle args, boolean parent);
+    List<PersistableBundle> getTrustAgentConfiguration(in ComponentName admin,
+            in ComponentName agent, int userId, boolean parent);
+
+    boolean addCrossProfileWidgetProvider(in ComponentName admin, String packageName);
+    boolean removeCrossProfileWidgetProvider(in ComponentName admin, String packageName);
+    List<String> getCrossProfileWidgetProviders(in ComponentName admin);
+
+    void setAutoTimeRequired(in ComponentName who, boolean required);
+    boolean getAutoTimeRequired();
+
+    void setAutoTimeEnabled(in ComponentName who, boolean enabled);
+    boolean getAutoTimeEnabled(in ComponentName who);
+
+    void setAutoTimeZoneEnabled(in ComponentName who, boolean enabled);
+    boolean getAutoTimeZoneEnabled(in ComponentName who);
+
+    void setForceEphemeralUsers(in ComponentName who, boolean forceEpehemeralUsers);
+    boolean getForceEphemeralUsers(in ComponentName who);
+
+    boolean isRemovingAdmin(in ComponentName adminReceiver, int userHandle);
+
+    void setUserIcon(in ComponentName admin, in Bitmap icon);
+
+    void setSystemUpdatePolicy(in ComponentName who, in SystemUpdatePolicy policy);
+    SystemUpdatePolicy getSystemUpdatePolicy();
+    void clearSystemUpdatePolicyFreezePeriodRecord();
+
+    // 禁用锁屏状态栏
+    boolean setKeyguardDisabled(in ComponentName admin, boolean disabled);
+    boolean setStatusBarDisabled(in ComponentName who, boolean disabled);
+    boolean getDoNotAskCredentialsOnBoot();
+
+    void notifyPendingSystemUpdate(in SystemUpdateInfo info);
+    SystemUpdateInfo getPendingSystemUpdate(in ComponentName admin);
+
+    void setPermissionPolicy(in ComponentName admin, in String callerPackage, int policy);
+    int  getPermissionPolicy(in ComponentName admin);
+    void setPermissionGrantState(in ComponentName admin, in String callerPackage, String packageName,
+            String permission, int grantState, in RemoteCallback resultReceiver);
+    int getPermissionGrantState(in ComponentName admin, in String callerPackage, String packageName, String permission);
+    boolean isProvisioningAllowed(String action, String packageName);
+    int checkProvisioningPreCondition(String action, String packageName);
+    void setKeepUninstalledPackages(in ComponentName admin, in String callerPackage, in List<String> packageList);
+    List<String> getKeepUninstalledPackages(in ComponentName admin, in String callerPackage);
+    boolean isManagedProfile(in ComponentName admin);
+    boolean isSystemOnlyUser(in ComponentName admin);
+    
+    // 获取MAC地址
+    String getWifiMacAddress(in ComponentName admin);
+    // 重启设备
+    void reboot(in ComponentName admin);
+
+    void setShortSupportMessage(in ComponentName admin, in CharSequence message);
+    CharSequence getShortSupportMessage(in ComponentName admin);
+    void setLongSupportMessage(in ComponentName admin, in CharSequence message);
+    CharSequence getLongSupportMessage(in ComponentName admin);
+
+    CharSequence getShortSupportMessageForUser(in ComponentName admin, int userHandle);
+    CharSequence getLongSupportMessageForUser(in ComponentName admin, int userHandle);
+
+    boolean isSeparateProfileChallengeAllowed(int userHandle);
+
+    void setOrganizationColor(in ComponentName admin, in int color);
+    void setOrganizationColorForUser(in int color, in int userId);
+    int getOrganizationColor(in ComponentName admin);
+    int getOrganizationColorForUser(int userHandle);
+
+    void setOrganizationName(in ComponentName admin, in CharSequence title);
+    CharSequence getOrganizationName(in ComponentName admin);
+    CharSequence getDeviceOwnerOrganizationName();
+    CharSequence getOrganizationNameForUser(int userHandle);
+
+    int getUserProvisioningState();
+    void setUserProvisioningState(int state, int userHandle);
+
+    void setAffiliationIds(in ComponentName admin, in List<String> ids);
+    List<String> getAffiliationIds(in ComponentName admin);
+    boolean isAffiliatedUser();
+
+    void setSecurityLoggingEnabled(in ComponentName admin, boolean enabled);
+    boolean isSecurityLoggingEnabled(in ComponentName admin);
+    ParceledListSlice retrieveSecurityLogs(in ComponentName admin);
+    ParceledListSlice retrievePreRebootSecurityLogs(in ComponentName admin);
+    long forceNetworkLogs();
+    long forceSecurityLogs();
+
+    boolean isUninstallInQueue(String packageName);
+    void uninstallPackageWithActiveAdmins(String packageName);
+
+    boolean isDeviceProvisioned();
+    boolean isDeviceProvisioningConfigApplied();
+    void setDeviceProvisioningConfigApplied();
+
+    void forceUpdateUserSetupComplete();
+
+    // 启用备份服务
+    void setBackupServiceEnabled(in ComponentName admin, boolean enabled);
+    boolean isBackupServiceEnabled(in ComponentName admin);
+
+    void setNetworkLoggingEnabled(in ComponentName admin, in String packageName, boolean enabled);
+    boolean isNetworkLoggingEnabled(in ComponentName admin, in String packageName);
+    List<NetworkEvent> retrieveNetworkLogs(in ComponentName admin, in String packageName, long batchToken);
+
+    boolean bindDeviceAdminServiceAsUser(in ComponentName admin,
+        IApplicationThread caller, IBinder token, in Intent service,
+        IServiceConnection connection, int flags, int targetUserId);
+    List<UserHandle> getBindDeviceAdminTargetUsers(in ComponentName admin);
+    boolean isEphemeralUser(in ComponentName admin);
+
+    long getLastSecurityLogRetrievalTime();
+    long getLastBugReportRequestTime();
+    long getLastNetworkLogRetrievalTime();
+
+    boolean setResetPasswordToken(in ComponentName admin, in byte[] token);
+    boolean clearResetPasswordToken(in ComponentName admin);
+    boolean isResetPasswordTokenActive(in ComponentName admin);
+    boolean resetPasswordWithToken(in ComponentName admin, String password, in byte[] token, int flags);
+
+    boolean isCurrentInputMethodSetByOwner();
+    StringParceledListSlice getOwnerInstalledCaCerts(in UserHandle user);
+
+    // 清除用户数据
+    void clearApplicationUserData(in ComponentName admin, in String packageName, in IPackageDataObserver callback);
+
+    void setLogoutEnabled(in ComponentName admin, boolean enabled);
+    boolean isLogoutEnabled();
+
+    List<String> getDisallowedSystemApps(in ComponentName admin, int userId, String provisioningAction);
+
+    void transferOwnership(in ComponentName admin, in ComponentName target, in PersistableBundle bundle);
+    PersistableBundle getTransferOwnershipBundle();
+
+    void setStartUserSessionMessage(in ComponentName admin, in CharSequence startUserSessionMessage);
+    void setEndUserSessionMessage(in ComponentName admin, in CharSequence endUserSessionMessage);
+    CharSequence getStartUserSessionMessage(in ComponentName admin);
+    CharSequence getEndUserSessionMessage(in ComponentName admin);
+
+    List<String> setMeteredDataDisabledPackages(in ComponentName admin, in List<String> packageNames);
+    List<String> getMeteredDataDisabledPackages(in ComponentName admin);
+
+    int addOverrideApn(in ComponentName admin, in ApnSetting apnSetting);
+    boolean updateOverrideApn(in ComponentName admin, int apnId, in ApnSetting apnSetting);
+    boolean removeOverrideApn(in ComponentName admin, int apnId);
+    List<ApnSetting> getOverrideApns(in ComponentName admin);
+    void setOverrideApnsEnabled(in ComponentName admin, boolean enabled);
+    boolean isOverrideApnEnabled(in ComponentName admin);
+
+    boolean isMeteredDataDisabledPackageForUser(in ComponentName admin, String packageName, int userId);
+
+    int setGlobalPrivateDns(in ComponentName admin, int mode, in String privateDnsHost);
+    int getGlobalPrivateDnsMode(in ComponentName admin);
+    String getGlobalPrivateDnsHost(in ComponentName admin);
+
+    void markProfileOwnerOnOrganizationOwnedDevice(in ComponentName who, int userId);
+
+    void installUpdateFromFile(in ComponentName admin, in ParcelFileDescriptor updateFileDescriptor, in StartInstallingUpdateCallback listener);
+
+    void setCrossProfileCalendarPackages(in ComponentName admin, in List<String> packageNames);
+    List<String> getCrossProfileCalendarPackages(in ComponentName admin);
+    boolean isPackageAllowedToAccessCalendarForUser(String packageName, int userHandle);
+    List<String> getCrossProfileCalendarPackagesForUser(int userHandle);
+
+    void setCrossProfilePackages(in ComponentName admin, in List<String> packageNames);
+    List<String> getCrossProfilePackages(in ComponentName admin);
+
+    List<String> getAllCrossProfilePackages();
+    List<String> getDefaultCrossProfilePackages();
+
+    boolean isManagedKiosk();
+    boolean isUnattendedManagedKiosk();
+
+    boolean startViewCalendarEventInManagedProfile(String packageName, long eventId, long start, long end, boolean allDay, int flags);
+
+    boolean setKeyGrantForApp(in ComponentName admin, String callerPackage, String alias, String packageName, boolean hasGrant);
+
+    void setUserControlDisabledPackages(in ComponentName admin, in List<String> packages);
+
+    List<String> getUserControlDisabledPackages(in ComponentName admin);
+
+    void setCommonCriteriaModeEnabled(in ComponentName admin, boolean enabled);
+    boolean isCommonCriteriaModeEnabled(in ComponentName admin);
+
+    int getPersonalAppsSuspendedReasons(in ComponentName admin);
+    void setPersonalAppsSuspended(in ComponentName admin, boolean suspended);
+
+    long getManagedProfileMaximumTimeOff(in ComponentName admin);
+    void setManagedProfileMaximumTimeOff(in ComponentName admin, long timeoutMs);
+    boolean canProfileOwnerResetPasswordWhenLocked(in int userId);
+}
+
+```
+
 ## DevicePolicyManagerService
 
 ```java
