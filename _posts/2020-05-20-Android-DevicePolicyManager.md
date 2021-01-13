@@ -16,7 +16,11 @@ tags:
 
 [面向企业应用的 Android 新功能](https://developer.android.google.cn/work/versions?hl=zh-cn)
 
+[enterprise-samples-google](https://github.com/android/enterprise-samples)
+
 ## DeviceOwner
+
+[DeviceOwner VS DeviceAdmin](https://github.com/codeteenager/DeviceManager)
 
 DeviceOwner, 设备所有者，Android5.0引入。同样的，DeviceOwner涵盖了所有DeviceAdmin用户的管理能力，是一类特殊的设备管理员，具有在设备上创建和移除辅助用户以及配置全局设置的额外能力。
 DeviceOwner完善了行业用户的MDM(Mobile Device Manager)行业管理能力，主要能力如下：
@@ -1087,6 +1091,7 @@ dpm force-security-logs: makes all security logs available to the DPC and trigge
 usage: dpm mark-profile-owner-on-organization-owned-device: [ --user <USER_ID> | current ] <COMPONENT>
 
 ```
+
 
 
 
