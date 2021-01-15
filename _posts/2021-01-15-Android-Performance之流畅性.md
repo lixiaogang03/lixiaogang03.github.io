@@ -14,11 +14,18 @@ tags:
 
 [Android性能优化之渲染篇-胡凯](http://hukai.me/android-performance-render/)
 
+[性能评估-AOSP](https://source.android.com/devices/tech/debug/eval_perf?hl=zh-cn)
+
 ## 卡顿
 
 大多数手机的屏幕刷新频率是60hz，如果在1000/60=16.67ms内没有办法把这一帧的任务执行完毕，就会发生丢帧的现象。丢帧越多，用户感受到的卡顿情况就越严重
 
 ![android_performance_course_drop_frame](/images/performance/android_performance_course_drop_frame.png)
+
+**卡顿分类：**
+
+* 与负载能力相关的卡顿
+* 与抖动相关的卡顿
 
 ## CPU and GPU
 
@@ -124,6 +131,21 @@ tags:
 ![profile_gpu_rendering](/images/performance/profile_gpu_rendering.png)
 
 ![profile_gpu_rendering_2](/images/performance/profile_gpu_rendering_2.png)
+
+
+## 流畅度测试应用
+
+**UiBench.apk**
+
+frameworks/base/tests/UiBench/
+
+![uibench_test](/images/performance/uibench_test.png)
+
+**TouchLatency**
+
+frameworks/base/tests/TouchLatency/
+
+![touch_latency_test](/images/performance/touch_latency_test.png)
 
 
 
