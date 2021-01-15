@@ -157,15 +157,13 @@ frameworks/base/tests/JankBench/
 
 frameworks/base/tests/FrameworkPerf/
 
-**GamePerformance**
-
-frameworks/base/tests/GamePerformance/
-
 **WindowAnimationJank**
 
 frameworks/base/tests/WindowAnimationJank/
 
+## Choreographer
 
+2021-01-15 17:48:46.950 1963-1963/com.android.systemui I/Choreographer: Skipped 43 frames!  The application may be doing too much work on its main thread.
 
 
 
