@@ -147,6 +147,26 @@ frameworks/base/tests/TouchLatency/
 
 ![touch_latency_test](/images/performance/touch_latency_test.png)
 
+**JankBench**
+
+frameworks/base/tests/JankBench/
+
+![jank_bench_test](/images/performance/jank_bench_test.png)
+
+**FrameworkPerf**
+
+frameworks/base/tests/FrameworkPerf/
+
+**GamePerformance**
+
+frameworks/base/tests/GamePerformance/
+
+**WindowAnimationJank**
+
+frameworks/base/tests/WindowAnimationJank/
+
+
+
 
 
 
