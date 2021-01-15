@@ -64,6 +64,57 @@ tags:
 11. RenderThread 耗时
 12. 多个RenderThread同步导致主线程卡顿
 
+## 流畅度的量化方法
+
+[Software Performance Engineering-Caveman.Work Blog](http://www.caveman.work/)
+
+![phase_of_verifing_code_build](/images/performance/phase_of_verifing_code_build.png)
+
+* Code Build：编译出来的程序
+* Verify in Lab：由实验室环境下由人使用测试用例验证
+* CI by Robot：程序由可持续集成框架(CI: Continuous Integration)进行自动化性能测试
+* Monitor in RUM：使用大数据工具分析线上用户数据在真实环境下的数据
+
+我们推荐的做法是：
+
+* 将定性方法(Qualitative method)应用在 [Verify in Lab]
+* 将定量方法(Quantitative method)应用在 [CI by Robot]，[Monitor in RUM]
+
+### 定性方法
+
+由于有些人对应用流畅度感受不够敏感，可以由对其比较敏感，在意的人员来操作。流畅度测试与其他测试不同，他需要
+测试人员的对卡顿现象(界面更新不自然)的有与生俱来的感觉与挑剔。 拥有这种品质的人是定性测试的最佳人选。
+
+### 定量方法
+
+针对流畅度量化方法，我们的解决方案是不同界面场景使用不同的量化指标。
+
+**常见应用场景：**
+
+* 流媒体，视频播放，相机类
+* 游戏类
+* UX应用-内容浏览类
+* UX应用-内容交互类
+
+**流畅度量化指标：**
+
+* FPS Family
+* Realtime FPS
+* Static FPS
+* FPS Stability
+* Frame Drop Family
+* Frame Drop Percent (FDP)
+* Frame Drop Badass (FDB)
+* Frame Drop Heavy Tail (FDHT)
+* Heavy task in UI Thread (HT)
+
+
+**应用场景与量化指标间的使用关系为：**
+
+* [流媒体，视频播放，相机类} -> [FPS Familiy]
+* [游戏类] -> [FPS Family]
+* [UX应用-内容浏览类] -> [FDP, FDB, HT]
+* [UX应用-内容交互类] -> [FDHT, HT]
 
 
 
