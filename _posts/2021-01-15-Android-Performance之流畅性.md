@@ -117,6 +117,14 @@ tags:
 * [UX应用-内容交互类] -> [FDHT, HT]
 
 
+## HWUI 呈现模式分析
+
+[检查GPU渲染速度和过渡绘制-Google](https://developer.android.com/topic/performance/rendering/inspect-gpu-rendering?hl=zh-cn)
+
+![profile_gpu_rendering](/images/performance/profile_gpu_rendering.png)
+
+![profile_gpu_rendering_2](/images/performance/profile_gpu_rendering_2.png)
+
 
 
 
