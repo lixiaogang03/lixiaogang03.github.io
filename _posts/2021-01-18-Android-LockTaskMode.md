@@ -75,11 +75,9 @@ public class BaseActivity extends AppCompatActivity {
 
 ```
 
-## 类图
+## DevicePolicyManagerService
 
-![lock_task_controller](/images/ams/lock_task_controller.png)
-
-## data/system/device_policies.xml
+**data/system/device_policies.xml**
 
 ```txt
 
@@ -106,8 +104,6 @@ public class BaseActivity extends AppCompatActivity {
 </policies>
 
 ```
-
-## Framework代码
 
 **DevicePolicyManager**
 
@@ -299,6 +295,10 @@ public class DevicePolicyManagerService extends BaseIDevicePolicyManager {
 }
 
 ```
+
+## ActivityTaskManagerService
+
+![lock_task_controller](/images/ams/lock_task_controller.png)
 
 **Activity**
 
@@ -573,44 +573,44 @@ public class LockTaskController {
 ```txt
 
 // BACK 按键
-2021-01-19 15:43:30.184 1725-3229/system_process I/ActivityTaskManager: Not finishing task in lock task mode
+system_process I/ActivityTaskManager: Not finishing task in lock task mode
 
 // HOME 按键
-2021-01-19 15:43:40.834 1725-1948/system_process I/ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000100 cmp=com.android.launcher3/.uioverrides.QuickstepLauncher (has extras)} from uid 0
-2021-01-19 15:43:40.837 1725-1948/system_process V/ActivityTaskManager: Calling mServicetracker.OnActivityStateChange with flag falsestateINITIALIZING
-2021-01-19 15:43:40.839 1725-1948/system_process V/ActivityTaskManager: Calling mServicetracker.OnActivityStateChange with flag truestateINITIALIZING
-2021-01-19 15:43:40.843 1725-1948/system_process E/ActivityTaskManager: Attempted Lock Task Mode violation mStartActivity=ActivityRecord{6b12f3a u0 com.android.launcher3/.uioverrides.QuickstepLauncher
+system_process I/ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000100 cmp=com.android.launcher3/.uioverrides.QuickstepLauncher (has extras)} from uid 0
+system_process V/ActivityTaskManager: Calling mServicetracker.OnActivityStateChange with flag falsestateINITIALIZING
+system_process V/ActivityTaskManager: Calling mServicetracker.OnActivityStateChange with flag truestateINITIALIZING
+system_process E/ActivityTaskManager: Attempted Lock Task Mode violation mStartActivity=ActivityRecord{6b12f3a u0 com.android.launcher3/.uioverrides.QuickstepLauncher
 
 // RECENT 按键
-2021-01-19 15:44:36.328 1725-2128/system_process I/ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000000 pkg=com.android.launcher3 cmp=com.android.launcher3/.uioverrides.QuickstepLauncher (has extras)} from uid 10131
-2021-01-19 15:44:36.331 1725-2128/system_process V/ActivityTaskManager: Calling mServicetracker.OnActivityStateChange with flag falsestateINITIALIZING
-2021-01-19 15:44:36.333 1725-2128/system_process V/ActivityTaskManager: Calling mServicetracker.OnActivityStateChange with flag truestateINITIALIZING
-2021-01-19 15:44:36.337 1725-2128/system_process E/ActivityTaskManager: Attempted Lock Task Mode violation mStartActivity=ActivityRecord{f5ac1f4 u0 com.android.launcher3/.uioverrides.QuickstepLauncher
+system_process I/ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000000 pkg=com.android.launcher3 cmp=com.android.launcher3/.uioverrides.QuickstepLauncher (has extras)} from uid 10131
+system_process V/ActivityTaskManager: Calling mServicetracker.OnActivityStateChange with flag falsestateINITIALIZING
+system_process V/ActivityTaskManager: Calling mServicetracker.OnActivityStateChange with flag truestateINITIALIZING
+system_process E/ActivityTaskManager: Attempted Lock Task Mode violation mStartActivity=ActivityRecord{f5ac1f4 u0 com.android.launcher3/.uioverrides.QuickstepLauncher
 
 // 应用内界面跳转
-2021-01-19 15:46:25.125 1725-2128/system_process W/ActivityTaskManager_LockTask: Locking fully
-2021-01-19 15:46:25.125 1725-2128/system_process W/ActivityTaskManager_LockTask: setLockTaskMode: Locking to Task{93f4523 #129 visible=false type=standard mode=fullscreen translucent=true A=10170:com.sunmi.superpermissiontest U=0 StackId=129 sz=2} Callers=com.android.server.wm.LockTaskController.startLockTaskMode:574 com.android.server.wm.ActivityStackSupervisor.realStartActivityLocked:839 com.android.server.wm.ActivityStackSupervisor.startSpecificActivity:1020 com.android.server.wm.ActivityStack.resumeTopActivityInnerLocked:2018
+system_process W/ActivityTaskManager_LockTask: Locking fully
+system_process W/ActivityTaskManager_LockTask: setLockTaskMode: Locking to Task{93f4523 #129 visible=false type=standard mode=fullscreen translucent=true A=10170:com.sunmi.superpermissiontest U=0 StackId=129 sz=2} Callers=com.android.server.wm.LockTaskController.startLockTaskMode:574 com.android.server.wm.ActivityStackSupervisor.realStartActivityLocked:839 com.android.server.wm.ActivityStackSupervisor.startSpecificActivity:1020 com.android.server.wm.ActivityStack.resumeTopActivityInnerLocked:2018
 
 // 应用外界面跳转(跳转到设置)
-2021-01-19 15:47:25.222 1725-2448/system_process I/ActivityTaskManager: START u0 {act=android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS flg=0x10008000 cmp=com.android.settings/.Settings$HighPowerApplicationsActivity} from uid 10170
-2021-01-19 15:47:25.245 1725-2448/system_process D/ActivityTaskManager_LockTask: setLockTaskAuth: task=Task{6d5c429 #131 visible=false type=standard mode=fullscreen translucent=true A=1000:com.android.settings U=0 StackId=131 sz=0} mLockTaskAuth=LOCK_TASK_AUTH_WHITELISTED
-2021-01-19 15:47:25.249 1725-2448/system_process D/ActivityTaskManager_LockTask: setLockTaskAuth: task=Task{6d5c429 #131 visible=false type=standard mode=fullscreen translucent=true A=1000:com.android.settings U=0 StackId=131 sz=1} mLockTaskAuth=LOCK_TASK_AUTH_WHITELISTED
-2021-01-19 15:47:25.277 1725-2860/system_process W/ActivityTaskManager_LockTask: Locking fully
-2021-01-19 15:47:25.277 1725-2860/system_process W/ActivityTaskManager_LockTask: setLockTaskMode: Locking to Task{6d5c429 #131 visible=false type=standard mode=fullscreen translucent=true A=1000:com.android.settings U=0 StackId=131 sz=1} Callers=com.android.server.wm.LockTaskController.startLockTaskMode:574 com.android.server.wm.ActivityStackSupervisor.realStartActivityLocked:839 com.android.server.wm.ActivityStackSupervisor.startSpecificActivity:1020 com.android.server.wm.ActivityStack.resumeTopActivityInnerLocked:2018
+system_process I/ActivityTaskManager: START u0 {act=android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS flg=0x10008000 cmp=com.android.settings/.Settings$HighPowerApplicationsActivity} from uid 10170
+system_process D/ActivityTaskManager_LockTask: setLockTaskAuth: task=Task{6d5c429 #131 visible=false type=standard mode=fullscreen translucent=true A=1000:com.android.settings U=0 StackId=131 sz=0} mLockTaskAuth=LOCK_TASK_AUTH_WHITELISTED
+system_process D/ActivityTaskManager_LockTask: setLockTaskAuth: task=Task{6d5c429 #131 visible=false type=standard mode=fullscreen translucent=true A=1000:com.android.settings U=0 StackId=131 sz=1} mLockTaskAuth=LOCK_TASK_AUTH_WHITELISTED
+system_process W/ActivityTaskManager_LockTask: Locking fully
+system_process W/ActivityTaskManager_LockTask: setLockTaskMode: Locking to Task{6d5c429 #131 visible=false type=standard mode=fullscreen translucent=true A=1000:com.android.settings U=0 StackId=131 sz=1} Callers=com.android.server.wm.LockTaskController.startLockTaskMode:574 com.android.server.wm.ActivityStackSupervisor.realStartActivityLocked:839 com.android.server.wm.ActivityStackSupervisor.startSpecificActivity:1020 com.android.server.wm.ActivityStack.resumeTopActivityInnerLocked:2018
 // 从设置界面返回
-2021-01-19 15:48:33.914 1725-2128/system_process D/ActivityTaskManager_LockTask: removeLockedTask: removed Task{6d5c429 #131 visible=false type=standard mode=fullscreen translucent=true A=1000:com.android.settings U=0 StackId=131 sz=1}
+system_process D/ActivityTaskManager_LockTask: removeLockedTask: removed Task{6d5c429 #131 visible=false type=standard mode=fullscreen translucent=true A=1000:com.android.settings U=0 StackId=131 sz=1}
 
 // 跳转到界面选择界面
-2021-01-19 15:49:35.344 1725-2127/system_process I/ActivityTaskManager: START u0 {act=android.intent.action.CHOOSER cmp=android/com.android.internal.app.ChooserActivity (has extras)} from uid 10170
-2021-01-19 15:49:35.368 1725-2127/system_process D/ActivityTaskManager_LockTask: setLockTaskAuth: task=Task{93f4523 #129 visible=false type=standard mode=fullscreen translucent=true A=10170:com.sunmi.superpermissiontest U=0 StackId=129 sz=2} mLockTaskAuth=LOCK_TASK_AUTH_WHITELISTED
-2021-01-19 15:49:35.531 1725-2127/system_process W/ActivityTaskManager_LockTask: Locking fully
-2021-01-19 15:49:35.531 1725-2127/system_process W/ActivityTaskManager_LockTask: setLockTaskMode: Locking to Task{93f4523 #129 visible=false type=standard mode=fullscreen translucent=true A=10170:com.sunmi.superpermissiontest U=0 StackId=129 sz=2} Callers=com.android.server.wm.LockTaskController.startLockTaskMode:574 com.android.server.wm.ActivityStackSupervisor.realStartActivityLocked:839 com.android.server.wm.RootWindowContainer.startActivityForAttachedApplicationIfNeeded:1965 com.android.server.wm.RootWindowContainer.lambda$5fbF65VSmaJkPHxEhceOGTat7JE:0
+system_process I/ActivityTaskManager: START u0 {act=android.intent.action.CHOOSER cmp=android/com.android.internal.app.ChooserActivity (has extras)} from uid 10170
+system_process D/ActivityTaskManager_LockTask: setLockTaskAuth: task=Task{93f4523 #129 visible=false type=standard mode=fullscreen translucent=true A=10170:com.sunmi.superpermissiontest U=0 StackId=129 sz=2} mLockTaskAuth=LOCK_TASK_AUTH_WHITELISTED
+system_process W/ActivityTaskManager_LockTask: Locking fully
+system_process W/ActivityTaskManager_LockTask: setLockTaskMode: Locking to Task{93f4523 #129 visible=false type=standard mode=fullscreen translucent=true A=10170:com.sunmi.superpermissiontest U=0 StackId=129 sz=2} Callers=com.android.server.wm.LockTaskController.startLockTaskMode:574 com.android.server.wm.ActivityStackSupervisor.realStartActivityLocked:839 com.android.server.wm.RootWindowContainer.startActivityForAttachedApplicationIfNeeded:1965 com.android.server.wm.RootWindowContainer.lambda$5fbF65VSmaJkPHxEhceOGTat7JE:0
 
 // 从界面选择跳转到短信
-2021-01-19 15:52:32.850 1725-7320/system_process I/ActivityTaskManager: START u0 {act=android.intent.action.SEND typ=text/plain flg=0xb080001 cmp=com.android.mms/.ui.ComposeMessageActivity clip={text/plain {...}} (has extras)} from uid 10170
-2021-01-19 15:52:32.869 1725-7320/system_process D/ActivityTaskManager_LockTask: setLockTaskAuth: task=Task{794d482 #132 visible=false type=standard mode=fullscreen translucent=true A=10119:android.task.mms U=0 StackId=132 sz=0} mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
-2021-01-19 15:52:32.872 1725-7320/system_process D/ActivityTaskManager_LockTask: setLockTaskAuth: task=Task{794d482 #132 visible=false type=standard mode=fullscreen translucent=true A=10119:android.task.mms U=0 StackId=132 sz=1} mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
-2021-01-19 15:52:32.873 1725-7320/system_process E/ActivityTaskManager: Attempted Lock Task Mode violation mStartActivity=ActivityRecord{1aa4793 u0 com.android.mms/.ui.ComposeMessageActivity t132}
+system_process I/ActivityTaskManager: START u0 {act=android.intent.action.SEND typ=text/plain flg=0xb080001 cmp=com.android.mms/.ui.ComposeMessageActivity clip={text/plain {...}} (has extras)} from uid 10170
+system_process D/ActivityTaskManager_LockTask: setLockTaskAuth: task=Task{794d482 #132 visible=false type=standard mode=fullscreen translucent=true A=10119:android.task.mms U=0 StackId=132 sz=0} mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
+system_process D/ActivityTaskManager_LockTask: setLockTaskAuth: task=Task{794d482 #132 visible=false type=standard mode=fullscreen translucent=true A=10119:android.task.mms U=0 StackId=132 sz=1} mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
+system_process E/ActivityTaskManager: Attempted Lock Task Mode violation mStartActivity=ActivityRecord{1aa4793 u0 com.android.mms/.ui.ComposeMessageActivity t132}
 
 ```
 
