@@ -18,7 +18,7 @@ tags:
 
 adb shell dpm set-device-owner net.derohimat.kioskmodesample/.AdminReceiver
 
-## App
+## App 代码
 
 ```java
 
@@ -75,6 +75,10 @@ public class BaseActivity extends AppCompatActivity {
 
 ```
 
+## 类图
+
+![lock_task_controller](/images/ams/lock_task_controller.png)
+
 ## data/system/device_policies.xml
 
 ```txt
@@ -103,7 +107,127 @@ public class BaseActivity extends AppCompatActivity {
 
 ```
 
-## DevicePolicyManagerService
+## Framework代码
+
+**DevicePolicyManager**
+
+<lock-task-features value="16" />
+
+```java
+
+public class DevicePolicyManager {
+
+    /**
+     * Disable all configurable SystemUI features during LockTask mode. This includes,
+     * <ul>
+     *     <li>system info area in the status bar (connectivity icons, clock, etc.)
+     *     <li>notifications (including alerts, icons, and the notification shade)
+     *     <li>Home button
+     *     <li>Recents button and UI
+     *     <li>global actions menu (i.e. power button menu)
+     *     <li>keyguard
+     * </ul>
+     *
+     * @see #setLockTaskFeatures(ComponentName, int)
+     */
+    public static final int LOCK_TASK_FEATURE_NONE = 0;
+
+    /**
+     * Enable the system info area in the status bar during LockTask mode. The system info area
+     * usually occupies the right side of the status bar (although this can differ across OEMs). It
+     * includes all system information indicators, such as date and time, connectivity, battery,
+     * vibration mode, etc.
+     *
+     * @see #setLockTaskFeatures(ComponentName, int)
+     */
+    public static final int LOCK_TASK_FEATURE_SYSTEM_INFO = 1;        // 状态栏显示 1
+
+    /**
+     * Enable notifications during LockTask mode. This includes notification icons on the status
+     * bar, heads-up notifications, and the expandable notification shade. Note that the Quick
+     * Settings panel remains disabled. This feature flag can only be used in combination with
+     * {@link #LOCK_TASK_FEATURE_HOME}. {@link #setLockTaskFeatures(ComponentName, int)}
+     * throws an {@link IllegalArgumentException} if this feature flag is defined without
+     * {@link #LOCK_TASK_FEATURE_HOME}.
+     *
+     * @see #setLockTaskFeatures(ComponentName, int)
+     */
+    public static final int LOCK_TASK_FEATURE_NOTIFICATIONS = 1 << 1;  // 通知显示 2
+
+    /**
+     * Enable the Home button during LockTask mode. Note that if a custom launcher is used, it has
+     * to be registered as the default launcher with
+     * {@link #addPersistentPreferredActivity(ComponentName, IntentFilter, ComponentName)}, and its
+     * package needs to be whitelisted for LockTask with
+     * {@link #setLockTaskPackages(ComponentName, String[])}.
+     *
+     * @see #setLockTaskFeatures(ComponentName, int)
+     */
+    public static final int LOCK_TASK_FEATURE_HOME = 1 << 2;           // Home按钮 4
+
+    /**
+     * Enable the Overview button and the Overview screen during LockTask mode. This feature flag
+     * can only be used in combination with {@link #LOCK_TASK_FEATURE_HOME}, and
+     * {@link #setLockTaskFeatures(ComponentName, int)} will throw an
+     * {@link IllegalArgumentException} if this feature flag is defined without
+     * {@link #LOCK_TASK_FEATURE_HOME}.
+     *
+     * @see #setLockTaskFeatures(ComponentName, int)
+     */
+    public static final int LOCK_TASK_FEATURE_OVERVIEW = 1 << 3;       // 8
+
+    /**
+     * Enable the global actions dialog during LockTask mode. This is the dialog that shows up when
+     * the user long-presses the power button, for example. Note that the user may not be able to
+     * power off the device if this flag is not set.
+     *
+     * <p>This flag is enabled by default until {@link #setLockTaskFeatures(ComponentName, int)} is
+     * called for the first time.
+     *
+     * @see #setLockTaskFeatures(ComponentName, int)
+     */
+    public static final int LOCK_TASK_FEATURE_GLOBAL_ACTIONS = 1 << 4;  // 16
+
+    /**
+     * Enable the keyguard during LockTask mode. Note that if the keyguard is already disabled with
+     * {@link #setKeyguardDisabled(ComponentName, boolean)}, setting this flag will have no effect.
+     * If this flag is not set, the keyguard will not be shown even if the user has a lock screen
+     * credential.
+     *
+     * @see #setLockTaskFeatures(ComponentName, int)
+     */
+    public static final int LOCK_TASK_FEATURE_KEYGUARD = 1 << 5;        // 32
+
+    /**
+     * Enable blocking of non-whitelisted activities from being started into a locked task.
+     *
+     * @see #setLockTaskFeatures(ComponentName, int)
+     */
+    public static final int LOCK_TASK_FEATURE_BLOCK_ACTIVITY_START_IN_TASK = 1 << 6;   // 64
+
+    /**
+     * Flags supplied to {@link #setLockTaskFeatures(ComponentName, int)}.
+     *
+     * @hide
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(flag = true, prefix = { "LOCK_TASK_FEATURE_" }, value = {
+            LOCK_TASK_FEATURE_NONE,
+            LOCK_TASK_FEATURE_SYSTEM_INFO,
+            LOCK_TASK_FEATURE_NOTIFICATIONS,
+            LOCK_TASK_FEATURE_HOME,
+            LOCK_TASK_FEATURE_OVERVIEW,
+            LOCK_TASK_FEATURE_GLOBAL_ACTIONS,
+            LOCK_TASK_FEATURE_KEYGUARD,
+            LOCK_TASK_FEATURE_BLOCK_ACTIVITY_START_IN_TASK
+    })
+    public @interface LockTaskFeature {}
+
+}
+
+```
+
+**DevicePolicyManagerService**
 
 ```java
 
@@ -176,7 +300,7 @@ public class DevicePolicyManagerService extends BaseIDevicePolicyManager {
 
 ```
 
-## Activity
+**Activity**
 
 ```java
 
@@ -234,7 +358,7 @@ public class DevicePolicyManagerService extends BaseIDevicePolicyManager {
 
 ```
 
-## ActivityTaskManagerService
+**ActivityTaskManagerService**
 
 ```java
 
@@ -244,6 +368,25 @@ public class DevicePolicyManagerService extends BaseIDevicePolicyManager {
  * {@hide}
  */
 public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
+
+    private LockTaskController mLockTaskController;
+
+    public void initialize(IntentFirewall intentFirewall, PendingIntentController intentController,
+            Looper looper) {
+
+        mLockTaskController = new LockTaskController(mContext, mStackSupervisor, mH);
+
+    }
+
+    public void setWindowManager(WindowManagerService wm) {
+        synchronized (mGlobalLock) {
+            mLockTaskController.setWindowManager(wm);
+        }
+    }
+
+    LockTaskController getLockTaskController() {
+        return mLockTaskController;
+    }
 
     @Override
     public void startLockTaskModeByToken(IBinder token) {
@@ -311,7 +454,7 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
 
 ```
 
-## ActivityManager
+**ActivityManager**
 
 ```java
 
@@ -336,7 +479,42 @@ public class ActivityManager {
 
 ```
 
-## LockTaskController
+**Task**
+
+```java
+
+class Task extends WindowContainer<WindowContainer> {
+
+    /** Can't be put in lockTask mode. */
+    // 无法设置为locktask Mode
+    final static int LOCK_TASK_AUTH_DONT_LOCK = 0;
+
+    /** Can enter app pinning with user approval. Can never start over existing lockTask task. */
+    // 屏幕固定
+    final static int LOCK_TASK_AUTH_PINNABLE = 1;
+
+    // 可以从locktask跳转出来
+    /** Starts in LOCK_TASK_MODE_LOCKED automatically. Can start over existing lockTask task. */
+    final static int LOCK_TASK_AUTH_LAUNCHABLE = 2;
+
+    // 可以从locktask跳转出来
+    /** Can enter lockTask without user approval. Can start over existing lockTask task. */
+    final static int LOCK_TASK_AUTH_WHITELISTED = 3;
+
+    // 可以从locktask跳转出来
+    /** Priv-app that starts in LOCK_TASK_MODE_LOCKED automatically. Can start over existing
+     * lockTask task. */
+    final static int LOCK_TASK_AUTH_LAUNCHABLE_PRIV = 4;
+
+    int mLockTaskAuth = LOCK_TASK_AUTH_PINNABLE;
+
+    int mLockTaskUid = -1;  // The uid of the application that called startLockTask().
+
+}
+
+```
+
+**LockTaskController**
 
 ```java
 
@@ -433,6 +611,27 @@ public class LockTaskController {
 2021-01-19 15:52:32.869 1725-7320/system_process D/ActivityTaskManager_LockTask: setLockTaskAuth: task=Task{794d482 #132 visible=false type=standard mode=fullscreen translucent=true A=10119:android.task.mms U=0 StackId=132 sz=0} mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
 2021-01-19 15:52:32.872 1725-7320/system_process D/ActivityTaskManager_LockTask: setLockTaskAuth: task=Task{794d482 #132 visible=false type=standard mode=fullscreen translucent=true A=10119:android.task.mms U=0 StackId=132 sz=1} mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
 2021-01-19 15:52:32.873 1725-7320/system_process E/ActivityTaskManager: Attempted Lock Task Mode violation mStartActivity=ActivityRecord{1aa4793 u0 com.android.mms/.ui.ComposeMessageActivity t132}
+
+```
+
+## dumpsys activity a
+
+```txt
+
+    * Task{1c1537b #158 visible=false type=standard mode=fullscreen translucent=true A=1000:com.android.settings U=0 StackId=158 sz=1}
+        mLockTaskAuth=LOCK_TASK_AUTH_WHITELISTED
+    * Task{c8d5883 #155 visible=false type=standard mode=fullscreen translucent=true A=10170:com.sunmi.superpermissiontest U=0 StackId=155 sz=1}
+        mLockTaskAuth=LOCK_TASK_AUTH_WHITELISTED
+    * Task{ef1f483 #153 visible=true type=home mode=fullscreen translucent=true I=com.android.launcher3/.uioverrides.QuickstepLauncher U=0 StackId=1 sz=1}
+        mLockTaskAuth=LOCK_TASK_AUTH_PINNABLE
+
+  LockTaskController:
+    mLockTaskModeState=LOCKED
+    mLockTaskModeTasks=
+      #0 Task{c8d5883 #155 visible=false type=standard mode=fullscreen translucent=true A=10170:com.sunmi.superpermissiontest U=0 StackId=155 sz=1}
+      #1 Task{1c1537b #158 visible=false type=standard mode=fullscreen translucent=true A=1000:com.android.settings U=0 StackId=158 sz=1}
+    mLockTaskPackages (userId:packages)=
+      u0:[net.derohimat.kioskmodesample, com.sunmi.superpermissiontest, com.android.settings]
 
 ```
 
