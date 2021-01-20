@@ -568,9 +568,23 @@ public class LockTaskController {
 
 ```
 
+## 时序图
+
+**进入Lock Task Mode**
+
+![start_lock_task](/images/ams/start_lock_task.png)
+
 ## 跳转拦截日志
 
 ```txt
+
+// 进入LockTaskMode
+system_process I/ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.sunmi.superpermissiontest/.MainActivity bnds=[249,415][471,634]} from uid 10131
+system_process W/ActivityTaskManager_LockTask: Locking fully
+system_process W/ActivityTaskManager_LockTask: setLockTaskMode: Locking to Task{76c588 #160 visible=false type=standard mode=fullscreen translucent=true A=10170:com.sunmi.superpermissiontest U=0 StackId=160 sz=1} Callers=com.android.server.wm.LockTaskController.startLockTaskMode:574 com.android.server.wm.ActivityStackSupervisor.realStartActivityLocked:839 com.android.server.wm.ActivityStackSupervisor.startSpecificActivity:1020 com.android.server.wm.ActivityStack.resumeTopActivityInnerLocked:2018 
+system_process W/ActivityTaskManager_LockTask: startLockTaskModeLocked: Task{76c588 #160 visible=false type=standard mode=fullscreen translucent=true A=10170:com.sunmi.superpermissiontest U=0 StackId=160 sz=1}
+system_process W/ActivityTaskManager_LockTask: Locking fully
+system_process W/ActivityTaskManager_LockTask: setLockTaskMode: Locking to Task{76c588 #160 visible=false type=standard mode=fullscreen translucent=true A=10170:com.sunmi.superpermissiontest U=0 StackId=160 sz=1} Callers=com.android.server.wm.LockTaskController.startLockTaskMode:574 com.android.server.wm.ActivityTaskManagerService.startLockTaskModeLocked:3061 com.android.server.wm.ActivityTaskManagerService.startLockTaskModeByToken:2991 android.app.IActivityTaskManager$Stub.onTransact:2461 
 
 // BACK 按键
 system_process I/ActivityTaskManager: Not finishing task in lock task mode
