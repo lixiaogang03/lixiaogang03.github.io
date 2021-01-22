@@ -18,6 +18,36 @@ tags:
 
 adb shell dpm set-device-owner net.derohimat.kioskmodesample/.AdminReceiver
 
+```java
+
+public final class Dpm extends BaseCommand {
+
+    private void runSetDeviceOwner() throws RemoteException {
+        parseArgs(/*canHaveName=*/ true);
+        mDevicePolicyManager.setActiveAdmin(mComponent, true /*refreshing*/, mUserId);
+
+        try {
+            if (!mDevicePolicyManager.setDeviceOwner(mComponent, mName, mUserId)) {
+                throw new RuntimeException(
+                        "Can't set package " + mComponent + " as device owner.");
+            }
+        } catch (Exception e) {
+            // Need to remove the admin that we just added.
+            mDevicePolicyManager.removeActiveAdmin(mComponent, UserHandle.USER_SYSTEM);
+            throw e;
+        }
+
+        mDevicePolicyManager.setUserProvisioningState(
+                DevicePolicyManager.STATE_USER_SETUP_FINALIZED, mUserId);
+
+        System.out.println("Success: Device owner set to package " + mComponent);
+        System.out.println("Active admin set to component " + mComponent.toShortString());
+    }
+
+}
+
+```
+
 ## App 代码
 
 ```java
@@ -564,11 +594,86 @@ public class LockTaskController {
                 "startLockTask", true);
     }
 
+    /**
+     * Update packages that are allowed to be launched in lock task mode.
+     * @param userId Which user this whitelist is associated with
+     * @param packages The whitelist of packages allowed in lock task mode
+     * @see #mLockTaskPackages
+     */
+    void updateLockTaskPackages(int userId, String[] packages) {
+        boolean taskChanged = false;
+        for (int taskNdx = mLockTaskModeTasks.size() - 1; taskNdx >= 0; --taskNdx) {
+            final Task lockedTask = mLockTaskModeTasks.get(taskNdx);
+            final boolean wasWhitelisted = lockedTask.mLockTaskAuth == LOCK_TASK_AUTH_LAUNCHABLE
+                    || lockedTask.mLockTaskAuth == LOCK_TASK_AUTH_WHITELISTED;
+            lockedTask.setLockTaskAuth();
+            final boolean isWhitelisted = lockedTask.mLockTaskAuth == LOCK_TASK_AUTH_LAUNCHABLE
+                    || lockedTask.mLockTaskAuth == LOCK_TASK_AUTH_WHITELISTED;
+
+            if (mLockTaskModeState != LOCK_TASK_MODE_LOCKED
+                    || lockedTask.mUserId != userId
+                    || !wasWhitelisted || isWhitelisted) {
+                continue;
+            }
+
+            // Terminate locked tasks that have recently lost whitelist authorization.
+            if (DEBUG_LOCKTASK) Slog.d(TAG_LOCKTASK, "onLockTaskPackagesUpdated: removing " +
+                    lockedTask + " mLockTaskAuth()=" + lockedTask.lockTaskAuthToString());
+            removeLockedTask(lockedTask);
+            lockedTask.performClearTaskLocked();
+            taskChanged = true;
+        }
+
+        mSupervisor.mRootWindowContainer.forAllTasks(Task::setLockTaskAuth);
+
+        final ActivityRecord r = mSupervisor.mRootWindowContainer.topRunningActivity();
+        final Task task = (r != null) ? r.getTask() : null;
+        if (mLockTaskModeTasks.isEmpty() && task!= null
+                && task.mLockTaskAuth == LOCK_TASK_AUTH_LAUNCHABLE) {
+            // This task must have just been authorized.
+            if (DEBUG_LOCKTASK) Slog.d(TAG_LOCKTASK,
+                    "onLockTaskPackagesUpdated: starting new locktask task=" + task);
+            setLockTaskMode(task, LOCK_TASK_MODE_LOCKED, "package updated", false);
+            taskChanged = true;
+        }
+
+        if (taskChanged) {
+            mSupervisor.mRootWindowContainer.resumeFocusedStacksTopActivities();
+        }
+    }
+
+    /**
+     * Update the UI features that are enabled for LockTask mode.
+     * @param userId Which user these feature flags are associated with
+     * @param flags Bitfield of feature flags
+     * @see DevicePolicyManager#setLockTaskFeatures(ComponentName, int)
+     */
+    void updateLockTaskFeatures(int userId, int flags) {
+        int oldFlags = getLockTaskFeaturesForUser(userId);
+        if (flags == oldFlags) {
+            return;
+        }
+
+        mLockTaskFeatures.put(userId, flags);
+        if (!mLockTaskModeTasks.isEmpty() && userId == mLockTaskModeTasks.get(0).mUserId) {
+            mHandler.post(() -> {
+                if (mLockTaskModeState == LOCK_TASK_MODE_LOCKED) {
+                    setStatusBarState(mLockTaskModeState, userId);
+                    setKeyguardState(mLockTaskModeState, userId);
+                }
+            });
+        }
+    }
+
 }
 
 ```
 
 ## 时序图
+
+**开机初始化---updateLockTaskPackages---updateLockTaskFeaturesLocked**
+
+![lock_task_mode_init](/images/ams/lock_task_mode_init.png)
 
 **进入Lock Task Mode**
 
