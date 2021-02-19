@@ -400,6 +400,8 @@ frameworks/base/data/etc/hiddenapi-package-whitelist.xml
 
 ## Config
 
+```txt
+
 ./frameworks/base/config/hiddenapi-greylist-max-q.txt
 ./frameworks/base/config/hiddenapi-force-blacklist.txt
 ./frameworks/base/config/hiddenapi-greylist.txt
@@ -407,8 +409,80 @@ frameworks/base/data/etc/hiddenapi-package-whitelist.xml
 ./frameworks/base/config/hiddenapi-greylist-max-p.txt
 ./frameworks/base/config/hiddenapi-greylist-packages.txt
 
+```
 
+## SystemConfig
 
+```java
+
+public class SystemConfig {
+
+    // Package names that are exempted from private API blacklisting
+    final ArraySet<String> mHiddenApiPackageWhitelist = new ArraySet<>();
+
+    public ArraySet<String> getHiddenApiWhitelistedApps() {
+        return mHiddenApiPackageWhitelist;
+    }
+
+    private void readPermissionsFromXml(File permFile, int permissionFlag) {
+        ---------------------------------------------------------------------
+                    case "hidden-api-whitelisted-app": {
+                        if (allowApiWhitelisting) {
+                            String pkgname = parser.getAttributeValue(null, "package");
+                            if (pkgname == null) {
+                                Slog.w(TAG, "<" + name + "> without package in "
+                                        + permFile + " at " + parser.getPositionDescription());
+                            } else {
+                                mHiddenApiPackageWhitelist.add(pkgname);
+                            }
+                        } else {
+                            logNotAllowedInPartition(name, permFile, parser);
+                        }
+                        XmlUtils.skipCurrentTag(parser);
+                    } break;
+        ----------------------------------------------------------------------
+    }
+
+}
+
+```
+
+### AndroidPackageUtils
+
+```java
+
+/** @hide */
+public class AndroidPackageUtils {
+
+    public static int getHiddenApiEnforcementPolicy(AndroidPackage pkg,
+            @NonNull PackageSetting pkgSetting) {
+        boolean isAllowedToUseHiddenApis;
+        if (pkg.isSignedWithPlatformKey()) {
+            isAllowedToUseHiddenApis = true;
+        } else if (pkg.isSystem() || pkgSetting.getPkgState().isUpdatedSystemApp()) {
+            isAllowedToUseHiddenApis = pkg.isUsesNonSdkApi()
+                    || SystemConfig.getInstance().getHiddenApiWhitelistedApps().contains(
+                    pkg.getPackageName());
+        } else {
+            isAllowedToUseHiddenApis = false;
+        }
+
+        if (isAllowedToUseHiddenApis) {
+            return ApplicationInfo.HIDDEN_API_ENFORCEMENT_DISABLED;
+        }
+
+        // TODO(b/135203078): Handle maybeUpdateHiddenApiEnforcementPolicy. Right now it's done
+        //  entirely through ApplicationInfo and shouldn't touch this specific class, but that
+        //  may not always hold true.
+//        if (mHiddenApiPolicy != ApplicationInfo.HIDDEN_API_ENFORCEMENT_DEFAULT) {
+//            return mHiddenApiPolicy;
+//        }
+        return ApplicationInfo.HIDDEN_API_ENFORCEMENT_ENABLED;
+    }
+
+}
+
+```
 
 
 
