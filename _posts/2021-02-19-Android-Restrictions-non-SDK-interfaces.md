@@ -423,16 +423,27 @@ frameworks/base/data/etc/hiddenapi-package-whitelist.xml
 
 ```
 
-## Config
+## android 9 Config
 
 ```txt
 
-./frameworks/base/config/hiddenapi-greylist-max-q.txt
+./frameworks/base/config/hiddenapi-light-greylist.txt
 ./frameworks/base/config/hiddenapi-force-blacklist.txt
-./frameworks/base/config/hiddenapi-greylist.txt
-./frameworks/base/config/hiddenapi-greylist-max-o.txt
-./frameworks/base/config/hiddenapi-greylist-max-p.txt
-./frameworks/base/config/hiddenapi-greylist-packages.txt
+./frameworks/base/config/hiddenapi-private-dex.txt
+./frameworks/base/config/hiddenapi-public-dex.txt
+./frameworks/base/config/hiddenapi-removed-dex.txt
+./frameworks/base/config/hiddenapi-vendor-list.txt
+
+
+```
+
+## android 9 out
+
+```
+
+./out/target/common/obj/PACKAGING/hiddenapi-light-greylist.txt
+./out/target/common/obj/PACKAGING/hiddenapi-dark-greylist.txt
+./out/target/common/obj/PACKAGING/hiddenapi-blacklist.txt
 
 ```
 
