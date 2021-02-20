@@ -348,7 +348,32 @@ bool ShouldDenyAccessToMemberImpl(T* member, ApiList api_list, AccessMethod acce
   return deny_access;
 }
 
+
+void MemberSignature::WarnAboutAccess(AccessMethod access_method,
+                                      hiddenapi::ApiList list,
+                                      bool access_denied) {
+  LOG(WARNING) << "Accessing hidden " << (type_ == kField ? "field " : "method ")
+               << Dumpable<MemberSignature>(*this) << " (" << list << ", " << access_method
+               << (access_denied ? ", denied)" : ", allowed)");
+}
+
 ```
+
+### 日志
+
+```txt
+
+2021-02-20 10:03:05.262 3672-3672/com.sunmi.superpermissiontest W/rpermissiontes: Accessing hidden method Landroid/os/ServiceManager;->getService(Ljava/lang/String;)Landroid/os/IBinder; (light greylist, reflection)
+2021-02-20 10:03:05.263 3672-3672/com.sunmi.superpermissiontest W/rpermissiontes: Accessing hidden method Landroid/os/IPowerManager$Stub;->asInterface(Landroid/os/IBinder;)Landroid/os/IPowerManager; (light greylist, reflection)
+2021-02-20 11:48:48.976 7341-7341/com.sunmi.superpermissiontest W/rpermissiontes: Accessing hidden method Landroid/os/IPowerManager$Stub$Proxy;->reboot(ZLjava/lang/String;Z)V (dark greylist, reflection)
+
+```
+
+### 时序图
+
+base android 9, copy from csdn
+
+![resrtictions_non-sdk_interfaces](/images/resrtictions_non-sdk_interfaces.png)
 
 ## hiddenapi-package-whitelist.xml
 
