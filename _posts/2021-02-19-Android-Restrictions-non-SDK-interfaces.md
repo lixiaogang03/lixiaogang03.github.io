@@ -369,13 +369,17 @@ void MemberSignature::WarnAboutAccess(AccessMethod access_method,
 
 ```
 
-### 时序图
+### android 9 时序图
 
-base android 9, copy from csdn
+copy from csdn
 
 ![resrtictions_non-sdk_interfaces](/images/resrtictions_non-sdk_interfaces.png)
 
-## hiddenapi-package-whitelist.xml
+## android 9 黑白名单
+
+![hidden_api_list](/images/hidden_api_list.png)
+
+### hiddenapi-package-whitelist.xml
 
 frameworks/base/data/etc/hiddenapi-package-whitelist.xml
 
@@ -423,7 +427,7 @@ frameworks/base/data/etc/hiddenapi-package-whitelist.xml
 
 ```
 
-## android 9 Config
+### android 9 Config
 
 ```txt
 
@@ -437,7 +441,7 @@ frameworks/base/data/etc/hiddenapi-package-whitelist.xml
 
 ```
 
-## android 9 out
+### android 9 out
 
 ```
 
@@ -447,7 +451,7 @@ frameworks/base/data/etc/hiddenapi-package-whitelist.xml
 
 ```
 
-## SystemConfig
+### SystemConfig
 
 ```java
 
@@ -519,6 +523,76 @@ public class AndroidPackageUtils {
 }
 
 ```
+
+### ApplicationInfo
+
+![hidden_api_policy](/images/hidden_api_policy.png)
+
+```java
+
+public class ApplicationInfo extends PackageItemInfo implements Parcelable {
+
+    /**
+     * Represents the default policy. The actual policy used will depend on other properties of
+     * the application, e.g. the target SDK version.
+     * @hide
+     */
+    public static final int HIDDEN_API_ENFORCEMENT_DEFAULT = -1;
+    /**
+     * No API enforcement; the app can access the entire internal private API. Only for use by
+     * system apps.
+     * @hide
+     */
+    public static final int HIDDEN_API_ENFORCEMENT_NONE = 0;
+    /**
+     * No API enforcement, but enable the detection logic and warnings. Observed behaviour is the
+     * same as {@link #HIDDEN_API_ENFORCEMENT_NONE} but you may see warnings in the log when APIs
+     * are accessed.
+     * @hide
+     * */
+    public static final int HIDDEN_API_ENFORCEMENT_JUST_WARN = 1;
+    /**
+     * Dark grey list enforcement. Enforces the dark grey and black lists
+     * @hide
+     */
+    public static final int HIDDEN_API_ENFORCEMENT_DARK_GREY_AND_BLACK = 2;
+    /**
+     * Blacklist enforcement only.
+     * @hide
+     */
+    public static final int HIDDEN_API_ENFORCEMENT_BLACK = 3;
+
+    private boolean isPackageWhitelistedForHiddenApis() {
+        return SystemConfig.getInstance().getHiddenApiWhitelistedApps().contains(packageName);
+    }
+
+    private boolean isAllowedToUseHiddenApis() {
+        return isSignedWithPlatformKey()
+            || (isPackageWhitelistedForHiddenApis() && (isSystemApp() || isUpdatedSystemApp()));
+    }
+
+    /**
+     * @hide
+     */
+    public @HiddenApiEnforcementPolicy int getHiddenApiEnforcementPolicy() {
+        if (isAllowedToUseHiddenApis()) {
+            return HIDDEN_API_ENFORCEMENT_NONE;
+        }
+        if (mHiddenApiPolicy != HIDDEN_API_ENFORCEMENT_DEFAULT) {
+            return mHiddenApiPolicy;
+        }
+
+        if (targetSdkVersion < Build.VERSION_CODES.P) {
+            return HIDDEN_API_ENFORCEMENT_BLACK;
+        } else {
+            return HIDDEN_API_ENFORCEMENT_DARK_GREY_AND_BLACK;
+        }
+    }
+
+}
+
+```
+
 
 
 
