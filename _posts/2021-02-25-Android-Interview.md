@@ -28,6 +28,20 @@ tags:
 
 ![android_input_system_2](/images/input_manager/android_input_system_2.png)
 
+## 包管理器
+
+![pms_arch](/images/pms/pms_arch.png)
+
+## AMS WMS
+
+![ams_wms](/images/ams/ams_wms.webp)
+
+![window_structure_2](/images/ams/window_structure_2.png)
+
+## WMS
+
+![window_system](/images/wms/window_system.webp)
+
 ## Binder
 
 ![binder_arch](/images/binder/binder_arch.webp)
