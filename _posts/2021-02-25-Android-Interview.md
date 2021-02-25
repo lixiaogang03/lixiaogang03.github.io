@@ -28,9 +28,15 @@ tags:
 
 ![android_input_system_2](/images/input_manager/android_input_system_2.png)
 
+![touch_event_dispatch](/images/view/touch_event_dispatch.webp)
+
 ## 包管理器
 
 ![pms_arch](/images/pms/pms_arch.png)
+
+## startActivity
+
+![start_activity_gityuan](/images/wms/start_activity_gityuan.webp)
 
 ## AMS WMS
 
@@ -41,6 +47,22 @@ tags:
 ## WMS
 
 ![window_system](/images/wms/window_system.webp)
+
+## 属性系统
+
+![property_system](/images/property/property_system.webp)
+
+## 电话系统
+
+![phone_architecture](/images/telephony/phone_architecture.png)
+
+## 网络管理服务
+
+![android_netd](/images/netd/android_netd.png)
+
+## lmkd
+
+![lmk_arch](/images/lmk/lmk_arch.png)
 
 ## Binder
 
