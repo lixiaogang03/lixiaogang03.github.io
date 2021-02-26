@@ -174,6 +174,17 @@ android/out/target/product/msm8937_64/system/lib64/hw$ tree
 
 ```
 
+## 新版本HAL
+
+[android架构-LXG](https://lixiaogang03.github.io/2020/10/16/Android%E6%9E%B6%E6%9E%84/)
+
+![treble_cpp_legacy_hal_progression](/images/android_r/treble_cpp_legacy_hal_progression.png)
+
+## 代码
+
+![treble_cpp_compiler_generated_files](/images/android_r/treble_cpp_compiler_generated_files.png)
+
+
 
 
 
