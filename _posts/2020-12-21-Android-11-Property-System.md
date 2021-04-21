@@ -684,4 +684,129 @@ qssi:/ # showmap 1
 
 ```
 
+## 属性命名规范
+
+### adnroid 4.4
+
+system/core/init/property_service.c
+
+```c
+
+/* White list of permissions for setting property services. */
+struct {
+    const char *prefix;
+    unsigned int uid;
+    unsigned int gid;
+} property_perms[] = {
+    { "net.rmnet0.",      AID_RADIO,    0 },
+    { "net.gprs.",        AID_RADIO,    0 },
+    { "net.ppp",          AID_RADIO,    0 },
+    { "net.qmi",          AID_RADIO,    0 },
+    { "net.lte",          AID_RADIO,    0 },
+    { "net.cdma",         AID_RADIO,    0 },
+    { "ril.",             AID_RADIO,    0 },
+    { "gsm.",             AID_RADIO,    0 },
+    { "persist.radio",    AID_RADIO,    0 },
+    { "net.dns",          AID_RADIO,    0 },
+    { "sys.usb.config",   AID_RADIO,    0 },
+    { "net.",             AID_SYSTEM,   0 },
+    { "dev.",             AID_SYSTEM,   0 },
+    { "runtime.",         AID_SYSTEM,   0 },
+    { "hw.",              AID_SYSTEM,   0 },
+    { "sys.",             AID_SYSTEM,   0 },
+    { "sys.powerctl",     AID_SHELL,    0 },
+    { "service.",         AID_SYSTEM,   0 },
+    { "wlan.",            AID_SYSTEM,   0 },
+    { "bluetooth.",       AID_BLUETOOTH,   0 },
+    { "dhcp.",            AID_SYSTEM,   0 },
+    { "dhcp.",            AID_DHCP,     0 },
+    { "debug.",           AID_SYSTEM,   0 },
+    { "debug.",           AID_SHELL,    0 },
+    { "log.",             AID_SHELL,    0 },
+    { "service.adb.root", AID_SHELL,    0 },
+    { "service.adb.tcp.port", AID_SHELL,    0 },
+    { "persist.sys.",     AID_SYSTEM,   0 },
+    { "persist.service.", AID_SYSTEM,   0 },
+    { "persist.security.", AID_SYSTEM,   0 },
+    { "persist.service.bdroid.", AID_BLUETOOTH,   0 },
+    { "selinux."         , AID_SYSTEM,   0 },
+    { "wfd.enable",        AID_MEDIA,    0 },
+    { NULL, 0, 0 }
+};
+
+```
+
+### android 5.0以上
+
+external/sepolicy/property_contexts
+
+system/sepolicy/property_contexts
+
+```txt
+
+##########################
+# property service keys
+#
+#
+net.rmnet               u:object_r:net_radio_prop:s0
+net.gprs                u:object_r:net_radio_prop:s0
+net.ppp                 u:object_r:net_radio_prop:s0
+net.qmi                 u:object_r:net_radio_prop:s0
+net.lte                 u:object_r:net_radio_prop:s0
+net.cdma                u:object_r:net_radio_prop:s0
+net.dns                 u:object_r:net_radio_prop:s0
+sys.usb.config          u:object_r:system_radio_prop:s0
+ril.                    u:object_r:radio_prop:s0
+gsm.                    u:object_r:radio_prop:s0
+persist.radio           u:object_r:radio_prop:s0
+
+net.                    u:object_r:system_prop:s0
+dev.                    u:object_r:system_prop:s0
+runtime.                u:object_r:system_prop:s0
+hw.                     u:object_r:system_prop:s0
+sys.                    u:object_r:system_prop:s0
+sys.powerctl            u:object_r:powerctl_prop:s0
+sys.usb.ffs.            u:object_r:ffs_prop:s0
+service.                u:object_r:system_prop:s0
+wlan.                   u:object_r:system_prop:s0
+dhcp.                   u:object_r:dhcp_prop:s0
+dhcp.bt-pan.result      u:object_r:pan_result_prop:s0
+bluetooth.              u:object_r:bluetooth_prop:s0
+
+debug.                  u:object_r:debug_prop:s0
+debug.db.               u:object_r:debuggerd_prop:s0
+log.                    u:object_r:shell_prop:s0
+service.adb.root        u:object_r:shell_prop:s0
+service.adb.tcp.port    u:object_r:shell_prop:s0
+
+persist.audio.          u:object_r:audio_prop:s0
+persist.logd.           u:object_r:logd_prop:s0
+persist.sys.            u:object_r:system_prop:s0
+persist.service.        u:object_r:system_prop:s0
+persist.service.bdroid. u:object_r:bluetooth_prop:s0
+persist.security.       u:object_r:system_prop:s0
+
+# selinux non-persistent properties
+selinux.restorecon_recursive   u:object_r:restorecon_prop:s0
+selinux.                       u:object_r:security_prop:s0
+
+# default property context
+*                       u:object_r:default_prop:s0
+
+# data partition encryption properties
+vold.                   u:object_r:vold_prop:s0
+crypto.                 u:object_r:vold_prop:s0
+
+# ro.build.fingerprint is either set in /system/build.prop, or is
+# set at runtime by system_server.
+build.fingerprint       u:object_r:fingerprint_prop:s0
+
+# ctl properties
+ctl.bootanim            u:object_r:ctl_bootanim_prop:s0
+ctl.dumpstate           u:object_r:ctl_dumpstate_prop:s0
+
+```
+
+
+
 
