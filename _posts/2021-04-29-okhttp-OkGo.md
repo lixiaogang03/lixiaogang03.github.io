@@ -118,7 +118,7 @@ public class RequestUtils {
 
 ## Download
 
-```
+```java
 
     public static void downloadWithCallback(String url, Object tag, String destFileDir,
                                             String destFileName, final DownloadCallback callback) {
