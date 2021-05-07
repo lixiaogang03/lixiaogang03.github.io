@@ -63,6 +63,75 @@ boot header, kernel, ramdisk
 
 ![ota_step](/images/ota/ota_step.png)
 
+## RecoverySystem
+
+```java
+
+/**
+ * RecoverySystem contains methods for interacting with the Android
+ * recovery system (the separate partition that can be used to install
+ * system updates, wipe user data, etc.)
+ */
+public class RecoverySystem {
+
+    /**
+     * Reboots the device in order to install the given update
+     * package.
+     * Requires the {@link android.Manifest.permission#REBOOT} permission.
+     *
+     * @param context      the Context to use
+     * @param packageFile  the update package to install.  Must be on
+     * a partition mountable by recovery.  (The set of partitions
+     * known to recovery may vary from device to device.  Generally,
+     * /cache and /data are safe.)
+     *
+     * @throws IOException  if writing the recovery command file
+     * fails, or if the reboot itself fails.
+     */
+    public static void installPackage(Context context, File packageFile)
+        throws IOException {
+        String filename = packageFile.getCanonicalPath();
+        Log.w(TAG, "!!! REBOOTING TO INSTALL " + filename + " !!!");
+        String arg = "--update_package=" + filename +
+            "\n--locale=" + Locale.getDefault().toString();
+        bootCommand(context, arg);
+    }
+
+    /**
+     * Reboot into the recovery system with the supplied argument.
+     * @param arg to pass to the recovery utility.
+     * @throws IOException if something goes wrong.
+     */
+    private static void bootCommand(Context context, String arg) throws IOException {
+        RECOVERY_DIR.mkdirs();  // In case we need it
+        COMMAND_FILE.delete();  // In case it's not writable
+        LOG_FILE.delete();
+
+        FileWriter command = new FileWriter(COMMAND_FILE);
+        try {
+            command.write(arg);
+            command.write("\n");
+        } finally {
+            command.close();
+        }
+
+        // Having written the command file, go ahead and reboot
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        pm.reboot("recovery");
+
+        throw new IOException("Reboot failed (no permissions?)");
+    }
+
+}
+
+```
+
+## Recovery模式
+
+1. adb reboot recovery
+2. POWER + (VOL+)
+
+fastboot 与 recovery 区别， fastboot俗称线刷，需要电脑和数据线刷机，recovery俗称卡刷，通过内部存储刷机
 
 
 
