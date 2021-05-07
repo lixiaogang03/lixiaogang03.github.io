@@ -61,6 +61,8 @@ boot header, kernel, ramdisk
    b. 作为正常启动的一部分，系统会根据所需内容（预先存储为 /system 中的一个文件）检查 recovery 分区的内容。二者内容不同，所以 recovery 分区会被所需内容重新刷写（在后续引导中，recovery 分区已经包含新内容，因此无需重新刷写）。
 系统更新完成！更新日志可以在 /cache/recovery/last_log.# 中找到。
 
+![ota_step](/images/ota/ota_step.png)
+
 
 
 
