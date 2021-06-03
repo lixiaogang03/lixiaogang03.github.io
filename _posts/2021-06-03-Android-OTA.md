@@ -24,9 +24,7 @@ tags:
 
 **make otapackage**
 
-out/target/product/rk3288/obj/PACKAGING/target_files_intermediates/rk3288-target_files-20210603.114202.zip
-
-用于制作差分升级包
+用于制作差分升级包: out/target/product/rk3288/obj/PACKAGING/target_files_intermediates/rk3288-target_files-20210603.114202.zip
 
 ```txt
 
@@ -130,7 +128,11 @@ rk3288-ota-20210603.114202$ tree
 
 ## 差分升级包
 
-./build/tools/releasetools/ota_from_target_files -v -i rk3188-target_files-v1.zip -p out/host/linux-x86 -k build/target/product/security/testkey rk3188-target_files-v2.zip out/target/product/rk3188/rk3188-v1-v2.zip
+./build/tools/releasetools/ota_from_target_files
+ -v -i rk3188-target_files-v1.zip
+ -p out/host/linux-x86
+ -k build/target/product/security/testkey
+ rk3188-target_files-v2.zip out/target/product/rk3188/rk3188-v1-v2.zip
 
 ```txt
 
