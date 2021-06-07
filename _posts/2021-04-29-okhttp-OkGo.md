@@ -147,6 +147,79 @@ public class RequestUtils {
 
 ```
 
+## OkDownload
+
+```gradle
+
+    implementation 'com.lzy.net:okgo:3.0.4'
+    implementation 'com.lzy.net:okserver:2.0.5'
+
+```
+
+**缺点**
+
+1. 下载大文件时会内存溢出
+2. 不支持多线程下载
+
+## 初始化
+
+```java
+
+    public static void okDownloadInit() {
+        OkDownload okDownload = OkDownload.getInstance();
+        okDownload.setFolder(Environment.getExternalStorageDirectory().getAbsolutePath()
+                + File.separator + "Download" + File.separator);
+        okDownload.getThreadPool().setCorePoolSize(3);
+        okDownload.addOnAllTaskEndListener(new XExecutor.OnAllTaskEndListener() {
+            @Override
+            public void onAllTaskEnd() {
+                Log.w(TAG, "onAllTaskEnd");
+            }
+        });
+    }
+
+
+    public static void download(String tag, String url) {
+        Log.d(TAG, "download " + tag + ", " + url);
+        GetRequest<File> request = OkGo.get(url);
+        DownloadTask task = OkDownload.request(tag, request);
+        task.register(new DownloadListener(tag) {
+            @Override
+            public void onStart(Progress progress) {
+                Log.d(TAG, "onStart");
+            }
+
+            @Override
+            public void onProgress(Progress progress) {
+                Log.d(TAG, "onProgress: " + progress.currentSize + "---" + progress.totalSize);
+            }
+
+            @Override
+            public void onError(Progress progress) {
+                Log.e(TAG, "onError" + progress.exception);
+            }
+
+            @Override
+            public void onFinish(File file, Progress progress) {
+                Log.d(TAG, "onFinish: " + file.getAbsolutePath());
+            }
+
+            @Override
+            public void onRemove(Progress progress) {
+                Log.e(TAG, "onRemove" + progress.toString());
+            }
+        }).save();
+        task.fileName("update.zip"); //设置下载的文件名
+        task.start();
+
+        task.restart(); //重新下载
+        task.pause(); //暂停下载
+        task.remove(); //删除下载，只删除记录，不删除文件
+        task.remove(true); //删除下载，同时删除记录和文件
+    }
+
+```
+
 
 
 
