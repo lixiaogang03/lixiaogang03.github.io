@@ -30,4 +30,39 @@ Socket.io提供了基于事件的实时双向通讯
 
 ```
 
+## 代码
+
+```java
+
+    private final static String SOCKET_ADDRESS = "http://192.168.1.56:3000/";
+
+    private final Emitter.Listener messageListener = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+
+        }
+    }
+
+    private final Emitter.Listener clientIdListener = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        try {
+            client = IO.socket(SOCKET_ADDRESS);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        client.on("message", messageListener);
+        client.on("id", clientIdListener);
+        client.connect();
+    }
+
+```
 
