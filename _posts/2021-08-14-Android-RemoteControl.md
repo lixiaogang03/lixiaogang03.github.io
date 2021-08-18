@@ -26,6 +26,13 @@ tags:
 2. Android 屏幕录制
 3. 模拟坐标点击
 
+## 屏幕录制
+
+[Android端屏幕采集原理](https://www.jianshu.com/p/135002fbec1c)
+
+![screen_capture](/images/webrtc/screen_capture.webp)
+
+
 
 
 
