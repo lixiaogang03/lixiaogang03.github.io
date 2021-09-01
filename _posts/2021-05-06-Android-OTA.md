@@ -16,6 +16,8 @@ tags:
 
 [Android OTA升级流程分析](https://skytoby.github.io/2019/Android%20OTA%E5%8D%87%E7%BA%A7%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90/)
 
+[ANDROID OTA升级原理和流程分析](https://www.freesion.com/article/20661087901/)
+
 ## 普通系统升级
 
 **boot引导分区**
