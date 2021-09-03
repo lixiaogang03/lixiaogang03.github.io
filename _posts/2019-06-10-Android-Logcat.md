@@ -243,6 +243,8 @@ or defaults to "threadtime"
 
 **adb shell dmesg > dmesg.txt**
 
+**adb shell "while true; do cat; sleep 1; done < /proc/kmsg"**
+
 ```txt
 
 $ adb shell dmesg --help
