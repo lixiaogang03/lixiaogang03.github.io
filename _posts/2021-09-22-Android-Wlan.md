@@ -16,10 +16,4 @@ tags:
 
 ![wifi-arch](/images/network/wifi-arch.png)
 
-## 调试
-
-**App 中连接wifi并设置静态IP后无法上网**
-
-## dumpsys wifi
-
 
