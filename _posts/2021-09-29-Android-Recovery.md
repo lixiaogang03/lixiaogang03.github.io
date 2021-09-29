@@ -10,6 +10,8 @@ tags:
     - recovery
 ---
 
+[Linux系统调用(syscall)原理-Gityuan](http://gityuan.com/2016/05/21/syscall/)
+
 ## Android 启动模式
 
 * Normal 正常启动
@@ -485,7 +487,7 @@ bionic/libc/arch-arm/syscalls/__reboot.S
 
 ENTRY(__reboot)
     mov     ip, r7
-    ldr     r7, =__NR_reboot  //
+    ldr     r7, =__NR_reboot  // 系统调用号 88
     swi     #0
     mov     r7, ip
     cmn     r0, #(MAX_ERRNO + 1)
@@ -496,13 +498,15 @@ END(__reboot)
 
 ```
 
-### glibc-syscalls.h
+### unistd_32.h
 
-./libc/include/sys/glibc-syscalls.h
+[系统调用在线查询地址](http://asm.sourceforge.net/syscall.html)
+
+./bionic/libc/kernel/arch-x86/asm/unistd_32.h
 
 ```c
 
-#define SYS_reboot __NR_reboot
+#define __NR_reboot 88
 
 ```
 
@@ -605,6 +609,63 @@ SYSCALL_DEFINE4(reboot, int, magic1, int, magic2, unsigned int, cmd,
 	}
 	mutex_unlock(&reboot_mutex);
 	return ret;
+}
+
+
+/**
+ *	kernel_restart - reboot the system
+ *	@cmd: pointer to buffer containing command to execute for restart
+ *		or %NULL
+ *
+ *	Shutdown everything and perform a clean reboot.
+ *	This is not safe to call in interrupt context.
+ */
+void kernel_restart(char *cmd)
+{
+	kernel_restart_prepare(cmd);
+	disable_nonboot_cpus();
+	if (!cmd)
+		printk(KERN_EMERG "Restarting system.\n");
+	else
+		printk(KERN_EMERG "Restarting system with command '%s'.\n", cmd);
+	kmsg_dump(KMSG_DUMP_RESTART);
+	machine_restart(cmd);
+}
+
+static void kernel_shutdown_prepare(enum system_states state)
+{
+	blocking_notifier_call_chain(&reboot_notifier_list,
+		(state == SYSTEM_HALT)?SYS_HALT:SYS_POWER_OFF, NULL);
+	system_state = state;
+	usermodehelper_disable();
+	device_shutdown();
+}
+
+```
+
+## process.c
+
+./arch/arm/kernel/process.c
+
+```c
+
+void machine_restart(char *cmd)
+{
+	machine_shutdown();
+
+	/* Flush the console to make sure all the relevant messages make it
+	 * out to the console drivers */
+	arm_machine_flush_console();
+
+	arm_pm_restart(reboot_mode, cmd);
+
+	/* Give a grace period for failure to restart of 1s */
+	mdelay(1000);
+
+	/* Whoops - the platform was unable to reboot. Tell the user! */
+	printk("Reboot failed -- System halted\n");
+	local_irq_disable();
+	while (1);
 }
 
 ```
