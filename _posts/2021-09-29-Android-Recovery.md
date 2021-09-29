@@ -21,7 +21,11 @@ tags:
 
 每个android设备不是所有模式都有，跟具体厂商有关
 
-## RecoverySystem
+## OTA Install
+
+![ota_mode](/images/recovery/ota_mode.png)
+
+### RecoverySystem
 
 ```java
 
@@ -75,7 +79,7 @@ tags:
 
 ```
 
-## PowerManagerService
+### PowerManagerService
 
 ```java
 
@@ -156,7 +160,7 @@ tags:
 
 ```
 
-## ShutdownThread
+### ShutdownThread
 
 ```java
 
@@ -320,7 +324,7 @@ tags:
 
 ```
 
-## init.rc
+### init.rc
 
 ```txt
 
@@ -329,7 +333,7 @@ on property:sys.powerctl=*
 
 ```
 
-## keywords.h
+### keywords.h
 
 system/core/init/keywords.h
 
@@ -341,7 +345,7 @@ int do_powerctl(int nargs, char **args);
 
 ```
 
-## builtins.c
+### builtins.c
 
 system/core/init/builtins.c
 
@@ -386,7 +390,7 @@ int do_powerctl(int nargs, char **args)
 
 ```
 
-## android_reboot.c
+### android_reboot.c
 
 system/core/libcutils/android_reboot.c
 
@@ -424,7 +428,7 @@ int android_reboot(int cmd, int flags, char *arg)
 
 ```
 
-## reboot.c
+### reboot.c
 
 ./bionic/libc/bionic/reboot.c
 
@@ -436,6 +440,10 @@ int reboot (int  mode)
 }
 
 ```
+
+## Recovery Mode
+
+![recovery_mode](/images/recovery/recovery_mode.png)
 
 
 
