@@ -514,7 +514,7 @@ END(__reboot)
 
 kernel/kernel/sys.c
 
-```C
+```c
 
 /*
  * Reboot system call: for obvious reasons only root may call it,
