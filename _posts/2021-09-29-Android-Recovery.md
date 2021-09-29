@@ -428,6 +428,42 @@ int android_reboot(int cmd, int flags, char *arg)
 
 ```
 
+### misc_rw.c
+
+system/core/libcutils/misc_rw.c
+
+```c
+
+static const char *MISC_DEVICE = "/dev/block/by-name/misc";
+
+/* force the next boot to recovery/efex */
+int write_misc(char *reason){
+	struct bootloader_message boot, temp;
+	char device[32] = {0};
+	memset(&boot, 0, sizeof(boot));
+	if(!strcmp("recovery",reason)){
+            reason = "boot-recovery";
+	}
+
+	strcpy(boot.command, reason);
+	sprintf(device,"%s", MISC_DEVICE);
+	if (set_bootloader_message_block(&boot, device))
+		return -1;
+
+	//read for compare
+	memset(&temp, 0, sizeof(temp));
+	if (get_bootloader_message_block(&temp, device))
+		return -1;
+
+	if ( memcmp(&boot, &temp, sizeof(boot)))
+		return -1;
+
+	return 0;
+
+}
+
+```
+
 ### reboot.c
 
 ./bionic/libc/bionic/reboot.c
@@ -437,6 +473,138 @@ int android_reboot(int cmd, int flags, char *arg)
 int reboot (int  mode) 
 {
     return __reboot( LINUX_REBOOT_MAGIC1, LINUX_REBOOT_MAGIC2, mode, NULL );
+}
+
+```
+
+### __reboot.S
+
+bionic/libc/arch-arm/syscalls/__reboot.S
+
+```c
+
+ENTRY(__reboot)
+    mov     ip, r7
+    ldr     r7, =__NR_reboot  //
+    swi     #0
+    mov     r7, ip
+    cmn     r0, #(MAX_ERRNO + 1)
+    bxls    lr
+    neg     r0, r0
+    b       __set_errno
+END(__reboot)
+
+```
+
+### glibc-syscalls.h
+
+./libc/include/sys/glibc-syscalls.h
+
+```c
+
+#define SYS_reboot __NR_reboot
+
+```
+
+### sys.c
+
+kernel/kernel/sys.c
+
+```C
+
+/*
+ * Reboot system call: for obvious reasons only root may call it,
+ * and even root needs to set up some magic numbers in the registers
+ * so that some mistake won't make this reboot the whole machine.
+ * You can also set the meaning of the ctrl-alt-del-key here.
+ *
+ * reboot doesn't sync: do that yourself before calling this.
+ */
+SYSCALL_DEFINE4(reboot, int, magic1, int, magic2, unsigned int, cmd,
+		void __user *, arg)
+{
+	char buffer[256];
+	int ret = 0;
+
+	/* We only trust the superuser with rebooting the system. */
+	if (!capable(CAP_SYS_BOOT))
+		return -EPERM;
+
+	/* For safety, we require "magic" arguments. */
+	if (magic1 != LINUX_REBOOT_MAGIC1 ||
+	    (magic2 != LINUX_REBOOT_MAGIC2 &&
+	                magic2 != LINUX_REBOOT_MAGIC2A &&
+			magic2 != LINUX_REBOOT_MAGIC2B &&
+	                magic2 != LINUX_REBOOT_MAGIC2C))
+		return -EINVAL;
+
+	/*
+	 * If pid namespaces are enabled and the current task is in a child
+	 * pid_namespace, the command is handled by reboot_pid_ns() which will
+	 * call do_exit().
+	 */
+	ret = reboot_pid_ns(task_active_pid_ns(current), cmd);
+	if (ret)
+		return ret;
+
+	/* Instead of trying to make the power_off code look like
+	 * halt when pm_power_off is not set do it the easy way.
+	 */
+	if ((cmd == LINUX_REBOOT_CMD_POWER_OFF) && !pm_power_off)
+		cmd = LINUX_REBOOT_CMD_HALT;
+
+	mutex_lock(&reboot_mutex);
+	switch (cmd) {
+	case LINUX_REBOOT_CMD_RESTART:
+		kernel_restart(NULL);
+		break;
+
+	case LINUX_REBOOT_CMD_CAD_ON:
+		C_A_D = 1;
+		break;
+
+	case LINUX_REBOOT_CMD_CAD_OFF:
+		C_A_D = 0;
+		break;
+
+	case LINUX_REBOOT_CMD_HALT:
+		kernel_halt();
+		do_exit(0);
+		panic("cannot halt");
+
+	case LINUX_REBOOT_CMD_POWER_OFF:
+		kernel_power_off();
+		do_exit(0);
+		break;
+
+	case LINUX_REBOOT_CMD_RESTART2:
+		if (strncpy_from_user(&buffer[0], arg, sizeof(buffer) - 1) < 0) {
+			ret = -EFAULT;
+			break;
+		}
+		buffer[sizeof(buffer) - 1] = '\0';
+
+		kernel_restart(buffer);
+		break;
+
+#ifdef CONFIG_KEXEC
+	case LINUX_REBOOT_CMD_KEXEC:
+		ret = kernel_kexec();
+		break;
+#endif
+
+#ifdef CONFIG_HIBERNATION
+	case LINUX_REBOOT_CMD_SW_SUSPEND:
+		ret = hibernate();
+		break;
+#endif
+
+	default:
+		ret = -EINVAL;
+		break;
+	}
+	mutex_unlock(&reboot_mutex);
+	return ret;
 }
 
 ```
