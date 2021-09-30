@@ -12,6 +12,8 @@ tags:
 
 [Linux系统调用(syscall)原理-Gityuan](http://gityuan.com/2016/05/21/syscall/)
 
+[Android Bootloader-Main system-Recovery](https://blog.csdn.net/llping2011/article/details/9499029)
+
 ## Android 启动模式
 
 * Normal 正常启动
@@ -673,6 +675,103 @@ void machine_restart(char *cmd)
 ## Recovery Mode
 
 ![recovery_mode](/images/recovery/recovery_mode.png)
+
+### 源码
+
+bootable/recovery/
+
+```mk
+
+LOCAL_SRC_FILES := \
+    insmodctp.cpp \
+    recovery.cpp \
+    bootloader.cpp \
+    install.cpp \
+    roots.cpp \
+    ui.cpp \
+    screen_ui.cpp \
+    verifier.cpp \
+    adb_install.cpp
+
+```
+
+### 编译结果
+
+out/target/product/***/recovery/root
+system/bin/recovery
+
+```txt
+.
+├── charger
+├── data
+├── default.prop
+├── dev
+├── disp.ko
+├── etc
+│   └── recovery.fstab
+├── file_contexts
+├── fstab.sun8i
+├── init
+├── initlogo.rle
+├── init.rc
+├── init.recovery.sun8i.rc
+├── lcd.ko
+├── nand.ko
+├── proc
+├── property_contexts
+├── res
+│   ├── images
+│   └── keys
+├── sbin
+│   ├── adbd
+│   ├── healthd
+│   ├── recovery
+│   ├── ueventd -> ../init
+│   └── watchdogd -> ../init
+├── seapp_contexts
+├── sepolicy
+├── sunxi-keyboard.ko
+├── sw-device.ko
+├── sys
+├── system
+├── tmp
+├── ueventd.rc
+└── ueventd.sun8i.rc
+
+```
+
+### 分区(A33)
+
+Recovery的工作需要整个软件平台的配合，从架构角度看，有三个部分：
+* Main system: 用boot.img启动的Linux系统，Android的正常工作模式。
+* Recovery: 用recovery.img启动的Linux系统，主要是运行Recovery程序。
+* Bootloader: 除了加载、启动系统，还会通过读取flash的MISC分区获得来自Main system和Recovery的消息，并以此决定做何种操作。
+
+![recovery_bootloader_mainsystem](/images/recovery/recovery_bootloader_mainsystem.jpg)
+
+```txt
+
+# ls -al dev/block/by-name/
+lrwxrwxrwx root     root              2021-01-01 08:00 UDISK -> /dev/block/mmcblk0p1
+lrwxrwxrwx root     root              2021-01-01 08:00 boot -> /dev/block/mmcblk0p6
+lrwxrwxrwx root     root              2021-01-01 08:00 bootloader -> /dev/block/mmcblk0p2
+lrwxrwxrwx root     root              2021-01-01 08:00 cache -> /dev/block/mmcblk0p10
+lrwxrwxrwx root     root              2021-01-01 08:00 env -> /dev/block/mmcblk0p5
+lrwxrwxrwx root     root              2021-01-01 08:00 metadata -> /dev/block/mmcblk0p11
+lrwxrwxrwx root     root              2021-01-01 08:00 misc -> /dev/block/mmcblk0p8
+lrwxrwxrwx root     root              2021-01-01 08:00 private -> /dev/block/mmcblk0p12
+lrwxrwxrwx root     root              2021-01-01 08:00 recovery -> /dev/block/mmcblk0p9
+lrwxrwxrwx root     root              2021-01-01 08:00 system -> /dev/block/mmcblk0p7
+
+```
+
+### Bootloader进入Recovery
+
+![booloader_to_recovery](/images/recovery/booloader_to_recovery.jpg)
+
+### Recovery 运行流程
+
+![recovery_process](/images/recovery/recovery_process.jpg)
 
 
 
