@@ -1,6 +1,6 @@
 # Site settings
 title: LXG Blog
-SEOTitle: LXG Blog | 李晓刚的博客 
+SEOTitle: 李晓刚的博客 | LXG Blog
 header-img: img/home-bg-o.jpg
 email: 1158646410@qq.com
 description: "Every failure is leading towards success."
@@ -74,7 +74,7 @@ kramdown:
 
 # Analytics settings
 # Baidu Analytics
-# ba_track_id: b50bf2b12b5338a1845e33832976fd68
+ba_track_id: 48fe9730565c2edaf9f27e1ecbfcb514
 
 # Google Analytics
 # ga_track_id: 'UA-90855596-1'            # Format: UA-xxxxxx-xx
