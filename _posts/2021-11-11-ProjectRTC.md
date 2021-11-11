@@ -222,9 +222,11 @@ module.exports = function(app, streams) {
 
 ```
 
-## Web客户端
+## PC Web客户端
 
 ### adapter.js
+
+处理不同浏览器的适配
 
 ```js
 
@@ -368,7 +370,7 @@ if (typeof module !== 'undefined') {
 
 ### app.js
 
-前端入口
+前端入口， 处理前端页面交互， Camera 打开， 开启远程控制
 
 ```js
 
@@ -394,8 +396,9 @@ if (typeof module !== 'undefined') {
     app.factory('camera', ['$rootScope', '$window', function($rootScope, $window){
 	console.log("app.js----------app.factory");                                 // 第四步
     	var camera = {};
-    	camera.preview = $window.document.getElementById('localVideo');
+    	camera.preview = $window.document.getElementById('localVideo');   // 界面本地视频流显示元素
 
+        // 打开 PC Camera
     	camera.start = function(){
 			return requestUserMedia(mediaConfig)                        // 第十步 打开PC Camera
 			.then(function(stream){
@@ -407,14 +410,16 @@ if (typeof module !== 'undefined') {
 			})
 			.catch(Error('Failed to get access to local media.'));
 		};
+
+        // 关闭 PC Camera
     	camera.stop = function(){
     		return new Promise(function(resolve, reject) {
 				try {
 					console.log("app.js----------camera stop");
 					//camera.stream.stop() no longer works
-          			for( var track in camera.stream.getTracks() ){
-            			track.stop();
-          			}
+          				for( var track in camera.stream.getTracks() ){
+            					track.stop();
+          				}
 					camera.preview.src = '';
 					resolve();
 				} catch(error) {
@@ -457,11 +462,14 @@ if (typeof module !== 'undefined') {
 			});
 		};
 
+                // 前端 View 按钮
 		rtc.view = function(stream){
 			console.log("app.js----------rtc.view");
 			client.peerInit(stream.id);
 			stream.isPlaying = !stream.isPlaying;
 		};
+
+                // 前端 Call 按钮
 		rtc.call = function(stream){
 			console.log("app.js----------rtc.call");                        // 远程控制第一步
 			/* If json isn't loaded yet, construct a new stream 
@@ -499,9 +507,9 @@ if (typeof module !== 'undefined') {
 
 		//initial load
 		rtc.loadData();                                                            // 第七步
-    	if($location.url() != '/'){
-      		rtc.call($location.url().slice(1));
-    	};
+                if($location.url() != '/'){
+      			rtc.call($location.url().slice(1));
+    		};
 	}]);
 
 	// 本地视频流控制器
@@ -519,6 +527,7 @@ if (typeof module !== 'undefined') {
 		    });
 		});
 
+                // 打开PC端 Camera 的按钮
 		localStream.toggleCam = function(){
 			console.log("app.js----------localStream.toggleCam");               // 第九步 打开PC camera
 			if(localStream.cameraIsOn){
@@ -548,6 +557,8 @@ if (typeof module !== 'undefined') {
 
 ### rtcClient.js
 
+处理端与端之间的消息和视频流传输
+
 ```js
 
 var PeerManager = (function () {
@@ -572,7 +583,7 @@ var PeerManager = (function () {
       },
       peerDatabase = {},
       localStream,
-      remoteVideoContainer = document.getElementById('remoteVideosContainer'),
+      remoteVideoContainer = document.getElementById('remoteVideosContainer'),    // 远程视频流显示区域
       socket = io();
       
   socket.on('message', handleMessage);
@@ -747,7 +758,9 @@ var Peer = function (pcConfig, pcConstraints) {
 
 ```
 
+## Android 客户端
 
+[ScreenShareRTC](https://github.com/Jeffiano/ScreenShareRTC)
 
 
 
