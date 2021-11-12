@@ -12,6 +12,8 @@ tags:
 
 [WebSocket-简书](https://www.jianshu.com/p/4e80b931cdea)
 
+[netty.io](https://netty.io/)
+
 ## WebSocket
 
 W3C 在 HTML5 中提供了一种 client 与 server 间进行全双工通讯的网络技术 WebSocket。WebSocket 是一个全新的、独立的协议，基于 TCP 协议，与 HTTP 协议兼容却不会融入 HTTP 协议，仅仅作为 HTML5 的一部分。
@@ -21,6 +23,8 @@ W3C 在 HTML5 中提供了一种 client 与 server 间进行全双工通讯的�
 ![websocket](/images/webrtc/websocket.png)
 
 ## Socket.io
+
+[socket.io-client-java](https://github.com/socketio/socket.io-client-java)
 
 Socket.io提供了基于事件的实时双向通讯
 
@@ -65,4 +69,13 @@ Socket.io提供了基于事件的实时双向通讯
     }
 
 ```
+
+## netty
+
+Netty 是 一个异步事件驱动的网络应用程序框架，用于快速开发可维护的高性能协议服务器和客户端。
+
+![netty_components](/images/netty_components.png)
+
+
+
 
