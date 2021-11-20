@@ -80,6 +80,27 @@ IPC binder 代理用于促进跨越进程边界的通信。调用相机服务的
 
 ![camera_preview_2](/images/camera/camera_preview_2.webp)
 
+## V4L2 框架
+
+![v4l2](/images/camera/v4l2.png)
+
+## USB Camera
+
+[UVCCamera-Github](https://github.com/saki4510t/UVCCamera)
+
+[外接 USB 摄像头](https://source.android.google.cn/devices/camera/external-usb-cameras?hl=zh-cn)
+
+Android 平台支持使用即插即用的 USB 摄像头（即网络摄像头），但前提是这些摄像头采用标准的 Android Camera2 API 和摄像头 HIDL 接口。网络摄像头通常支持 USB 视频类 (UVC) 驱动程序，并且在 Linux 上，系统采用标准的 Video4Linux (V4L) 驱动程序控制 UVC 摄像头。
+
+## CSI Camera
+
+MIPI 是 Mobile Industry Processor Interface（移动行业处理器接口）的缩写。MIPI 联盟是一个开放的会员制组织。2003年7月，由美国德州仪器（TI）、意法半导体（ST）、英国 ARM 和芬兰诺基亚（Nokia）4 家公司共同成立。
+
+MIPI CSI（Camera Serial Interface）是由MIPI联盟下 Camera 工作组指定的接口标准。CSI-2 是 MIPI CSI 第二版，主要由应用层、协议层、物理层组成，最大支持4通道数据传输、单线传输速度高达1Gb/s。
+
+
+
+
 
 
 
