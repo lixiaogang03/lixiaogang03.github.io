@@ -32,6 +32,9 @@ make menuconfig
 
 kernel/.config
 
+make distclean
+
+make uImage
 
 ## Linux 3.4 USB Camera Config
 
