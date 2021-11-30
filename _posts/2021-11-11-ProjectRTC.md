@@ -14,6 +14,50 @@ tags:
 
 ## 服务器
 
+```txt
+
+-------------server init----------------
+
+load streams.js
+load routes.js
+load socketHandler.js
+Express server listening on port 3000
+
+-------------web client---------------
+
+Get Home index
+GET / 200 16.896 ms - 1911
+GET /stylesheets/style.css 200 8.697 ms - 1087
+GET /javascripts/rtcClient.js 200 7.736 ms - 5590
+GET /javascripts/app.js 200 6.848 ms - 4791
+GET /javascripts/adapter.js 200 4.888 ms - 7789
+socketHandler.js-------- -zzMdMZpp35j7eO7AAAA joined --
+routes.js--------------displayStreams: Get streams as JSON
+streams.js------------getStreams
+GET /streams.json 200 2.081 ms - 2
+
+--------------android client--------------
+
+GET /stylesheets/style.css 200 1.894 ms - 1087
+socketHandler.js-------- CYFpq45PF0YipCnUAAAB joined --
+socketHandler.js--------CYFpq45PF0YipCnUAAAB is ready to stream --
+streams.js------------addStream: CYFpq45PF0YipCnUAAAB
+
+
+---------------call remote----------------------
+
+socketHandler.js--------client on message
+socketHandler.js--------client on message
+socketHandler.js--------client on message
+socketHandler.js--------client on message
+socketHandler.js--------client on message
+socketHandler.js--------client on message
+socketHandler.js--------client on message
+socketHandler.js--------client on message
+socketHandler.js--------client on message
+
+```
+
 ### app.js
 
 ```js
@@ -223,6 +267,53 @@ module.exports = function(app, streams) {
 ```
 
 ## PC Web客户端
+
+```txt
+
+----------------------------------web client join in------------------
+
+load adapter.js
+adapter.js:147 adapter.js-----------This appears to be Chrome
+app.js:3 load app.js
+app.js:9 app.js----------new PeerManager
+rtcClient.js:3 load rtcClient.js
+app.js:21 app.js----------app.factory
+app.js:135 app.controller: LocalStreamController
+app.js:59 app.controller: RemoteStreamsController
+app.js:68 app.js----------rtc.loaddata
+app.js:71 app.js----------http get streams.json success
+
+----------------------------------call remote--------------------------------
+
+app.js----------rtc.call
+adapter.js:223 adapter.js-----------requestUserMedia
+adapter.js:233 adapter.js-----------getUserMedia
+app.js:28 app.js----------camera start
+adapter.js:202 adapter.js----------attachMediaStream
+rtcClient.js:145 rtcClient.js------------setLocalStream
+app.js:142 app.js----------local cameraIsOn
+rtcClient.js:162 rtcClient.js-------toggleLocalStream
+rtcClient.js:32 rtcClient.js-------addPeer
+rtcClient.js:187 rtcClient.js-------new RTCPeerConnection
+adapter.js:191 adapter.js-----------new webkitRTCPeerConnection
+rtcClient.js:168 rtcClient.js-------peerInit
+rtcClient.js:122 rtcClient.js-------sending init to CYFpq45PF0YipCnUAAAB
+rtcClient.js:96 rtcClient.js-------received offer from CYFpq45PF0YipCnUAAAB
+rtcClient.js:70 rtcClient.js-------answer
+rtcClient.js:45 rtcClient.js-------onaddstream
+adapter.js:202 adapter.js----------attachMediaStream
+rtcClient.js:122 rtcClient.js-------sending answer to CYFpq45PF0YipCnUAAAB
+rtcClient.js:96 rtcClient.js-------received candidate from CYFpq45PF0YipCnUAAAB
+rtcClient.js:55 rtcClient.js-------oniceconnectionstatechange
+rtcClient.js:35 rtcClient.js-------onicecandidate
+rtcClient.js:122 rtcClient.js-------sending candidate to CYFpq45PF0YipCnUAAAB
+rtcClient.js:35 rtcClient.js-------onicecandidate
+rtcClient.js:122 rtcClient.js-------sending candidate to CYFpq45PF0YipCnUAAAB
+3rtcClient.js:96 rtcClient.js-------received candidate from CYFpq45PF0YipCnUAAAB
+rtcClient.js:55 rtcClient.js-------oniceconnectionstatechange
+rtcClient.js:35 rtcClient.js-------onicecandidate
+
+```
 
 ### adapter.js
 
@@ -762,7 +853,609 @@ var Peer = function (pcConfig, pcConstraints) {
 
 [ScreenShareRTC](https://github.com/Jeffiano/ScreenShareRTC)
 
+**RtcActivity**
 
+```java
+
+public class RtcActivity extends Activity {
+
+    private WebRtcClient mWebRtcClient;
+    private static final int CAPTURE_PERMISSION_REQUEST_CODE = 1;
+    private static Intent mMediaProjectionPermissionResultData;
+    private static int mMediaProjectionPermissionResultCode;
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            startScreenCapture();
+        }
+
+    }
+
+
+    @TargetApi(21)
+    private void startScreenCapture() {
+        Log.d(TAG, "startScreenCapture");
+        MediaProjectionManager mediaProjectionManager =
+                (MediaProjectionManager) getApplication().getSystemService(
+                        Context.MEDIA_PROJECTION_SERVICE);
+        startActivityForResult(
+                mediaProjectionManager.createScreenCaptureIntent(), CAPTURE_PERMISSION_REQUEST_CODE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult");
+        if (requestCode != CAPTURE_PERMISSION_REQUEST_CODE)
+            return;
+        mMediaProjectionPermissionResultCode = resultCode;
+        mMediaProjectionPermissionResultData = data;
+        init();
+    }
+
+    private void init() {
+        PeerConnectionClient.PeerConnectionParameters peerConnectionParameters =
+                new PeerConnectionClient.PeerConnectionParameters(true, false,
+                        true, sDeviceWidth / SCREEN_RESOLUTION_SCALE, sDeviceHeight / SCREEN_RESOLUTION_SCALE, 0,
+                        0, "VP8",
+                        false,
+                        true,
+                        0,
+                        "OPUS", false, false, false, false, false, false, false, false, null);
+        mWebRtcClient = new WebRtcClient(getApplicationContext(), this, createScreenCapturer(), peerConnectionParameters);
+    }
+
+}
+
+```
+
+**WebRtcClient**
+
+```java
+
+public class WebRtcClient {
+
+    public static final String VIDEO_TRACK_ID = "ARDAMSv0";
+    private final static String TAG = "WebRtcClient";
+    private final static int MAX_PEER = 2;
+    private boolean[] endPoints = new boolean[MAX_PEER];
+    private PeerConnectionFactory factory;
+    private HashMap<String, Peer> peers = new HashMap<>();
+    private LinkedList<PeerConnection.IceServer> iceServers = new LinkedList<>();
+    private PeerConnectionClient.PeerConnectionParameters mPeerConnParams;
+    private MediaConstraints mPeerConnConstraints = new MediaConstraints();
+    private MediaStream mLocalMediaStream;
+    private VideoSource mVideoSource;
+    private RtcListener mListener;
+    private Socket mSocket;
+    VideoCapturer videoCapturer;
+    MessageHandler messageHandler = new MessageHandler();
+    Context mContext;
+
+    /**
+     * Implement this interface to be notified of events.
+     */
+    public interface RtcListener {
+        void onReady(String remoteId);
+
+        void onCall(String applicant);
+
+        void onHandup();
+
+        void onStatusChanged(String newStatus);
+    }
+
+    public interface Command {
+        void execute(String peerId, JSONObject payload) throws JSONException;
+    }
+
+    public class CreateOfferCommand implements Command {
+        public void execute(String peerId, JSONObject payload) throws JSONException {
+            Log.d(TAG, "CreateOfferCommand");
+            Peer peer = peers.get(peerId);
+            peer.pc.createOffer(peer, mPeerConnConstraints);
+//            sendMessage("r0Z049NKJF2ZCIhRAAAZ","offer",new JSONObject());
+        }
+    }
+
+    public class CreateAnswerCommand implements Command {
+        public void execute(String peerId, JSONObject payload) throws JSONException {
+            Log.d(TAG, "CreateAnswerCommand");
+            Peer peer = peers.get(peerId);
+            SessionDescription sdp = new SessionDescription(
+                    SessionDescription.Type.fromCanonicalForm(payload.optString("type")),
+                    payload.optString("sdp")
+            );
+            peer.pc.setRemoteDescription(peer, sdp);
+            peer.pc.createAnswer(peer, mPeerConnConstraints);
+        }
+    }
+
+    public class SetRemoteSDPCommand implements Command {
+        public void execute(String peerId, JSONObject payload) throws JSONException {
+            Log.d(TAG, "SetRemoteSDPCommand");
+            Peer peer = peers.get(peerId);
+            SessionDescription sdp = new SessionDescription(
+                    SessionDescription.Type.fromCanonicalForm(payload.optString("type")),
+                    payload.optString("sdp")
+            );
+            peer.pc.setRemoteDescription(peer, sdp);
+        }
+    }
+
+    public class AddIceCandidateCommand implements Command {
+        public void execute(String peerId, JSONObject payload) throws JSONException {
+            Log.d(TAG, "AddIceCandidateCommand");
+            PeerConnection pc = peers.get(peerId).pc;
+            if (pc.getRemoteDescription() != null) {
+                IceCandidate candidate = new IceCandidate(
+                        payload.optString("id"),
+                        payload.optInt("label"),
+                        payload.optString("candidate")
+                );
+                pc.addIceCandidate(candidate);
+            }
+        }
+    }
+
+    /**
+     * Send a message through the signaling server
+     *
+     * @param to      id of recipient
+     * @param type    type of message
+     * @param payload payload of message
+     * @throws JSONException
+     */
+    public void sendMessage(String to, String type, JSONObject payload) throws JSONException {
+        JSONObject message = new JSONObject();
+        message.put("to", to);
+        message.put("type", type);
+        message.put("payload", payload);
+        mSocket.emit("message", message);
+        Log.d(TAG, "socket send " + type + " to " + to + " payload:" + payload);
+    }
+
+    public class MessageHandler {
+        private HashMap<String, Command> commandMap;
+
+        public MessageHandler() {
+            this.commandMap = new HashMap<>();
+            commandMap.put("init", new CreateOfferCommand());
+            commandMap.put("offer", new CreateAnswerCommand());
+            commandMap.put("answer", new SetRemoteSDPCommand());
+            commandMap.put("candidate", new AddIceCandidateCommand());
+        }
+
+        public Emitter.Listener onMessage = new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                try {
+                    JSONObject data = (JSONObject) args[0];
+//                    String info = (String) args[0];
+//                    JSONObject data = new JSONObject(info);
+                    String from = data.optString("from");
+                    String type = data.optString("type");
+                    Log.d(TAG, "socket received " + type + " from " + from);
+                    JSONObject payload = null;
+                    if (!type.equals("init")) {
+                        payload = data.optJSONObject("payload");
+                    }
+                    // if peer is unknown, try to add him
+                    if (!peers.containsKey(from)) {
+                        // if MAX_PEER is reach, ignore the call
+                        int endPoint = findEndPoint();
+                        if (endPoint != MAX_PEER) {
+                            Peer peer = addPeer(from, endPoint);
+                            peer.pc.addStream(mLocalMediaStream);
+                            commandMap.get(type).execute(from, payload);
+                        }
+                    } else {
+                        Command command = commandMap.get(type);
+                        if(command!=null){
+                            command.execute(from, payload);
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        public Emitter.Listener onId = new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                String id = (String) args[0];
+                mListener.onReady(id);
+                mListener.onStatusChanged("READY");
+                Log.d(TAG, "socket onId " + id);
+            }
+        };
+    }
+
+    public class Peer implements SdpObserver, PeerConnection.Observer {
+        public PeerConnection pc;
+        public String id;
+        public int endPoint;
+
+        @Override
+        public void onCreateSuccess(final SessionDescription sdp) {
+            // TODO: modify sdp to use mPeerConnParams prefered codecs
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put("type", sdp.type.canonicalForm());
+                payload.put("sdp", sdp.description);
+                Log.d(TAG, "onCreateSuccess");
+                sendMessage(id, sdp.type.canonicalForm(), payload);
+                pc.setLocalDescription(Peer.this, sdp);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onSetSuccess() {
+        }
+
+        @Override
+        public void onCreateFailure(String s) {
+        }
+
+        @Override
+        public void onSetFailure(String s) {
+        }
+
+        @Override
+        public void onSignalingChange(PeerConnection.SignalingState signalingState) {
+        }
+
+
+        public void onIceConnectionReceivingChange(boolean var1) {
+
+        }
+
+        public void onIceCandidatesRemoved(IceCandidate[] var1) {
+
+        }
+
+        public void onAddTrack(RtpReceiver var1, MediaStream[] var2) {
+
+        }
+
+        @Override
+        public void onIceConnectionChange(PeerConnection.IceConnectionState iceConnectionState) {
+            if (iceConnectionState == PeerConnection.IceConnectionState.DISCONNECTED) {
+                removePeer(id);
+                mListener.onStatusChanged("DISCONNECTED");
+            }
+        }
+
+        @Override
+        public void onIceGatheringChange(PeerConnection.IceGatheringState iceGatheringState) {
+        }
+
+        @Override
+        public void onIceCandidate(final IceCandidate candidate) {
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put("label", candidate.sdpMLineIndex);
+                payload.put("id", candidate.sdpMid);
+                payload.put("candidate", candidate.sdp);
+                sendMessage(id, "candidate", payload);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onAddStream(MediaStream mediaStream) {
+            Log.d(TAG, "onAddStream " + mediaStream.label());
+            // remote streams are displayed from 1 to MAX_PEER (0 is localStream)
+//            mediaStream.videoTracks.get(0).addRenderer(new VideoRenderer(mRemoteRender));
+//            mListener.onAddRemoteStream(mediaStream, endPoint + 1);
+        }
+
+        @Override
+        public void onRemoveStream(MediaStream mediaStream) {
+            Log.d(TAG, "onRemoveStream " + mediaStream.label());
+            removePeer(id);
+        }
+
+        @Override
+        public void onDataChannel(DataChannel dataChannel) {
+        }
+
+        @Override
+        public void onRenegotiationNeeded() {
+
+        }
+
+        public Peer(String id, int endPoint) {
+            Log.d(TAG, "new Peer: " + id + " " + endPoint);
+            this.pc = factory.createPeerConnection(iceServers, mPeerConnConstraints, this);
+            this.id = id;
+            this.endPoint = endPoint;
+            pc.addStream(mLocalMediaStream); //, new MediaConstraints()
+        }
+    }
+
+    private Peer addPeer(String id, int endPoint) {
+        Peer peer = new Peer(id, endPoint);
+        peers.put(id, peer);
+
+        endPoints[endPoint] = true;
+        return peer;
+    }
+
+    private void removePeer(String id) {
+        Peer peer = peers.get(id);
+        peer.pc.close();
+        peers.remove(peer.id);
+        endPoints[peer.endPoint] = false;
+    }
+
+
+    public WebRtcClient(Context context, RtcListener listener, VideoCapturer capturer, PeerConnectionClient.PeerConnectionParameters params) {
+        Log.d(TAG, "new WebRtcClient");
+        mContext = context;
+        mListener = listener;
+        mPeerConnParams = params;
+        videoCapturer = capturer;
+        PeerConnectionFactory.initializeAndroidGlobals(mContext, true, true,
+                params.videoCodecHwAcceleration);
+        factory = new PeerConnectionFactory();
+
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[1];
+            TrustManager tm = new miTM();
+            trustAllCerts[0] = tm;
+            SSLContext sc = SSLContext.getInstance("SSL");
+            X509TrustManager x509m = new X509TrustManager() {
+                //          返回受信任的X509证书数组。
+                @Override
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new java.security.cert.X509Certificate[] {};
+                }
+                //          该方法检查服务器的证书，若不信任该证书同样抛出异常。通过自己实现该方法，可以使之信任我们指定的任何证书。
+//          在实现该方法时，也可以简单的不做任何处理，即一个空的函数体，由于不会抛出异常，它就会信任任何证书。
+                @Override
+                public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                }
+                //          该方法检查客户端的证书，若不信任该证书则抛出异常。由于我们不需要对客户端进行认证，
+//          因此我们只需要执行默认的信任管理器的这个方法。JSSE中，默认的信任管理器类为TrustManager。
+                @Override
+                public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                }
+            };
+
+            try {
+                sc.init(null, trustAllCerts, null);
+            } catch ( KeyManagementException e ) {
+                e.printStackTrace();
+            }
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .hostnameVerifier(new HostnameVerifier() {
+                        @Override
+                        public boolean verify( String s, SSLSession sslSession ) {
+                            return true;
+                        }
+                    })
+                    .sslSocketFactory(sc.getSocketFactory(), x509m)
+                    .build();
+            IO.Options opts = new IO.Options();
+            opts.callFactory = okHttpClient;
+            opts.webSocketFactory = okHttpClient;
+
+            // default settings for all sockets
+            IO.setDefaultOkHttpWebSocketFactory(okHttpClient);
+            IO.setDefaultOkHttpCallFactory(okHttpClient);
+
+            // set as an option
+            String host = "https://" + context.getString(R.string.host) + ":" + context.getString(R.string.port) + "/";
+            mSocket = IO.socket(host,opts);
+
+        } catch (URISyntaxException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        mSocket.on("id", messageHandler.onId);
+        mSocket.on("message", messageHandler.onMessage);
+        mSocket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Log.d(TAG, "socket state connect");
+            }
+        });
+        mSocket.on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Log.d(TAG, "socket state disconnect");
+            }
+        });
+        mSocket.on(Socket.EVENT_ERROR, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Log.d(TAG, "socket state error");
+            }
+        });
+        mSocket.connect();
+        Log.d(TAG, "socket start connect");
+
+//        iceServers.add(new PeerConnection.IceServer("stun:23.21.150.121"));
+//        iceServers.add(new PeerConnection.IceServer("stun:stun.l.google.com:19302"));
+
+
+        iceServers.add(new PeerConnection.IceServer("stun:stun.rixtelecom.se"));
+        iceServers.add(new PeerConnection.IceServer("stun:stun.schlund.de"));
+
+        mPeerConnConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
+        mPeerConnConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
+        mPeerConnConstraints.optional.add(new MediaConstraints.KeyValuePair("DtlsSrtpKeyAgreement", "true"));
+    }
+
+
+    /**
+     * Start the mSocket.
+     * <p>
+     * Set up the local stream and notify the signaling server.
+     * Call this method after onCallReady.
+     *
+     * @param name mSocket name
+     */
+    public void start(String name) {
+        initScreenCapturStream();
+        try {
+            JSONObject message = new JSONObject();
+            message.put("name", name);
+            mSocket.emit("readyToStream", message);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initScreenCapturStream() {
+        mLocalMediaStream = factory.createLocalMediaStream("ARDAMS");
+        MediaConstraints videoConstraints = new MediaConstraints();
+        videoConstraints.mandatory.add(new MediaConstraints.KeyValuePair("maxHeight", Integer.toString(mPeerConnParams.videoHeight)));
+        videoConstraints.mandatory.add(new MediaConstraints.KeyValuePair("maxWidth", Integer.toString(mPeerConnParams.videoWidth)));
+        videoConstraints.mandatory.add(new MediaConstraints.KeyValuePair("maxFrameRate", Integer.toString(mPeerConnParams.videoFps)));
+        videoConstraints.mandatory.add(new MediaConstraints.KeyValuePair("minFrameRate", Integer.toString(mPeerConnParams.videoFps)));
+
+//        VideoCapturer capturer = createScreenCapturer();
+        mVideoSource = factory.createVideoSource(videoCapturer);
+        videoCapturer.startCapture(mPeerConnParams.videoWidth, mPeerConnParams.videoHeight, mPeerConnParams.videoFps);
+        VideoTrack localVideoTrack = factory.createVideoTrack(VIDEO_TRACK_ID, mVideoSource);
+        localVideoTrack.setEnabled(true);
+        mLocalMediaStream.addTrack(factory.createVideoTrack("ARDAMSv0", mVideoSource));
+        AudioSource audioSource = factory.createAudioSource(new MediaConstraints());
+        mLocalMediaStream.addTrack(factory.createAudioTrack("ARDAMSa0", audioSource));
+//        mLocalMediaStream.videoTracks.get(0).addRenderer(new VideoRenderer(mLocalRender));
+//        mListener.onLocalStream(mLocalMediaStream);
+        mListener.onStatusChanged("STREAMING");
+    }
+
+    /**
+     * Call this method in Activity.onDestroy()
+     */
+    public void destroy() {
+        for (Peer peer : peers.values()) {
+            peer.pc.dispose();
+        }
+        if (factory != null) {
+            factory.dispose();
+        }
+        if (mVideoSource != null) {
+            mVideoSource.dispose();
+        }
+//        mSocket.disconnect();
+//        mSocket.close();
+    }
+
+}
+
+```
+
+**PeerConnectionClient**
+
+```java
+
+public class PeerConnectionClient {
+
+    /**
+     * Peer connection parameters.
+     */
+    public static class DataChannelParameters {
+        public final boolean ordered;
+        public final int maxRetransmitTimeMs;
+        public final int maxRetransmits;
+        public final String protocol;
+        public final boolean negotiated;
+        public final int id;
+
+        public DataChannelParameters(boolean ordered, int maxRetransmitTimeMs, int maxRetransmits,
+                                     String protocol, boolean negotiated, int id) {
+            this.ordered = ordered;
+            this.maxRetransmitTimeMs = maxRetransmitTimeMs;
+            this.maxRetransmits = maxRetransmits;
+            this.protocol = protocol;
+            this.negotiated = negotiated;
+            this.id = id;
+        }
+    }
+
+    /**
+     * Peer connection parameters.
+     */
+    public static class PeerConnectionParameters {
+        public final boolean videoCallEnabled;
+        public final boolean loopback;
+        public final boolean tracing;
+        public final int videoWidth;
+        public final int videoHeight;
+        public final int videoFps;
+        public final int videoMaxBitrate;
+        public final String videoCodec;
+        public final boolean videoCodecHwAcceleration;
+        public final boolean videoFlexfecEnabled;
+        public final int audioStartBitrate;
+        public final String audioCodec;
+        public final boolean noAudioProcessing;
+        public final boolean aecDump;
+        public final boolean useOpenSLES;
+        public final boolean disableBuiltInAEC;
+        public final boolean disableBuiltInAGC;
+        public final boolean disableBuiltInNS;
+        public final boolean enableLevelControl;
+        public final boolean disableWebRtcAGCAndHPF;
+        private final DataChannelParameters dataChannelParameters;
+
+        public PeerConnectionParameters(boolean videoCallEnabled, boolean loopback, boolean tracing,
+                                        int videoWidth, int videoHeight, int videoFps, int videoMaxBitrate, String videoCodec,
+                                        boolean videoCodecHwAcceleration, boolean videoFlexfecEnabled, int audioStartBitrate,
+                                        String audioCodec, boolean noAudioProcessing, boolean aecDump, boolean useOpenSLES,
+                                        boolean disableBuiltInAEC, boolean disableBuiltInAGC, boolean disableBuiltInNS,
+                                        boolean enableLevelControl, boolean disableWebRtcAGCAndHPF) {
+            this(videoCallEnabled, loopback, tracing, videoWidth, videoHeight, videoFps, videoMaxBitrate,
+                    videoCodec, videoCodecHwAcceleration, videoFlexfecEnabled, audioStartBitrate, audioCodec,
+                    noAudioProcessing, aecDump, useOpenSLES, disableBuiltInAEC, disableBuiltInAGC,
+                    disableBuiltInNS, enableLevelControl, disableWebRtcAGCAndHPF, null);
+        }
+
+        public PeerConnectionParameters(boolean videoCallEnabled, boolean loopback, boolean tracing,
+                                        int videoWidth, int videoHeight, int videoFps, int videoMaxBitrate, String videoCodec,
+                                        boolean videoCodecHwAcceleration, boolean videoFlexfecEnabled, int audioStartBitrate,
+                                        String audioCodec, boolean noAudioProcessing, boolean aecDump, boolean useOpenSLES,
+                                        boolean disableBuiltInAEC, boolean disableBuiltInAGC, boolean disableBuiltInNS,
+                                        boolean enableLevelControl, boolean disableWebRtcAGCAndHPF,
+                                        DataChannelParameters dataChannelParameters) {
+            this.videoCallEnabled = videoCallEnabled;
+            this.loopback = loopback;
+            this.tracing = tracing;
+            this.videoWidth = videoWidth;
+            this.videoHeight = videoHeight;
+            this.videoFps = videoFps;
+            this.videoMaxBitrate = videoMaxBitrate;
+            this.videoCodec = videoCodec;
+            this.videoFlexfecEnabled = videoFlexfecEnabled;
+            this.videoCodecHwAcceleration = videoCodecHwAcceleration;
+            this.audioStartBitrate = audioStartBitrate;
+            this.audioCodec = audioCodec;
+            this.noAudioProcessing = noAudioProcessing;
+            this.aecDump = aecDump;
+            this.useOpenSLES = useOpenSLES;
+            this.disableBuiltInAEC = disableBuiltInAEC;
+            this.disableBuiltInAGC = disableBuiltInAGC;
+            this.disableBuiltInNS = disableBuiltInNS;
+            this.enableLevelControl = enableLevelControl;
+            this.disableWebRtcAGCAndHPF = disableWebRtcAGCAndHPF;
+            this.dataChannelParameters = dataChannelParameters;
+        }
+    }
+
+}
+
+```
 
 
 
