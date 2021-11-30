@@ -46,15 +46,15 @@ streams.js------------addStream: CYFpq45PF0YipCnUAAAB
 
 ---------------call remote----------------------
 
-socketHandler.js--------client on message
-socketHandler.js--------client on message
-socketHandler.js--------client on message
-socketHandler.js--------client on message
-socketHandler.js--------client on message
-socketHandler.js--------client on message
-socketHandler.js--------client on message
-socketHandler.js--------client on message
-socketHandler.js--------client on message
+socketHandler.js--------client on message: init
+socketHandler.js--------client on message: offer
+socketHandler.js--------client on message: answer
+socketHandler.js--------client on message: candidate
+socketHandler.js--------client on message: candidate
+socketHandler.js--------client on message: candidate
+socketHandler.js--------client on message: candidate
+socketHandler.js--------client on message: candidate
+socketHandler.js--------client on message: candidate
 
 ```
 
@@ -853,6 +853,31 @@ var Peer = function (pcConfig, pcConstraints) {
 
 [ScreenShareRTC](https://github.com/Jeffiano/ScreenShareRTC)
 
+```txt
+
+D/WebRtcClient: new WebRtcClient
+D/WebRtcClient: socket start connect
+D/WebRtcClient: socket state connect
+D/WebRtcClient: socket onId ierjmzCyQps0abN8AAAD
+D/WebRtcClient: socket received init from DCMkIa-bQM-egylsAAAB
+D/WebRtcClient: new Peer: DCMkIa-bQM-egylsAAAB 0
+D/WebRtcClient: CreateOfferCommand
+D/WebRtcClient: onCreateSuccess
+D/WebRtcClient: socket send offer to DCMkIa-bQM-egylsAAAB payload:{"type":"offer","sdp":"v=0\r\no=- 2632933317278052816 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE audio video\r\na=msid-semantic: WMS ARDAMS\r\nm=audio 9 UDP\/TLS\/RTP\/SAVPF 111 103 9 102 0 8 105 13 110 113 126\r\nc=IN IP4 0.0.0.0\r\na=rtcp:9 IN IP4 0.0.0.0\r\na=ice-ufrag:jf6y\r\na=ice-pwd:8OYAjmAR9rB13WWcQXGRQGsQ\r\na=ice-options:trickle renomination\r\na=fingerprint:sha-256 A2:2A:6B:14:E9:0E:5F:CA:11:1D:32:D4:FF:54:44:19:95:81:ED:70:91:48:F5:83:59:CB:F3:2B:C0:84:F5:07\r\na=setup:actpass\r\na=mid:audio\r\na=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level\r\na=sendrecv\r\na=rtcp-mux\r\na=rtpmap:111 opus\/48000\/2\r\na=rtcp-fb:111 transport-cc\r\na=fmtp:111 minptime=10;useinbandfec=1\r\na=rtpmap:103 ISAC\/16000\r\na=rtpmap:9 G722\/8000\r\na=rtpmap:102 ILBC\/8000\r\na=rtpmap:0 PCMU\/8000\r\na=rtpmap:8 PCMA\/8000\r\na=rtpmap:105 CN\/16000\r\na=rtpmap:13 CN\/8000\r\na=rtpmap:110 telephone-event\/48000\r\na=rtpmap:113 telephone-event\/16000\r\na=rtpmap:126 telephone-event\/8000\r\na=ssrc:723199142 cname:Rpw8RXUejChnwhe2\r\na=ssrc:723199142 msid:ARDAMS ARDAMSa0\r\na=ssrc:723199142 mslabel:ARDAMS\r\na=ssrc:723199142 label:ARDAMSa0\r\nm=video 9 UDP\/TLS\/RTP\/SAVPF 96 98 100 127 97 99 101\r\nc=IN IP4 0.0.0.0\r\na=rtcp:9 IN IP4 0.0.0.0\r\na=ice-ufrag:jf6y\r\na=ice-pwd:8OYAjmAR9rB13WWcQXGRQGsQ\r\na=ice-options:trickle renomination\r\na=fingerprint:sha-256 A2:2A:6B:14:E9:0E:5F:CA:11:1D:32:D4:FF:54:44:19:95:81:ED:70:91:48:F5:83:59:CB:F3:2B:C0:84:F5:07\r\na=setup:actpass\r\na=mid:video\r\na=extmap:2 urn:ietf:params:rtp-hdrext:toffset\r\na=extmap:3 http:\/\/www.webrtc.org\/experiments\/rtp-hdrext\/abs-send-time\r\na=extmap:4 urn:3gpp:video-orientation\r\na=extmap:5 http:\/\/www.ietf.org\/id\/draft-holmer-rmcat-transport-wide-cc-extensions-01\r\na=extmap:6 http:\/\/www.webrtc.org\/experiments\/rtp-hdrext\/playout-delay\r\na=sendrecv\r\na=rtcp-mux\r\na=rtcp-rsize\r\na=rtpmap:96 VP8\/90000\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:96 transport-cc\r\na=rtpmap:98 VP9\/90000\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:98 transport-cc\r\na=rtpmap:100 red\/90000\r\na=rtpmap:127 ulpfec\/90000\r\na=rtpmap:97 rtx\/90000\r\na=fmtp:97 apt=96\r\na=rtpmap:99 rtx\/90000\r\na=fmtp:99 apt=98\r\na=rtpmap:101 rtx\/90000\r\na=fmtp:101 apt=100\r\na=ssrc-group:FID 3532610098 1541193154\r\na=ssrc:3532610098 cname:Rpw8RXUejChnwhe2\r\na=ssrc:3532610098 msid:ARDAMS ARDAMSv0\r\na=ssrc:3532610098 mslabel:ARDAMS\r\na=ssrc:3532610098 label:ARDAMSv0\r\na=ssrc:1541193154 cname:Rpw8RXUejChnwhe2\r\na=ssrc:1541193154 msid:ARDAMS ARDAMSv0\r\na=ssrc:1541193154 mslabel:ARDAMS\r\na=ssrc:1541193154 label:ARDAMSv0\r\n"}
+D/WebRtcClient: socket send candidate to DCMkIa-bQM-egylsAAAB payload:{"label":0,"id":"audio","candidate":"candidate:1001321590 1 udp 2122260223 192.168.1.88 33573 typ host generation 0 ufrag jf6y network-id 4 network-cost 10"}
+D/WebRtcClient: socket received answer from DCMkIa-bQM-egylsAAAB
+D/WebRtcClient: SetRemoteSDPCommand
+D/WebRtcClient: socket send candidate to DCMkIa-bQM-egylsAAAB payload:{"label":0,"id":"audio","candidate":"candidate:1001321590 1 udp 2122194687 192.168.1.88 46308 typ host generation 0 ufrag jf6y network-id 3 network-cost 900"}
+D/WebRtcClient: onAddStream XffhFB376xEZyUQvDDfpDrPUdOXccpMhbDhW
+D/WebRtcClient: socket send candidate to DCMkIa-bQM-egylsAAAB payload:{"label":1,"id":"video","candidate":"candidate:1001321590 1 udp 2122260223 192.168.1.88 59850 typ host generation 0 ufrag jf6y network-id 4 network-cost 10"}
+D/WebRtcClient: socket send candidate to DCMkIa-bQM-egylsAAAB payload:{"label":1,"id":"video","candidate":"candidate:1001321590 1 udp 2122194687 192.168.1.88 50181 typ host generation 0 ufrag jf6y network-id 3 network-cost 900"}
+D/WebRtcClient: socket received candidate from DCMkIa-bQM-egylsAAAB
+D/WebRtcClient: AddIceCandidateCommand
+D/WebRtcClient: socket received candidate from DCMkIa-bQM-egylsAAAB
+D/WebRtcClient: AddIceCandidateCommand
+
+```
+
 **RtcActivity**
 
 ```java
@@ -1456,6 +1481,8 @@ public class PeerConnectionClient {
 }
 
 ```
+
+![webrtc_android](/images/webrtc/webrtc_android.png)
 
 
 
