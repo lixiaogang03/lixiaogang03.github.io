@@ -98,6 +98,10 @@ MIPI 是 Mobile Industry Processor Interface（移动行业处理器接口）的
 
 MIPI CSI（Camera Serial Interface）是由MIPI联盟下 Camera 工作组指定的接口标准。CSI-2 是 MIPI CSI 第二版，主要由应用层、协议层、物理层组成，最大支持4通道数据传输、单线传输速度高达1Gb/s。
 
+## Camera 参数
+
+![camera_param](/images/camera/camera_param.png)
+
 
 
 
