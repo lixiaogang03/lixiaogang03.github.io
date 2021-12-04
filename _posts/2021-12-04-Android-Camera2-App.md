@@ -875,18 +875,8 @@ HALCameraFactory::HALCameraFactory()
 
 }
 
-/****************************************************************************
- * Camera HAL API handlers.
- *
- * Each handler simply verifies existence of an appropriate CameraHardware
- * instance, and dispatches the call to that instance.
- *
- ***************************************************************************/
-
 int HALCameraFactory::getCameraHardwareNum()
 {
-
-
 
 }
 
@@ -921,6 +911,7 @@ camera_module_t HAL_MODULE_INFO_SYM = {
 **CCameraConfig.h**
 
 ./device/softwinner/astar-dvk3/configs/camera.cfg
+
 ./device/softwinner/polaris-common/hardware/camera/CCameraConfig.h
 
 ```cpp
@@ -963,7 +954,6 @@ CameraHardware::CameraHardware(struct hw_module_t* module, CCameraConfig* pCamer
           mIsSupportExposure(false),
           mZoomRatio(100)
 {
-
 	// instance V4L2CameraDevice object
 	mV4L2CameraDevice = new V4L2CameraDevice(this, &mPreviewWindow, &mCallbackNotifier);
 	if (mV4L2CameraDevice == NULL)
@@ -971,8 +961,6 @@ CameraHardware::CameraHardware(struct hw_module_t* module, CCameraConfig* pCamer
 		LOGE("Failed to create V4L2Camera instance");
 		return ;
 	}
-
-
 }
 
 ```
@@ -1025,7 +1013,113 @@ V4L2CameraDevice::V4L2CameraDevice(CameraHardware* camera_hal,
 	  ,mFrameRate(30)
 {
 	LOGV("V4L2CameraDevice construct");
+	memset(&mMapMem,0,sizeof(mMapMem));
+	memset(&mVideoBuffer,0,sizeof(mVideoBuffer));
 
+	memset(&mHalCameraInfo, 0, sizeof(mHalCameraInfo));
+	memset(&mRectCrop, 0, sizeof(Rect));
+
+	// init preview buffer queue
+	OSAL_QueueCreate(&mQueueBufferPreview, NB_BUFFER);
+	OSAL_QueueCreate(&mQueueBufferPicture, 2);
+	
+	pthread_mutex_init(&mConnectMutex, NULL);
+	pthread_cond_init(&mConnectCond, NULL);
+
+	// init capture thread
+	mCaptureThread = new DoCaptureThread(this);
+	pthread_mutex_init(&mCaptureMutex, NULL);
+	pthread_cond_init(&mCaptureCond, NULL);
+	mCaptureThreadState = CAPTURE_STATE_PAUSED;
+	mCaptureThread->startThread();
+
+	// init preview thread
+	mPreviewThread = new DoPreviewThread(this);
+	pthread_mutex_init(&mPreviewMutex, NULL);
+	pthread_cond_init(&mPreviewCond, NULL);
+	mPreviewThread->startThread();
+
+	// init picture thread
+	mPictureThread = new DoPictureThread(this);
+	pthread_mutex_init(&mPictureMutex, NULL);
+	pthread_cond_init(&mPictureCond, NULL);
+	mPictureThread->startThread();
+	
+	// init continuous picture thread
+	mContinuousPictureThread = new DoContinuousPictureThread(this);
+	pthread_mutex_init(&mContinuousPictureMutex, NULL);
+	pthread_cond_init(&mContinuousPictureCond, NULL);
+	mContinuousPictureThread->startThread();
+
+}
+
+bool V4L2CameraDevice::previewThread()
+{
+	V4L2BUF_t * pbuf = (V4L2BUF_t *)OSAL_Dequeue(&mQueueBufferPreview);
+	if (pbuf == NULL)
+	{
+		// LOGV("picture queue no buffer, sleep...");
+		pthread_mutex_lock(&mPreviewMutex);
+		pthread_cond_wait(&mPreviewCond, &mPreviewMutex);
+		pthread_mutex_unlock(&mPreviewMutex);
+		return true;
+	}
+
+	Mutex::Autolock locker(&mObjectLock);
+	if (mMapMem.mem[pbuf->index] == NULL
+		|| pbuf->addrPhyY == 0)
+	{
+		LOGV("preview buffer have been released...");
+		return true;
+	}
+
+	// callback
+	mCallbackNotifier->onNextFrameAvailable((void*)pbuf, mUseHwEncoder);
+
+	// preview
+	mPreviewWindow->onNextFrameAvailable((void*)pbuf);
+
+	// LOGD("preview id : %d", pbuf->index);
+
+	releasePreviewFrame(pbuf->index);
+
+	return true;
+}
+
+// singal picture
+bool V4L2CameraDevice::pictureThread()
+{
+	V4L2BUF_t * pbuf = (V4L2BUF_t *)OSAL_Dequeue(&mQueueBufferPicture);
+	if (pbuf == NULL)
+	{
+		LOGV("picture queue no buffer, sleep...");
+		pthread_mutex_lock(&mPictureMutex);
+		pthread_cond_wait(&mPictureCond, &mPictureMutex);
+		pthread_mutex_unlock(&mPictureMutex);
+		return true;
+	}
+
+	DBG_TIME_BEGIN("taking picture", 0);
+
+	// notify picture cb
+	mCameraHardware->notifyPictureMsg((void*)pbuf);
+
+	DBG_TIME_DIFF("notifyPictureMsg");
+
+	mCallbackNotifier->takePicture((void*)pbuf);
+	
+	char str[128];
+	sprintf(str, "hw picture size: %dx%d", pbuf->width, pbuf->height);
+	DBG_TIME_DIFF(str);
+	
+	if (!mIsPicCopy)
+	{
+		releasePreviewFrame(pbuf->index);
+	}
+
+	DBG_TIME_END("Take picture", 0);
+
+	return true;
 }
 
 ```
