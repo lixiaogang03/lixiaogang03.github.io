@@ -10,6 +10,12 @@ tags:
     - camera
 ---
 
+[SurfaceView, TextureView, SurfaceTexture等的区别](https://juejin.cn/post/6844903878450741262)
+
+## TextureView SurfaceTexture
+
+![surface_texture](/images/camera/surface_texture.png)
+
 ## Camera2 App
 
 **CameraActivity**
@@ -53,7 +59,7 @@ public class CameraActivity extends Activity {
 
 ```java
 
-public class PhotoModule implements CameraModule {
+public class PhotoModule implements CameraModule, FocusOverlayManager.Listener {
 
     // copied from Camera hierarchy
     private CameraActivity mActivity;
@@ -150,6 +156,23 @@ public class PhotoModule implements CameraModule {
 
     }
 
+
+    @Override
+    public void onShutterButtonClick() {
+
+            mFocusManager.doSnap();
+    }
+
+    @Override
+    public boolean capture() {
+
+        mCameraDevice.takePicture(mHandler,
+                new ShutterCallback(!animateBefore),
+                mRawPictureCallback, mPostViewPictureCallback,
+                new JpegPictureCallback(loc));
+
+    }
+
 }
 
 ```
@@ -197,80 +220,154 @@ public class CameraHolder {
 
     private CameraProxy mCameraDevice;
 
-    public synchronized CameraProxy open(int cameraId)
-            throws CameraHardwareException {
+    public synchronized CameraProxy open(
+            Handler handler, int cameraId,
+            CameraManager.CameraOpenErrorCallback cb) {
 
-                    mCameraDevice = CameraManager.instance().cameraOpen(cameraId);
+            Log.v(TAG, "open camera " + cameraId);
+                mCameraDevice = CameraManagerFactory
+                        .getAndroidCameraManager().cameraOpen(handler, cameraId, cb);
     }
 
 }
 
 ```
 
-**CameraManager**
+**AndroidCameraManagerImpl**
 
 ```java
 
-public class CameraManager {
+class AndroidCameraManagerImpl implements CameraManager {
 
-    private Handler mCameraHandler;
-    private CameraProxy mCameraProxy;
+    /* Messages used in CameraHandler. */
+    // Camera initialization/finalization
+    private static final int OPEN_CAMERA = 1;
+    private static final int RELEASE =     2;
+    private static final int RECONNECT =   3;
+    private static final int UNLOCK =      4;
+    private static final int LOCK =        5;
+    // Preview
+    private static final int SET_PREVIEW_TEXTURE_ASYNC =        101;
+    private static final int START_PREVIEW_ASYNC =              102;
+    private static final int STOP_PREVIEW =                     103;
+    private static final int SET_PREVIEW_CALLBACK_WITH_BUFFER = 104;
+    private static final int ADD_CALLBACK_BUFFER =              105;
+    private static final int SET_PREVIEW_DISPLAY_ASYNC =        106;
+    private static final int SET_PREVIEW_CALLBACK =             107;
+    // Parameters
+    private static final int SET_PARAMETERS =     201;
+    private static final int GET_PARAMETERS =     202;
+    private static final int REFRESH_PARAMETERS = 203;
+    // Focus, Zoom
+    private static final int AUTO_FOCUS =                   301;
+    private static final int CANCEL_AUTO_FOCUS =            302;
+    private static final int SET_AUTO_FOCUS_MOVE_CALLBACK = 303;
+    private static final int SET_ZOOM_CHANGE_LISTENER =     304;
+    // Face detection
+    private static final int SET_FACE_DETECTION_LISTENER = 461;
+    private static final int START_FACE_DETECTION =        462;
+    private static final int STOP_FACE_DETECTION =         463;
+    private static final int SET_ERROR_CALLBACK =          464;
+    // Presentation
+    private static final int ENABLE_SHUTTER_SOUND =    501;
+    private static final int SET_DISPLAY_ORIENTATION = 502;
+
+    private CameraHandler mCameraHandler;
     private android.hardware.Camera mCamera;
 
-    private CameraManager() {
+    // Used to retain a copy of Parameters for setting parameters.
+    private Parameters mParamsToSet;
+
+    AndroidCameraManagerImpl() {
         HandlerThread ht = new HandlerThread("Camera Handler Thread");
         ht.start();
         mCameraHandler = new CameraHandler(ht.getLooper());
     }
 
-    // Open camera synchronously. This method is invoked in the context of a
-    // background thread.
-    CameraProxy cameraOpen(int cameraId) {
-        // Cannot open camera in mCameraHandler, otherwise all camera events
-        // will be routed to mCameraHandler looper, which in turn will call
-        // event handler like Camera.onFaceDetection, which in turn will modify
-        // UI and cause exception like this:
-        // CalledFromWrongThreadException: Only the original thread that created
-        // a view hierarchy can touch its views.
-        mCamera = android.hardware.Camera.open(cameraId);
-        if (mCamera != null) {
-            mCameraProxy = new CameraProxy();
-            return mCameraProxy;
-        } else {
-            return null;
-        }
-    }
-
     private class CameraHandler extends Handler {
+
+        public void requestTakePicture(
+                final ShutterCallback shutter,
+                final PictureCallback raw,
+                final PictureCallback postView,
+                final PictureCallback jpeg) {
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        mCamera.takePicture(shutter, raw, postView, jpeg);
+                    } catch (RuntimeException e) {
+                        // TODO: output camera state and focus state for debugging.
+                        Log.e(TAG, "take picture failed.");
+                        throw e;
+                    }
+                }
+            });
+        }
+
 
         @Override
         public void handleMessage(final Message msg) {
-
                 switch (msg.what) {
-                    case SET_PARAMETERS:
-                        mCamera.setParameters((Parameters) msg.obj);
-                        break;
-                    case SET_PREVIEW_TEXTURE_ASYNC:
-                        setPreviewTexture(msg.obj);
-                        return;  // no need to call mSig.open()
+                    case OPEN_CAMERA:
+                        mCamera = android.hardware.Camera.open(msg.arg1);
+                        return;
                     case START_PREVIEW_ASYNC:
                         mCamera.startPreview();
-                        return;  // no need to call mSig.open()
+                        return;
                 }
+        }
+    }
+
+    public class AndroidCameraProxyImpl implements CameraManager.CameraProxy {
+
+
+        @Override
+        public void setPreviewTexture(SurfaceTexture surfaceTexture) {
+            mCameraHandler.obtainMessage(SET_PREVIEW_TEXTURE_ASYNC, surfaceTexture).sendToTarget();
+        }
+
+        @Override
+        public void startPreview() {
+            mCameraHandler.sendEmptyMessage(START_PREVIEW_ASYNC);
+        }
+
+        @Override
+        public void takePicture(
+                Handler handler,
+                CameraShutterCallback shutter,
+                CameraPictureCallback raw,
+                CameraPictureCallback post,
+                CameraPictureCallback jpeg) {
+            mCameraHandler.requestTakePicture(
+                    ShutterCallbackForward.getNewInstance(handler, this, shutter),
+                    PictureCallbackForward.getNewInstance(handler, this, raw),
+                    PictureCallbackForward.getNewInstance(handler, this, post),
+                    PictureCallbackForward.getNewInstance(handler, this, jpeg));
         }
 
     }
 
-    public class CameraProxy {
+}
 
-        public void setParameters(Parameters params) {
-            mSig.close();
-            mCameraHandler.obtainMessage(SET_PARAMETERS, params).sendToTarget();
-            mSig.block();
-        }
+```
 
-        public void startPreviewAsync() {
-            mCameraHandler.sendEmptyMessage(START_PREVIEW_ASYNC);
+**FocusOverlayManager**
+
+```java
+
+public class FocusOverlayManager {
+
+    public void doSnap() {
+
+            capture();
+
+    }
+
+    private void capture() {
+        if (mListener.capture()) {
+            mState = STATE_IDLE;
+            mHandler.removeMessages(RESET_TOUCH_FOCUS);
         }
     }
 
