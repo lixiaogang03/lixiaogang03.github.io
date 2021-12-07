@@ -10,6 +10,8 @@ tags:
     - camera
 ---
 
+[camera-AOSP](https://source.android.google.cn/devices/camera)
+
 [SurfaceView, TextureView, SurfaceTexture等的区别](https://juejin.cn/post/6844903878450741262)
 
 ## TextureView SurfaceTexture
