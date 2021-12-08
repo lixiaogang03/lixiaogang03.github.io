@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      Android 媒体
+title:      Android MediaRecorder
 subtitle:   Android 4.4 Media
 date:       2021-12-07
 author:     LXG
