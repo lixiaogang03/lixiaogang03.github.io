@@ -1126,7 +1126,140 @@ bool V4L2CameraDevice::pictureThread()
 
 ```
 
+## HAL-RK3288-7.1
 
+[RK3399-camera](https://wiki.t-firefly.com/zh_CN/Firefly-RK3399/driver_camera.html)
+
+hardware/rockchip/camera/CameraHal/CameraHal_Module.cpp
+
+hardware/rockchip/camera/Config/cam_board_rk3288.xml 文件用于配置dvp mipi接口的sensor
+
+```cpp
+
+#define CAMERAS_SUPPORT_MAX             8
+
+rk_cam_info_t gCamInfos[CAMERAS_SUPPORT_MAX];
+
+camera_module_t HAL_MODULE_INFO_SYM = {
+    common: {
+         tag: HARDWARE_MODULE_TAG,
+         version_major: ((CONFIG_CAMERAHAL_VERSION&0xffff00)>>16),
+         version_minor: CONFIG_CAMERAHAL_VERSION&0xff,
+         id: CAMERA_HARDWARE_MODULE_ID,
+         name: CAMERA_MODULE_NAME,
+         author: "RockChip",
+         methods: &camera_module_methods,
+         dso: NULL, /* remove compilation warnings */
+         reserved: {0}, /* remove compilation warnings */
+    },
+    get_number_of_cameras: camera_get_number_of_cameras,
+    get_camera_info: camera_get_camera_info,
+    set_callbacks:NULL,
+    get_vendor_tag_ops:NULL,
+#if (defined(ANDROID_5_X) || defined(ANDROID_6_X) || defined(ANDROID_7_X))
+    open_legacy:NULL,
+#endif
+#if (defined(ANDROID_6_X) || defined(ANDROID_7_X))
+    set_torch_mode:NULL,
+    init:NULL,
+#endif
+    reserved: {0}
+};
+
+int camera_device_open(const hw_module_t* module, const char* name,
+                hw_device_t** device)
+{
+
+        camera = new android::CameraHal(cameraid);
+
+}
+
+
+int camera_get_number_of_cameras(void)
+{
+
+    profiles = camera_board_profiles::getInstance();
+    nCamDev = profiles->mDevieVector.size();
+    LOGE("board profiles cam num %d\n", nCamDev);
+
+    if(cam_cnt<CAMERAS_SUPPORT_MAX){
+        for (i=0; i<10; i++) {
+            cam_path[0] = 0x00;
+			unsigned int pix_format_tmp = V4L2_PIX_FMT_NV12;
+            strcat(cam_path, CAMERA_DEVICE_NAME);
+            sprintf(cam_num, "%d", i);
+            strcat(cam_path,cam_num);
+            fd = open(cam_path, O_RDONLY);
+            if (fd < 0) {
+                LOGE("Open %s failed! strr: %s",cam_path,strerror(errno));
+                continue;
+            } 
+            LOGD("Open %s success!",cam_path);
+            memset(&capability, 0, sizeof(struct v4l2_capability));
+
+        }
+    }
+
+}
+
+int camera_set_preview_window(struct camera_device * device,
+        struct preview_stream_ops *window)
+{
+    int rv = -EINVAL;
+    rk_camera_device_t* rk_dev = NULL;
+
+    LOGV("%s", __FUNCTION__);
+
+    if(!device)
+        return rv;
+
+    rk_dev = (rk_camera_device_t*) device;
+
+    rv = gCameraHals[rk_dev->cameraid]->setPreviewWindow(window);
+
+    return rv;
+}
+
+```
+
+hardware/rockchip/camera/CameraHal/CameraHal.cpp
+
+```cpp
+
+extern rk_cam_info_t gCamInfos[CAMERAS_SUPPORT_MAX];
+
+CameraHal::CameraHal(int cameraId)
+          :commandThreadCommandQ("commandCmdQ")
+{
+
+	    if((strcmp(gCamInfos[cameraId].driver,"uvcvideo") == 0)) {
+	        LOGD("it is a uvc camera!");
+	        mCameraAdapter = new CameraUSBAdapter(cameraId);
+	    }
+
+}
+
+```
+
+hardware/rockchip/camera/CameraHal/CameraUSBAdapter.cpp
+
+```cpp
+
+void CameraUSBAdapter::initDefaultParameters(int camFd)
+{
+
+    /*preview format setting*/
+    params.set(CameraParameters::KEY_SUPPORTED_PREVIEW_FORMATS, "yuv420sp,yuv420p");
+    params.set(CameraParameters::KEY_VIDEO_FRAME_FORMAT,CameraParameters::PIXEL_FORMAT_YUV420SP);
+    params.setPreviewFormat(CameraParameters::PIXEL_FORMAT_YUV420SP);
+    params.set(CameraParameters::KEY_VIDEO_FRAME_FORMAT,CameraParameters::PIXEL_FORMAT_YUV420SP);
+
+    /*picture format setting*/
+    params.set(CameraParameters::KEY_SUPPORTED_PICTURE_FORMATS, CameraParameters::PIXEL_FORMAT_JPEG);
+    params.setPictureFormat(CameraParameters::PIXEL_FORMAT_JPEG);
+}
+
+```
 
 
 
