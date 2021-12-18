@@ -602,8 +602,8 @@ MODBUS规约模式：RTU模式。
 
 | Modbus协议类型 | MBAP报文头 | 地址码 | 功能码 | 寄存器地址 | 寄存器数量 | CRC校验 |
 | ------------- | ---------- | ----- | ------- | --------- | --------- | ------- |
-| Modbus RTU | 无 | 01 | 03 | 00 01 | 00 01 | D5 | CA |
-| Modbus RTU | 无 | 11 | 03 | 00 6B | 00 03 | D5 | CA |
+| Modbus RTU | 无 | 01 | 03 | 00 01 | 00 01 | D5 CA |
+| Modbus RTU | 无 | 11 | 03 | 00 6B | 00 03 | D5 CA |
 
 从站设备返回Modbus RTU报文如下：
 
@@ -645,8 +645,582 @@ MODBUS规约模式：RTU模式。
 | Modbus RTU | 无 | 0A | 10 | 00 1E | 00 02 | 20 B5 |
 | Modbus RTU | 无 | 11 | 10 | 00 01 | 00 02 | 20 B5 |
 
+## modbus4j-java
+
+[modbus4j](https://github.com/MangoAutomation/modbus4j)
+
+由 Infinite Automation Systems 和 Serotonin Software 用 Ja​​va 编写的 Modbus 协议的高性能和易于使用的实现。支持 ASCII、RTU、TCP 和 UDP 作为从站或主站传输，自动请求分区和响应数据类型解析。
+
+* 主机Master及其子类：主机的入口，数据流的起点和终点。
+* 数据端口类StreamTransport：负责数据的写入和读出。
+* Modbus消息类ModbusMessage及其子类：支持Modbus定义的各种方法（FunctionCode）
+* 收发数据控制类MessageControl：支持 timeout、retries，默认200ms，1次。
+* 收发等待室WaitingRoom：负责同步收发逻辑。
+* 输出Request消息类：OutgoingRequestMessage 及其子类。
+* 收到Response消息类：IncomingResponseMessage 及其子类。
+* 解析类MessageParser：负责解析收到的消息。
+* 协议数据类型定义：DataType
+* 协议功能码定义：FunctionCode
+* 协议寄存器范围：RegisterRange
+
+## modbus 仿真工具
+
+[www.modbustools.com](https://www.modbustools.com/modbus_slave.html)
+
+Modbus Slave 用于在 32 个窗口中模拟多达 32 个从设备！使用此仿真工具加速您的 PLC 编程
+
 ## Modbus4Android
 
+```java
+
+public class MainActivity extends BaseActivity {
+
+    private void openDevice() {
+
+        if (ModbusManager.get().isModbusOpened()) {
+            ModbusManager.get().closeModbusMaster();
+            updateDeviceSwitchButton();
+            return;
+        }
+
+        ModbusParam param;
+
+        if (mMode == MODE_SERIAL) {
+            // 串口
+            String path = mDevicePaths[mDeviceIndex];
+            int baudrate = mBaudrates[mBaudrateIndex];
+
+            mDeviceConfig.updateSerialConfig(path, baudrate);
+            param = SerialParam.create(path, baudrate) // 串口地址和波特率
+                .setDataBits(mDataBits) // 数据位
+                .setParity(mParity) // 校验位
+                .setStopBits(mStopBits) // 停止位
+                .setTimeout(1000).setRetries(0); // 不重试
+        } else {
+            // TCP
+            String host = mEtHost.getText().toString().trim();
+            int port = 0;
+            try {
+                port = Integer.parseInt(mEtPort.getText().toString().trim());
+            } catch (NumberFormatException e) {
+                //e.printStackTrace();
+            }
+            param = TcpParam.create(host, port)
+                .setTimeout(1000)
+                .setRetries(0)
+                .setEncapsulated(false)
+                .setKeepAlive(true);
+        }
+
+        ModbusManager.get().closeModbusMaster();
+        ModbusManager.get().init(param, new ModbusCallback<ModbusMaster>() {
+            @Override
+            public void onSuccess(ModbusMaster modbusMaster) {
+                showOneToast("打开成功");
+            }
+
+            @Override
+            public void onFailure(Throwable tr) {
+                showOneToast("打开失败," + tr);
+            }
+
+            @Override
+            public void onFinally() {
+                updateDeviceSwitchButton();
+            }
+        });
+    }
+
+
+    private void send03() {
+
+        if (checkSlave() && checkOffset() && checkAmount()) {
+            ModbusManager.get()
+                .readHoldingRegisters(mSalveId, mOffset, mAmount,
+                    new ModbusCallback<ReadHoldingRegistersResponse>() {
+                        @Override
+                        public void onSuccess(
+                            ReadHoldingRegistersResponse readHoldingRegistersResponse) {
+                            byte[] data = readHoldingRegistersResponse.getData();
+                            appendText("F03读取：" + ByteUtil.bytes2HexStr(data) + "\n");
+                        }
+
+                        @Override
+                        public void onFailure(Throwable tr) {
+                            appendError("F03", tr);
+                        }
+
+                        @Override
+                        public void onFinally() {
+
+                        }
+                    });
+        }
+    }
+
+
+    private void send06() {
+        if (checkSlave() && checkOffset() && checkRegValue()) {
+
+            ModbusManager.get()
+                .writeSingleRegister(mSalveId, mOffset, mRegValue,
+                    new ModbusCallback<WriteRegisterResponse>() {
+                        @Override
+                        public void onSuccess(WriteRegisterResponse writeRegisterResponse) {
+                            appendText("F06写入成功\n");
+                        }
+
+                        @Override
+                        public void onFailure(Throwable tr) {
+                            appendError("F06", tr);
+                        }
+
+                        @Override
+                        public void onFinally() {
+
+                        }
+                    });
+        }
+    }
+
+}
+
+```
+
+**ModbusWorker**
+
+```java
+
+/**
+ * ModbusWorker实现，实现了初始化modbus，并增加了线圈、离散量输入、寄存器的读写方法
+ */
+public class ModbusWorker implements IModbusWorker {
+
+    private final ExecutorService mRequestExecutor;
+
+    protected ModbusMaster mModbusMaster;
+    private long mSendTime;
+    private long mSendIntervalTime;
+
+    public ModbusWorker() {
+
+        // modbus请求用的单一线程池
+        mRequestExecutor = Executors.newSingleThreadExecutor();
+    }
+
+    /**
+     * 初始化modbus
+     *
+     * @param param
+     * @param callback
+     */
+    @Override
+    public void init(final ModbusParam param, final ModbusCallback<ModbusMaster> callback) {
+
+        rxInit(param).observeOn(AndroidSchedulers.mainThread()).doFinally(new Action() {
+            @Override
+            public void run() throws Exception {
+                try {
+                    callback.onFinally();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).subscribe(new Observer<ModbusMaster>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(ModbusMaster modbusMaster) {
+                try {
+                    callback.onSuccess(modbusMaster);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                try {
+                    callback.onFailure(e);
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    /**
+     * 初始化modbus
+     *
+     * @param param
+     * @return
+     */
+    @Override
+    public Observable<ModbusMaster> rxInit(final ModbusParam param) {
+        return getRxObservable(callableInit(param)).subscribeOn(Schedulers.io());
+    }
+
+    /**
+     * 初始化的Callable
+     *
+     * @param param
+     * @return
+     */
+    @NonNull
+    private Callable<ModbusMaster> callableInit(final ModbusParam param) {
+        return new Callable<ModbusMaster>() {
+            @Override
+            public ModbusMaster call() throws Exception {
+
+                // 重置发送时间
+                mSendTime = 0;
+
+                if (mModbusMaster != null) {
+                    mModbusMaster.destroy();
+                    mModbusMaster = null;
+                }
+
+                ModbusMaster master = param.createModbusMaster();
+
+                try {
+                    if (master == null) {
+                        throw new ModbusInitException("Invalid ModbusParam!");
+                    }
+                    master.init();
+                } catch (ModbusInitException e) {
+
+                    Log.w(TAG, "ModbusMaster init failed", e);
+
+                    if (master != null) {
+                        master.destroy();
+                    }
+                    // 再抛出异常
+                    throw e;
+                }
+
+                mModbusMaster = master;
+                return master;
+            }
+        };
+    }
+
+}
+
+```
+
+**SerialParam**
+
+```java
+
+public class SerialParam implements ModbusParam<SerialParam> {
+
+    /**
+     * 串口设备
+     */
+    private String serialDevice;
+    /**
+     * 串口波特率
+     */
+    private int baudRate;
+    /**
+     * 超时
+     */
+    private int timeout = DEFAULT_TIMEOUT;
+    /**
+     * 重试
+     */
+    private int retries = 2;
+    /**
+     * 数据位
+     */
+    private int dataBits = 8;
+    /**
+     * 校验位
+     */
+    private int parity = 0;
+    /**
+     * 停止位
+     */
+    private int stopBits = 1;
+
+    private SerialParam() {
+    }
+
+    public static SerialParam create(String serialDevice, int baudRate) {
+        SerialParam param = new SerialParam();
+        param.serialDevice = serialDevice;
+        param.baudRate = baudRate;
+        return param;
+    }
+
+    @Override
+    public ModbusMaster createModbusMaster() {
+
+        ModbusFactory modbusFactory = new ModbusFactory();
+
+        SerialPortWrapper wrapper =
+            new AndroidSerialPortWrapper(getSerialDevice(), getBaudRate(), getDataBits(),
+                getParity(), getStopBits());
+
+        ModbusMaster master = modbusFactory.createRtuMaster(wrapper);
+        master.setRetries(getRetries());
+        master.setTimeout(getTimeout());
+
+        return master;
+    }
+
+}
+
+```
+
+**AndroidSerialPortWrapper**
+
+```java
+
+/**
+ * modbus的Android串口实现
+ */
+public class AndroidSerialPortWrapper implements SerialPortWrapper {
+
+    private final String mDevice;
+    private final int mBaudRate;
+    private final int mDataBits;
+    private final int mParity;
+    private final int mStopBits;
+
+    private BufferedInputStream mInputStream;
+    private BufferedOutputStream mOutputStream;
+    private SerialPort mSerialPort;
+
+    public AndroidSerialPortWrapper(String device, int baudRate, int dataBits, int parity,
+        int stopBits) {
+        mDevice = device;
+        mBaudRate = baudRate;
+        mDataBits = dataBits;
+        mParity = parity;
+        mStopBits = stopBits;
+    }
+
+    @Override
+    public void close() throws Exception {
+
+        if (mInputStream != null) {
+            try {
+                mInputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                mInputStream = null;
+            }
+        }
+
+        if (mOutputStream != null) {
+
+            try {
+                mOutputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                mOutputStream = null;
+            }
+        }
+
+        if (mSerialPort != null) {
+            try {
+                mSerialPort.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void open() throws Exception {
+
+        mSerialPort = SerialPort //
+            .newBuilder(mDevice, mBaudRate)
+            .parity(mParity)
+            .dataBits(mDataBits)
+            .stopBits(mStopBits)
+            .build();
+        
+        mInputStream = new BufferedInputStream(mSerialPort.getInputStream());
+        mOutputStream = new BufferedOutputStream(mSerialPort.getOutputStream());
+    }
+
+}
+
+```
+
+**RtuMaster**
+
+```java
+
+public class RtuMaster extends SerialMaster {
+
+    // Runtime fields.
+    private MessageControl conn;
+    
+    /**
+     * <p>Constructor for RtuMaster.</p>
+     * 
+     * Default to validating the slave id in responses
+     * 
+     * @param wrapper a {@link com.serotonin.modbus4j.serial.SerialPortWrapper} object.
+     */
+    public RtuMaster(SerialPortWrapper wrapper) {
+        super(wrapper, true);
+    }
+
+    @Override
+    public void init() throws ModbusInitException {
+        super.init();
+
+        RtuMessageParser rtuMessageParser = new RtuMessageParser(true);
+        conn = getMessageControl();
+        try {
+            conn.start(transport, rtuMessageParser, null, new SerialWaitingRoomKeyFactory());
+            if (getePoll() == null)
+                ((StreamTransport) transport).start("Modbus RTU master");
+        }
+        catch (IOException e) {
+            throw new ModbusInitException(e);
+        }
+        initialized = true;
+    }
+
+    @Override
+    public ModbusResponse sendImpl(ModbusRequest request) throws ModbusTransportException {
+        // Wrap the modbus request in an rtu request.
+        RtuMessageRequest rtuRequest = new RtuMessageRequest(request);
+
+        // Send the request to get the response.
+        RtuMessageResponse rtuResponse;
+        try {
+            rtuResponse = (RtuMessageResponse) conn.send(rtuRequest);
+            if (rtuResponse == null)
+                return null;
+            return rtuResponse.getModbusResponse();
+        }
+        catch (Exception e) {
+            throw new ModbusTransportException(e, request.getSlaveId());
+        }
+        finally {
+            
+        }
+    }
+
+}
+
+```
+
+**SerialMaster**
+
+```java
+
+abstract public class SerialMaster extends ModbusMaster {
+
+	// Runtime fields.
+    protected SerialPortWrapper wrapper;
+    protected Transport transport;
+
+    public SerialMaster(SerialPortWrapper wrapper, boolean validateResponse) {
+        this.wrapper = wrapper;
+        this.validateResponse = validateResponse;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void init() throws ModbusInitException {
+        try {
+            
+        	this.wrapper.open();
+            
+            if (getePoll() != null)
+                transport = new EpollStreamTransport(wrapper.getInputStream(), wrapper.getOutputStream(),
+                        getePoll());
+            else
+                transport = new StreamTransport(wrapper.getInputStream(), wrapper.getOutputStream());
+        }
+        catch (Exception e) {
+            throw new ModbusInitException(e);
+        }
+    }
+
+}
+
+```
+
+**MessageControl**
+
+```java
+
+public class MessageControl implements DataConsumer {
+
+    private Transport transport;
+    private MessageParser messageParser;
+
+    public void start(Transport transport, MessageParser messageParser, RequestHandler handler,
+            WaitingRoomKeyFactory waitingRoomKeyFactory) throws IOException {
+        this.transport = transport;
+        this.messageParser = messageParser;
+        this.requestHandler = handler;
+        this.waitingRoomKeyFactory = waitingRoomKeyFactory;
+        waitingRoom.setKeyFactory(waitingRoomKeyFactory);
+        transport.setConsumer(this);
+    }
+
+    public IncomingResponseMessage send(OutgoingRequestMessage request, int timeout, int retries) throws IOException {
+        byte[] data = request.getMessageData();
+        if (DEBUG||ModbusConfig.isEnalbeSendLog())
+            System.out.println("MessagingControl.send: " + StreamUtils.dumpHex(data));
+
+        IncomingResponseMessage response = null;
+
+        if (request.expectsResponse()) {
+            WaitingRoomKey key = waitingRoomKeyFactory.createWaitingRoomKey(request);
+
+            // Enter the waiting room
+            waitingRoom.enter(key);
+
+            try {
+                do {
+                    // Send the request.
+                    write(data);
+
+                    // Wait for the response.
+                    response = waitingRoom.getResponse(key, timeout);
+
+                    if (DEBUG && response == null)
+                        System.out.println("Timeout waiting for response");
+                }
+                while (response == null && retries-- > 0);
+            }
+            finally {
+                // Leave the waiting room.
+                waitingRoom.leave(key);
+            }
+
+            if (response == null)
+                throw new TimeoutException("request=" + request);
+        }
+        else
+            write(data);
+
+        return response;
+    }
+
+}
+
+```
 
 
 
