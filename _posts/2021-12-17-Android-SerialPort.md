@@ -663,6 +663,8 @@ MODBUS规约模式：RTU模式。
 * 协议功能码定义：FunctionCode
 * 协议寄存器范围：RegisterRange
 
+![modbus](/images/uart_screen/modbus.png)
+
 ## modbus 仿真工具
 
 [www.modbustools.com](https://www.modbustools.com/modbus_slave.html)
@@ -1221,7 +1223,6 @@ public class MessageControl implements DataConsumer {
 }
 
 ```
-
 
 
 
