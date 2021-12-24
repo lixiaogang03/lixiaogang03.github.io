@@ -24,6 +24,14 @@ Device Tree 由一系列被命名的结点（node）和属性（property）组�
 
 它基本上就是画一棵电路板上（CPU、总线、设备组成）的树，Bootloader 会将这棵树传递给内核，然后内核可以识别这棵树，并根据它展开出 Linux 内核中的 platform_device、i2c_client、spi_device等设备，而这些设备用到的内存、IRQ 等资源，也被传递给了内核，内核会将这些资源绑定给展开的相应的设备。
 
+|  key  |  value  |
+| ------| ------- |
+| compatible | 用于将设备和驱动绑定起来 |
+| model | 描述设备模块信息 |
+| status | 设备状态 okey disable |
+| reg | 描述设备地址空间资源信息，一般都是某个外设的寄存器地址范围信息 |
+
+
 ![dts_node](/images/linux/dts_node.jpg)
 
 **./kernel/arch/arm/boot/dts/rk3288-firefly.dts**
@@ -300,7 +308,116 @@ GPIOs 248-263, platform/pinctrl, gpio8:
 
 ```
 
+## GPIO-电源键
 
+**DTS**
+
+```c
+
+&pinctrl {
+
+	rk_key: rockchip-key {
+		compatible = "rockchip,key";
+		status = "okay";
+
+		io-channels = <&saradc 1>;
+		power-key {
+			gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
+			linux,code = <116>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&pwrbtn>;
+			label = "power";
+			gpio-key,wakeup;
+		};
+        }
+
+	buttons {
+		pwrbtn: pwrbtn {
+			rockchip,pins = <0 5 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+	};
+
+}
+
+```
+
+**kernel/drivers/input/keyboard/gpio_keys.c**
+
+```c
+
+enum rk_key_type {
+	TYPE_GPIO = 1,
+	TYPE_ADC
+};
+
+struct rk_keys_button {
+	struct device *dev;
+	u32 type;		/* TYPE_GPIO, TYPE_ADC */
+	u32 code;		/* key code */
+	const char *desc;	/* key label */
+	u32 state;		/* key up & down state */
+	int gpio;		/* gpio only */
+	int adc_value;		/* adc only */
+	int adc_state;		/* adc only */
+	int active_low;		/* gpio only */
+	int wakeup;		/* gpio only */
+	struct timer_list timer;
+};
+
+static const struct of_device_id rk_key_match[] = {
+	{ .compatible = "rockchip,key", .data = NULL},
+	{},
+};
+MODULE_DEVICE_TABLE(of, rk_key_match);
+
+void rk_send_power_key(int state)
+{
+	if (!sinput_dev)
+		return;
+	if (state) {
+		input_report_key(sinput_dev, KEY_POWER, 1);
+		input_sync(sinput_dev);
+	} else {
+		input_report_key(sinput_dev, KEY_POWER, 0);
+		input_sync(sinput_dev);
+	}
+}
+EXPORT_SYMBOL(rk_send_power_key);
+
+```
+
+**kernel/include/linux/input.h**
+
+```c
+
+void input_event(struct input_dev *dev, unsigned int type, unsigned int code, int value);
+
+static inline void input_report_key(struct input_dev *dev, unsigned int code, int value)
+{
+	input_event(dev, EV_KEY, code, !!value);
+}
+
+```
+
+**kernel/drivers/input/input.c**
+
+```c
+
+void input_event(struct input_dev *dev,
+		 unsigned int type, unsigned int code, int value)
+{
+	unsigned long flags;
+
+	if (is_event_supported(type, dev->evbit, EV_MAX)) {
+
+		spin_lock_irqsave(&dev->event_lock, flags);
+		input_handle_event(dev, type, code, value);
+		spin_unlock_irqrestore(&dev->event_lock, flags);
+	}
+}
+EXPORT_SYMBOL(input_event);
+
+```
 
 
 
