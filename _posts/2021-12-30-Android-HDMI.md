@@ -149,7 +149,10 @@ public final class DisplayInfo implements Parcelable {
 | persist.demo.hdmirotation | LocalDisplayAdapter 外部显示器默认方向 |
 | persist.demo.hdmirotates | DisplayDeviceInfo.FLAG_ROTATES_WITH_CONTENT 显示和设备的方向和逻辑显示的方向一致 |
 | sys.hwc.device.main | 查询当前主屏幕显示的输出接口 |
-| sys.hwc.device.main | 查询当前副屏幕显示的输出接口 |
+| sys.hwc.device.aux | 查询当前副屏幕显示的输出接口 |
+| sys.hwc.device.primary | 设置显示接口作为主显 |
+| sys.hwc.device.extend | 设置显示接口作为副显 |
+| persist.sys.framebuffer.main | 设置分辨率 1920x1080 |
 
 ## FAQ
 
