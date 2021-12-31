@@ -62,6 +62,14 @@ public final class DisplayManagerService extends SystemService {
 
 }
 
+// 用于LocalDisplayDevice和DMS的连接
+final class LocalDisplayAdapter extends DisplayAdapter {
+
+    private final SparseArray<LocalDisplayDevice> mDevices =
+            new SparseArray<LocalDisplayDevice>();
+
+}
+
 // 物理屏幕
 abstract class DisplayDevice {
 
