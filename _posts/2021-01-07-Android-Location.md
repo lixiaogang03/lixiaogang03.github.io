@@ -14,6 +14,18 @@ tags:
 
 [Android Q 集成百度定位-简书](https://www.jianshu.com/p/46f13b2da965)
 
+## GNSS
+
+GNSS的全称是全球导航卫星系统（Global Navigation Satellite System），它是泛指所有的卫星导航系统，包括全球的、区域的和增强的，
+如美国的GPS、俄罗斯的Glonass、欧洲的Galileo、中国的北斗卫星导航系统，以及相关的增强系统，如美国的WAAS（广域增强系统）、欧洲的EGNOS（欧洲静地导航重叠系统）
+和日本的MSAS（多功能运输卫星增强系统）等，还涵盖在建和以后要建设的其他卫星导航系统。
+
+## RK3288
+
+[android7_gnss_hal_driver](https://github.com/zxcwhale/android7_gnss_hal_driver)
+
+[Firefly-RK3288](https://wiki.t-firefly.com/zh_CN/Firefly-RK3288/module_wireless.html?highlight=gps)
+
 ## 架构
 
 ![android_location](/images/location/android_location.png)
