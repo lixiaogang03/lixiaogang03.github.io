@@ -275,16 +275,374 @@ WebRTC连接上的端点配置称为会话描述。该描述包括关于要发�
 
 ![webrtc_complete_diagram](/images/webrtc/webrtc_complete_diagram.png)
 
+## 接口
+
+**RTCPeerConnection**
+
+表示本地计算机和远程对等方之间的 WebRtc 连接。用于处理两个对等点之间的有效数据流
+
+```java
+
+public class PeerConnection {
+    private final List<MediaStream> localStreams;
+    private final long nativePeerConnection;
+    private final long nativeObserver;
+    private List<RtpSender> senders;
+    private List<RtpReceiver> receivers;
+
+    PeerConnection(long nativePeerConnection, long nativeObserver) {
+        this.nativePeerConnection = nativePeerConnection;
+        this.nativeObserver = nativeObserver;
+        this.localStreams = new LinkedList();
+        this.senders = new LinkedList();
+        this.receivers = new LinkedList();
+    }
+
+    public native SessionDescription getLocalDescription();
+
+    public native SessionDescription getRemoteDescription();
+
+    public native DataChannel createDataChannel(String var1, Init var2);
+
+    public native void createOffer(SdpObserver var1, MediaConstraints var2);
+
+    public native void createAnswer(SdpObserver var1, MediaConstraints var2);
+
+    public native void setLocalDescription(SdpObserver var1, SessionDescription var2);
+
+    public native void setRemoteDescription(SdpObserver var1, SessionDescription var2);
+
+    public boolean setConfiguration(PeerConnection.RTCConfiguration config) {
+        return this.nativeSetConfiguration(config, this.nativeObserver);
+    }
+
+    public boolean addIceCandidate(IceCandidate candidate) {
+        return this.nativeAddIceCandidate(candidate.sdpMid, candidate.sdpMLineIndex, candidate.sdp);
+    }
+
+    public boolean removeIceCandidates(IceCandidate[] candidates) {
+        return this.nativeRemoveIceCandidates(candidates);
+    }
+
+    public boolean addStream(MediaStream stream) {
+        boolean ret = this.nativeAddLocalStream(stream.nativeStream);
+        if (!ret) {
+            return false;
+        } else {
+            this.localStreams.add(stream);
+            return true;
+        }
+    }
+
+    public void removeStream(MediaStream stream) {
+        this.nativeRemoveLocalStream(stream.nativeStream);
+        this.localStreams.remove(stream);
+    }
+
+    public RtpSender createSender(String kind, String stream_id) {
+        RtpSender new_sender = this.nativeCreateSender(kind, stream_id);
+        if (new_sender != null) {
+            this.senders.add(new_sender);
+        }
+
+        return new_sender;
+    }
+
+    public List<RtpSender> getSenders() {
+        Iterator var1 = this.senders.iterator();
+
+        while(var1.hasNext()) {
+            RtpSender sender = (RtpSender)var1.next();
+            sender.dispose();
+        }
+
+        this.senders = this.nativeGetSenders();
+        return Collections.unmodifiableList(this.senders);
+    }
+
+    public List<RtpReceiver> getReceivers() {
+        Iterator var1 = this.receivers.iterator();
+
+        while(var1.hasNext()) {
+            RtpReceiver receiver = (RtpReceiver)var1.next();
+            receiver.dispose();
+        }
+
+        this.receivers = this.nativeGetReceivers();
+        return Collections.unmodifiableList(this.receivers);
+    }
+
+    public void getStats(RTCStatsCollectorCallback callback) {
+        this.nativeNewGetStats(callback);
+    }
+
+    public boolean startRtcEventLog(int file_descriptor, int max_size_bytes) {
+        return this.nativeStartRtcEventLog(file_descriptor, max_size_bytes);
+    }
+
+    public void stopRtcEventLog() {
+        this.nativeStopRtcEventLog();
+    }
+
+    public native PeerConnection.SignalingState signalingState();
+
+    public native PeerConnection.IceConnectionState iceConnectionState();
+
+    public native PeerConnection.IceGatheringState iceGatheringState();
+
+    public native void close();
+
+    public void dispose() {
+        this.close();
+        Iterator var1 = this.localStreams.iterator();
+
+        while(var1.hasNext()) {
+            MediaStream stream = (MediaStream)var1.next();
+            this.nativeRemoveLocalStream(stream.nativeStream);
+            stream.dispose();
+        }
+
+        this.localStreams.clear();
+        var1 = this.senders.iterator();
+
+        while(var1.hasNext()) {
+            RtpSender sender = (RtpSender)var1.next();
+            sender.dispose();
+        }
+
+        this.senders.clear();
+        var1 = this.receivers.iterator();
+
+        while(var1.hasNext()) {
+            RtpReceiver receiver = (RtpReceiver)var1.next();
+            receiver.dispose();
+        }
+
+        this.receivers.clear();
+        freePeerConnection(this.nativePeerConnection);
+        freeObserver(this.nativeObserver);
+    }
+
+    private static native void freePeerConnection(long var0);
+
+    private static native void freeObserver(long var0);
+
+    public native boolean nativeSetConfiguration(PeerConnection.RTCConfiguration var1, long var2);
+
+    private native boolean nativeAddIceCandidate(String var1, int var2, String var3);
+
+    private native boolean nativeRemoveIceCandidates(IceCandidate[] var1);
+
+    private native boolean nativeAddLocalStream(long var1);
+
+    private native void nativeRemoveLocalStream(long var1);
+
+    private native boolean nativeOldGetStats(StatsObserver var1, long var2);
+
+    private native void nativeNewGetStats(RTCStatsCollectorCallback var1);
+
+    private native RtpSender nativeCreateSender(String var1, String var2);
+
+    private native List<RtpSender> nativeGetSenders();
+
+    private native List<RtpReceiver> nativeGetReceivers();
+
+    private native boolean nativeStartRtcEventLog(int var1, int var2);
+
+    private native void nativeStopRtcEventLog();
+
+    static {
+        System.loadLibrary("jingle_peerconnection_so");
+    }
 
 
+}
+
+```
+
+**RTCDataChannel**
+
+表示连接的两个对等方之间的双向数据通道
+
+```java
 
 
+public class DataChannel {
+    private final long nativeDataChannel;
+    private long nativeObserver;
 
+    public DataChannel(long nativeDataChannel) {
+        this.nativeDataChannel = nativeDataChannel;
+    }
 
+    public void registerObserver(DataChannel.Observer observer) {
+        if (this.nativeObserver != 0L) {
+            this.unregisterObserverNative(this.nativeObserver);
+        }
 
+        this.nativeObserver = this.registerObserverNative(observer);
+    }
 
+    private native long registerObserverNative(DataChannel.Observer var1);
 
+    public void unregisterObserver() {
+        this.unregisterObserverNative(this.nativeObserver);
+    }
 
+    private native void unregisterObserverNative(long var1);
+
+    public native String label();
+
+    public native int id();
+
+    public native DataChannel.State state();
+
+    public native long bufferedAmount();
+
+    public native void close();
+
+    public boolean send(DataChannel.Buffer buffer) {
+        byte[] data = new byte[buffer.data.remaining()];
+        buffer.data.get(data);
+        return this.sendNative(data, buffer.binary);
+    }
+
+    private native boolean sendNative(byte[] var1, boolean var2);
+
+    public native void dispose();
+
+    public static enum State {
+        CONNECTING,
+        OPEN,
+        CLOSING,
+        CLOSED;
+
+        private State() {
+        }
+    }
+
+}
+
+```
+
+**RTCSessionDescription**
+
+表示会话的参数。每一个RTCSessionDescription包含一个描述type, 表明它描述了提供/应答协商过程的哪一部分以及会话的SDP描述符
+
+```java
+
+public class SessionDescription {
+    public final SessionDescription.Type type;
+    public final String description;
+
+    public SessionDescription(SessionDescription.Type type, String description) {
+        this.type = type;
+        this.description = description;
+    }
+
+    public static enum Type {
+        OFFER,
+        PRANSWER,
+        ANSWER;
+
+        private Type() {
+        }
+
+        public String canonicalForm() {
+            return this.name().toLowerCase(Locale.US);
+        }
+
+        public static SessionDescription.Type fromCanonicalForm(String canonical) {
+            return (SessionDescription.Type)valueOf(SessionDescription.Type.class, canonical.toUpperCase(Locale.US));
+        }
+    }
+}
+
+```
+
+**RTCIceCandidate**
+
+表示一个候选交互式连接建立 ICE 服务器，用于建立一个 RTCPeerConnection
+
+```java
+
+public class IceCandidate {
+    public final String sdpMid;
+    public final int sdpMLineIndex;
+    public final String sdp;
+    public final String serverUrl;
+
+    public IceCandidate(String sdpMid, int sdpMLineIndex, String sdp) {
+        this.sdpMid = sdpMid;
+        this.sdpMLineIndex = sdpMLineIndex;
+        this.sdp = sdp;
+        this.serverUrl = "";
+    }
+
+    private IceCandidate(String sdpMid, int sdpMLineIndex, String sdp, String serverUrl) {
+        this.sdpMid = sdpMid;
+        this.sdpMLineIndex = sdpMLineIndex;
+        this.sdp = sdp;
+        this.serverUrl = serverUrl;
+    }
+
+    public String toString() {
+        return this.sdpMid + ":" + this.sdpMLineIndex + ":" + this.sdp + ":" + this.serverUrl;
+    }
+}
+
+```
+
+**ScreenCapturerAndroid**
+
+only > android 7
+
+```java
+
+@TargetApi(21)
+public class ScreenCapturerAndroid implements VideoCapturer, OnTextureFrameAvailableListener {
+
+}
+
+```
+
+**MediaStream**
+
+表示媒体内容流。一个流由多个轨道组成，例如视频或者音频轨道。
+
+```java
+
+public class MediaStream {
+    public final LinkedList<AudioTrack> audioTracks = new LinkedList();
+    public final LinkedList<VideoTrack> videoTracks = new LinkedList();
+    public final LinkedList<VideoTrack> preservedVideoTracks = new LinkedList();
+    final long nativeStream;
+
+    public MediaStream(long nativeStream) {
+        this.nativeStream = nativeStream;
+    }
+
+    public boolean addTrack(AudioTrack track) {
+        if (nativeAddAudioTrack(this.nativeStream, track.nativeTrack)) {
+            this.audioTracks.add(track);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean addTrack(VideoTrack track) {
+        if (nativeAddVideoTrack(this.nativeStream, track.nativeTrack)) {
+            this.videoTracks.add(track);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+}
+
+```
 
 
 
