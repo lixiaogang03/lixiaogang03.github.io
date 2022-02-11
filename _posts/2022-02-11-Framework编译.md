@@ -73,5 +73,109 @@ include $(BUILD_JAVA_LIBRARY)
 
 ```
 
+## build/core/mappath.mk
 
+```mk
+
+#
+# A list of all source roots under frameworks/base, which will be
+# built into the android.jar.
+#
+FRAMEWORKS_BASE_SUBDIRS := \
+	$(addsuffix /java, \
+	    core \
+	    graphics \
+	    location \
+	    media \
+	    media/mca/effect \
+	    media/mca/filterfw \
+	    media/mca/filterpacks \
+	    drm \
+	    opengl \
+	    sax \
+	    telecomm \
+	    telephony \
+	    wifi \
+	    keystore \
+	    rs \
+	    ocr \
+	 )
+
+```
+
+## framework/base/media
+
+```txt
+
+frameworks/base/media$ tree -L 2
+.
+├── java
+│   └── android
+├── jni
+│   ├── android_media_AmrInputStream.cpp
+│   ├── android_media_ExifInterface.cpp
+│   ├── android_media_ImageReader.cpp
+│   ├── android_media_ImageWriter.cpp
+│   ├── android_media_MediaCodec.cpp
+│   ├── android_media_MediaCodec.h
+│   ├── android_media_MediaCodecList.cpp
+│   ├── android_media_MediaCrypto.cpp
+│   ├── android_media_MediaCrypto.h
+│   ├── android_media_MediaDataSource.cpp
+│   ├── android_media_MediaDataSource.h
+│   ├── android_media_MediaDrm.cpp
+│   ├── android_media_MediaDrm.h
+│   ├── android_media_MediaExtractor.cpp
+│   ├── android_media_MediaExtractor.h
+│   ├── android_media_MediaHTTPConnection.cpp
+│   ├── android_media_MediaHTTPConnection.h
+│   ├── android_media_MediaMetadataRetriever.cpp
+│   ├── android_media_MediaMuxer.cpp
+│   ├── android_media_MediaPlayer.cpp
+│   ├── android_media_MediaProfiles.cpp
+│   ├── android_media_MediaRecorder.cpp
+│   ├── android_media_MediaScanner.cpp
+│   ├── android_media_MediaSync.cpp
+│   ├── android_media_MediaSync.h
+│   ├── android_media_PlaybackParams.h
+│   ├── android_media_ResampleInputStream.cpp
+│   ├── android_media_SyncParams.cpp
+│   ├── android_media_SyncParams.h
+│   ├── android_media_Utils.cpp
+│   ├── android_media_Utils.h
+│   ├── Android.mk
+│   ├── android_mtp_MtpDatabase.cpp
+│   ├── android_mtp_MtpDevice.cpp
+│   ├── android_mtp_MtpServer.cpp
+│   ├── audioeffect
+│   ├── MODULE_LICENSE_APACHE2
+│   ├── NOTICE
+│   └── soundpool
+├── lib
+│   ├── remotedisplay
+│   ├── signer
+│   └── tvremote
+├── mca
+│   ├── Android.mk
+│   ├── effect
+│   ├── filterfw
+│   ├── filterpacks
+│   ├── samples
+│   ├── structgen.py
+│   └── tests
+├── packages
+│   └── BluetoothMidiService
+└── tests
+    ├── audiotests
+    ├── CameraBrowser
+    ├── contents
+    ├── EffectsTest
+    ├── MediaDump
+    ├── MediaFrameworkTest
+    ├── players
+    ├── README.txt
+    ├── ScoAudioTest
+    └── SoundPoolTest
+
+```
 
