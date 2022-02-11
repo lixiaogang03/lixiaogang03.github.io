@@ -10,7 +10,7 @@ tags:
     - framework
 ---
 
-![Android SDK开发艺术探索](https://zhuanlan.zhihu.com/p/151406299)
+[Android SDK开发艺术探索](https://zhuanlan.zhihu.com/p/151406299)
 
 ## JAR
 
@@ -46,5 +46,32 @@ JAR文件与zip文件的去区别就是在JAR文件中默认包含了一个名�
 ```
 
 ![baidu_lbs](/images/sdk/baidu_lbs.png)
+
+
+## framework.jar
+
+out/target/common/obj/JAVA_LIBRARIES/framework_intermediates/classes.jar
+
+## okhttp
+
+external/okhttp/
+
+```makefile
+
+LOCAL_JAVA_LIBRARIES := okhttp
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := okhttp
+LOCAL_MODULE_TAGS := optional
+LOCAL_SRC_FILES := $(okhttp_system_src_files)
+LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
+LOCAL_JAVA_LIBRARIES := core-oj core-libart conscrypt
+LOCAL_NO_STANDARD_LIBRARIES := true
+LOCAL_ADDITIONAL_DEPENDENCIES := $(LOCAL_PATH)/Android.mk
+LOCAL_JAVA_LANGUAGE_VERSION := 1.7
+include $(BUILD_JAVA_LIBRARY)
+
+```
+
 
 
