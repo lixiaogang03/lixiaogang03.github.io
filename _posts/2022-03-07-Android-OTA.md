@@ -85,5 +85,95 @@ pre-device=rk3288
 
 ```
 
+## releasetools
+
+build/tools/releasetools
+
+```txt
+
+├── add_img_to_target_files -> add_img_to_target_files.py
+├── add_img_to_target_files.py
+├── blockimgdiff.py
+├── blockimgdiff.pyc
+├── build_image.py
+├── check_target_files_signatures -> check_target_files_signatures.py
+├── check_target_files_signatures.py
+├── common.py
+├── common.pyc
+├── edify_generator.py
+├── img_from_target_files -> img_from_target_files.py
+├── img_from_target_files.py
+├── make_recovery_patch -> make_recovery_patch.py
+├── make_recovery_patch.py
+├── ota_from_target_files -> ota_from_target_files.py
+├── ota_from_target_files.py
+├── pylintrc
+├── rangelib.py
+├── rangelib.pyc
+├── sign_target_files_apks -> sign_target_files_apks.py
+├── sign_target_files_apks.py
+├── sparse_img.py
+├── sparse_img.pyc
+├── target_files_diff.py
+├── test_blockimgdiff.py
+├── test_common.py
+└── test_rangelib.py
+
+```
+
+## 增加OTA校验标识
+
+```py
+
+diff --git a/rk3288_android7.1_tablet_v1.01_20170630/build/tools/releasetools/edify_generator.py b/rk3288_android7.1_tablet_v1.01_20170630/build/tools/releasetools/edify_generator.py
+index efaebce..065c8eb 100755
+--- a/rk3288_android7.1_tablet_v1.01_20170630/build/tools/releasetools/edify_generator.py
++++ b/rk3288_android7.1_tablet_v1.01_20170630/build/tools/releasetools/edify_generator.py
+@@ -138,6 +138,16 @@ class EdifyGenerator(object):
+                device, common.ErrorCode.DEVICE_MISMATCH, device)
+     self.script.append(cmd)
+ 
++  # add by lixiaogang start
++  def AssertModel(self, device):
++    """Assert that the device identifier is the given string."""
++    cmd = ('getprop("ro.product.model") == "%s" || '
++           'abort("E%d: This package is for \\"%s\\" devices; '
++           'this is a \\"" + getprop("ro.product.model") + "\\".");') % (
++               device, common.ErrorCode.DEVICE_MISMATCH, device)
++    self.script.append(cmd)
++  # add by lixiaogang end
++
+   def AssertSomeBootloader(self, *bootloaders):
+     """Asert that the bootloader version is one of *bootloaders."""
+     cmd = ("assert(" +
+diff --git a/rk3288_android7.1_tablet_v1.01_20170630/build/tools/releasetools/ota_from_target_files.py b/rk3288_android7.1_tablet_v1.01_20170630/build/tools/releasetools/ota_from_target_files.py
+index e88fa7d..2c87647 100755
+--- a/rk3288_android7.1_tablet_v1.01_20170630/build/tools/releasetools/ota_from_target_files.py
++++ b/rk3288_android7.1_tablet_v1.01_20170630/build/tools/releasetools/ota_from_target_files.py
+@@ -456,6 +456,12 @@ def AppendAssertions(script, info_dict, oem_dict=None):
+   if oem_props is None or len(oem_props) == 0:
+     device = GetBuildProp("ro.product.device", info_dict)
+     script.AssertDevice(device)
++
++    # add by lixiaogang start
++    model = GetBuildProp("ro.product.model", info_dict)
++    script.AssertModel(model)
++    # add by lixiaogang end
++
+   else:
+     if oem_dict is None:
+       raise common.ExternalError(
+@@ -593,6 +599,10 @@ def WriteFullOTAPackage(input_zip, output_zip):
+       "pre-device": GetOemProperty("ro.product.device", oem_props, oem_dict,
+                                    OPTIONS.info_dict),
+       "post-timestamp": GetBuildProp("ro.build.date.utc", OPTIONS.info_dict),
++
++      # add by lixiaogang start
++      "model": GetBuildProp("ro.product.model", OPTIONS.info_dict),
++      # add by lixiaogang end
+   }
+
+```
+
 
 
