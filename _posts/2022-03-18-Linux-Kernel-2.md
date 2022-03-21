@@ -2,7 +2,7 @@
 layout:     post
 title:      Linux Kernel 2
 subtitle:   https://www.kernel.org/
-date:       2022-03-10
+date:       2022-03-18
 author:     LXG
 header-img: img/post-bg-unix-linux.jpg
 catalog: true
@@ -276,6 +276,11 @@ struct tasklet_struct
 };
 
 ```
+
+**工作队列**
+
+* 内核全局工作队列---共享队列
+* 专用工作队列
 
 
 
