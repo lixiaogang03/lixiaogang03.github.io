@@ -94,9 +94,12 @@ int main(int argc, char** argv) {
 
 ## system/core/libcutils/fs_config.c
 
+```c
+
 //    { 04750, AID_ROOT,      AID_SHELL,     0, "system/xbin/su" },
     { 06755, AID_ROOT,      AID_SHELL,     CAP_MASK_LONG(CAP_SETUID) | CAP_MASK_LONG(CAP_SETGID), "system/xbin/su" },
 
+```
 
 ## frameworks/base/cmds/app_process/app_main.cpp
 
