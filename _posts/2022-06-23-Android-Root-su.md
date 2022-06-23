@@ -20,7 +20,9 @@ LOCAL_MODULE_TAGS := optional
 
 PRODUCT_PACKAGES += su
 
-## system/extras/su/su.c
+## su.c
+
+system/extras/su/su.c
 
 ```c
 
@@ -92,7 +94,9 @@ int main(int argc, char** argv) {
 
 ```
 
-## system/core/libcutils/fs_config.c
+## fs_config.c
+
+system/core/libcutils/fs_config.c
 
 ```c
 
@@ -101,7 +105,9 @@ int main(int argc, char** argv) {
 
 ```
 
-## frameworks/base/cmds/app_process/app_main.cpp
+## app_main.cpp
+
+frameworks/base/cmds/app_process/app_main.cpp
 
 ```c
 
@@ -122,7 +128,9 @@ int main(int argc, char** argv) {
 
 ```
 
-## frameworks/base/core/jni/com_android_internal_os_Zygote.cpp
+## com_android_internal_os_Zygote.cpp
+
+frameworks/base/core/jni/com_android_internal_os_Zygote.cpp
 
 ```c
 
