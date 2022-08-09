@@ -133,7 +133,7 @@ SDIO 驱动部分代码: kernel/linux-4.9/drivers/mmc
 [   71.463701] sunxi-wlan soc@03000000:wlan@0: bus_index: 1
 [   71.472489] sunxi-wlan soc@03000000:wlan@0: check wlan wlan_power voltage: 1800000
 
-
+[   71.863946] mmc1: new SDIO card at address 6907
 [   71.890375] aicbsp: aicbsp_sdio_probe:1
 [   71.895467] aicbsp: aicbsp_sdio_probe:2
 [   71.900006] aicbsp: aicbsp_sdio_probe after replace:1
@@ -161,6 +161,130 @@ SDIO 驱动部分代码: kernel/linux-4.9/drivers/mmc
 [   72.180303] Firmware Version: di Jun 20 2022 14:13:38 - g93895adfm>>> rwnx_platform_on()
 [   72.190446] >>> rwnx_plat_fmac_load()
 [   72.196149] userconfig file path:aic_userconfig.txt 
+
+
+```
+
+## 属性
+
+```txt
+
+[init.svc.vendor.wifi_hal_legacy]: [running]
+[init.svc.wificond]: [running]
+[ro.boottime.vendor.wifi_hal_legacy]: [13781179448]
+[ro.boottime.wificond]: [6523056927]
+[ro.wifi.channels]: []
+[sys.wifitracing.started]: [1]
+[wifi.active.interface]: [wlan0]
+[wifi.direct.interface]: [p2p0]
+[wifi.interface]: [wlan0]
+
+[persist.vendor.wlan_vendor]: [realtek]
+[vendor.wlan.driver.version]: [v5.6.5_31752.20181221_COEX20181130-2e2e]
+[vendor.wlan.firmware.version]: [v47.0]
+[wifi.active.interface]: [wlan0]
+[wifi.interface]: [wlan0]
+[wlan.driver.status]: [ok]
+
+```
+
+## WIFI 驱动加载过程
+
+**hardware/interfaces/wifi/1.3/default/android.hardware.wifi@1.0-service-lazy.rc**
+vendor/etc/init/android.hardware.wifi@1.0-service-lazy.rc
+
+```rc
+
+service vendor.wifi_hal_legacy /vendor/bin/hw/android.hardware.wifi@1.0-service-lazy
+    interface android.hardware.wifi@1.0::IWifi default
+    oneshot
+    disabled
+    class hal
+    capabilities NET_ADMIN NET_RAW SYS_MODULE
+    user wifi
+    group wifi gps
+
+```
+
+**./hardware/interfaces/wifi/1.3/default/Android.mk**
+
+
+```mk
+
+###
+### android.hardware.wifi daemon
+###
+include $(CLEAR_VARS)
+LOCAL_MODULE := android.hardware.wifi@1.0-service-lazy
+LOCAL_OVERRIDES_MODULES := android.hardware.wifi@1.0-service
+LOCAL_CFLAGS := -DLAZY_SERVICE
+LOCAL_MODULE_RELATIVE_PATH := hw
+LOCAL_PROPRIETARY_MODULE := true
+LOCAL_CPPFLAGS := -Wall -Werror -Wextra
+LOCAL_SRC_FILES := \
+    service.cpp
+LOCAL_SHARED_LIBRARIES := \
+    libbase \
+    libcutils \
+    libhidlbase \
+    libhidltransport \
+    liblog \
+    libnl \
+    libutils \
+    libwifi-hal \
+    libwifi-system-iface \
+    android.hardware.wifi@1.0 \
+    android.hardware.wifi@1.1 \
+    android.hardware.wifi@1.2 \
+    android.hardware.wifi@1.3
+LOCAL_STATIC_LIBRARIES := \
+    android.hardware.wifi@1.0-service-lib
+LOCAL_INIT_RC := android.hardware.wifi@1.0-service-lazy.rc
+include $(BUILD_EXECUTABLE)
+
+```
+
+**./hardware/interfaces/wifi/1.3/default/service.cpp**
+
+```cpp
+
+int main(int /*argc*/, char** argv) {
+    android::base::InitLogging(
+        argv, android::base::LogdLogger(android::base::SYSTEM));
+    LOG(INFO) << "Wifi Hal is booting up...";
+
+    configureRpcThreadpool(1, true /* callerWillJoin */);
+
+    const auto iface_tool =
+        std::make_shared<android::wifi_system::InterfaceTool>();
+    // Setup hwbinder service
+    android::sp<android::hardware::wifi::V1_3::IWifi> service =
+        new android::hardware::wifi::V1_3::implementation::Wifi(
+            iface_tool, std::make_shared<WifiLegacyHal>(iface_tool),
+            std::make_shared<WifiModeController>(),
+            std::make_shared<WifiIfaceUtil>(iface_tool),
+            std::make_shared<WifiFeatureFlags>());
+    if (kLazyService) {
+        LazyServiceRegistrar registrar;
+        CHECK_EQ(registrar.registerService(service), android::NO_ERROR)
+            << "Failed to register wifi HAL";
+    } else {
+        CHECK_EQ(service->registerAsService(), android::NO_ERROR)
+            << "Failed to register wifi HAL";
+    }
+
+    joinRpcThreadpool();
+
+    LOG(INFO) << "Wifi Hal is terminating...";
+    return 0;
+}
+
+```
+
+**frameworks/opt/net/wifi/libwifi_hal/wifi_hal_common.cpp**
+
+```cpp
+
 
 
 ```
