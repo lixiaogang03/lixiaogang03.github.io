@@ -89,78 +89,68 @@ SDIO 驱动部分代码: kernel/linux-4.9/drivers/mmc
 5. 起wpa_supplicant服务
 6. WifiManager联网
 
-## 全志 A133 日志
+## 全志 A133 RTL8723DS模组
 
 ```txt
 
-[    1.509128] sunxi-bt soc@03000000:bt@0: bt_power_name (axp803-dldo1)
-[    1.516293] sunxi-bt soc@03000000:bt@0: Missing bt_io_regulator.
-[    1.523061] sunxi-bt soc@03000000:bt@0: io_regulator_name ((null))
-[    1.530078] sunxi-bt soc@03000000:bt@0: bt_rst gpio=356  mul-sel=1  pull=-1  drv_level=-1  data=0
-[    1.540124] sunxi-bt soc@03000000:bt@0: clk not config
-[    1.545921] sunxi-bt soc@03000000:bt@0: dcxo not config
-[    1.551814] sunxi-bt soc@03000000:bt@0: devm_pinctrl_get() failed!
-[    1.559467] sunxi-wlan soc@03000000:wlan@0: wlan_busnum (1)
-[    1.565754] sunxi-wlan soc@03000000:wlan@0: wlan_power_name (axp803-dldo1)
-[    1.573505] sunxi-wlan soc@03000000:wlan@0: Missing wlan_io_regulator.
-[    1.580858] sunxi-wlan soc@03000000:wlan@0: io_regulator_name ((null))
-[    1.588255] sunxi-wlan soc@03000000:wlan@0: wlan_regon gpio=359  mul-sel=1  pull=-1  drv_level=-1  data=0
-[    1.599045] sunxi-wlan soc@03000000:wlan@0: get gpio chip_en failed
-[    1.606125] sunxi-wlan soc@03000000:wlan@0: power_en gpio=361  mul-sel=1  pull=-1  drv_level=-1  data=0
-[    1.616726] sunxi-wlan soc@03000000:wlan@0: wlan_hostwake gpio=360  mul-sel=6  pull=-1  drv_level=-1  data=0
-[    1.627914] sunxi-wlan soc@03000000:wlan@0: dcxo not config
-[    1.634202] sunxi-wlan soc@03000000:wlan@0: devm_pinctrl_get() failed!
+[    1.504618] sunxi-bt soc@03000000:bt@0: bt_power_name (axp803-dldo1)
+[    1.511789] sunxi-bt soc@03000000:bt@0: Missing bt_io_regulator.
+[    1.518573] sunxi-bt soc@03000000:bt@0: io_regulator_name ((null))
+[    1.525589] sunxi-bt soc@03000000:bt@0: bt_rst gpio=356  mul-sel=1  pull=-1  drv_level=-1  data=0
+[    1.535646] sunxi-bt soc@03000000:bt@0: clk not config
+[    1.541444] sunxi-bt soc@03000000:bt@0: dcxo not config
+[    1.547337] sunxi-bt soc@03000000:bt@0: devm_pinctrl_get() failed!
+[    1.555008] sunxi-wlan soc@03000000:wlan@0: wlan_busnum (1)
+[    1.561295] sunxi-wlan soc@03000000:wlan@0: wlan_power_name (axp803-dldo1)
+[    1.569057] sunxi-wlan soc@03000000:wlan@0: Missing wlan_io_regulator.
+[    1.576411] sunxi-wlan soc@03000000:wlan@0: io_regulator_name ((null))
+[    1.583833] sunxi-wlan soc@03000000:wlan@0: wlan_regon gpio=359  mul-sel=1  pull=-1  drv_level=-1  data=0
+[    1.594624] sunxi-wlan soc@03000000:wlan@0: get gpio chip_en failed
+[    1.601711] sunxi-wlan soc@03000000:wlan@0: power_en gpio=361  mul-sel=1  pull=-1  drv_level=-1  data=0
+[    1.612313] sunxi-wlan soc@03000000:wlan@0: wlan_hostwake gpio=360  mul-sel=6  pull=-1  drv_level=-1  data=0
+[    1.623502] sunxi-wlan soc@03000000:wlan@0: dcxo not config
+[    1.629794] sunxi-wlan soc@03000000:wlan@0: devm_pinctrl_get() failed!
 
+[    3.561933] Kernel init done
 
-[    7.845837] aicbsp_init
-[    7.848777] aicbsp_init, Driver Release Tag: aic-bsp-sdio-20220429-002
-[    7.861291] -->aicbt_rfkill_init
-[    7.867558] <--aicbt_rfkill_init
-[    7.891805] read descriptors
-[    7.893843] [BT_LPM] bluesleep_init: BlueSleep Mode Driver Ver 1.3.3
-[    7.893847] [BT_LPM] bluesleep_init: Driver Release Tag: aic-btlpm-20220429
-[    7.894439] [BT_LPM] bluesleep_probe: bt_hostwake gpio=357 assert=1
-[    7.894439] 
-[    7.894535] [BT_LPM] bluesleep_probe: bt_wake gpio=358 assert=1
-[    7.894535] 
-[    7.894547] [BT_LPM] bluesleep_probe: uart_index (1)
+[    7.015101] file system registered
 
+[    9.706292] insmod_device_driver
 
-[   71.436318] Driver Release Tag: aic-rwnx-sdio-20220606-005-6.4.3.0
-[   71.443295] aicbsp: aicbsp_set_subsys, subsys: AIC_WIFI, state to: 1
-[   71.450551] aicbsp: aicbsp_set_subsys, power state change to 1 dure to AIC_WIFI
-[   71.458813] aicbsp: aicbsp_platform_power_on
-[   71.463701] sunxi-wlan soc@03000000:wlan@0: bus_index: 1
-[   71.472489] sunxi-wlan soc@03000000:wlan@0: check wlan wlan_power voltage: 1800000
+[   16.479806] init: Received control message 'interface_start' for 'android.hardware.wifi@1.0::IWifi/default' from pid: 1636 (/system/bin/hwservicemanager)
+[   16.497420] init: starting service 'vendor.wifi_hal_legacy'...
+[   16.507881] init: Received control message 'interface_start' for 'android.hardware.wifi@1.0::IWifi/default' from pid: 1636 (/system/bin/hwservicemanager)
 
-[   71.863946] mmc1: new SDIO card at address 6907
-[   71.890375] aicbsp: aicbsp_sdio_probe:1
-[   71.895467] aicbsp: aicbsp_sdio_probe:2
-[   71.900006] aicbsp: aicbsp_sdio_probe after replace:1
-[   71.906266] sunxi-mmc sdc1: sdc set ios:clk 70000000Hz bm PP pm ON vdd 21 width 4 timing LEGACY(SDR12) dt B
-[   71.917906] aicbsp: Set SDIO Clock 66 MHz
-[   71.926436] aicbsp: aicbsp_driver_fw_init, chip rev: 7
-[   71.935383] rwnx_request_firmware, name: fw_adid_u03.bin
-[   71.945421] rwnx_request_firmware, name: fw_patch_u03.bin
-[   71.964714] rwnx_request_firmware, name: fw_patch_table_u03.bin
-[   71.990515] aicbt_patch_table_load bt uart baud: 1500000, flowctrl: 1, lpm_enable: 1, tx_pwr: 24608
-[   72.015835] aicbsp: bt patch version: - Jun 20 2022 18:17:55 - git 05db3e7
-[   72.026242] rwnx_request_firmware, name: fmacfw.bin
-[   72.098730] aicbsp: crypto data A76055DAB286D886A5CB46011A942652
-[   72.105585] aicbsp: verify data 8D0B3699065740C4338BBD4EF191F7DF
-[   72.113366] aicsdio: aicwf_sdio_probe:1
-[   72.117858] sunxi-mmc sdc1: sdc set ios:clk 70000000Hz bm PP pm ON vdd 21 width 4 timing LEGACY(SDR12) dt B
-[   72.128949] aicsdio: Set SDIO Clock 66 MHz
-[   72.139058] aicbsp: aicbsp_resv_mem_alloc_skb, alloc resv_mem_txdata succuss, id: 0, size: 98304
-[   72.144136] aicbsp: sdio_err:<aicwf_sdio_bus_pwrctl,1029>: bus down
-[   72.156578] >>> rwnx_platform_init()
-[   72.160642] >>> rwnx_cfg80211_init()
-[   72.165360] >>> rwnx_init_aic()
-[   72.169138] >>> rwnx_cmd_mgr_init()
-[   72.174564] is 5g support = 1, vendor_info = 0x21
-[   72.180303] Firmware Version: di Jun 20 2022 14:13:38 - g93895adfm>>> rwnx_platform_on()
-[   72.190446] >>> rwnx_plat_fmac_load()
-[   72.196149] userconfig file path:aic_userconfig.txt 
+[   17.602537] RTW: module init start
+[   17.616382] RTW: rtl8723ds v5.6.5_31752.20181221_COEX20181130-2e2e
+[   17.631726] RTW: build time: Aug  9 2022 11:10:27
+[   17.645516] RTW: rtl8723ds BT-Coex version = COEX20181130-2e2e
+[   17.665034] sunxi-wlan soc@03000000:wlan@0: check wlan wlan_power voltage: 1800000
+[   17.832966] sunxi-wlan soc@03000000:wlan@0: bus_index: 1
+[   17.839387] sunxi-mmc sdc1: sdc set ios:clk 0Hz bm PP pm UP vdd 21 width 1 timing LEGACY(SDR12) dt B
+[   17.863133] sunxi-mmc sdc1: no vqmmc,Check if there is regulator
+[   17.865878] RTW: module init ret=0
+[   17.944519] sunxi-mmc sdc1: sdc set ios:clk 400000Hz bm PP pm ON vdd 21 width 1 timing LEGACY(SDR12) dt B
+[   18.007729] sunxi-mmc sdc1: sdc set ios:clk 400000Hz bm PP pm ON vdd 21 width 1 timing LEGACY(SDR12) dt B
+[   18.034160] sunxi-mmc sdc1: sdc set ios:clk 400000Hz bm PP pm ON vdd 21 width 1 timing LEGACY(SDR12) dt B
+[   18.061153] sunxi-mmc sdc1: card claims to support voltages below defined range
+[   18.094393] sunxi-mmc sdc1: sdc set ios:clk 400000Hz bm PP pm ON vdd 21 width 1 timing SD-HS(SDR25) dt B
+[   18.114302] sunxi-mmc sdc1: sdc set ios:clk 50000000Hz bm PP pm ON vdd 21 width 1 timing SD-HS(SDR25) dt B
+[   18.154010] sunxi-mmc sdc1: sdc set ios:clk 50000000Hz bm PP pm ON vdd 21 width 4 timing SD-HS(SDR25) dt B
+[   18.203734] mmc1: new high speed SDIO card at address 0001
+[   18.272673] RTW: == SDIO Card Info ==
+[   18.283460] RTW:   clock: 50000000 Hz
+[   18.296784] RTW:   timing spec: sd high-speed
+[   18.303252] RTW:   sd3_bus_mode: FALSE
+[   18.311907] RTW: ================
+[   18.398583] RTW: HW EFUSE
+[   18.402384] RTW: 0x000: 29 81 00 7C  E1 88 07 00  A0 04 EC 35  12 
+[   18.411137] init: Received control message 'interface_start' for 'android.hardware.wifi.supplicant@1.0::ISupplicant/default' from pid: 1636 (/system/bin/hwservicemanager)
+[   18.412796] init: starting service 'wpa_supplicant'...
+[   18.419019] init: Created socket '/dev/socket/wpa_wlan0', mode 660, user 1010, group 1010
+[   20.400858] RTW: rtw_regsty_chk_target_tx_power_valid return _FALSE for band:0, path:0, rs:0, t:-1
+[   20.424142] RTW: rtw_ndev_init(wlan0) if1 mac_addr=30:7b:c9:4a:12:7a
+[   20.461366] RTW: rtw_ndev_init(p2p0) if2 mac_addr=32:7b:c9:4a:12:7a
 
 
 ```
@@ -285,12 +275,93 @@ int main(int /*argc*/, char** argv) {
 
 ```cpp
 
+static int insmod(const char *filename, const char *args) {
+  PLOG(INFO) << "insmod " << filename; //add by lixiaogang
+  int ret;
+  int fd;
 
+  fd = TEMP_FAILURE_RETRY(open(filename, O_RDONLY | O_CLOEXEC | O_NOFOLLOW));
+  if (fd < 0) {
+    PLOG(ERROR) << "Failed to open " << filename;
+    return -1;
+  }
+
+  ret = syscall(__NR_finit_module, fd, args, 0);
+
+  usleep(3000000); //add by lixiaogang
+  PLOG(INFO) << "sleep 3 seconds end";
+
+  close(fd);
+  if (ret < 0) {
+    PLOG(ERROR) << "finit_module return: " << ret;
+  }
+
+  return ret;
+}
+
+
+int wifi_load_driver() {
+  if (is_wifi_driver_loaded()) {
+    return 0;
+  }
+
+  if (insmod(DRIVER_MODULE_PATH, DRIVER_MODULE_ARG) < 0) return -1;
+
+  return 0;
+}
 
 ```
 
+## A133 8723ds 首次打开wifi失败问题
 
+现象：设备开机首次无法打开wifi
+分析：找不到wlan0网卡, 报错日志如下, 从内核日志可以看到驱动初始化到wlan0网卡时间是17.602537-20.46136约3秒钟，因此需要insmod网卡后延迟3秒以上再执行扫描网卡的动作
+修改：frameworks/opt/net/wifi/libwifi_hal/wifi_hal_common.cpp insmod函数增加3秒延时
 
+```txt
+
+# dmesg log
+
+[   17.602537] RTW: module init start
+[   17.616382] RTW: rtl8723ds v5.6.5_31752.20181221_COEX20181130-2e2e
+[   17.631726] RTW: build time: Aug  9 2022 11:10:27
+[   17.645516] RTW: rtl8723ds BT-Coex version = COEX20181130-2e2e
+[   17.665034] sunxi-wlan soc@03000000:wlan@0: check wlan wlan_power voltage: 1800000
+[   17.832966] sunxi-wlan soc@03000000:wlan@0: bus_index: 1
+[   17.839387] sunxi-mmc sdc1: sdc set ios:clk 0Hz bm PP pm UP vdd 21 width 1 timing LEGACY(SDR12) dt B
+[   17.863133] sunxi-mmc sdc1: no vqmmc,Check if there is regulator
+[   17.865878] RTW: module init ret=0
+[   17.944519] sunxi-mmc sdc1: sdc set ios:clk 400000Hz bm PP pm ON vdd 21 width 1 timing LEGACY(SDR12) dt B
+[   18.007729] sunxi-mmc sdc1: sdc set ios:clk 400000Hz bm PP pm ON vdd 21 width 1 timing LEGACY(SDR12) dt B
+[   18.034160] sunxi-mmc sdc1: sdc set ios:clk 400000Hz bm PP pm ON vdd 21 width 1 timing LEGACY(SDR12) dt B
+[   18.061153] sunxi-mmc sdc1: card claims to support voltages below defined range
+[   18.094393] sunxi-mmc sdc1: sdc set ios:clk 400000Hz bm PP pm ON vdd 21 width 1 timing SD-HS(SDR25) dt B
+[   18.114302] sunxi-mmc sdc1: sdc set ios:clk 50000000Hz bm PP pm ON vdd 21 width 1 timing SD-HS(SDR25) dt B
+[   18.154010] sunxi-mmc sdc1: sdc set ios:clk 50000000Hz bm PP pm ON vdd 21 width 4 timing SD-HS(SDR25) dt B
+[   18.203734] mmc1: new high speed SDIO card at address 0001
+[   18.272673] RTW: == SDIO Card Info ==
+[   18.283460] RTW:   clock: 50000000 Hz
+[   18.296784] RTW:   timing spec: sd high-speed
+[   18.303252] RTW:   sd3_bus_mode: FALSE
+[   18.311907] RTW: ================
+[   18.398583] RTW: HW EFUSE
+[   18.402384] RTW: 0x000: 29 81 00 7C  E1 88 07 00  A0 04 EC 35  12 
+[   18.411137] init: Received control message 'interface_start' for 'android.hardware.wifi.supplicant@1.0::ISupplicant/default' from pid: 1636 (/system/bin/hwservicemanager)
+[   18.412796] init: starting service 'wpa_supplicant'...
+[   18.419019] init: Created socket '/dev/socket/wpa_wlan0', mode 660, user 1010, group 1010
+[   20.400858] RTW: rtw_regsty_chk_target_tx_power_valid return _FALSE for band:0, path:0, rs:0, t:-1
+[   20.424142] RTW: rtw_ndev_init(wlan0) if1 mac_addr=30:7b:c9:4a:12:7a
+[   20.461366] RTW: rtw_ndev_init(p2p0) if2 mac_addr=32:7b:c9:4a:12:7a
+
+# android log
+
+2022-08-11 16:39:45.251 2180-2180/? E/android.hardware.wifi@1.0-service-lazy: insmod /vendor/modules/8723ds.ko: Success
+2022-08-11 16:39:46.280 2180-2180/? I/android.hardware.wifi@1.0-service-lazy: Wifi HAL started
+2022-08-11 16:39:46.865 2180-2180/? E/android.hardware.wifi@1.0-service-lazy: Could not read interface state for wlan0 (No such device)
+2022-08-11 16:39:46.865 2180-2180/? E/android.hardware.wifi@1.0-service-lazy: Failed to set WiFi interface up
+2022-08-11 16:39:46.865 2180-2180/? E/android.hardware.wifi@1.0-service-lazy: Failed to start legacy HAL: UNKNOWN
+
+```
 
 
 
