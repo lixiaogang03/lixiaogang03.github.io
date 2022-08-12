@@ -315,7 +315,9 @@ int wifi_load_driver() {
 ## A133 8723ds 首次打开wifi失败问题
 
 现象：设备开机首次无法打开wifi
+
 分析：找不到wlan0网卡, 报错日志如下, 从内核日志可以看到驱动初始化到wlan0网卡时间是17.602537-20.46136约3秒钟，因此需要insmod网卡后延迟3秒以上再执行扫描网卡的动作
+
 修改：frameworks/opt/net/wifi/libwifi_hal/wifi_hal_common.cpp insmod函数增加3秒延时
 
 ```txt

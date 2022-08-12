@@ -419,7 +419,26 @@ EXPORT_SYMBOL(input_event);
 
 ```
 
+## gpio sys
 
+应用层通过sys节点控制风扇开关
+
+1. 查看GPIO编号 /sys/kernel/debug/gpio
+2. 注释掉dts中的GPIO控制： //vcc_fan = <&r_pio PL 10 1 0xffffffff 0xffffffff 0>;
+3. CONFIG_GPIO_SYSFS=y
+4. init.rc 中增加权限
+
+```rc
+
+    chmod 777 /sys/class/gpio/export
+    chmod 777 /sys/class/gpio/gpio362/direction
+    write /sys/class/gpio/export 362
+    write /sys/class/gpio/gpio362/direction out
+    chmod 777 /sys/class/gpio/gpio362/value
+
+```
+
+5. 控制 /sys/class/gpio/gpio362/value 节点的值(1 or 0)进行控制
 
 
 
