@@ -223,6 +223,17 @@ GPIO, 全称 General-Purpose Input/Output（通用输入输出），是一种软
 
 RK3288 有 9 组 GPIO bank： GPIO0，GPIO1, …, GPIO8。每组又以 A0~A7, B0~B7, C0~C7, D0~D7 作为编号区分（不是所有 bank 都有全部编号，例如 GPIO5 就只有 B0~B7, C0~C3)。
 
+dts 配置解释
+
+**GPIO4_C5 = <&gpio4 21 GPIO_ACTIVE_LOW>**
+
+**21 = 16(C组) + 5**
+
+A5 = 0 + 5 = 5
+B5 = 8 + 5 = 13
+C5 = 16 + 5 = 21
+D5 = 24 + 5 = 29
+
 ```txt
 
 rk3288:/sys/class/gpio # ls
