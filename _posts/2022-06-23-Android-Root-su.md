@@ -10,6 +10,33 @@ tags:
     - root
 ---
 
+## 概念
+
+**adb root**
+
+指的是 adbd 守护进程的权限是 root 组，非 root 时是 shell 组
+
+```txt
+
+rk3288:/ $ ps | grep adb
+shell     2250  1     108556 944            0 00000000 S /sbin/adbd
+root     2250  1     108556 944            0 00000000 S /sbin/adbd
+
+```
+
+**app root**
+
+指的是 app 本身的权限组
+
+```txt
+
+system    939   219   1055416 133120          0 00000000 S com.android.settings
+u0_a44    1564  219   1003732 74248          0 00000000 S com.iflytek.speechcloud
+
+```
+
+
+
 ## build
 
 **Android.mk**
