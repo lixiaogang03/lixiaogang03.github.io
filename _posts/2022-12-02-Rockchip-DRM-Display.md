@@ -32,6 +32,103 @@ Rockchip_Developer_Guide_DRM_Display_Driver_CN.pdf
 
 VOP 2.0 采用了统一显示架构,即整个 SOC 上只存在一个 VOP,但是在 VOP 的后端设计了多路独立的 Video Port(简称 VP) 输出接口,这些 VP 能够同时独立工作,并且输出相关独立的显示时序。比如在上面的 VOP 2.0 框图中,有三个VP,就能同时实现三屏异显。
 
+## 调试方法
+
+**adb shell cat /d/dri/0/summary 查看 VOP 状态**
+
+```txt
+
+VOP [ff930000.vop]: ACTIVE
+    Connector: LVDS
+	overlay_mode[0] bus_format[100a] output_mode[0] color_space[0]
+    Display mode: 1920x1080p60
+	clk[148500] real_clk[148500] type[8] flag[a]
+	H: 1920 2140 2170 2200
+	V: 1080 1105 1115 1125
+    win0-0: ACTIVE
+	format: AB24 little-endian (0x34324241) SDR[0] color_space[0]
+	csc: y2r[0] r2r[0] r2y[0] csc mode[0]
+	zpos: 0
+	src: pos[0x0] rect[1080x1920]
+	dst: pos[0x0] rect[1920x1080]
+	buf[0]: addr: 0x00a06000 pitch: 4352 offset: 0
+    win1-0: ACTIVE
+	format: AB24 little-endian (0x34324241) SDR[0] color_space[0]
+	csc: y2r[0] r2r[0] r2y[0] csc mode[0]
+	zpos: 1
+	src: pos[0x0] rect[1080x56]
+	dst: pos[0x1048] rect[1920x32]
+	buf[0]: addr: 0x08c14000 pitch: 4352 offset: 0
+    win2-0: DISABLED
+    win2-1: DISABLED
+    win2-2: DISABLED
+    win2-3: DISABLED
+    win3-0: DISABLED
+    win3-1: DISABLED
+    win3-2: DISABLED
+    win3-3: DISABLED
+    post: sdr2hdr[0] hdr2sdr[0]
+    pre : sdr2hdr[0]
+    post CSC: r2y[0] y2r[0] CSC mode[1]
+VOP [ff940000.vop]: ACTIVE
+    Connector: DSI
+	overlay_mode[0] bus_format[100e] output_mode[0] color_space[0]
+    Display mode: 800x1280p58
+	clk[65000] real_clk[65000] type[8] flag[a]
+	H: 800 816 820 868
+	V: 1280 1285 1289 1292
+    win0-0: ACTIVE
+	format: AB24 little-endian (0x34324241) SDR[0] color_space[0]
+	csc: y2r[0] r2r[0] r2y[0] csc mode[0]
+	zpos: 0
+	src: pos[0x0] rect[1080x1920]
+	dst: pos[0x0] rect[800x1280]
+	buf[0]: addr: 0x021ee000 pitch: 4352 offset: 0
+    win1-0: DISABLED
+    win2-0: DISABLED
+    win2-1: DISABLED
+    win2-2: DISABLED
+    win2-3: DISABLED
+    win3-0: DISABLED
+    win3-1: DISABLED
+    win3-2: DISABLED
+    win3-3: DISABLED
+    post: sdr2hdr[0] hdr2sdr[0]
+    pre : sdr2hdr[0]
+    post CSC: r2y[0] y2r[0] CSC mode[1]
+
+```
+
+**adb shell ls sys/class/drm/ 目录下可以看到驱动注册的各个显卡**
+
+```txt
+
+sys/class/drm/version 
+
+sys/class/drm/card0:
+card0-DSI-1 card0-LVDS-1 dev device power subsystem uevent 
+
+sys/class/drm/card0-DSI-1:
+audioformat device dpms edid enabled mode modes power status subsystem uevent 
+
+sys/class/drm/card0-LVDS-1:
+audioformat device dpms edid enabled mode modes power status subsystem uevent 
+
+sys/class/drm/controlD64:
+dev device power subsystem uevent 
+
+sys/class/drm/renderD128:
+dev device power subsystem uevent
+
+```
+
+* enabled 使能状态
+* status  连接状态
+* mode 当前输出分辨率
+* modes 连接设备支持的分辨率列表
+* audioformat 连接设备支持的音频格式
+* edid 连接设备的 EDID,可以通过命令 cat edid > /data/edid.bin 保存下来。
+
 ## RK3288 双屏同显示配置
 
 基于DRM的Android显示使用指南_V1.0_20180129.pdf
