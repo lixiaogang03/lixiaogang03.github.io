@@ -129,7 +129,7 @@ dev device power subsystem uevent
 * audioformat 连接设备支持的音频格式
 * edid 连接设备的 EDID,可以通过命令 cat edid > /data/edid.bin 保存下来。
 
-## RK3288 双屏同显示配置
+## RK3288 双屏同显配置
 
 基于DRM的Android显示使用指南_V1.0_20180129.pdf
 
@@ -137,10 +137,6 @@ dev device power subsystem uevent
 
 sys.hwc.device.primary=LVDS
 sys.hwc.device.extend=DSI
-
-persist.sys.framebuffer.main=1920x1080
-persist.sys.resolution.main=1920x1080
-persist.sys.resolution.aux=800x1280
 
 **DTS配置**
 
