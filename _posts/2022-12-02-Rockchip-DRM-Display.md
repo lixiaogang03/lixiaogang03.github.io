@@ -32,7 +32,155 @@ Rockchip_Developer_Guide_DRM_Display_Driver_CN.pdf
 
 VOP 2.0 采用了统一显示架构,即整个 SOC 上只存在一个 VOP,但是在 VOP 的后端设计了多路独立的 Video Port(简称 VP) 输出接口,这些 VP 能够同时独立工作,并且输出相关独立的显示时序。比如在上面的 VOP 2.0 框图中,有三个VP,就能同时实现三屏异显。
 
+## RK3288 双屏同显示配置
 
+基于DRM的Android显示使用指南_V1.0_20180129.pdf
+
+**属性配置**
+
+sys.hwc.device.primary=LVDS
+sys.hwc.device.extend=DSI
+
+persist.sys.framebuffer.main=1920x1080
+persist.sys.resolution.main=1920x1080
+persist.sys.resolution.aux=800x1280
+
+**DTS配置**
+
+```c
+
+&route_dsi0 {
+	connect = <&vopl_out_dsi0>;
+	status = "okay";
+};
+
+&route_lvds {
+	connect = <&vopb_out_lvds>;
+	status = "okay";
+};
+
+&dsi0_in_vopl {
+	status = "okay";
+};
+
+&dsi0_in_vopb {
+	status = "disabled";
+};
+
+&lvds_in_vopl {
+	status = "disabled";
+};
+
+&lvds_in_vopb {
+	status = "okay";
+};
+
+&lvds{
+	status = "okay";
+};
+
+&hdmi {
+	status = "disabled";
+};
+
+&lvds_panel {
+	status = "okay";
+	compatible ="simple-panel";
+	power-supply = <&vcc_lcd>;
+	//backlight = <&backlight>;
+	bus-format = <MEDIA_BUS_FMT_RGB888_1X24>;
+	enable-gpios = <&gpio8 3 GPIO_ACTIVE_HIGH>;
+	enable-delay-ms = <10>;
+	rockchip,data-mapping = "vesa";
+	rockchip,data-width = <24>;
+	rockchip,output = "duallvds";
+
+
+	display-timings {
+		native-mode = <&timing0_lvds>;
+		timing0_lvds: timing0 {
+			clock-frequency = <148500000>;
+			hactive = <1920>;
+			vactive = <1080>;
+			hback-porch = <30>;
+			hfront-porch = <220>;
+			vback-porch = <10>;
+			vfront-porch = <25>;
+			hsync-len = <30>;
+			vsync-len = <10>;
+			hsync-active = <0>;
+			vsync-active = <0>;
+			de-active = <0>;
+			pixelclk-active = <0>;
+		};
+	};
+};
+
+
+&dsi0 {
+	status = "okay";
+	rockchip,lane-rate = <480>;
+
+	panel: panel {
+		status = "okay";
+		compatible = "simple-panel-dsi";
+		reg = <0>;
+		power-supply = <&vcc_lcd>;
+		backlight = <&backlight>;
+		reset-gpios = <&gpio7 3 GPIO_ACTIVE_LOW>;
+		dsi,flags = <(MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST | MIPI_DSI_MODE_LPM)>;
+		dsi,format = <MIPI_DSI_FMT_RGB888>;
+		dsi,lanes = <4>;
+		bus-format = <MEDIA_BUS_FMT_RBG888_1X24>;
+
+		reset-delay-ms = <120>;
+                init-delay-ms = <120>;
+                enable-delay-ms = <120>;
+                prepare-delay-ms = <120>;
+                unprepare-delay-ms = <120>;
+		panel-init-sequence = [
+			39 00 04 FF 98 81 01
+			39 00 04 FF 98 81 03
+                        --------------------
+			15 00 02 D2 5C
+			15 00 02 D3 2B
+			39 00 04 FF 98 81 00
+			15 00 02 35 00
+			05 78 01 11
+			05 14 01 29
+		];
+		panel-exit-sequence=[
+			05 c8 01 28
+			05 64 01 10
+		];
+		disp_timings: display-timings {
+			native-mode = <&timing0_mipi>;
+
+			timing0_mipi: timing0 {
+				clock-frequency = <65000000>;
+				hactive = <800>;
+				vactive = <1280>;
+
+				hback-porch = <48>;
+				hfront-porch = <16>;
+
+				vback-porch = <3>;
+				vfront-porch = <5>;
+
+				hsync-len = <4>;
+				vsync-len = <4>;
+
+				hsync-active = <0>;
+				vsync-active = <0>;
+
+				de-active = <0>;
+				pixelclk-active = <0>;
+			};
+		};
+	};
+};
+
+```
 
 
 
