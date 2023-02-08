@@ -455,6 +455,8 @@ EXPORT_SYMBOL(input_event);
 
 [全志方案通过命令行操作 GPIO 口](https://www.cnblogs.com/lovemengx/p/16989719.html)
 
+```txt
+
 sys/kernel/debug/sunxi_pinctrl/
 
 data                    // 引脚的电平状态
@@ -465,9 +467,11 @@ pull                    // 上下拉功能配置
 sunxi_pin               // 指定引脚
 sunxi_pin_configure     // 引脚所有的配置信息
 
+```
+
 **如果通过命令控制GPIO**
 
-1. 设定指定引脚
+* 设定指定引脚
 
 ```txt
 
@@ -476,7 +480,7 @@ echo PE24 > sunxi_pin
 
 ```
 
-2. 查看引脚配置（注意 data 的值）
+* 查看引脚配置（注意 data 的值）
 
 ```txt
 
@@ -490,7 +494,7 @@ pin[PE24] pull:  0(default value : 0);  register addr: 0xf1c208b0
 
 ```
 
-3. 设置输出低电平（此时可以拿万用表或者示波器测量该引脚的实际状态）
+* 设置输出低电平（此时可以拿万用表或者示波器测量该引脚的实际状态）
 
 ```txt
 
@@ -499,7 +503,7 @@ echo PE24 0 > data
 
 ```
 
-4. 查看引脚配置信息（注意 data 的值）
+* 查看引脚配置信息（注意 data 的值）
 
 ```txt
 
@@ -513,7 +517,7 @@ pin[PE24] pull:  0(default value : 0);  register addr: 0xf1c208b0
 
 ```
 
-5. 设置输出高电平（此时可以拿万用表或者示波器测量该引脚的实际状态）
+* 设置输出高电平（此时可以拿万用表或者示波器测量该引脚的实际状态）
 
 ```txt
 
@@ -522,7 +526,7 @@ echo PE24 1 > data
 
 ```
 
-6.  查看引脚配置信息（注意 data 的值）
+*  查看引脚配置信息（注意 data 的值）
 
 ```txt
 
