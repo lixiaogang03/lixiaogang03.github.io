@@ -451,5 +451,108 @@ EXPORT_SYMBOL(input_event);
 
 5. 控制 /sys/class/gpio/gpio362/value 节点的值(1 or 0)进行控制
 
+## 全志 GPIO
+
+[全志方案通过命令行操作 GPIO 口](https://www.cnblogs.com/lovemengx/p/16989719.html)
+
+sys/kernel/debug/sunxi_pinctrl/
+
+data                    // 引脚的电平状态
+dlevel                  // 引脚的驱动等级(结合芯片手册)
+function                // 引脚的功能配置(结合芯片手册, 输入\输出\功能复用)
+platform                // 当前平台
+pull                    // 上下拉功能配置
+sunxi_pin               // 指定引脚
+sunxi_pin_configure     // 引脚所有的配置信息
+
+**如果通过命令控制GPIO**
+
+1. 设定指定引脚
+
+```txt
+
+root@sun8i:/proc/sys/debug/sunxi_pinctrl# echo PE24 > sunxi_pin
+echo PE24 > sunxi_pin
+
+```
+
+2. 查看引脚配置（注意 data 的值）
+
+```txt
+
+root@sun8i:/proc/sys/debug/sunxi_pinctrl# cat sunxi_pin_configure
+cat sunxi_pin_configure
+printf register value...
+pin[PE24] function:  1;                 register addr: 0xf1c2089c
+pin[PE24] data:  1(default value : 0);  register addr: 0xf1c208a0
+pin[PE24] dleve: 1(default value : 1);  register addr: 0xf1c208a8
+pin[PE24] pull:  0(default value : 0);  register addr: 0xf1c208b0
+
+```
+
+3. 设置输出低电平（此时可以拿万用表或者示波器测量该引脚的实际状态）
+
+```txt
+
+root@sun8i:/proc/sys/debug/sunxi_pinctrl# echo PE24 0 > data
+echo PE24 0 > data
+
+```
+
+4. 查看引脚配置信息（注意 data 的值）
+
+```txt
+
+root@sun8i:/proc/sys/debug/sunxi_pinctrl# cat sunxi_pin_configure
+cat sunxi_pin_configure
+printf register value...
+pin[PE24] function:  1;                 register addr: 0xf1c2089c
+pin[PE24] data:  0(default value : 0);  register addr: 0xf1c208a0
+pin[PE24] dleve: 1(default value : 1);  register addr: 0xf1c208a8
+pin[PE24] pull:  0(default value : 0);  register addr: 0xf1c208b0
+
+```
+
+5. 设置输出高电平（此时可以拿万用表或者示波器测量该引脚的实际状态）
+
+```txt
+
+root@sun8i:/proc/sys/debug/sunxi_pinctrl# echo PE24 1 > data
+echo PE24 1 > data
+
+```
+
+6.  查看引脚配置信息（注意 data 的值）
+
+```txt
+
+root@sun8i:/proc/sys/debug/sunxi_pinctrl# cat sunxi_pin_configure
+cat sunxi_pin_configure
+printf register value...
+pin[PE24] function:  1;                 register addr: 0xf1c2089c
+pin[PE24] data:  1(default value : 0);  register addr: 0xf1c208a0
+pin[PE24] dleve: 1(default value : 1);  register addr: 0xf1c208a8
+pin[PE24] pull:  0(default value : 0);  register addr: 0xf1c208b0
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
