@@ -188,8 +188,97 @@ Usage: oatdump [options] ...
 
 ```
 
+**地址计算**
+
+0x710e05e7 = 0x7388d5e7 - 0x27ae000 + 0x1000;
+
+SEARCH ADDRESS (executable offset + input): 0x7388d5e7
 
 
+```txt
+
+adb shell oatdump --oat-file=data/dalvik-cache/arm/system@framework@boot.oat --addr2instr=0x710e05e7
+MAGIC:
+oat
+088
+
+LOCATION:
+data/dalvik-cache/arm/system@framework@boot.oat
+
+CHECKSUM:
+0x998b33b2
+
+INSTRUCTION SET:
+Thumb2
+
+INSTRUCTION SET FEATURES:
+smp,div,atomic_ldrd_strd
+
+DEX FILE COUNT:
+14
+
+EXECUTABLE OFFSET:
+0x027ad000
+
+INTERPRETER TO INTERPRETER BRIDGE OFFSET:
+0x00000000
+
+INTERPRETER TO COMPILED CODE BRIDGE OFFSET:
+0x00000000
+
+JNI DLSYM LOOKUP OFFSET:
+0x027ad001
+
+QUICK GENERIC JNI TRAMPOLINE OFFSET:
+0x027ad011
+
+QUICK IMT CONFLICT TRAMPOLINE OFFSET:
+0x027ad019
+
+QUICK RESOLUTION TRAMPOLINE OFFSET:
+0x027ad021
+
+QUICK TO INTERPRETER BRIDGE OFFSET:
+0x027ad029
+
+IMAGE PATCH DELTA:
+0 (0x00000000)
+
+IMAGE FILE LOCATION OAT CHECKSUM:
+0x00000000
+
+IMAGE FILE LOCATION OAT BEGIN:
+0x00000000
+
+KEY VALUE STORE:
+compiler-filter = speed
+debuggable = true
+dex2oat-cmdline = --image=/data/dalvik-cache/arm/system@framework@boot.art --dex-file=/system/framework/core-oj.jar --dex-file=/system/framework/core-libart.jar --dex-file=/system/framework/conscrypt.jar --dex-file=/system/f
+ramework/okhttp.jar --dex-file=/system/framework/core-junit.jar --dex-file=/system/framework/bouncycastle.jar --dex-file=/system/framework/ext.jar --dex-file=/system/framework/framework.jar --dex-file=/system/framework/telep
+hony-common.jar --dex-file=/system/framework/voip-common.jar --dex-file=/system/framework/ims-common.jar --dex-file=/system/framework/apache-xml.jar --dex-file=/system/framework/org.apache.http.legacy.boot.jar --oat-file=/da
+ta/dalvik-cache/arm/system@framework@boot.oat --instruction-set=arm --instruction-set-features=smp,div,atomic_ldrd_strd --base=0x6fc27000 --runtime-arg -Xms64m --runtime-arg -Xmx64m --image-classes=/system/etc/preloaded-clas
+ses --compiled-classes=/system/etc/compiled-classes --instruction-set-variant=cortex-a15 --instruction-set-features=default
+dex2oat-host = Arm
+has-patch-info = false
+native-debuggable = false
+pic = false
+
+SIZE:
+62242364
+
+SEARCH ADDRESS (executable offset + input):
+0x7388d5e7
+
+OatDexFile:
+location: /system/framework/core-oj.jar
+checksum: 0xb4a880b3
+dex-file: 0x000007a0..0x003d62cb
+type-table: 0x01d9b494..0x01da3493
+
+
+```
+
+**分析到此处，依然陷入的困境**
 
 
 
