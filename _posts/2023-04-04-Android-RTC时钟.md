@@ -77,7 +77,9 @@ ceres-c3:/ # cat /sys/class/sunxi_dump/dump
 
 ```
 
-## 查看硬件时间
+## 查看硬件RTC时间
+
+Linux时间有两个， 系统时间(Wall Time)， RTC时间, 上电-->RTC驱动加载-->从RTC同步时间到WT时间
 
 ```txt
 
@@ -85,6 +87,26 @@ ceres-c3:/ # cat /sys/class/sunxi_dump/dump
 Thu Apr  6 10:55:57 2023  0.000000 seconds
 
 ```
+
+## 查看Linux内核维护的时间
+
+```txt
+
+ceres-c3:/ $ date
+Mon Apr  3 17:41:05 CST 2023
+
+```
+
+## A133 RTC 原理图
+
+![a133_rtc_hardware](/images/allwinner/a133_rtc_hardware.png)
+
+BAT54C是一款正向电压为320mV的半导体二极管
+
+* VCC-RTC 是正常供电电源 1.8V
+* J13 是电池供电电源 3V
+
+当电源供电时，电压大的二极管导通，当电池供电时，下边的二极管导通
 
 ## RK3288 HYM8563 原理图
 
