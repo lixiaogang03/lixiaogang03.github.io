@@ -101,10 +101,15 @@ Mon Apr  3 17:41:05 CST 2023
 
 ![a133_rtc_hardware](/images/allwinner/a133_rtc_hardware.png)
 
-BAT54C是一款正向电压为320mV的半导体二极管
+
+**BAT54C**
+
+![BAT54C](/images/allwinner/BAT54C.png)
+
+BAT54C是一款正向电压为520mV的半导体二极管
 
 * VCC-RTC 是正常供电电源 1.8V
-* J13 是电池供电电源 3V
+* J13 是电池供电电源 3V (随着时间会有衰减)，实际上
 
 当电源供电时，电压大的二极管导通，当电池供电时，下边的二极管导通
 
