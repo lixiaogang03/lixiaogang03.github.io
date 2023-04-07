@@ -12,6 +12,8 @@ tags:
 
 [RK3288-GPIO](https://wiki.t-firefly.com/zh_CN/Firefly-RK3288/driver_gpio.html)
 
+[全志平台GPIO 在sys_config.fex中的具体定义及配置方法](https://cloud.tencent.com/developer/article/1848217)
+
 ## 设备树
 
 ![device_tree](/images/linux/device_tree.jpg)
@@ -540,15 +542,24 @@ pin[PE24] pull:  0(default value : 0);  register addr: 0xf1c208b0
 
 ```
 
+## 全志GPIO配置
 
+**sys_config.fex**
 
+port:PC     15       <3>      <1>        <3>    <default>
 
+Port:端口+组内序号<功能分配><内部电阻><驱动能力><输出电平>
 
+* 端口编号: 例如：PA,PB,PC， …
+* 组内序号: 例如：0，1, 2， …
+* 功能选择: 指定PIN 的功能，具体参考IC datasheet(输入、输出)
+* 内部电阻: 包括三种状态，0:上下拉禁用(默认)， 1:上拉，2:下拉
+* 驱动能力，柯配置驱动能力四级别，0(默认)，1, 2, 3
+* 输出电平，0或1，只有当PIN配成 输出是才有效
 
+**dts**
 
-
-
-
+cd-gpios = <&pio PF 6 6 1 3 0xffffffff>;
 
 
 
