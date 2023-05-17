@@ -193,17 +193,21 @@ init.rk3588.rc
 ```c
 
     # modify gpu performance
+
     write sys/class/devfreq/fb000000.gpu/governor performance
 
     # modify cpu performance
+
     write /sys/devices/system/cpu/cpufreq/policy0/scaling_governor performance
     write /sys/devices/system/cpu/cpufreq/policy4/scaling_governor performance
     write /sys/devices/system/cpu/cpufreq/policy6/scaling_governor performance
 
     # modify ddr performance
+
     write /sys/class/devfreq/dmc/governor performance
 
     # modsify npu performace
+
     write /sys/class/devfreq/fdab0000.npu/governor performance
 
 ```
