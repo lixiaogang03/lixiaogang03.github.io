@@ -162,5 +162,107 @@ public final class DisplayInfo implements Parcelable {
 2. persist.demo.hdmirotation=portrait
 3. persist.orientation.vhinit=1
 
+**rk3588 HDMI 显示器方向修改**
+
+persist.sys.rotation.einit-1=1  // HDMI 竖屏显示
+persist.sys.rotation.efull-1=1  // HDMI 全屏显示
+
+```java
+
+final class LogicalDisplay {
+    private static final String TAG = "LogicalDisplay";
+
+    public void updateLocked(DisplayDeviceRepository deviceRepo) {
+        --------------------------------------------------------------------------------
+
+            if (SystemProperties.get("ro.board.platform").equals("rk356x") ||
+                SystemProperties.get("ro.board.platform").equals("rk3588")) {
+                if (deviceInfo.type == Display.TYPE_EXTERNAL) {
+                    int mPhysicalDisplayId = Integer.valueOf(deviceInfo.uniqueId.split(":")[1]);
+                    String property = "persist.sys.rotation.einit-" + mPhysicalDisplayId;
+                    if (SystemProperties.getInt(property, 0) % 2 != 0) {
+                        mBaseDisplayInfo.appWidth = deviceInfo.height;
+                        mBaseDisplayInfo.appHeight = deviceInfo.width;
+                        mBaseDisplayInfo.logicalWidth = deviceInfo.height;
+                        mBaseDisplayInfo.logicalHeight = deviceInfo.width;
+                    }
+                }
+            } else {
+                if (deviceInfo.type == Display.TYPE_EXTERNAL) {
+                    if (SystemProperties.getInt("persist.sys.rotation.einit", 0) % 2 != 0) {
+                        mBaseDisplayInfo.appWidth = deviceInfo.height;
+                        mBaseDisplayInfo.appHeight = deviceInfo.width;
+                        mBaseDisplayInfo.logicalWidth = deviceInfo.height;
+                        mBaseDisplayInfo.logicalHeight = deviceInfo.width;
+                    }
+                }
+            }
+
+        ---------------------------------------------------------------------------------
+    }
+
+    public void configureDisplayLocked(SurfaceControl.Transaction t,
+            DisplayDevice device,
+            boolean isBlanked) {
+        --------------------------------------------------------------------------------------
+
+        if (SystemProperties.get("ro.board.platform").equals("rk356x")||SystemProperties.get("ro.board.platform").equals("rk3588")) {
+            if (displayDeviceInfo.type == Display.TYPE_EXTERNAL) {
+                int mPhysicalDisplayId = Integer.valueOf(device.getDisplayDeviceInfoLocked().uniqueId.split(":")[1]);
+                String property="persist.sys.rotation.efull-"+mPhysicalDisplayId;
+                if (SystemProperties.getBoolean(property, false)) {
+                    mTempDisplayRect.top = 0;
+                    mTempDisplayRect.left = 0;
+                    mTempDisplayRect.right = physWidth;
+                    mTempDisplayRect.bottom = physHeight;
+                }
+            }
+        } else {
+            if (device.getDisplayDeviceInfoLocked().type == Display.TYPE_EXTERNAL) {
+                if (SystemProperties.getBoolean("persist.sys.rotation.efull", false)) {
+                    mTempDisplayRect.top = 0;
+                    mTempDisplayRect.left = 0;
+                    mTempDisplayRect.right = physWidth;
+                    mTempDisplayRect.bottom = physHeight;
+                }
+            }
+        }
+
+        --------------------------------------------------------------------------------------
+    }
+
+}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
