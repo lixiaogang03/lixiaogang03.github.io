@@ -25,12 +25,16 @@ tags:
 CONFIG_LOW_RAM_DEVICE := true
 ifeq ($(CONFIG_LOW_RAM_DEVICE),true)
     $(call inherit-product, $(LOCAL_PATH)/configs/go/go_base.mk)
+
     #$(call inherit-product, build/target/product/go_defaults.mk)
+
     # use special go config
+
     $(call inherit-product, device/softwinner/common/go_common.mk)
     $(call inherit-product, device/softwinner/common/mainline_go.mk)
 
     # flattened apex. Go device use flattened apex for the consider of performance
+
     TARGET_FLATTEN_APEX := true
 
     DEVICE_PACKAGE_OVERLAYS := $(LOCAL_PATH)/overlay_go \
@@ -38,22 +42,28 @@ ifeq ($(CONFIG_LOW_RAM_DEVICE),true)
     # Strip the local variable table and the local variable type table to reduce
     # the size of the system image. This has no bearing on stack traces, but will
     # leave less information available via JDWP.
+
     PRODUCT_MINIMIZE_JAVA_DEBUG_INFO := true
 
     # Do not generate libartd.
+
     PRODUCT_ART_TARGET_INCLUDE_DEBUG_BUILD := false
 
     # Enable DM file preopting to reduce first boot time
+
     PRODUCT_DEX_PREOPT_GENERATE_DM_FILES :=true
     PRODUCT_DEX_PREOPT_DEFAULT_COMPILER_FILTER := verify
 
     # Reduces GC frequency of foreground apps by 50% (not recommanded for 512M devices)
+
     PRODUCT_SYSTEM_DEFAULT_PROPERTIES += dalvik.vm.foreground-heap-growth-multiplier=2.0
 
     # launcher
+
     PRODUCT_PACKAGES += Launcher3QuickStepGo
 
     # include gms package for go
+
     $(call inherit-product-if-exists, vendor/partner_gms/products/gms_go-mandatory.mk)
 
     # limit dex2oat threads to improve thermals
