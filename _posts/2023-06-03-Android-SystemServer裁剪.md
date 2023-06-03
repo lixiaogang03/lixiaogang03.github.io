@@ -65,7 +65,7 @@ Found 166 services:
 46	serial: [android.hardware.ISerialManager]
 47	usb: [android.hardware.usb.IUsbManager]
 48	adb: [android.debug.IAdbManager]
-49	midi: [android.media.midi.IMidiManager]
+49	midi: [android.media.midi.IMidiManager]              USB 声卡
 50	DockObserver: []
 51	audio: [android.media.IAudioService]
 52	wallpaper: [android.app.IWallpaperManager]
@@ -201,14 +201,14 @@ feature:android.hardware.ethernet
 feature:android.hardware.faketouch
 feature:android.hardware.location
 feature:android.hardware.location.network
-feature:android.hardware.microphone
+feature:android.hardware.microphone                       // 麦克风
 feature:android.hardware.opengles.aep
-feature:android.hardware.ram.low
+feature:android.hardware.ram.low                          // 低内存设备
 feature:android.hardware.screen.landscape
 feature:android.hardware.screen.portrait
-feature:android.hardware.sensor.accelerometer             // 可裁剪
-feature:android.hardware.sensor.light                     // 可裁剪
-feature:android.hardware.sensor.proximity                 // 可裁剪
+feature:android.hardware.sensor.accelerometer             // 可裁剪        加速计
+feature:android.hardware.sensor.light                     // 可裁剪        感光
+feature:android.hardware.sensor.proximity                 // 可裁剪        近距离感测 
 feature:android.hardware.touchscreen
 feature:android.hardware.touchscreen.multitouch
 feature:android.hardware.touchscreen.multitouch.distinct
@@ -220,7 +220,7 @@ feature:android.hardware.wifi
 feature:android.hardware.wifi.direct
 feature:android.hardware.wifi.passpoint
 feature:android.software.adoptable_storage
-feature:android.software.autofill
+feature:android.software.autofill                        // 可裁剪  自动填写服务
 feature:android.software.backup                          // 备份服务，可裁剪，三方app可能使用
 feature:android.software.cant_save_state
 feature:android.software.companion_device_setup
@@ -230,8 +230,8 @@ feature:android.software.device_admin
 feature:android.software.home_screen
 feature:android.software.input_methods
 feature:android.software.ipsec_tunnels
-feature:android.software.midi
-feature:android.software.print
+feature:android.software.midi                            // USB 声卡
+feature:android.software.print                           // 打印
 feature:android.software.secure_lock_screen
 feature:android.software.verified_boot
 feature:android.software.webview
