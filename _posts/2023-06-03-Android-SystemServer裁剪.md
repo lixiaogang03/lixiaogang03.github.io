@@ -221,7 +221,7 @@ feature:android.hardware.wifi.direct
 feature:android.hardware.wifi.passpoint
 feature:android.software.adoptable_storage
 feature:android.software.autofill
-feature:android.software.backup
+feature:android.software.backup                          // 备份服务，可裁剪，三方app可能使用
 feature:android.software.cant_save_state
 feature:android.software.companion_device_setup
 feature:android.software.connectionservice
@@ -237,3 +237,41 @@ feature:android.software.verified_boot
 feature:android.software.webview
 
 ```
+
+## A133 awbms
+
+device/softwinner/common/config/awbms_config
+
+```txt
+
+debug: true
+limit: 12
+threadCheck: true
+memoryCheck: true
+memoryLimit: 512,0
+memoryTrim: true
+skipService: false               表示阻止第三方开启后台服务
+blockBroadcast: false            表示阻止第三方应用接收广播
+lmk: false
+lmk_level: 100,150,250
+lmk_adj: 99,200,600
+
+whitelist:                       表示已添加白名单的应用
+android
+com.android
+com.android.phone
+com.android.server.telecom
+com.google
+com.softwinner
+com.allwinnertech
+com.wif
+com.ysxsoft
+com.xintian
+
+action:
+android.service.wallpaper.WallpaperService
+com.android.cts.verifier.camera.its.START
+
+```
+
+
