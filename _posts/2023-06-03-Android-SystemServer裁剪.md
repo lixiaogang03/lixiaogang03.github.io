@@ -4,7 +4,7 @@ title:      Android SystemServer 裁剪
 subtitle:   Binder
 date:       2023-06-03
 author:     LXG
-header-img: img/post-bg-YesOrNo.jpg
+header-img: img/post-bg-miui-ux.jpg
 catalog: true
 tags:
     - android
@@ -23,7 +23,7 @@ Found 166 services:
 4	simphonebook: [com.android.internal.telephony.IIccPhoneBook]
 5	ircs: [android.telephony.ims.aidl.IRcs]
 6	network_stack: [android.net.INetworkStackConnector]
-7	secure_element: [android.se.omapi.ISecureElementService]
+7	secure_element: [android.se.omapi.ISecureElementService]             可裁剪---移动设备上存储敏感信息，例如银行卡信息、密码和认证令牌等
 8	telecom: [com.android.internal.telecom.ITelecomService]
 9	isub: [com.android.internal.telephony.ISub]
 10	aw_display: [com.softwinner.IDisplayService]
@@ -110,9 +110,9 @@ Found 166 services:
 91	window: [android.view.IWindowManager]
 92	inputflinger: [android.input.IInputFlinger]
 93	alarm: [android.app.IAlarmManager]
-94	consumer_ir: [android.hardware.IConsumerIrService]
+94	consumer_ir: [android.hardware.IConsumerIrService]             可裁剪---红外服务
 95	dynamic_system: [android.os.image.IDynamicSystemService]
-96	vibrator: [android.os.IVibratorService]
+96	vibrator: [android.os.IVibratorService]                        可裁剪---振动服务
 97	external_vibrator_service: [android.os.IExternalVibratorService]
 98	dropbox: [com.android.internal.os.IDropBoxManagerService]
 99	device_config: []
@@ -206,9 +206,9 @@ feature:android.hardware.opengles.aep
 feature:android.hardware.ram.low
 feature:android.hardware.screen.landscape
 feature:android.hardware.screen.portrait
-feature:android.hardware.sensor.accelerometer
-feature:android.hardware.sensor.light
-feature:android.hardware.sensor.proximity
+feature:android.hardware.sensor.accelerometer             // 可裁剪
+feature:android.hardware.sensor.light                     // 可裁剪
+feature:android.hardware.sensor.proximity                 // 可裁剪
 feature:android.hardware.touchscreen
 feature:android.hardware.touchscreen.multitouch
 feature:android.hardware.touchscreen.multitouch.distinct
