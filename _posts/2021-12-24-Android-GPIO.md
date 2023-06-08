@@ -562,8 +562,60 @@ Port:端口+组内序号<功能分配><内部电阻><驱动能力><输出电平>
 cd-gpios = <&pio PF 6 6 1 3 0xffffffff>;
 
 
+## GPIO 计算
 
+./kernel/linux-4.9/include/linux/sunxi-gpio.h
 
+```c
+
+/* pin group base number name space,
+ * the max pin number : 26*32=832.
+ */
+#define SUNXI_BANK_SIZE 32
+#define SUNXI_PA_BASE	0
+#define SUNXI_PB_BASE	32
+#define SUNXI_PC_BASE	64
+#define SUNXI_PD_BASE	96
+#define SUNXI_PE_BASE	128
+#define SUNXI_PF_BASE	160
+#define SUNXI_PG_BASE	192
+#define SUNXI_PH_BASE	224
+#define SUNXI_PI_BASE	256
+#define SUNXI_PJ_BASE	288
+#define SUNXI_PK_BASE	320
+#define SUNXI_PL_BASE	352
+#define SUNXI_PM_BASE	384
+#define SUNXI_PN_BASE	416
+#define SUNXI_PO_BASE	448
+#define AXP_PIN_BASE	1024
+
+#define SUNXI_PIN_NAME_MAX_LEN	8
+
+/* sunxi gpio name space */
+#define GPIOA(n)	(SUNXI_PA_BASE + (n))
+#define GPIOB(n)	(SUNXI_PB_BASE + (n))
+#define GPIOC(n)	(SUNXI_PC_BASE + (n))
+#define GPIOD(n)	(SUNXI_PD_BASE + (n))
+#define GPIOE(n)	(SUNXI_PE_BASE + (n))
+#define GPIOF(n)	(SUNXI_PF_BASE + (n))
+#define GPIOG(n)	(SUNXI_PG_BASE + (n))
+#define GPIOH(n)	(SUNXI_PH_BASE + (n))
+#define GPIOI(n)	(SUNXI_PI_BASE + (n))
+#define GPIOJ(n)	(SUNXI_PJ_BASE + (n))
+#define GPIOK(n)	(SUNXI_PK_BASE + (n))
+#define GPIOL(n)	(SUNXI_PL_BASE + (n))
+#define GPIOM(n)	(SUNXI_PM_BASE + (n))
+#define GPION(n)	(SUNXI_PN_BASE + (n))
+#define GPIOO(n)	(SUNXI_PO_BASE + (n))
+#define GPIO_AXP(n)	(AXP_PIN_BASE  + (n))
+
+```
+
+![a133_fan_gpio](/images/allwinner/a133_fan_gpio.png)
+
+vcc_fan = <&r_pio PL 10 1 0xffffffff 0xffffffff 0>;
+
+**fan_gpio = (SUNXI_PL_BASE)352 + 10 = 362**
 
 
 
