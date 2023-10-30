@@ -123,6 +123,8 @@ LICHEE_COMPILER_TAR=gcc-linaro-5.3.1-2016.05-x86_64_arm-linux-gnueabi.tar.xz
 
 **添加kits**
 
+![qt_kits_config](/images/qt/qt_kits_config.png)
+
 
 
 
