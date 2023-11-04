@@ -10,6 +10,32 @@ tags:
     - qt
 ---
 
+## 命令行测试硬件
+
+```txt
+
+sh-4.4# ls -al rp_test/
+total 55668
+drwxrwxr-x    3 root     root          4096 Jan  1 00:16 .
+drwxr-xr-x   22 root     root          4096 Jan  1 00:00 ..
+-rwxrwxr-x    1 root     root          5212 Nov  3  2023 comtest
+drwxrwxr-x    2 root     root          4096 Nov  3  2023 input
+-rwxrwxrwx    1 root     root      46329002 Oct 20  2023 test.wav
+-rwxrwxrwx    1 root     root      10557420 Oct 20  2023 test48000.wav
+-rwxrwxr-x    1 root     root           357 Nov  3  2023 test_4G.sh
+-rwxrwxr-x    1 root     root            46 Nov  3  2023 test_audio.sh
+-rwxrwxr-x    1 root     root            96 Nov  3  2023 test_bt.sh
+-rwxrwxr-x    1 root     root           606 Nov  3  2023 test_can.sh
+-rwxrwxr-x    1 root     root            99 Nov  3  2023 test_ethernet.sh
+-rwxrwxr-x    1 root     root            33 Nov  3  2023 test_uart.sh
+-rwxrwxr-x    1 root     root           189 Nov  3  2023 test_watchdog.sh
+-rwxrwxr-x    1 root     root           530 Nov  3  2023 test_wifi.sh
+-rwxrwxr-x    1 root     root           311 Nov  3  2023 test_wifi_ap.sh
+-rwxrwxr-x    1 root     root          2407 Nov  3  2023 watchdogd.cpp
+-rwxrwxr-x    1 root     root          3928 Nov  3  2023 watchdogd.out
+
+```
+
 ## DeviceTest
 
 ```txt
