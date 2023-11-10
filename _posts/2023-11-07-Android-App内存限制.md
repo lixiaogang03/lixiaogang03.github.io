@@ -913,6 +913,27 @@ Max realtime timeout      unlimited            unlimited            us
 
 ```
 
+## App Java 内存限制
+
+frameworks/native/build/tablet-10in-xhdpi-2048-dalvik-heap.mk
+
+dalvik.vm.heapsize : 该参数设置VM所能使用的最大的heap的内存大小。即一个Android应用程序在开启largeHeap后，所能使用到的最大的VM的heap的大小，但不会超过该阈值
+
+dalvik.vm.heapgrowthlimit : 该参数用来设置一个Java进程在默认情况下能使用的最大VM的heap的大小
+
+```makefile
+
+PRODUCT_VENDOR_PROPERTIES += \
+    dalvik.vm.heapstartsize?=16m \
+    dalvik.vm.heapgrowthlimit?=256m \
+    dalvik.vm.heapsize?=768m \
+    dalvik.vm.heaptargetutilization?=0.75 \
+    dalvik.vm.heapminfree?=512k \
+    dalvik.vm.heapmaxfree?=8m
+
+```
+
+
 
 
 
