@@ -110,5 +110,22 @@ allprojects {
 
 ```
 
+## 找不到app.iml文件解决方案
+
+![gradle_iml](/images/androidstudio/gradle_iml.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
