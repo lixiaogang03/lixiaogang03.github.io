@@ -189,6 +189,107 @@ public class NetworkTimeUpdateService extends Binder {
 
 ```
 
+## NTP 重试机制
+
+frameworks/base/core/java/android/util/NtpTrustedTime.java
+
+```java
+
+public class NtpTrustedTime implements TrustedTime {
+
+
+    private final String[] ntpServerHost = new String[] {
+        "ntp.aliyun.com", // aliyun
+        "ntp2.aliyun.com",
+        "ntp.tencent.com", // 腾讯云公共 NTP 服务器
+        "ntp2.tencent.com",
+        "ntp.ntsc.ac.cn", // 国家授时中心 NTP 服务器
+        "cn.ntp.org.cn",  // 中国 NTP 快速授时服务
+        "cn.pool.ntp.org", // 国际 NTP 快速授时服务
+        "2.pool.ntp.org",  // 国际 NTP 快速授时服务
+    };
+
+    @UnsupportedAppUsage(maxTargetSdk = Build.VERSION_CODES.R, trackingBug = 170729553)
+    public boolean forceRefresh() {
+        synchronized (this) {
+            NtpConnectionInfo connectionInfo = getNtpConnectionInfo();
+            if (connectionInfo == null) {
+                // missing server config, so no trusted time available
+                if (LOGD) Log.d(TAG, "forceRefresh: invalid server config");
+                return false;
+            }
+
+            ConnectivityManager connectivityManager = mConnectivityManagerSupplier.get();
+            if (connectivityManager == null) {
+                if (LOGD) Log.d(TAG, "forceRefresh: no ConnectivityManager");
+                return false;
+            }
+            final Network network = connectivityManager.getActiveNetwork();
+            final NetworkInfo ni = connectivityManager.getNetworkInfo(network);
+            if (ni == null || !ni.isConnected()) {
+                if (LOGD) Log.d(TAG, "forceRefresh: no connectivity");
+                return false;
+            }
+
+            if (LOGD) Log.d(TAG, "forceRefresh() from cache miss");
+            final SntpClient client = new SntpClient();
+            final String serverName = connectionInfo.getServer();
+            final int timeoutMillis = connectionInfo.getTimeoutMillis();
+            if (client.requestTime(serverName, timeoutMillis, network)) {
+                long ntpCertainty = client.getRoundTripTime() / 2;
+                mTimeResult = new TimeResult(
+                        client.getNtpTime(), client.getNtpTimeReference(), ntpCertainty);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+    
+    @GuardedBy("this")
+    private NtpConnectionInfo getNtpConnectionInfo() {
+        final ContentResolver resolver = mContext.getContentResolver();
+
+        final Resources res = mContext.getResources();
+
+        //modify by lixiaogang start
+        //final String defaultServer = res.getString(
+        //        com.android.internal.R.string.config_ntpServer);
+        Random random = new Random();
+        int index = random.nextInt(ntpServerHost.length);
+        String defaultServer = ntpServerHost[index];
+        Log.d(TAG, "Request the NTP address " + defaultServer);
+        //modify by lixiaogang end
+
+        final int defaultTimeoutMillis = res.getInteger(
+                com.android.internal.R.integer.config_ntpTimeout);
+
+        final String secureServer = Settings.Global.getString(
+                resolver, Settings.Global.NTP_SERVER);
+        final int timeoutMillis = Settings.Global.getInt(
+                resolver, Settings.Global.NTP_TIMEOUT, defaultTimeoutMillis);
+
+        final String server = secureServer != null ? secureServer : defaultServer;
+        return TextUtils.isEmpty(server) ? null : new NtpConnectionInfo(server, timeoutMillis);
+    }
+
+}
+
+```
+
+frameworks/base/core/res/res/values/config.xml
+
+```xml
+
+    <string translatable="false" name="config_ntpServer">ntp.aliyun.com</string>
+    <integer name="config_ntpPollingInterval">86400000</integer>
+    <integer name="config_ntpPollingIntervalShorter">8000</integer>
+    <integer name="config_ntpRetry">3</integer>
+    <integer name="config_ntpThreshold">5000</integer>
+    <integer name="config_ntpTimeout">5000</integer>
+
+```
+
 ## 总结
 
 NITZ的优先级要高于NTP的优先级，当NITZ更新系统时间后，NTP即使触发更新条件，也会检查NITZ更新时间距今是否超过864000000毫秒 (10天，config_ntpPollingInterval)，若不满10天，则重设Alarm并取消此次NTP更新请求
