@@ -127,16 +127,7 @@ INFO: mkbr failed
 
 **解决方法**
 
-./out/t113/evb1_auto/longan/buildroot/build/host-libglib2-2.56.3/gio/gdbusmessage.c
-
-./out/t113/evb1_auto/longan/buildroot/build/host-libglib2-2.56.3/gio/gdbusauth.c
-
-./out/t113/evb1_auto/longan/buildroot/build/libgpg-error-1.33/src/mkstrtable.awk
-
-./out/t113/evb1_auto/longan/buildroot/build/libgpg-error-1.33/src/mkerrcodes2.awk
-
-./out/t113/evb1_auto/longan/buildroot/build/libgpg-error-1.33/lang/cl/mkerrcodes.awk
-
+buildroot/buildroot-201902/package/libglib2/0003-gdbus-Avoid-printing-null-strings.patch
 
 
 ## 编译报错-4
@@ -170,7 +161,13 @@ INFO: mkbr failed
 
 ```
 
-./out/t113/evb1_auto/longan/buildroot/build/libgpg-error-1.33/src/errnos-sym.h
+**解决方法：版本升级到libgpg-error-1.36.tar.bz2**
+
+buildroot/buildroot-201902/dl/libgpg-error/libgpg-error-1.36.tar.bz2
+buildroot/buildroot-201902/package/libgpg-error/0001-gawk5-support.patch
+buildroot/buildroot-201902/package/libgpg-error/Config.in
+buildroot/buildroot-201902/package/libgpg-error/libgpg-error.hash
+buildroot/buildroot-201902/package/libgpg-error/libgpg-error.mk
 
 ## 编译报错-5
 
@@ -228,13 +225,15 @@ INFO: mkbr failed
 
 ```
 
-./out/t113/evb1_auto/longan/buildroot/build/gstreamer1-1.14.4/libs/gst/controller/controller-enumtypes.c
-
 **解决方案**
 
 https://bugs.gentoo.org/attachment.cgi?id=615942&action=edit
 
 https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/515
+
+buildroot/buildroot-201902/package/gstreamer1/gst1-plugins-bad/0003-make-fix.patch
+buildroot/buildroot-201902/package/gstreamer1/gst1-plugins-base/0001-make-fix.patch
+buildroot/buildroot-201902/package/gstreamer1/gstreamer1/0002-gstreamer-make43-wo-automake.patch
 
 
 
