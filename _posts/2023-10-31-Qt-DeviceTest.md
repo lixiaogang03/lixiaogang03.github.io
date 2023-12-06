@@ -36,6 +36,47 @@ drwxrwxr-x    2 root     root          4096 Nov  3  2023 input
 
 ```
 
+## 命令行测试wifi
+
+1. iw dev wlan0 scan | grep SSID
+2. wpa_passphrase kefu xintian888 >> /etc/wpa_supplicant.conf
+3. wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant.conf
+4. iw wlan0 link
+
+**test_wifi.sh**
+
+```sh
+
+sh-4.4# cat rp_test/test_wifi.sh 
+#!/bin/sh
+
+read -p "Enter your wifi-ssid, please: " WIFISSID
+read -p "Enter your wifi-pwd, please: " WIFIPWD
+
+#WIFISSID=$1
+#WIFIPWD=$2
+CONF=/tmp/wpa_supplicant.conf
+
+cp /etc/wpa_supplicant.conf /tmp/
+echo "connect to WiFi ssid: $WIFISSID, Passwd: $WIFIPWD"
+#sed -i "s/SSID/$WIFISSID/g" $CONF
+#sed -i "s/PASSWORD/$WIFIPWD/g" $CONF
+
+wpa_passphrase $WIFISSID $WIFIPWD > $CONF
+
+killall wpa_supplicant
+sleep 1
+wpa_supplicant -B -i wlan0 -c $CONF
+
+# auto get ipaddress
+udhcpc -i wlan0
+
+ifconfig wlan0
+
+ping -I wlan0 -c 4 www.rpdzkj.com
+
+```
+
 ## DeviceTest
 
 ```txt
