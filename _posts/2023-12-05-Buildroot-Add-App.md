@@ -31,6 +31,8 @@ t113_linux/platform/apps/monitor_usb$ tree
 #include <stdio.h>
 #include <string.h>
 #include <libudev.h>
+#include <stdlib.h>
+#include <sys/reboot.h>
 
 /**
  * swupdate ota
@@ -45,6 +47,7 @@ void swupdate_ota() {
             printf("Failed to execute swupdate command\n");
         } else {
             printf("Rebooting the device...\n");
+            sync();  // 同步磁盘上的数据
             if (reboot(RB_AUTOBOOT) == -1) {
                 printf("Failed to reboot the system\n");
             }
@@ -164,7 +167,7 @@ MONITOR_USB_SITE_METHOD = local
 MONITOR_USB_SITE = $(PLATFORM_PATH)/../../apps/monitor_usb
 MONITOR_USB_LICENSE = GPLv2+, GPLv3+
 MONITOR_USB_LICENSE_FILES = Copyright COPYING
-MONITOR_USB_DEPENDENCIES = libsys_info
+MONITOR_USB_DEPENDENCIES = udev
 
 MONITOR_USB_LDFLAGS += -L$(TARGET_DIR)/usr/lib/ -ludev
 
