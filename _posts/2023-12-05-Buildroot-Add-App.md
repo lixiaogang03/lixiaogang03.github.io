@@ -47,7 +47,7 @@ void swupdate_ota() {
             printf("Failed to execute swupdate command\n");
         } else {
             printf("Rebooting the device...\n");
-            sync();  // 同步磁盘上的数据
+            sync();// 同步磁盘上的数据
             if (reboot(RB_AUTOBOOT) == -1) {
                 printf("Failed to reboot the system\n");
             }
@@ -61,6 +61,7 @@ int main() {
     struct udev *udev;
     struct udev_monitor *mon;
     struct udev_device *dev;
+    int fd;
 
     /* 初始化 udev */
     udev = udev_new();
@@ -77,26 +78,53 @@ int main() {
     }
 
     /* 设置要监听的事件类型 */
-    if (udev_monitor_filter_add_match_subsystem_devtype(mon, "block", NULL) < 0 ||
+    if (udev_monitor_filter_add_match_subsystem_devtype(mon, "block", "disk") < 0 ||
         udev_monitor_enable_receiving(mon) < 0) {
         fprintf(stderr, "Can't filter block subsystem or enable receiving\n");
         return 1;
     }
 
+    // 获取文件描述符
+    fd = udev_monitor_get_fd(mon);
+
     /* 循环监听并处理事件 */
     while (1) {
-        dev = udev_monitor_receive_device(mon);
-        if (dev) {
+        // 使用 select 系统调用来等待设备事件或超时
+        fd_set fds;
+        FD_ZERO(&fds);
+        FD_SET(fd, &fds);
+
+        struct timeval timeout;
+        timeout.tv_sec = 5;  // 设置超时时间为 5 秒
+        timeout.tv_usec = 0;
+
+        // 使用 select() 设置超时时间
+        if (select(fd + 1, &fds, NULL, NULL, &timeout) < 0) {
+            printf("Error waiting for device event\n");
+            continue;
+        }
+
+        if (FD_ISSET(fd, &fds)) {
+            // 当设备事件发生时，从监视器接收设备对象
+            dev = udev_monitor_receive_device(mon);
+            if (dev == NULL) {
+                printf("Invalid device received from udev monitor\n");
+                continue;
+            }
+
             const char *action = udev_device_get_action(dev);
             const char *devpath = udev_device_get_devnode(dev);
 
             printf("Action: %s, Device Path: %s\n", action, devpath);
 
             if (strcmp("add", action) == 0) {
-               swupdate_ota();
+                swupdate_ota();
             }
 
             udev_device_unref(dev);
+        } else {
+            // 没有设备事件发生
+            // printf("No device events received\n");
         }
     }
 
@@ -106,6 +134,7 @@ int main() {
 
     return 0;
 }
+
 ```
 
 **Makefile**
