@@ -38,10 +38,14 @@ drwxrwxr-x    2 root     root          4096 Nov  3  2023 input
 
 ## 命令行测试wifi
 
+```txt
+
 1. iw dev wlan0 scan | grep SSID
 2. wpa_passphrase kefu xintian888 >> /etc/wpa_supplicant.conf
 3. wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant.conf
 4. iw wlan0 link
+
+```
 
 **test_wifi.sh**
 
