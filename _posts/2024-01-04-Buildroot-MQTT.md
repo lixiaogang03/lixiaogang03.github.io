@@ -291,7 +291,13 @@ Categories=Development;IDE;
 2. sudo apt install ./emqx-5.4.0-ubuntu22.04-amd64.deb
 3. sudo systemctl start emqx
 
+EMQ X Dashboard 是一个 Web 应用程序，你可以直接通过浏览器来访问它，无需安装任何其他软件。
 
+当 EMQ X 成功运行在你的本地计算机上且 EMQ X Dashboard 被默认启用时，你可以访问 http://localhost:18083 来查看你的 Dashboard，默认用户名是 admin，密码是 public。
+
+[http://localhost:18083](http://localhost:18083)
+
+![emq_server](/images/mqtt/emq_server.png)
 
 
 
