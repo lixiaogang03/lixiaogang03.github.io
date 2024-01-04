@@ -281,6 +281,16 @@ Categories=Development;IDE;
 
 ![cross_gcc_2](/images/eclipse/cross_gcc_2.png)
 
+## EMQ MQTTX
+
+本地模拟MQTT服务器
+
+![emq_mqttx_server](/images/mqtt/emq_mqttx_server.png)
+
+1. wget https://www.emqx.com/zh/downloads/broker/5.4.0/emqx-5.4.0-ubuntu22.04-amd64.deb
+2. sudo apt install ./emqx-5.4.0-ubuntu22.04-amd64.deb
+3. sudo systemctl start emqx
+
 
 
 
