@@ -329,8 +329,14 @@ github/paho.mqtt.c/build$ tree -L 2
 │   └── thread
 └── VersionInfo.h
 
-
 ```
+
+## paho-mqtt 不同版本的区别
+
+* paho-mqtt3a ： 一般实际开发中就是使用这个，a表示的是异步消息推送（asynchronous）
+* paho-mqtt3as ： as表示的是 异步+加密（asynchronous+OpenSSL）
+* paho-mqtt3c ： c 表示的是同步（Synchronize），一般性能较差，是发送+等待模式
+* paho-mqtt3cs ： 同上，增加了一个OpenSSL而已
 
 ## Ubuntu 2204 Eclipse
 
@@ -381,26 +387,6 @@ EMQ X Dashboard 是一个 Web 应用程序，你可以直接通过浏览器来�
 
 ![emq_server](/images/mqtt/emq_server.png)
 
-## eclipse 引用 mqtt so
-
-```txt
-
-lxg@lxg:~/code/t113_linux/out/t113/evb1_auto/longan/buildroot/target$ ls -al ./usr/lib/libpaho-mqtt3*
-lrwxrwxrwx 1 lxg lxg     19  1月  5 10:02 ./usr/lib/libpaho-mqtt3a.so -> libpaho-mqtt3a.so.1
-lrwxrwxrwx 1 lxg lxg     24  1月  5 10:02 ./usr/lib/libpaho-mqtt3a.so.1 -> libpaho-mqtt3a.so.1.3.13
--rwxr-xr-x 1 lxg lxg 137616  1月  5 10:02 ./usr/lib/libpaho-mqtt3a.so.1.3.13
-lrwxrwxrwx 1 lxg lxg     20  1月  5 10:02 ./usr/lib/libpaho-mqtt3as.so -> libpaho-mqtt3as.so.1
-lrwxrwxrwx 1 lxg lxg     25  1月  5 10:02 ./usr/lib/libpaho-mqtt3as.so.1 -> libpaho-mqtt3as.so.1.3.13
--rwxr-xr-x 1 lxg lxg 154200  1月  5 10:02 ./usr/lib/libpaho-mqtt3as.so.1.3.13
-lrwxrwxrwx 1 lxg lxg     19  1月  5 10:02 ./usr/lib/libpaho-mqtt3c.so -> libpaho-mqtt3c.so.1
-lrwxrwxrwx 1 lxg lxg     24  1月  5 10:02 ./usr/lib/libpaho-mqtt3c.so.1 -> libpaho-mqtt3c.so.1.3.13
--rwxr-xr-x 1 lxg lxg 117068  1月  5 10:02 ./usr/lib/libpaho-mqtt3c.so.1.3.13
-lrwxrwxrwx 1 lxg lxg     20  1月  5 10:02 ./usr/lib/libpaho-mqtt3cs.so -> libpaho-mqtt3cs.so.1
-lrwxrwxrwx 1 lxg lxg     25  1月  5 10:02 ./usr/lib/libpaho-mqtt3cs.so.1 -> libpaho-mqtt3cs.so.1.3.13
--rwxr-xr-x 1 lxg lxg 133648  1月  5 10:02 ./usr/lib/libpaho-mqtt3cs.so.1.3.13
-
-```
-
 ## eclipse 引用源码
 
 ![eclipse_include](/images/eclipse/eclipse_include.png)
@@ -428,9 +414,63 @@ sudo gedit /etc/hosts
 
 ```
 
+## QtCreator 开发 C 语言项目
 
+```txt
 
+WifMqtt$ tree
+.
+├── build
+│   └── Debug
+│       ├── build.ninja
+│       ├── CMakeCache.txt
+│       ├── CMakeFiles
+│       │   ├── 3.22.1
+│       │   │   ├── CMakeCCompiler.cmake
+│       │   │   ├── CMakeDetermineCompilerABI_C.bin
+│       │   │   ├── CMakeSystem.cmake
+│       │   │   └── CompilerIdC
+│       │   │       ├── a.out
+│       │   │       ├── CMakeCCompilerId.c
+│       │   │       └── tmp
+│       │   ├── cmake.check_cache
+│       │   ├── CMakeOutput.log
+│       │   ├── CMakeTmp
+│       │   ├── rules.ninja
+│       │   ├── TargetDirectories.txt
+│       │   └── WifMqtt.dir
+│       │       └── main.c.o
+│       ├── cmake_install.cmake
+│       ├── WifMqtt
+│       └── WifMqtt.cbp
+├── CMakeLists.txt
+├── CMakeLists.txt.user
+├── main.c
+└── README.md
 
+```
+
+**CMake 脚本**
+
+```cmake
+
+cmake_minimum_required(VERSION 3.5)
+
+# 头文件
+include_directories("/usr/local/include")
+
+# 动态链接so库
+link_directories("/home/lxg/code/gitlab/WifMqtt/lib")
+
+project(WifMqtt LANGUAGES C)
+
+# 可执行文件
+add_executable(WifMqtt main.c)
+
+# 动态链接paho-mqtt3a so库
+TARGET_LINK_LIBRARIES(WifMqtt paho-mqtt3a)
+
+```
 
 
 
