@@ -12,8 +12,6 @@ tags:
 
 ## EMQ
 
-[paho.mqtt.c-github](https://github.com/eclipse/paho.mqtt.c)
-
 [EMQ-sdk](https://www.emqx.com/zh/mqtt-client-sdk)
 
 ![emq_mqtt_sdk](/images/mqtt/emq_mqtt_sdk.png)
@@ -250,6 +248,90 @@ index 9e8ae29999..e954595bab 100644
 
 ```
 
+## github mqtt c
+
+[paho.mqtt.c-github](https://github.com/eclipse/paho.mqtt.c)
+
+**编译步骤**
+
+```txt
+
+1. git clone https://github.com/eclipse/paho.mqtt.c.git
+
+2. cd paho.mqtt.c.git
+
+3. mkdir build
+
+4. cd build
+
+5. cmake .. 生成makefile
+
+6. make 使用make命令构建mqtt c库
+
+7. sudo make install 安装到系统目录中
+
+```
+
+**编译生成目录**
+
+```txt
+
+github/paho.mqtt.c/build$ tree -L 2
+.
+├── CMakeCache.txt
+├── CMakeFiles
+│   ├── 3.22.1
+│   ├── cmake.check_cache
+│   ├── CMakeDirectoryInformation.cmake
+│   ├── CMakeOutput.log
+│   ├── CMakeTmp
+│   ├── Makefile2
+│   ├── Makefile.cmake
+│   ├── progress.marks
+│   └── TargetDirectories.txt
+├── cmake_install.cmake
+├── CPackConfig.cmake
+├── CPackSourceConfig.cmake
+├── CTestTestfile.cmake
+├── install_manifest.txt
+├── Makefile
+├── src
+│   ├── CMakeFiles
+│   ├── cmake_install.cmake
+│   ├── eclipse-paho-mqtt-cConfigVersion.cmake
+│   ├── libpaho-mqtt3a.so -> libpaho-mqtt3a.so.1
+│   ├── libpaho-mqtt3a.so.1 -> libpaho-mqtt3a.so.1.3.13
+│   ├── libpaho-mqtt3a.so.1.3.13
+│   ├── libpaho-mqtt3c.so -> libpaho-mqtt3c.so.1
+│   ├── libpaho-mqtt3c.so.1 -> libpaho-mqtt3c.so.1.3.13
+│   ├── libpaho-mqtt3c.so.1.3.13
+│   ├── Makefile
+│   └── MQTTVersion
+├── test
+│   ├── CMakeFiles
+│   ├── cmake_install.cmake
+│   ├── CTestTestfile.cmake
+│   ├── Makefile
+│   ├── test1
+│   ├── test10
+│   ├── test11
+│   ├── test15
+│   ├── test2
+│   ├── test4
+│   ├── test45
+│   ├── test6
+│   ├── test8
+│   ├── test9
+│   ├── test95
+│   ├── test_connect_destroy
+│   ├── test_issue373
+│   ├── test_sync_session_present
+│   └── thread
+└── VersionInfo.h
+
+
+```
+
 ## Ubuntu 2204 Eclipse
 
 下载地址： http://mirrors.neusoft.edu.cn/eclipse/technology/epp/downloads/release/
@@ -299,7 +381,52 @@ EMQ X Dashboard 是一个 Web 应用程序，你可以直接通过浏览器来�
 
 ![emq_server](/images/mqtt/emq_server.png)
 
+## eclipse 引用 mqtt so
 
+```txt
+
+lxg@lxg:~/code/t113_linux/out/t113/evb1_auto/longan/buildroot/target$ ls -al ./usr/lib/libpaho-mqtt3*
+lrwxrwxrwx 1 lxg lxg     19  1月  5 10:02 ./usr/lib/libpaho-mqtt3a.so -> libpaho-mqtt3a.so.1
+lrwxrwxrwx 1 lxg lxg     24  1月  5 10:02 ./usr/lib/libpaho-mqtt3a.so.1 -> libpaho-mqtt3a.so.1.3.13
+-rwxr-xr-x 1 lxg lxg 137616  1月  5 10:02 ./usr/lib/libpaho-mqtt3a.so.1.3.13
+lrwxrwxrwx 1 lxg lxg     20  1月  5 10:02 ./usr/lib/libpaho-mqtt3as.so -> libpaho-mqtt3as.so.1
+lrwxrwxrwx 1 lxg lxg     25  1月  5 10:02 ./usr/lib/libpaho-mqtt3as.so.1 -> libpaho-mqtt3as.so.1.3.13
+-rwxr-xr-x 1 lxg lxg 154200  1月  5 10:02 ./usr/lib/libpaho-mqtt3as.so.1.3.13
+lrwxrwxrwx 1 lxg lxg     19  1月  5 10:02 ./usr/lib/libpaho-mqtt3c.so -> libpaho-mqtt3c.so.1
+lrwxrwxrwx 1 lxg lxg     24  1月  5 10:02 ./usr/lib/libpaho-mqtt3c.so.1 -> libpaho-mqtt3c.so.1.3.13
+-rwxr-xr-x 1 lxg lxg 117068  1月  5 10:02 ./usr/lib/libpaho-mqtt3c.so.1.3.13
+lrwxrwxrwx 1 lxg lxg     20  1月  5 10:02 ./usr/lib/libpaho-mqtt3cs.so -> libpaho-mqtt3cs.so.1
+lrwxrwxrwx 1 lxg lxg     25  1月  5 10:02 ./usr/lib/libpaho-mqtt3cs.so.1 -> libpaho-mqtt3cs.so.1.3.13
+-rwxr-xr-x 1 lxg lxg 133648  1月  5 10:02 ./usr/lib/libpaho-mqtt3cs.so.1.3.13
+
+```
+
+## eclipse 引用源码
+
+![eclipse_include](/images/eclipse/eclipse_include.png)
+
+**编译命令**
+
+arm-linux-gnueabi-gcc -I/home/lxg/code/github/paho.mqtt.c/src -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/wif_service.d" -MT"src/wif_service.o" -o "src/wif_service.o" "../src/wif_service.c"
+
+## eclipse 更换下载镜像源
+
+http://download.eclipse.org/ 更换为 https://mirrors.ustc.edu.cn/eclipse/
+
+![eclipse_mirror](/images/eclipse/eclipse_mirror.png)
+
+
+sudo gedit /etc/hosts
+
+```sh
+
+185.199.108.133 raw.githubusercontent.com
+185.199.109.133 raw.githubusercontent.com
+185.199.110.133 raw.githubusercontent.com
+185.199.111.133 raw.githubusercontent.com
+182.43.124.6 raw.githubusercontent.com
+
+```
 
 
 
