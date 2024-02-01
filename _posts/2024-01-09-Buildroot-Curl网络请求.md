@@ -2,7 +2,7 @@
 layout:     post
 title:      Buildroot Curl 网络请求
 subtitle:   T113 C
-date:       2023-01-09
+date:       2024-01-09
 author:     LXG
 header-img: img/post-bg-os-metro.jpg
 catalog: true
