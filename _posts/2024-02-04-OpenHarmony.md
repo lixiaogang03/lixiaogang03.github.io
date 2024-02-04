@@ -13,9 +13,13 @@ tags:
 
 [HarmonyOS NEXT](https://developer.huawei.com/consumer/cn/next)
 
+[触觉智能开源鸿蒙](http://www.industio.cn/product-item-58.html)
+
 ## 简介
 
 OpenHarmony是由开放原子开源基金会（OpenAtom Foundation）孵化及运营的开源项目, 目标是面向全场景、全连接、全智能时代、基于开源的方式，搭建一个智能终端设备操作系统的框架和平台，促进万物互联产业的繁荣发展
+
+OpenHarmony通过组件化和组件弹性化等设计方法，做到硬件资源的可大可小，在多种终端设备间，按需弹性部署，全面覆盖了ARM、RISC-V、x86等各种CPU，从百KiB到GiB级别的RAM。
 
 ## 代码贡献排行榜
 
@@ -234,9 +238,243 @@ open-harmony/purple-pi/applications$ tree -L 2
 
 ```
 
+## 厂商目录
+
+```txt
+
+open-harmony/purple-pi/vendor$ tree -L 1
+.
+├── alientek     // 正点原子
+├── hihope       // 润和软件
+├── hisilicon    // 海思
+├── industio     // 触觉智能
+└── ohemu        // 该仓库托管OpenHarmony社区开发的，而非某个厂商单独开发的典型产品样例代码，主要 包括类似QEMU(Quick Emulator)的图形、软总线等特性产品的开发。
 
 
+open-harmony/purple-pi/vendor/industio$ tree -L 2
+.
+├── LICENSE
+└── purple_pi_oh
+    ├── audio
+    ├── bluetooth
+    ├── config.json
+    ├── default_app_config
+    ├── etc
+    ├── hals
+    ├── hdf_config
+    ├── image_conf
+    ├── ohos.build
+    ├── power_config
+    ├── preinstall-config
+    ├── product.gni
+    ├── resourceschedule
+    ├── security_config
+    └── updater_config
 
+```
+
+## 产品配置和目录规划
+
+[rk3566移植步骤](https://gitee.com/openharmony/vendor_kaihong/blob/master/khdvk_3566b/porting-khdvk_3566b-on_standard-demo.md)
+
+## 产品配置
+
+在产品/vendor/目录下创建以industio名字命名的文件夹, 并在kaihong文件夹下面新建产品命的文件夹purple_pi_oh。
+
+在/vendor/industio/purple_pi_oh目录下创建config.json文件。该文件用于描述产品所使用的SOC以及所需的子系统。配置如下
+
+```json
+
+{
+  "product_name": "purple_pi_oh",
+  "device_company": "industio",
+  "device_build_path": "device/board/industio/purple_pi_oh",
+  "target_cpu": "arm64",
+  "type": "standard",
+  "version": "3.0",
+  "board": "purple_pi_oh",
+  "api_version": 8,
+  "enable_ramdisk": true,
+  "build_selinux": true,
+  "build_seccomp": true,
+  "inherit": [ "productdefine/common/inherit/rich.json", "productdefine/common/inherit/chipset_common.json" ],
+  "subsystems": [
+    {
+      "subsystem": "security",     // 安全子系统
+      "components": [
+        {
+          "component": "selinux",
+          "features": []
+        }
+      ]
+    },
+    {
+      "subsystem": "communication",   // 网络通信子系统
+      "components": [
+        {
+          "component": "netmanager_ext",
+          "features": []
+        }
+      ]
+    },
+    {
+      "subsystem": "hdf",                   // ril驱动
+      "components": [
+        {
+          "component": "drivers_interface_ril",
+          "features": []
+        },
+        {
+          "component": "drivers_peripheral_ril",
+          "features":[]
+        }
+      ]
+    },
+    {
+      "subsystem": "rockchip_products",
+      "components": [
+        {
+          "component": "rockchip_products",
+          "features": []
+        }
+      ]
+    },
+    {
+      "subsystem": "arkui",                             // JS语言的ArkUI框架
+      "components": [
+        {
+          "component": "ace_engine",
+          "features": [
+            "ace_engine_feature_enable_accessibility = true",
+            "ace_engine_feature_enable_web = true"
+          ]
+        },
+        {
+          "component": "ui_appearance",
+          "features": []
+        }
+      ]
+    },
+    {
+      "subsystem": "wpa_supplicant-2.9",             // wifi 子系统
+      "components": [
+        {
+          "component": "wpa_supplicant-2.9",
+          "features": [
+            "wpa_supplicant_driver_nl80211 = true"
+          ]
+        }
+      ]
+    },
+    {
+      "subsystem": "hdf",                    // 音频驱动
+      "components": [
+        {
+          "component": "drivers_interface_audio", 
+          "features": []
+        },
+        {
+          "component": "drivers_peripheral_audio",
+          "features": [
+            "drivers_peripheral_audio_full_test_suite = true",
+            "drivers_peripheral_audio_alsa_lib = false"
+          ]
+        }
+      ]
+    },
+    {
+      "component": "drivers_peripheral_codec",
+      "features": [
+        "drivers_peripheral_codec_support_omx = true"
+      ]
+    },
+    {
+      "subsystem": "startup",
+      "components": [
+        {
+          "component": "init",
+          "features": [
+            "enable_ohos_startup_init_feature_ab_partition = true",
+            "enable_ohos_startup_init_feature_loader = true"
+          ]
+        }
+      ]
+    },
+    {
+    "subsystem": "ai",
+    "components": [
+        {
+          "component": "mindspore",
+          "features": []
+        }
+      ]
+    }
+  ]
+}
+
+```
+
+主要的配置内容包括：
+* product_device：配置所使用的SOC。
+* type：配置系统的级别，这里直接standard即可。
+* subsystems：系统需要启用的子系统。子系统可以简单理解为一块独立构建的功能块。
+
+已定义的子系统可以在//build/subsystem_config.json中找到。当然你也可以定制子系统。
+
+### 目录规划
+
+```txt
+
+open-harmony/purple-pi/device/board/industio$ tree -L 2
+.
+├── LICENSE
+├── picture
+│   ├── 背面.jpg
+│   ├── 外设连接图.jpg
+│   └── 正面.jpg
+└── purple_pi_oh                 // 主要放置开发板相关的驱动业务代码
+    ├── BUILD.gn
+    ├── camera
+    ├── cfg
+    ├── config.gni
+    ├── device.gni
+    ├── distributedhardware
+    ├── iperf
+    ├── kernel
+    ├── loader
+    ├── ohos.build
+    ├── README_zh.md
+    ├── startup
+    ├── updater
+    └── wifi
+
+open-harmony/purple-pi/device/soc/rockchip$ tree -L 2
+.
+├── BUILD.gn
+├── common
+│   └── hal
+├── Kconfig.liteos_m.defconfig
+├── Kconfig.liteos_m.series
+├── Kconfig.liteos_m.soc
+├── LICENSE
+├── OAT.xml
+├── README.en.md
+├── README.md
+├── README_zh.md
+└── rk3568                              // 主要为芯片原厂提供的一些方案，以及闭源库等
+    ├── hardware
+    │   ├── BUILD.gn
+    │   ├── codec
+    │   ├── display
+    │   ├── gpu
+    │   ├── isp
+    │   ├── mpp
+    │   ├── omx_il
+    │   ├── rga
+    │   └── wifi
+    └── soc.gni
+
+```
 
 
 
