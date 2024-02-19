@@ -173,6 +173,165 @@ tensorflow==2.8.0
 
 pip3 install packages/rknn_toolkit2-1.5.0+1fa95b5c-cp310-cp310-linux_x86_64.whl
 
+## 安卓系统运行NPU程序
+
+**SDK源码**
+
+```txt
+
+RK_NPU_SDK_1.5.0/rknpu2_1.5.0/rknpu2$ tree -L 2
+.
+├── doc
+│   ├── RK3588_NPU_SRAM_usage.md
+│   ├── RKNN_Compiler_Support_Operator_List_v1.5.0.pdf
+│   ├── RKNN_Dynamic_Shape_Usage.md
+│   ├── Rockchip_Quick_Start_RKNN_SDK_V1.5.0_CN.pdf
+│   ├── Rockchip_RKNPU_User_Guide_RKNN_API_V1.5.0_CN.pdf
+│   ├── Rockchip_RKNPU_User_Guide_RKNN_API_V1.5.0_EN.pdf
+│   └── Rockchip_RV1106_Quick_Start_RKNN_SDK_V1.5.0_CN.pdf
+├── examples
+│   ├── 3rdparty
+│   ├── librknn_api_android_demo
+│   ├── README.md
+│   ├── rknn_api_demo
+│   ├── rknn_benchmark
+│   ├── rknn_common_test
+│   ├── rknn_dynamic_shape_input_demo
+│   ├── rknn_internal_mem_reuse_demo
+│   ├── rknn_matmul_api_demo
+│   ├── rknn_mobilenet_demo            // MobileNet 图像分类
+│   ├── rknn_multiple_input_demo
+│   ├── rknn_yolov5_android_apk_demo   // YOLOv5 目标检测
+│   ├── rknn_yolov5_demo
+│   └── RV1106_RV1103
+├── LICENSE
+├── README.md
+├── rknn_server_proxy.md
+├── rknpu.mk
+└── runtime
+    ├── Android.bp
+    ├── Android.go
+    ├── init.rknn_server.rc
+    ├── RK356X
+    ├── RK3588
+    └── RV1106
+
+```
+
+**瑞芯微提供了需要通过CTS认证的设备需要使用的标准接口**
+
+vendor/rockchip/hardware/interfaces/neuralnetworks/1.0/
+
+```txt
+
+rk3588_android_12/vendor/rockchip/hardware/interfaces/neuralnetworks/1.0$ tree -L 1
+.
+├── Android.bp
+├── default
+├── IGetResultCallback.hal
+├── ILoadModelCallback.hal
+├── IRKNeuralnetworks.hal
+├── librknnhal_bridge
+├── nnapi_implementation
+├── README.md
+└── types.hal
+
+```
+
+**下载ndk**
+
+[android-ndk-r26c-linux.zip](https://developer.android.google.cn/ndk/downloads?hl=zh-cn)
+
+**修改ndk路径**
+
+rknpu2_1.5.0/rknpu2/examples/rknn_yolov5_demo/build-android_RK3588.sh
+
+**编译**
+
+build-android_RK3588.sh
+
+**编译生成文件**
+
+```txt
+
+examples/rknn_yolov5_demo/install/rknn_yolov5_demo_Android$ tree
+.
+├── lib
+│   ├── libmpp.so
+│   ├── librga.so
+│   └── librknnrt.so
+├── model
+│   ├── bus.jpg
+│   ├── coco_80_labels_list.txt
+│   ├── RK3562
+│   │   └── yolov5s-640-640.rknn
+│   ├── RK3566_RK3568
+│   │   └── yolov5s-640-640.rknn
+│   ├── RK3588
+│   │   └── yolov5s-640-640.rknn
+│   └── RV110X
+│       └── yolov5s-640-640.rknn
+├── rknn_yolov5_demo
+└── rknn_yolov5_video_demo
+
+```
+
+RKNN 是 Rockchip NPU 平台(也就是开发板)使用的模型类型，是以.rknn 结尾的模型文件
+
+**将编译好的程序push到设备上**
+
+adb push runtime/RK3588/Android/rknn_server/arm64/rknn_server /vendor/bin/
+
+adb push runtime/RK3588/Android/librknn_api/arm64-v8a/librknnrt.so /vendor/lib64/
+
+adb push examples/rknn_yolov5_demo/install/rknn_yolov5_demo_Android  /data/
+
+**运行程序**
+
+原始图片
+
+![bus](/images/npu/bus.jpg)
+
+```txt
+
+rk3588_s:/data/rknn_yolov5_demo_Android # export LD_LIBRARY_PATH=./lib
+
+rk3588_s:/data/rknn_yolov5_demo_Android # ./rknn_yolov5_demo ./model/RK3588/yolov5s-640-640.rknn  ./model/bus.jpg                                                                                                               
+post process config: box_conf_threshold = 0.25, nms_threshold = 0.45
+Read ./model/bus.jpg ...
+img width = 640, img height = 640
+Loading mode...
+sdk version: 1.5.0 (e6fe0c678@2023-05-25T08:08:43) driver version: 0.8.2
+model input num: 1, output num: 3
+  index=0, name=images, n_dims=4, dims=[1, 640, 640, 3], n_elems=1228800, size=1228800, w_stride = 640, size_with_stride=1228800, fmt=NHWC, type=INT8, qnt_type=AFFINE, zp=-128, scale=0.003922
+  index=0, name=269, n_dims=4, dims=[1, 255, 80, 80], n_elems=1632000, size=1632000, w_stride = 0, size_with_stride=1638400, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=83, scale=0.093136
+  index=1, name=271, n_dims=4, dims=[1, 255, 40, 40], n_elems=408000, size=408000, w_stride = 0, size_with_stride=491520, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=48, scale=0.089854
+  index=2, name=273, n_dims=4, dims=[1, 255, 20, 20], n_elems=102000, size=102000, w_stride = 0, size_with_stride=163840, fmt=NCHW, type=INT8, qnt_type=AFFINE, zp=46, scale=0.078630
+model is NHWC input fmt
+model input height=640, width=640, channel=3
+once run use 18.324000 ms
+loadLabelName ./model/coco_80_labels_list.txt
+person @ (209 243 285 507) 0.883131
+person @ (477 241 561 523) 0.866942
+person @ (110 235 231 536) 0.825886
+bus @ (92 129 553 466) 0.703667
+person @ (80 354 121 516) 0.326333
+loop count = 10 , average run  20.568800 ms
+
+```
+
+adb pull /data/rknn_yolov5_demo_Android/out.jpg ./
+
+运行模型后生成的图片
+
+![out](/images/npu/out.jpg)
+
+
+
+
+
+
+
 
 
 
