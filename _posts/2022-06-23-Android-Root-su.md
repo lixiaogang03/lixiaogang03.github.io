@@ -177,5 +177,107 @@ frameworks/base/core/jni/com_android_internal_os_Zygote.cpp
 
 ```
 
+## android 11
+
+```diff
+
+commit e2ddb9d0d2817122deaa08f67fbe3b3f23908c92
+Author: xiaogang.li <xiaogang.li@xintiangui.com>
+Date:   Wed Mar 20 11:36:10 2024 +0800
+
+    user版本支持su命令
+
+diff --git a/android/frameworks/base/core/jni/com_android_internal_os_Zygote.cpp b/android/frameworks/base/core/jni/com_android_internal_os_Zygote.cpp
+index 9eede83e21..e6f22b2407 100644
+--- a/android/frameworks/base/core/jni/com_android_internal_os_Zygote.cpp
++++ b/android/frameworks/base/core/jni/com_android_internal_os_Zygote.cpp
+@@ -656,7 +656,8 @@ static void EnableKeepCapabilities(fail_fn_t fail_fn) {
+ }
+ 
+ static void DropCapabilitiesBoundingSet(fail_fn_t fail_fn) {
+-  for (int i = 0; prctl(PR_CAPBSET_READ, i, 0, 0, 0) >= 0; i++) {;
++  //delete by lixiaogang start
++  /*for (int i = 0; prctl(PR_CAPBSET_READ, i, 0, 0, 0) >= 0; i++) {;
+     if (prctl(PR_CAPBSET_DROP, i, 0, 0, 0) == -1) {
+       if (errno == EINVAL) {
+         ALOGE("prctl(PR_CAPBSET_DROP) failed with EINVAL. Please verify "
+@@ -665,7 +666,8 @@ static void DropCapabilitiesBoundingSet(fail_fn_t fail_fn) {
+         fail_fn(CREATE_ERROR("prctl(PR_CAPBSET_DROP, %d) failed: %s", i, strerror(errno)));
+       }
+     }
+-  }
++  }*/
++  //delete by lixiaogang end
+ }
+ 
+ static void SetInheritable(uint64_t inheritable, fail_fn_t fail_fn) {
+diff --git a/android/kernel/security/commoncap.c b/android/kernel/security/commoncap.c
+index 876cfe01d9..207cbeadd5 100644
+--- a/android/kernel/security/commoncap.c
++++ b/android/kernel/security/commoncap.c
+@@ -1167,10 +1167,12 @@ static int cap_prctl_drop(unsigned long cap)
+ {
+ 	struct cred *new;
+ 
++	/* delete by lixiaogang for root permission
+ 	if (!ns_capable(current_user_ns(), CAP_SETPCAP))
+ 		return -EPERM;
+ 	if (!cap_valid(cap))
+ 		return -EINVAL;
++	*/
+ 
+ 	new = prepare_creds();
+ 	if (!new)
+diff --git a/android/system/core/libcutils/fs_config.cpp b/android/system/core/libcutils/fs_config.cpp
+index 5805a4d19b..900bd0b12f 100644
+--- a/android/system/core/libcutils/fs_config.cpp
++++ b/android/system/core/libcutils/fs_config.cpp
+@@ -85,7 +85,7 @@ static const struct fs_path_config android_dirs[] = {
+     { 00751, AID_ROOT,         AID_SHELL,        0, "system/bin" },
+     { 00755, AID_ROOT,         AID_ROOT,         0, "system/etc/ppp" },
+     { 00755, AID_ROOT,         AID_SHELL,        0, "system/vendor" },
+-    { 00751, AID_ROOT,         AID_SHELL,        0, "system/xbin" },
++    { 00755, AID_ROOT,         AID_SHELL,        0, "system/xbin" },
+     { 00751, AID_ROOT,         AID_SHELL,        0, "system/apex/*/bin" },
+     { 00751, AID_ROOT,         AID_SHELL,        0, "system_ext/bin" },
+     { 00751, AID_ROOT,         AID_SHELL,        0, "system_ext/apex/*/bin" },
+@@ -188,7 +188,7 @@ static const struct fs_path_config android_files[] = {
+     // the following two files are INTENTIONALLY set-uid, but they
+     // are NOT included on user builds.
+     { 06755, AID_ROOT,      AID_ROOT,      0, "system/xbin/procmem" },
+-    { 04750, AID_ROOT,      AID_SHELL,     0, "system/xbin/su" },
++    { 06755, AID_ROOT,      AID_SHELL,     0, "system/xbin/su" },
+ 
+     // the following files have enhanced capabilities and ARE included
+     // in user builds.
+diff --git a/android/system/extras/su/su.cpp b/android/system/extras/su/su.cpp
+index 1a1ab6bf40..bb09ade29c 100644
+--- a/android/system/extras/su/su.cpp
++++ b/android/system/extras/su/su.cpp
+@@ -80,8 +80,10 @@ void extract_uidgids(const char* uidgids, uid_t* uid, gid_t* gid, gid_t* gids, i
+ }
+ 
+ int main(int argc, char** argv) {
+-    uid_t current_uid = getuid();
+-    if (current_uid != AID_ROOT && current_uid != AID_SHELL) error(1, 0, "not allowed");
++    //delete by lixiaogang start
++    //uid_t current_uid = getuid();
++    //if (current_uid != AID_ROOT && current_uid != AID_SHELL) error(1, 0, "not allowed");
++    //delete by lixiaogang end
+ 
+     // Handle -h and --help.
+     ++argv;
+diff --git a/android/vendor/wif/wif.mk b/android/vendor/wif/wif.mk
+index e1dd4cc4b7..ae3077a3ba 100644
+--- a/android/vendor/wif/wif.mk
++++ b/android/vendor/wif/wif.mk
+@@ -15,5 +15,7 @@ PRODUCT_PACKAGES += \
+ 
+ PRODUCT_PACKAGES += dhcptool
+ 
++PRODUCT_PACKAGES += su
++
+
+```
 
 
