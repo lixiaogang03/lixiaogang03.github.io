@@ -56,7 +56,7 @@ static int rockchip_set_mux(struct rockchip_pin_bank *bank, int pin, int mux)
 
 ## 命令调试
 
-sys/kernel/debug/pinctrl/
+**sys/kernel/debug/pinctrl/**
 
 pinctrl-devices  pinctrl-handles  pinctrl-maps  pinctrl-rockchip-pinctrl
 
@@ -263,6 +263,13 @@ function: wireless-bluetooth, groups = [ bt-reset uart0-gpios ]
 
 显示了每个GPIO引脚当前被配置为哪个pinmux功能，以及相关的配置细节
 
+"pin 8 (gpio0-8): (MUX UNCLAIMED) (GPIO UNCLAIMED)" 这条信息表示：
+
+在当前的系统配置中，编号为8的GPIO引脚，对应于gpio0控制器的第8号引脚（gpio0-8），目前尚未被任何设备或驱动程序声明和使用。
+
+* MUX UNCLAIMED：表示该引脚的复用功能（multiplexer function）还没有被设置或激活，也就是说，它没有被配置为某种特定的硬件接口功能，如UART、I2C、SPI等。
+* GPIO UNCLAIMED：表明该引脚也没有被任何GPIO消费者（如Linux设备驱动或用户空间程序）声明和使用，即它既没有被配置为输入模式也没有被配置为输出模式，没有分配给任何GPIO操作。
+
 ```txt
 
 pin 8 (gpio0-8): (MUX UNCLAIMED) (GPIO UNCLAIMED)
@@ -329,7 +336,7 @@ pin 44 (gpio1-12)
 
 ## DTS
 
-/kernel/arch/arm64/boot/dts/rockchip/rk3399-evb.
+/kernel/arch/arm64/boot/dts/rockchip/rk3399-evb.dtsi
 
 ```c
 
