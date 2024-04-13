@@ -40,6 +40,112 @@ RK3568NPU 是单个核心，包含 CNA 模块、 DPU 模块、PPU 模块。
 
 ![rk3568_rknpu](/images/rockchip/rk3568_rknpu.png)
 
+## 文档资料
+
+hardware/rockchip/rknpu2
+
+```txt
+
+rk3588_android_12/hardware/rockchip/rknpu2$ tree -L 2
+.
+├── doc
+│   ├── RK3588_NPU_SRAM_usage.md
+│   ├── RKNN_Compiler_Support_Operator_List_v1.4.0.pdf
+│   ├── Rockchip_Quick_Start_RKNN_SDK_V1.4.0_CN.pdf
+│   ├── Rockchip_RKNPU_User_Guide_RKNN_API_V1.4.0_CN.pdf
+│   ├── Rockchip_RKNPU_User_Guide_RKNN_API_V1.4.0_EN.pdf
+│   └── Rockchip_RV1106_Quick_Start_RKNN_SDK_V1.4.0_CN.pdf
+├── examples
+│   ├── 3rdparty
+│   ├── librknn_api_android_demo
+│   ├── README.md
+│   ├── rknn_api_demo
+│   ├── rknn_common_test
+│   ├── rknn_internal_mem_reuse_demo
+│   ├── rknn_mobilenet_demo
+│   ├── rknn_multiple_input_demo
+│   ├── rknn_ssd_demo
+│   ├── rknn_yolov5_android_apk_demo
+│   ├── rknn_yolov5_demo
+│   └── RV1106_RV1103
+├── LICENSE
+├── README.md
+├── rknn_server_proxy.md
+├── rknpu.mk
+└── runtime
+    ├── Android.bp
+    ├── Android.go
+    ├── init.rknn_server.rc
+    ├── RK356X
+    ├── RK3588
+    └── RV1106
+
+```
+
+**rknn-toolkit2**
+
+```txt
+
+rk3588_android_12/hardware/rockchip/rknn-toolkit2$ tree -L 3
+.
+├── doc
+│   ├── changelog-1.4.0.txt
+│   ├── requirements_cp36-1.4.0.txt
+│   ├── requirements_cp38-1.4.0.txt
+│   ├── RKNNToolKit2_API_Difference_With_Toolkit1-1.4.0.md
+│   ├── RKNNToolKit2_OP_Support-1.4.0.md
+│   ├── Rockchip_Quick_Start_RKNN_Toolkit2_CN-1.4.0.pdf
+│   ├── Rockchip_Quick_Start_RKNN_Toolkit2_EN-1.4.0.pdf
+│   ├── Rockchip_User_Guide_RKNN_Toolkit2_CN-1.4.0.pdf
+│   └── Rockchip_User_Guide_RKNN_Toolkit2_EN-1.4.0.pdf
+├── examples
+│   ├── caffe
+│   │   ├── mobilenet_v2
+│   │   └── vgg-ssd
+│   ├── darknet
+│   │   └── yolov3_416x416
+│   ├── functions
+│   │   ├── accuracy_analysis
+│   │   ├── batch_size
+│   │   ├── board_test
+│   │   ├── hybrid_quant
+│   │   ├── mmse
+│   │   └── multi_input_test
+│   ├── onnx
+│   │   ├── resnet50v2
+│   │   └── yolov5
+│   ├── pytorch
+│   │   ├── resnet18
+│   │   ├── resnet18_export_onnx
+│   │   └── resnet18_qat
+│   ├── readme.txt
+│   ├── tensorflow
+│   │   ├── inception_v3_qat
+│   │   └── ssd_mobilenet_v1
+│   └── tflite
+│       ├── mobilenet_v1
+│       └── mobilenet_v1_qat
+├── LICENSE
+├── packages
+│   ├── md5sum.txt
+│   ├── rknn_toolkit2-1.4.0_22dcfef4-cp36-cp36m-linux_x86_64.whl
+│   └── rknn_toolkit2-1.4.0_22dcfef4-cp38-cp38-linux_x86_64.whl
+├── README.md
+└── rknn_toolkit_lite2
+    ├── docs
+    │   ├── change_log.txt
+    │   ├── Rockchip_User_Guide_RKNN_Toolkit_Lite2_V1.4.0_CN.pdf
+    │   └── Rockchip_User_Guide_RKNN_Toolkit_Lite2_V1.4.0_EN.pdf
+    ├── examples
+    │   └── inference_with_lite
+    └── packages
+        ├── rknn_toolkit_lite2-1.4.0-cp37-cp37m-linux_aarch64.whl
+        ├── rknn_toolkit_lite2-1.4.0-cp39-cp39-linux_aarch64.whl
+        └── rknn_toolkit_lite2_1.4.0_packages.md5sum
+
+
+```
+
 ## 软件架构
 
 ![rknpu_arch](/images/rockchip/rknpu_arch.png)
@@ -93,6 +199,64 @@ RK3588_Android12.0/kernel-5.10/drivers/rknpu$ tree
 ├── rknpu_job.c
 ├── rknpu_mem.c
 └── rknpu_reset.c
+
+```
+
+## 查看NPU驱动版本
+
+**方法1：代码中查看**
+
+kernel/drivers/rknpu/include/rknpu_drv.h
+
+```c
+
+#define DRIVER_NAME "rknpu"
+#define DRIVER_DESC "RKNPU driver"
+#define DRIVER_DATE "20220829"
+#define DRIVER_MAJOR 0
+#define DRIVER_MINOR 8
+#define DRIVER_PATCHLEVEL 2
+
+```
+
+**方法2：内核日志查看**
+
+```txt
+
+1|rk3568_r:/ $ dmesg | grep rknpu
+[   10.397460] [drm] Initialized rknpu 0.8.2 20220428 for fde40000.npu on minor 1
+
+```
+
+## rknn_server
+
+RK356X 和 RK3588 平台 NPU SDK 包含了 API 使用示例程序、NPU 运行库、服务程序、文档。服务程序称为 rknn_server，是在开发板上常驻的服务进程，用于连板推理。开发者使用 USB
+连接开发板并在 PC 上使用 rknn-toolkit2 的 python 接口运行模型时，依赖服务进程建立通信，安装使用方式参考《rknn_server_proxy.md》
+
+**查看rknn_server版本号**
+
+```txt
+
+rk3568_r:/ $ rknn_server
+start rknn server, version:1.4.0 (bb6dac9 build: 2022-08-29 16:16:39)
+
+```
+
+## librknnrt
+
+Android 平台有两种方式来调用 RKNN API
+1. 应用直接链接 librknnrt.so
+2 应用链接 Android 平台 HIDL 实现的 librknn_api_android.so
+
+对于需要通过 CTS/VTS 测试的 Android 设备可以使用基于 Android 平台 HIDL 实现的 RKNN API。如果不需要通过 CTS/VTS 测试的设备建议直接链接使用 librknnrt.so，对各个接口调用流程的链路更短，可以提供更好的性能。
+
+**查看librknnrt版本号**
+
+```txt
+
+2|rk3568_r:/ # strings /vendor/lib64/librknnrt.so  | grep librknnrt
+librknnrt.so
+librknnrt version: 1.4.0 (a10f100eb@2022-09-09T09:06:40)
 
 ```
 
