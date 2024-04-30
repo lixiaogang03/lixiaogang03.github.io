@@ -115,6 +115,53 @@ allprojects {
 ![gradle_iml](/images/androidstudio/gradle_iml.png)
 
 
+## gradle 下载慢问题
+
+gradle.properties
+
+```txt
+
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\://mirrors.cloud.tencent.com/gradle/gradle-6.5-bin.zip
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+
+```
+
+## gradle 版本和 java版本不匹配问题
+
+Caused by: org.codehaus.groovy.control.MultipleCompilationErrorsException: startup failed:
+
+**解决方案**
+
+![gradle_java](/images/androidstudio/gradle_java.png)
+
+## ndk 版本配置
+
+local.properties
+
+```txt
+
+ndk.dir=/home/lxg/Android/Sdk/ndk/21.4.7075529
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
