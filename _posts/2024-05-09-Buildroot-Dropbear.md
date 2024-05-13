@@ -117,7 +117,24 @@ root@192.168.0.51's password: 123456
 
 ```
 
+## 修改默认密码
 
+passwd 命令修改密码后，获取etc/shadow文件内容，然后修改shadow文件即可
+
+```diff
+
+diff --git a/platform/framework/auto/rootfs/etc/shadow b/platform/framework/auto/rootfs/etc/shadow
+index 0fa2d5ec03..3e54b81546 100644
+--- a/platform/framework/auto/rootfs/etc/shadow
++++ b/platform/framework/auto/rootfs/etc/shadow
+@@ -1,4 +1,4 @@
+-root:$1$qCjBzHNY$EH42TztbCBT6TPK59iyIA0:0:0:99999:7:::
++root:$1$x5K/QHLn$4VUCnus5KuNMfxxXvcYpO1:0:0:99999:7:::
+ daemon:*:10933:0:99999:7:::
+ bin:*:10933:0:99999:7:::
+ sys:*:10933:0:99999:7:::
+
+```
 
 
 
