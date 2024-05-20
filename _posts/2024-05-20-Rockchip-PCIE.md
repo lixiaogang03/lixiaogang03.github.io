@@ -10,6 +10,10 @@ tags:
     - rk3399
 ---
 
+[patchwork.kernel.org](https://patchwork.kernel.org/project/linux-rockchip/list/)
+
+[rockchip-linux](https://github.com/rockchip-linux/kernel)
+
 ## PCIe
 
 Peripheral Component Interconnect Express(快速外设组件互连)
@@ -274,6 +278,34 @@ rk3399_all:/ $ lspcie -vv
 	Kernel driver in use: nvme
 
 ```
+
+## df 命令
+
+**android 11**
+
+```txt
+
+rk3399_Android11:/ $ df
+Filesystem            1K-blocks    Used Available Use% Mounted on
+tmpfs                    998924     820    998104   1% /dev
+tmpfs                    998924       0    998924   0% /mnt
+/dev/block/mmcblk2p11     11760     144     11132   2% /metadata
+/dev/block/dm-0         1133268 1129836         0 100% /
+/dev/block/dm-2          270500  269676         0 100% /vendor
+/dev/block/dm-4             528     524         0 100% /odm
+/dev/block/dm-3          174488  173964         0 100% /product
+/dev/block/dm-1          120492  120112         0 100% /system_ext
+tmpfs                    998924       0    998924   0% /apex
+tmpfs                    998924     256    998668   1% /linkerconfig
+/dev/block/mmcblk2p10    364504     252    352456   1% /cache
+/dev/block/dm-5        10579968   67536  10381360   1% /data
+tmpfs                    998924       0    998924   0% /data_mirror
+/dev/fuse              10579968   67536  10381360   1% /storage/emulated
+/dev/fuse             499984448     768 499983680   1% /storage/8367-1B20
+
+```
+
+
 
 
 
