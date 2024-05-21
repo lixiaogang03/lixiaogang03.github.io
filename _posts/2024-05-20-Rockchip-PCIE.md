@@ -14,6 +14,8 @@ tags:
 
 [rockchip-linux](https://github.com/rockchip-linux/kernel)
 
+Rockchip_Developer_Guide_PCIe_CN.pdf
+
 ## PCIe
 
 Peripheral Component Interconnect Express(快速外设组件互连)
@@ -305,8 +307,151 @@ tmpfs                    998924       0    998924   0% /data_mirror
 
 ```
 
+**android 7**
 
+```txt
 
+rk3399_all:/ $ df
+Filesystem              1K-blocks    Used Available Use% Mounted on
+rootfs                     993136    4816    988320   1% /
+tmpfs                     1002716     436   1002280   1% /dev
+tmpfs                     1002716       0   1002716   0% /mnt
+/dev/block/dm-0           1499760 1037108    368856  74% /system
+/dev/block/mmcblk1p9       124912    1072    114668   1% /cache
+/dev/block/mmcblk1p11       12016      52     10824   1% /metadata
+/dev/block/dm-1          12928808  364280  12417072   3% /data
+/data/media              12826408  511736  12314672   4% /storage/emulated
+/mnt/media_rw/3C1D-101D 499516224      24 499516200   1% /storage/3C1D-101D
+
+```
+
+## android 7 支持 PCIE 硬盘
+
+```diff
+
+diff --git a/device/rockchip/rk3399/fstab.rk30board.bootmode.emmc b/device/rockchip/rk3399/fstab.rk30board.bootmode.emmc
+index 8668a0f1f6..e3b3f1dd42 100755
+--- a/device/rockchip/rk3399/fstab.rk30board.bootmode.emmc
++++ b/device/rockchip/rk3399/fstab.rk30board.bootmode.emmc
+@@ -19,4 +19,7 @@
+ 
+ /devices/platform/*usb*   auto vfat defaults      voldmanaged=usb:auto
+ 
++# pcie
++/dev/block/platform/f8000000.pcie/nvme0n1p1           auto vfat defaults     voldmanaged=pcie:auto
++
+ /dev/block/zram0                                none                swap      defaults                                              zramsize=533413200
+diff --git a/frameworks/base/core/java/android/os/storage/DiskInfo.java b/frameworks/base/core/java/android/os/storage/DiskInfo.java
+index 911410744b..abe21cb874 100755
+--- a/frameworks/base/core/java/android/os/storage/DiskInfo.java
++++ b/frameworks/base/core/java/android/os/storage/DiskInfo.java
+@@ -47,6 +47,7 @@ public class DiskInfo implements Parcelable {
+     public static final int FLAG_DEFAULT_PRIMARY = 1 << 1;
+     public static final int FLAG_SD = 1 << 2;
+     public static final int FLAG_USB = 1 << 3;
++    public static final int FLAG_PCIE= 1 << 5;
+ 
+     public final String id;
+     public final int flags;
+@@ -128,6 +129,10 @@ public class DiskInfo implements Parcelable {
+         return (flags & FLAG_USB) != 0;
+     }
+ 
++    public boolean isPcie() {
++        return (flags & FLAG_PCIE) != 0;
++    }
++
+     @Override
+     public String toString() {
+         final CharArrayWriter writer = new CharArrayWriter();
+diff --git a/system/vold/Disk.cpp b/system/vold/Disk.cpp
+index 1103b0d3b3..8b433d1df0 100755
+--- a/system/vold/Disk.cpp
++++ b/system/vold/Disk.cpp
+@@ -68,6 +68,7 @@ static const unsigned int kMajorBlockScsiP = 135;
+ static const unsigned int kMajorBlockMmc = 179;
+ static const unsigned int kMajorBlockExperimentalMin = 240;
+ static const unsigned int kMajorBlockExperimentalMax = 254;
++static const unsigned int kMajorBlockPcie = 259;
+ 
+ static const char* kGptBasicData = "EBD0A0A2-B9E5-4433-87C0-68B6B72699C7";
+ static const char* kGptAndroidMeta = "19A710A2-B3CA-11E4-B026-10604B889DCF";
+@@ -261,6 +262,18 @@ status_t Disk::readMetadata() {
+         }
+         break;
+     }
++
++    case kMajorBlockPcie: {
++        std::string path(mSysPath + "/device/device/vendor");
++        std::string tmp;
++        if (!ReadFileToString(path, &tmp)) {
++            PLOG(WARNING) << "Failed to read vendor from " << path;
++            return -errno;
++        }
++        mLabel = tmp;
++        break;
++    }
++
+     default: {
+         if (isVirtioBlkDevice(majorId)) {
+             LOG(DEBUG) << "Recognized experimental block major ID " << majorId
+@@ -556,6 +569,14 @@ int Disk::getMaxMinors() {
+         }
+         return atoi(tmp.c_str());
+     }
++    case kMajorBlockPcie: {
++        std::string tmp;
++        if (!ReadFileToString(kSysfsMmcMaxMinors, &tmp)) {
++            LOG(ERROR) << "Failed to read max minors";
++            return -errno;
++        }
++        return atoi(tmp.c_str());
++    }
+     default: {
+         if (isVirtioBlkDevice(majorId)) {
+             // drivers/block/virtio_blk.c has "#define PART_BITS 4", so max is
+diff --git a/system/vold/Disk.h b/system/vold/Disk.h
+index 77ec7df971..6662fa4abd 100755
+--- a/system/vold/Disk.h
++++ b/system/vold/Disk.h
+@@ -52,6 +52,7 @@ public:
+         kUsb = 1 << 3,
+         /* Flag that disk is EMMC internal */
+         kEmmc = 1 << 4,
++        kPcie = 1 << 5,
+     };
+ 
+     const std::string& getId() { return mId; }
+diff --git a/system/vold/VolumeManager.cpp b/system/vold/VolumeManager.cpp
+index 5cc60a16eb..d0c37abb10 100755
+--- a/system/vold/VolumeManager.cpp
++++ b/system/vold/VolumeManager.cpp
+@@ -93,7 +93,7 @@ static const char* kUserMountPath = "/mnt/user";
+ static const unsigned int kMajorBlockMmc = 179;
+ static const unsigned int kMajorBlockExperimentalMin = 240;
+ static const unsigned int kMajorBlockExperimentalMax = 254;
+-
++static const unsigned int kMajorBlockPcie = 259;
+ /* writes superblock at end of file or device given by name */
+ static int writeSuperBlock(const char* name, struct asec_superblock *sb, unsigned int numImgSectors) {
+     int sbfd = open(name, O_RDWR | O_CLOEXEC);
+@@ -302,11 +302,14 @@ void VolumeManager::handleBlockEvent(NetlinkEvent *evt) {
+                 // emulator-specific; see Disk.cpp for details) devices are SD,
+                 // and that everything else is USB
+                 int flags = source->getFlags();
++                LOG(VERBOSE) << "handleBlockEvent with action  kAdd flags" << flags;
+                 if (major == kMajorBlockMmc
+                     || (android::vold::IsRunningInEmulator()
+                     && major >= (int) kMajorBlockExperimentalMin
+                     && major <= (int) kMajorBlockExperimentalMax)) {
+                     flags |= android::vold::Disk::Flags::kSd;
++                } else if (major == kMajorBlockPcie) {
++                    flags |= android::vold::Disk::Flags::kPcie;
+                 } else {
+                     flags |= android::vold::Disk::Flags::kUsb;
+                 }
+
+```
 
 
 
