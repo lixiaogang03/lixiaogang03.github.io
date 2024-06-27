@@ -818,24 +818,6 @@ Status for known UIDs:
 Network Requests:
   uid/pid:1000/622 activeRequest: 1 callbackRequest: 1 [NetworkRequest [ REQUEST id=1, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED RequestorUid: 1000 RequestorPkg: android] ]] callback flags: 1 priority: 2147483647
   uid/pid:1000/622 activeRequest: null callbackRequest: 2 [NetworkRequest [ BACKGROUND_REQUEST id=2, [ Transports: CELLULAR Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED RequestorUid: 1000 RequestorPkg: android] ]] callback flags: 1 priority: 2147483647
-  uid/pid:1000/622 activeRequest: null callbackRequest: 5 [NetworkRequest [ LISTEN id=5, [ Capabilities: FOREGROUND RequestorUid: 1000 RequestorPkg: android] ]] callback flags: 0 priority: 2147483647
-  uid/pid:1000/622 activeRequest: 7 callbackRequest: 6 [NetworkRequest [ REQUEST id=7, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: android] ]] callback flags: 0 priority: 2147483647
-  uid/pid:1000/622 activeRequest: null callbackRequest: 8 [NetworkRequest [ LISTEN id=8, [ Capabilities: FOREGROUND RequestorUid: 1000 RequestorPkg: android] ]] callback flags: 0 priority: 2147483647
-  uid/pid:1000/622 activeRequest: null callbackRequest: 9 [NetworkRequest [ LISTEN id=9, [ Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&FOREGROUND&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: android] ]] callback flags: 0 priority: 2147483647
-  uid/pid:1000/622 activeRequest: null callbackRequest: 10 [NetworkRequest [ LISTEN id=10, [ Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&FOREGROUND&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: android] ]] callback flags: 0 priority: 2147483647
-  uid/pid:1000/622 activeRequest: null callbackRequest: 11 [NetworkRequest [ LISTEN id=11, [ RequestorUid: 1000 RequestorPkg: android] ]] callback flags: 0 priority: 2147483647
-  uid/pid:1000/622 activeRequest: null callbackRequest: 12 [NetworkRequest [ LISTEN id=12, [ Transports: CELLULAR Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: android] ]] callback flags: 0 priority: 2147483647
-  uid/pid:1000/622 activeRequest: 14 callbackRequest: 13 [NetworkRequest [ REQUEST id=14, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: android] ]] callback flags: 0 priority: 2147483647
-  uid/pid:1000/622 activeRequest: 16 callbackRequest: 15 [NetworkRequest [ REQUEST id=16, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: com.android.networkstack.inprocess] ]] callback flags: 0 priority: 2147483647
-  uid/pid:1000/622 activeRequest: null callbackRequest: 17 [NetworkRequest [ LISTEN id=17, [ Transports: WIFI Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: com.android.networkstack.inprocess] ]] callback flags: 0 priority: 2147483647
-  uid/pid:10044/792 activeRequest: null callbackRequest: 18 [NetworkRequest [ LISTEN id=18, [ Transports: CELLULAR|WIFI Capabilities: NOT_VPN RequestorUid: 10044 RequestorPkg: com.android.systemui] ]] callback flags: 1 priority: 2147483647
-  uid/pid:10044/792 activeRequest: 20 callbackRequest: 19 [NetworkRequest [ REQUEST id=20, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10044 RequestorUid: 10044 RequestorPkg: com.android.systemui] ]] callback flags: 1 priority: 2147483647
-  uid/pid:10044/792 activeRequest: 22 callbackRequest: 21 [NetworkRequest [ REQUEST id=22, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10044 RequestorUid: 10044 RequestorPkg: com.android.systemui] ]] callback flags: 1 priority: 2147483647
-  uid/pid:10044/792 activeRequest: null callbackRequest: 23 [NetworkRequest [ LISTEN id=23, [ RequestorUid: 10044 RequestorPkg: com.android.systemui] ]] callback flags: 0 priority: 2147483647
-  uid/pid:1000/622 activeRequest: 24 callbackRequest: 24 [NetworkRequest [ TRACK_SYSTEM_DEFAULT id=24, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED RequestorUid: 1000 RequestorPkg: com.android.networkstack.tethering.inprocess] ]] callback flags: 0 priority: 2147483647
-  uid/pid:1001/913 activeRequest: null callbackRequest: 25 [NetworkRequest [ LISTEN id=25, [ Transports: WIFI Capabilities: INTERNET&TRUSTED&NOT_VPN&NOT_VCN_MANAGED Uid: 1001 RequestorUid: 1001 RequestorPkg: com.android.phone] ]] callback flags: 0 priority: 2147483647
-  uid/pid:1001/913 activeRequest: 27 callbackRequest: 26 [NetworkRequest [ REQUEST id=27, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 1001 RequestorUid: 1001 RequestorPkg: com.android.phone] ]] callback flags: 0 priority: 2147483647
-  uid/pid:1000/622 activeRequest: 29 callbackRequest: 28 [NetworkRequest [ REQUEST id=29, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: android] ]] callback flags: 0 priority: 2147483647
   uid/pid:1000/1278 activeRequest: 30 callbackRequest: 30 [NetworkRequest [ REQUEST id=30, [ Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: com.wif.baseservice] ]] callback flags: 0 priority: 2147483647
   uid/pid:1000/1278 activeRequest: null callbackRequest: 31 [NetworkRequest [ LISTEN id=31, [ Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: com.wif.baseservice] ]] callback flags: 0 priority: 2147483647
   uid/pid:1000/622 asUid: 10007 activeRequest: 35 callbackRequest: 34 [NetworkRequest [ REQUEST id=35, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10007 RequestorUid: 1000 RequestorPkg: android] ]] callback flags: 0 priority: 2147483647
@@ -860,22 +842,7 @@ mNetworkRequestInfoLogs (most recent first):
   2024-06-27T16:46:38.636 - REGISTER uid/pid:1000/1785 activeRequest: null callbackRequest: 39 [NetworkRequest [ REQUEST id=40, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: com.wif.remotecontrol] ]] callback flags: 0 priority: 2147483647
   2024-06-27T16:46:38.524 - REGISTER uid/pid:1000/1764 activeRequest: null callbackRequest: 38 [NetworkRequest [ LISTEN id=38, [ Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: com.wif.ota] ]] callback flags: 0 priority: 2147483647
   2024-06-27T16:46:38.460 - RELEASE uid/pid:10007/1723 activeRequest: 37 callbackRequest: 36 [NetworkRequest [ REQUEST id=37, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10007 RequestorUid: 10007 RequestorPkg: com.android.statementservice] ]] callback flags: 0 priority: 2147483647
-  2024-06-27T16:46:38.449 - REGISTER uid/pid:10007/1723 activeRequest: null callbackRequest: 36 [NetworkRequest [ REQUEST id=37, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10007 RequestorUid: 10007 RequestorPkg: com.android.statementservice] ]] callback flags: 0 priority: 2147483647
-  2024-06-27T16:46:38.435 - REGISTER uid/pid:1000/622 asUid: 10007 activeRequest: null callbackRequest: 34 [NetworkRequest [ REQUEST id=35, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10007 RequestorUid: 1000 RequestorPkg: android] ]] callback flags: 0 priority: 2147483647
-  2024-06-27T16:46:37.134 - RELEASE uid/pid:1000/1278 activeRequest: null callbackRequest: 32 [NetworkRequest [ REQUEST id=33, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: com.wif.baseservice] ]] callback flags: 0 priority: 2147483647
-  2024-06-27T16:46:36.750 - REGISTER uid/pid:1000/1278 activeRequest: null callbackRequest: 32 [NetworkRequest [ REQUEST id=33, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: com.wif.baseservice] ]] callback flags: 0 priority: 2147483647
-  2024-06-27T16:46:36.616 - REGISTER uid/pid:1000/1278 activeRequest: null callbackRequest: 31 [NetworkRequest [ LISTEN id=31, [ Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: com.wif.baseservice] ]] callback flags: 0 priority: 2147483647
-  2024-06-27T16:46:36.606 - REGISTER uid/pid:1000/1278 activeRequest: null callbackRequest: 30 [NetworkRequest [ REQUEST id=30, [ Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: com.wif.baseservice] ]] callback flags: 0 priority: 2147483647
-  2024-06-27T16:46:36.532 - REGISTER uid/pid:1000/622 activeRequest: null callbackRequest: 28 [NetworkRequest [ REQUEST id=29, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: android] ]] callback flags: 0 priority: 2147483647
-  2024-06-27T16:46:35.151 - REGISTER uid/pid:1001/913 activeRequest: null callbackRequest: 26 [NetworkRequest [ REQUEST id=27, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 1001 RequestorUid: 1001 RequestorPkg: com.android.phone] ]] callback flags: 0 priority: 2147483647
-  2024-06-27T16:46:35.134 - REGISTER uid/pid:1001/913 activeRequest: null callbackRequest: 25 [NetworkRequest [ LISTEN id=25, [ Transports: WIFI Capabilities: INTERNET&TRUSTED&NOT_VPN&NOT_VCN_MANAGED Uid: 1001 RequestorUid: 1001 RequestorPkg: com.android.phone] ]] callback flags: 0 priority: 2147483647
-  2024-06-27T16:46:35.001 - REGISTER uid/pid:1000/622 activeRequest: null callbackRequest: 24 [NetworkRequest [ TRACK_SYSTEM_DEFAULT id=24, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED RequestorUid: 1000 RequestorPkg: com.android.networkstack.tethering.inprocess] ]] callback flags: 0 priority: 2147483647
-  2024-06-27T16:46:34.968 - REGISTER uid/pid:10044/792 activeRequest: null callbackRequest: 23 [NetworkRequest [ LISTEN id=23, [ RequestorUid: 10044 RequestorPkg: com.android.systemui] ]] callback flags: 0 priority: 2147483647
-  2024-06-27T16:46:34.966 - REGISTER uid/pid:10044/792 activeRequest: null callbackRequest: 21 [NetworkRequest [ REQUEST id=22, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10044 RequestorUid: 10044 RequestorPkg: com.android.systemui] ]] callback flags: 1 priority: 2147483647
-  2024-06-27T16:46:34.964 - REGISTER uid/pid:10044/792 activeRequest: null callbackRequest: 19 [NetworkRequest [ REQUEST id=20, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 10044 RequestorUid: 10044 RequestorPkg: com.android.systemui] ]] callback flags: 1 priority: 2147483647
-  2024-06-27T16:46:34.964 - REGISTER uid/pid:10044/792 activeRequest: null callbackRequest: 18 [NetworkRequest [ LISTEN id=18, [ Transports: CELLULAR|WIFI Capabilities: NOT_VPN RequestorUid: 10044 RequestorPkg: com.android.systemui] ]] callback flags: 1 priority: 2147483647
-  2024-06-27T16:46:34.928 - REGISTER uid/pid:1000/622 activeRequest: null callbackRequest: 17 [NetworkRequest [ LISTEN id=17, [ Transports: WIFI Capabilities: NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: com.android.networkstack.inprocess] ]] callback flags: 0 priority: 2147483647
-  2024-06-27T16:46:34.928 - REGISTER uid/pid:1000/622 activeRequest: null callbackRequest: 15 [NetworkRequest [ REQUEST id=16, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED Uid: 1000 RequestorUid: 1000 RequestorPkg: com.android.networkstack.inprocess] ]] callback flags: 0 priority: 2147483647
+
 
 mNetworkInfoBlockingLogs (most recent first):
 
@@ -1084,164 +1051,7 @@ maxrss: 9044kB
 
     Log:
       06-27 16:46:30.377 netd 1.0 starting
-      06-27 16:46:30.387 Pid file removed
-      06-27 16:46:30.387 SIGPIPE is blocked
-      06-27 16:46:30.387 setCloseOnExec(dnsproxyd)
-      06-27 16:46:30.387 setCloseOnExec(fwmarkd)
-      06-27 16:46:30.387 setCloseOnExec(mdns)
-      06-27 16:46:30.387 BPF programs are loaded
-      06-27 16:46:30.387 NetlinkManager instanced
-      06-27 16:46:30.387 enter NetworkController ctor
-      06-27 16:46:30.388 leave NetworkController ctor
-      06-27 16:46:30.388 enter TetherController ctor
-      06-27 16:46:30.388 leave TetherController ctor
-      06-27 16:46:30.417 Creating child chains: 26958us
-      06-27 16:46:30.417 Setting up OEM hooks: 82us
-      06-27 16:46:30.417 Setting up FirewallController hooks: 221us
-      06-27 16:46:30.418 Setting up TetherController hooks: 1155us
-      06-27 16:46:30.419 Setting up BandwidthController hooks: 698us
-      06-27 16:46:30.419 Setting up IdletimerController hooks: 21us
-      06-27 16:46:30.420 Setting up StrictController hooks: 1277us
-      06-27 16:46:30.420 Initializing ClatdController: 60us
-      06-27 16:46:30.421 Initializing traffic control: 448us
-      06-27 16:46:30.423 Enabling bandwidth control: 2451us
-      06-27 16:46:30.435 Initializing RouteController: 11325us
-      06-27 16:46:30.500 Initializing XfrmController: 65145us
-      06-27 16:46:30.502 Registering NetdNativeService: 259us
-      06-27 16:46:30.504 Registering NetdHwService: 1517us
-      06-27 16:46:30.504 Netd started in 127145us
-      06-27 16:46:33.537 registerUnsolicitedEventListener() <0.05ms>
-      06-27 16:46:33.697 registerUnsolicitedEventListener() <0.01ms>
-      06-27 16:46:33.904 registerUnsolicitedEventListener() <0.01ms>
-      06-27 16:46:33.915 interfaceGetList() -> {[ip6tnl0, ip_vti0, wlan0, eth1, can0, sit0, usb0, dummy0, eth0, lo, p2p0, ip6_vti0]} <0.14ms>
-      06-27 16:46:33.916 NetdNativeService::interfaceGetCfg(eth1) -> ({eth1, ec:0a:81:96:f0:b4, 0.0.0.0, 0, down, broadcast, multicast}) (0.2ms)
-      06-27 16:46:33.916 interfaceGetCfg(eth1) -> {InterfaceConfigurationParcel{ifName: eth1, hwAddr: ec:0a:81:96:f0:b4, ipv4Addr: 0.0.0.0, prefixLength: 0, flags: [down, broadcast, multicast]}} <0.24ms>
-      06-27 16:46:33.972 NetdNativeService::interfaceSetCfg({eth1, ec:0a:81:96:f0:b4, 0.0.0.0, 0, broadcast, multicast, up}) (6e+01ms)
-      06-27 16:46:33.972 interfaceSetCfg(InterfaceConfigurationParcel{ifName: eth1, hwAddr: ec:0a:81:96:f0:b4, ipv4Addr: 0.0.0.0, prefixLength: 0, flags: [broadcast, multicast, up]}) <56.20ms>
-      06-27 16:46:33.973 NetdNativeService::interfaceGetCfg(eth1) -> ({eth1, ec:0a:81:96:f0:b4, 0.0.0.0, 0, up, broadcast, multicast}) (0.2ms)
-      06-27 16:46:33.973 interfaceGetCfg(eth1) -> {InterfaceConfigurationParcel{ifName: eth1, hwAddr: ec:0a:81:96:f0:b4, ipv4Addr: 0.0.0.0, prefixLength: 0, flags: [up, broadcast, multicast]}} <0.21ms>
-      06-27 16:46:34.216 firewallSetFirewallType(1) <0.01ms>
-      06-27 16:46:34.217 isAlive() -> {true} <0.01ms>
-      06-27 16:46:34.224 firewallReplaceUidChain(fw_standby, false, []) -> {true} <0.02ms>
-      06-27 16:46:34.249 trafficSwapActiveStatsMap() <24.60ms>
-      06-27 16:46:34.250 firewallReplaceUidChain(fw_standby, false, []) -> {true} <19.61ms>
-      06-27 16:46:34.250 firewallEnableChildChain(2, true) <0.02ms>
-      06-27 16:46:34.251 tetherGetStats() -> {[]} <0.73ms>
-      06-27 16:46:34.251 socketDestroy([], []) <0.88ms>
-      06-27 16:46:34.253 bandwidthSetGlobalAlert(2097152) <0.91ms>
-      06-27 16:46:34.256 networkSetPermissionForUser(1, [10052, 1002, 10044, 10030]) <0.00ms>
-      06-27 16:46:34.256 networkSetPermissionForUser(2, [2000, 10032, 10003, 10035, 1000, 1001, 10026]) <0.00ms>
-      06-27 16:46:34.256 trafficSetNetPermForUids(12, [1000, 1001, 1002, 1013, 2000, 10003]) <0.01ms>
-      06-27 16:46:34.256 trafficSetNetPermForUids(4, [10004, 10007, 10008, 10009, 10013, 10016, 10017, 10022, 10023, 10026, 10028, 10030, 10032, 10037, 10038, 10039, 10047, 10052]) <0.03ms>
-      06-27 16:46:34.256 trafficSetNetPermForUids(8, [1041, 1047, 10050]) <0.00ms>
-      06-27 16:46:34.257 trafficSetNetPermForUids(0, [1068, 1073, 10000, 10001, 10002, 10005, 10006, 10010, 10011, 10012, 10014, 10015, 10018, 10019, 10020, 10021, 10024, 10025, 10027, 10029, 10031, 10033, 10034, 10035, 10036, 10040, 10041, 10042, 10043, 10044, 10045, 10046, 10048, 10049, 10051]) <0.03ms>
-      06-27 16:46:34.257 registerUnsolicitedEventListener() <0.35ms>
-      06-27 16:46:34.326 trafficSwapActiveStatsMap() <25.79ms>
-      06-27 16:46:34.328 tetherGetStats() -> {[]} <0.74ms>
-      06-27 16:46:34.363 trafficSwapActiveStatsMap() <24.58ms>
-      06-27 16:46:34.364 tetherGetStats() -> {[]} <0.73ms>
-      06-27 16:46:34.400 trafficSwapActiveStatsMap() <32.53ms>
-      06-27 16:46:34.401 tetherGetStats() -> {[]} <0.36ms>
-      06-27 16:46:34.426 trafficSwapActiveStatsMap() <23.67ms>
-      06-27 16:46:34.427 tetherGetStats() -> {[]} <0.35ms>
-      06-27 16:46:34.463 trafficSwapActiveStatsMap() <33.75ms>
-      06-27 16:46:34.464 tetherGetStats() -> {[]} <0.34ms>
-      06-27 16:46:34.496 trafficSwapActiveStatsMap() <30.11ms>
-      06-27 16:46:34.497 tetherGetStats() -> {[]} <0.58ms>
-      06-27 16:46:34.529 trafficSwapActiveStatsMap() <26.84ms>
-      06-27 16:46:34.530 tetherGetStats() -> {[]} <0.36ms>
-      06-27 16:46:34.586 trafficSwapActiveStatsMap() <53.42ms>
-      06-27 16:46:34.588 tetherGetStats() -> {[]} <0.99ms>
-      06-27 16:46:34.620 trafficSwapActiveStatsMap() <28.95ms>
-      06-27 16:46:34.620 tetherGetStats() -> {[]} <0.33ms>
-      06-27 16:46:34.653 trafficSwapActiveStatsMap() <30.30ms>
-      06-27 16:46:34.653 tetherGetStats() -> {[]} <0.32ms>
-      06-27 16:46:34.676 trafficSwapActiveStatsMap() <20.56ms>
-      06-27 16:46:34.678 tetherGetStats() -> {[]} <0.77ms>
-      06-27 16:46:34.709 trafficSwapActiveStatsMap() <29.61ms>
-      06-27 16:46:34.711 tetherGetStats() -> {[]} <0.81ms>
-      06-27 16:46:34.740 trafficSwapActiveStatsMap() <26.88ms>
-      06-27 16:46:34.741 tetherGetStats() -> {[]} <0.72ms>
-      06-27 16:46:34.776 trafficSwapActiveStatsMap() <32.81ms>
-      06-27 16:46:34.778 tetherGetStats() -> {[]} <0.74ms>
-      06-27 16:46:34.806 trafficSwapActiveStatsMap() <25.83ms>
-      06-27 16:46:34.808 tetherGetStats() -> {[]} <0.73ms>
-      06-27 16:46:34.929 registerUnsolicitedEventListener() <0.02ms>
-      06-27 16:46:34.999 registerUnsolicitedEventListener() <0.02ms>
-      06-27 16:46:35.185 interfaceSetEnableIPv6(eth1, false) <0.25ms>
-      06-27 16:46:35.185 interfaceClearAddrs(eth1) <0.28ms>
-      06-27 16:46:35.186 interfaceGetList() -> {[ip6tnl0, ip_vti0, wlan0, eth1, can0, sit0, usb0, dummy0, eth0, lo, p2p0, ip6_vti0]} <0.10ms>
-      06-27 16:46:35.186 NetdNativeService::interfaceGetCfg(eth0) -> ({eth0, 8e:90:63:2f:4b:68, 0.0.0.0, 0, down, broadcast, multicast}) (0.1ms)
-      06-27 16:46:35.186 interfaceGetCfg(eth0) -> {InterfaceConfigurationParcel{ifName: eth0, hwAddr: 8e:90:63:2f:4b:68, ipv4Addr: 0.0.0.0, prefixLength: 0, flags: [down, broadcast, multicast]}} <0.17ms>
-      06-27 16:46:35.192 NetdNativeService::interfaceSetCfg({eth0, 8e:90:63:2f:4b:68, 0.0.0.0, 0, broadcast, up, multicast}) (5ms)
-      06-27 16:46:35.192 interfaceSetCfg(InterfaceConfigurationParcel{ifName: eth0, hwAddr: 8e:90:63:2f:4b:68, ipv4Addr: 0.0.0.0, prefixLength: 0, flags: [broadcast, up, multicast]}) <5.45ms>
-      06-27 16:46:35.198 interfaceSetIPv6PrivacyExtensions(eth1, true) <0.15ms>
-      06-27 16:46:35.198 setIPv6AddrGenMode(eth1, 2) <0.17ms>
-      06-27 16:46:35.198 interfaceSetEnableIPv6(eth1, true) <0.04ms>
-      06-27 16:46:35.198 NetdNativeService::interfaceSetCfg({eth1, , 192.168.0.56, 24}) (0.3ms)
-      06-27 16:46:35.199 interfaceSetCfg(InterfaceConfigurationParcel{ifName: eth1, hwAddr: , ipv4Addr: 192.168.0.56, prefixLength: 24, flags: []}) <0.31ms>
-      06-27 16:46:35.202 getFwmarkForNetwork(100) -> {MarkMaskParcel{mark: 100, mask: 65535}} <0.00ms>
-      06-27 16:46:35.206 networkCreate(NativeNetworkConfig{netId: 100, networkType: PHYSICAL, permission: 0, secure: false, vpnType: -1}) <0.03ms>
-      06-27 16:46:35.207 createNetworkCache(100) <0.37ms>
-      06-27 16:46:35.208 DnsResolverService::setResolverConfiguration(100, [192.168.0.1], [], 1800, 25, 8, 64, 0, 0, "", [192.168.0.1]) -> (0) (0.3ms)
-      06-27 16:46:35.208 setResolverConfiguration(ResolverParamsParcel{netId: 100, sampleValiditySeconds: 1800, successThreshold: 25, minSamples: 8, maxSamples: 64, baseTimeoutMsec: 0, retryCount: 0, servers: [192.168.0.1], domains: [], tlsName: , tlsServers: [192.168.0.1], tlsFingerprints: [], caCertificate: , tlsConnectTimeoutMs: 0, resolverOptions: (null), transportTypes: [3]}) <0.37ms>
-      06-27 16:46:35.211 networkAddInterface(100, eth1) <2.01ms>
-      06-27 16:46:35.212 networkAddRouteParcel(100, RouteInfoParcel{destination: 192.168.0.0/24, ifName: eth1, nextHop: , mtu: 0}) <0.18ms>
-      06-27 16:46:35.212 networkAddRouteParcel(100, RouteInfoParcel{destination: 0.0.0.0/0, ifName: eth1, nextHop: 192.168.0.1, mtu: 0}) <0.07ms>
-      06-27 16:46:35.212 DnsResolverService::setResolverConfiguration(100, [192.168.0.1], [], 1800, 25, 8, 64, 0, 0, "", [192.168.0.1]) -> (0) (0.2ms)
-      06-27 16:46:35.212 setResolverConfiguration(ResolverParamsParcel{netId: 100, sampleValiditySeconds: 1800, successThreshold: 25, minSamples: 8, maxSamples: 64, baseTimeoutMsec: 0, retryCount: 0, servers: [192.168.0.1], domains: [], tlsName: , tlsServers: [192.168.0.1], tlsFingerprints: [], caCertificate: , tlsConnectTimeoutMs: 0, resolverOptions: (null), transportTypes: [3]}) <0.31ms>
-      06-27 16:46:35.233 trafficSwapActiveStatsMap() <19.34ms>
-      06-27 16:46:35.234 tetherGetStats() -> {[]} <0.81ms>
-      06-27 16:46:35.236 networkSetDefault(100) <0.08ms>
-      06-27 16:46:35.236 setTcpRWmemorySize(524288 1048576 3145728, 524288 1048576 2097152) <0.07ms>
-      06-27 16:46:35.266 trafficSwapActiveStatsMap() <29.34ms>
-      06-27 16:46:35.267 tetherGetStats() -> {[]} <0.31ms>
-      06-27 16:46:35.273 DnsResolverService::setResolverConfiguration(100, [192.168.0.1], [], 1800, 25, 8, 64, 0, 0, "", [192.168.0.1]) -> (0) (0.04ms)
-      06-27 16:46:35.273 setResolverConfiguration(ResolverParamsParcel{netId: 100, sampleValiditySeconds: 1800, successThreshold: 25, minSamples: 8, maxSamples: 64, baseTimeoutMsec: 0, retryCount: 0, servers: [192.168.0.1], domains: [], tlsName: , tlsServers: [192.168.0.1], tlsFingerprints: [], caCertificate: , tlsConnectTimeoutMs: 0, resolverOptions: (null), transportTypes: [3]}) <0.07ms>
-      06-27 16:46:36.402 firewallReplaceUidChain(fw_standby, false, []) -> {true} <0.02ms>
-      06-27 16:46:36.403 firewallEnableChildChain(2, false) <0.01ms>
-      06-27 16:46:37.032 networkAddRouteParcel(100, RouteInfoParcel{destination: fe80::/64, ifName: eth1, nextHop: , mtu: 0}) <0.11ms>
-      06-27 16:46:37.059 trafficSwapActiveStatsMap() <26.55ms>
-      06-27 16:46:37.061 tetherGetStats() -> {[]} <0.38ms>
-      06-27 16:46:37.068 interfaceSetEnableIPv6(eth1, false) <0.14ms>
-      06-27 16:46:37.069 interfaceClearAddrs(eth1) <0.31ms>
-      06-27 16:46:37.069 setProcSysNet(6, 1, eth1, accept_ra, 2) <0.06ms>
-      06-27 16:46:37.071 interfaceSetEnableIPv6(eth1, false) <0.08ms>
-      06-27 16:46:37.071 interfaceClearAddrs(eth1) <0.23ms>
-      06-27 16:46:37.074 interfaceSetIPv6PrivacyExtensions(eth1, true) <0.09ms>
-      06-27 16:46:37.075 setIPv6AddrGenMode(eth1, 2) <0.04ms>
-      06-27 16:46:37.075 interfaceSetEnableIPv6(eth1, true) <0.08ms>
-      06-27 16:46:37.075 NetdNativeService::interfaceSetCfg({eth1, , 192.168.0.56, 24}) (0.3ms)
-      06-27 16:46:37.075 interfaceSetCfg(InterfaceConfigurationParcel{ifName: eth1, hwAddr: , ipv4Addr: 192.168.0.56, prefixLength: 24, flags: []}) <0.33ms>
-      06-27 16:46:37.078 getFwmarkForNetwork(101) -> {MarkMaskParcel{mark: 101, mask: 65535}} <0.00ms>
-      06-27 16:46:37.086 trafficSwapActiveStatsMap() <22.66ms>
-      06-27 16:46:37.087 tetherGetStats() -> {[]} <0.33ms>
-      06-27 16:46:37.126 trafficSwapActiveStatsMap() <34.68ms>
-      06-27 16:46:37.127 tetherGetStats() -> {[]} <0.32ms>
-      06-27 16:46:37.133 networkDestroy(100) <1.15ms>
-      06-27 16:46:37.133 destroyNetworkCache(100) <0.04ms>
-      06-27 16:46:37.134 networkCreate(NativeNetworkConfig{netId: 101, networkType: PHYSICAL, permission: 0, secure: false, vpnType: -1}) <0.01ms>
-      06-27 16:46:37.134 createNetworkCache(101) <0.04ms>
-      06-27 16:46:37.136 DnsResolverService::setResolverConfiguration(101, [192.168.0.1], [], 1800, 25, 8, 64, 0, 0, "", [192.168.0.1]) -> (0) (0.1ms)
-      06-27 16:46:37.136 setResolverConfiguration(ResolverParamsParcel{netId: 101, sampleValiditySeconds: 1800, successThreshold: 25, minSamples: 8, maxSamples: 64, baseTimeoutMsec: 0, retryCount: 0, servers: [192.168.0.1], domains: [], tlsName: , tlsServers: [192.168.0.1], tlsFingerprints: [], caCertificate: , tlsConnectTimeoutMs: 0, resolverOptions: (null), transportTypes: [3]}) <0.16ms>
-      06-27 16:46:37.137 networkAddInterface(101, eth1) <1.19ms>
-      06-27 16:46:37.138 networkAddRouteParcel(101, RouteInfoParcel{destination: fe80::/64, ifName: eth1, nextHop: , mtu: 0}) <0.08ms>
-      06-27 16:46:37.138 networkAddRouteParcel(101, RouteInfoParcel{destination: 192.168.0.0/24, ifName: eth1, nextHop: , mtu: 0}) <0.04ms>
-      06-27 16:46:37.138 networkAddRouteParcel(101, RouteInfoParcel{destination: 0.0.0.0/0, ifName: eth1, nextHop: 192.168.0.1, mtu: 0}) <0.04ms>
-      06-27 16:46:37.139 DnsResolverService::setResolverConfiguration(101, [192.168.0.1], [], 1800, 25, 8, 64, 0, 0, "", [192.168.0.1]) -> (0) (0.1ms)
-      06-27 16:46:37.139 setResolverConfiguration(ResolverParamsParcel{netId: 101, sampleValiditySeconds: 1800, successThreshold: 25, minSamples: 8, maxSamples: 64, baseTimeoutMsec: 0, retryCount: 0, servers: [192.168.0.1], domains: [], tlsName: , tlsServers: [192.168.0.1], tlsFingerprints: [], caCertificate: , tlsConnectTimeoutMs: 0, resolverOptions: (null), transportTypes: [3]}) <0.13ms>
-      06-27 16:46:37.170 trafficSwapActiveStatsMap() <29.25ms>
-      06-27 16:46:37.170 tetherGetStats() -> {[]} <0.34ms>
-      06-27 16:46:37.172 networkSetDefault(101) <0.07ms>
-      06-27 16:46:37.213 trafficSwapActiveStatsMap() <39.49ms>
-      06-27 16:46:37.213 tetherGetStats() -> {[]} <0.33ms>
-      06-27 16:46:37.219 DnsResolverService::setResolverConfiguration(101, [192.168.0.1], [], 1800, 25, 8, 64, 0, 0, "", [192.168.0.1]) -> (0) (0.1ms)
-      06-27 16:46:37.219 setResolverConfiguration(ResolverParamsParcel{netId: 101, sampleValiditySeconds: 1800, successThreshold: 25, minSamples: 8, maxSamples: 64, baseTimeoutMsec: 0, retryCount: 0, servers: [192.168.0.1], domains: [], tlsName: , tlsServers: [192.168.0.1], tlsFingerprints: [], caCertificate: , tlsConnectTimeoutMs: 0, resolverOptions: (null), transportTypes: [3]}) <0.14ms>
-      06-27 16:46:38.029 bandwidthAddNiceApp(10003) <0.05ms>
-      06-27 16:47:20.193 trafficSwapActiveStatsMap() <29.71ms>
-      06-27 16:47:20.194 tetherGetStats() -> {[]} <0.37ms>
-      06-27 16:47:20.195 bandwidthSetGlobalAlert(2097152) <0.12ms>
-      06-27 16:52:59.929 isAlive() -> {true} <0.00ms>
+
 
     UnsolicitedLog:
       06-27 16:46:33.849 onInterfaceAdded(usb0) (0.1ms)
@@ -1252,75 +1062,13 @@ maxrss: 9044kB
       06-27 16:46:33.973 onInterfaceLinkStateChanged(eth1, false) (0.02ms)
       06-27 16:46:33.973 onInterfaceLinkStateChanged(eth1, false) (0.02ms)
       06-27 16:46:35.192 onInterfaceLinkStateChanged(eth0, false) (0.1ms)
-      06-27 16:46:35.192 onInterfaceLinkStateChanged(eth0, false) (0.03ms)
-      06-27 16:46:35.192 onInterfaceLinkStateChanged(eth0, false) (0.03ms)
-      06-27 16:46:35.192 onInterfaceLinkStateChanged(eth0, false) (0.02ms)
-      06-27 16:46:35.192 onInterfaceLinkStateChanged(eth0, false) (0.02ms)
-      06-27 16:46:35.192 onInterfaceLinkStateChanged(eth0, false) (0.02ms)
-      06-27 16:46:35.192 onInterfaceLinkStateChanged(eth0, false) (0.02ms)
-      06-27 16:46:35.192 onInterfaceLinkStateChanged(eth0, false) (0.02ms)
-      06-27 16:46:35.192 onInterfaceLinkStateChanged(eth0, false) (0.02ms)
-      06-27 16:46:35.192 onInterfaceLinkStateChanged(eth0, false) (0.02ms)
       06-27 16:46:35.199 onInterfaceAddressUpdated(192.168.0.56/24, eth1, 128, 0) (0.04ms)
       06-27 16:46:35.199 onInterfaceAddressUpdated(192.168.0.56/24, eth1, 128, 0) (0.02ms)
       06-27 16:46:35.199 onInterfaceAddressUpdated(192.168.0.56/24, eth1, 128, 0) (0.02ms)
       06-27 16:46:35.199 onInterfaceAddressUpdated(192.168.0.56/24, eth1, 128, 0) (0.02ms)
       06-27 16:46:35.199 onInterfaceAddressUpdated(192.168.0.56/24, eth1, 128, 0) (0.02ms)
       06-27 16:46:37.030 onRouteChanged(true, fe80::/64, "", eth1) (0.1ms)
-      06-27 16:46:37.030 onRouteChanged(true, fe80::/64, "", eth1) (0.03ms)
-      06-27 16:46:37.030 onRouteChanged(true, fe80::/64, "", eth1) (0.03ms)
-      06-27 16:46:37.030 onRouteChanged(true, fe80::/64, "", eth1) (0.03ms)
-      06-27 16:46:37.030 onRouteChanged(true, fe80::/64, "", eth1) (0.03ms)
-      06-27 16:46:37.030 onInterfaceLinkStateChanged(eth1, true) (0.02ms)
-      06-27 16:46:37.030 onInterfaceLinkStateChanged(eth1, true) (0.02ms)
-      06-27 16:46:37.030 onInterfaceLinkStateChanged(eth1, true) (0.03ms)
-      06-27 16:46:37.030 onInterfaceLinkStateChanged(eth1, true) (0.02ms)
-      06-27 16:46:37.030 onInterfaceLinkStateChanged(eth1, true) (0.02ms)
-      06-27 16:46:37.031 onInterfaceAddressUpdated(fe80::b0be:3214:ee84:81f2/64, eth1, 2244, 253) (0.03ms)
-      06-27 16:46:37.031 onInterfaceAddressUpdated(fe80::b0be:3214:ee84:81f2/64, eth1, 2244, 253) (0.02ms)
-      06-27 16:46:37.031 onInterfaceAddressUpdated(fe80::b0be:3214:ee84:81f2/64, eth1, 2244, 253) (0.03ms)
-      06-27 16:46:37.031 onInterfaceAddressUpdated(fe80::b0be:3214:ee84:81f2/64, eth1, 2244, 253) (0.03ms)
-      06-27 16:46:37.031 onInterfaceAddressUpdated(fe80::b0be:3214:ee84:81f2/64, eth1, 2244, 253) (0.02ms)
-      06-27 16:46:37.068 onRouteChanged(false, fe80::/64, "", eth1) (0.04ms)
-      06-27 16:46:37.068 onRouteChanged(false, fe80::/64, "", eth1) (0.02ms)
-      06-27 16:46:37.068 onRouteChanged(false, fe80::/64, "", eth1) (0.02ms)
-      06-27 16:46:37.068 onRouteChanged(false, fe80::/64, "", eth1) (0.02ms)
-      06-27 16:46:37.069 onRouteChanged(false, fe80::/64, "", eth1) (0.02ms)
-      06-27 16:46:37.069 onInterfaceAddressRemoved(fe80::b0be:3214:ee84:81f2/64, eth1, 2244, 253) (0.04ms)
-      06-27 16:46:37.069 onInterfaceAddressRemoved(fe80::b0be:3214:ee84:81f2/64, eth1, 2244, 253) (0.02ms)
-      06-27 16:46:37.069 onInterfaceAddressRemoved(fe80::b0be:3214:ee84:81f2/64, eth1, 2244, 253) (0.02ms)
-      06-27 16:46:37.069 onInterfaceAddressRemoved(fe80::b0be:3214:ee84:81f2/64, eth1, 2244, 253) (0.02ms)
-      06-27 16:46:37.069 onInterfaceAddressRemoved(fe80::b0be:3214:ee84:81f2/64, eth1, 2244, 253) (0.02ms)
-      06-27 16:46:37.070 onInterfaceAddressRemoved(192.168.0.56/24, eth1, 128, 0) (0.04ms)
-      06-27 16:46:37.070 onInterfaceAddressRemoved(192.168.0.56/24, eth1, 128, 0) (0.03ms)
-      06-27 16:46:37.070 onInterfaceAddressRemoved(192.168.0.56/24, eth1, 128, 0) (0.02ms)
-      06-27 16:46:37.070 onInterfaceAddressRemoved(192.168.0.56/24, eth1, 128, 0) (0.02ms)
-      06-27 16:46:37.071 onInterfaceAddressRemoved(192.168.0.56/24, eth1, 128, 0) (0.02ms)
-      06-27 16:46:37.075 onRouteChanged(true, fe80::/64, "", eth1) (0.02ms)
-      06-27 16:46:37.075 onRouteChanged(true, fe80::/64, "", eth1) (0.01ms)
-      06-27 16:46:37.075 onRouteChanged(true, fe80::/64, "", eth1) (0.008ms)
-      06-27 16:46:37.075 onRouteChanged(true, fe80::/64, "", eth1) (0.008ms)
-      06-27 16:46:37.075 onRouteChanged(true, fe80::/64, "", eth1) (0.01ms)
-      06-27 16:46:37.075 onInterfaceAddressUpdated(fe80::b0be:3214:ee84:81f2/64, eth1, 2244, 253) (0.02ms)
-      06-27 16:46:37.075 onInterfaceAddressUpdated(fe80::b0be:3214:ee84:81f2/64, eth1, 2244, 253) (0.007ms)
-      06-27 16:46:37.075 onInterfaceAddressUpdated(fe80::b0be:3214:ee84:81f2/64, eth1, 2244, 253) (0.007ms)
-      06-27 16:46:37.075 onInterfaceAddressUpdated(fe80::b0be:3214:ee84:81f2/64, eth1, 2244, 253) (0.007ms)
-      06-27 16:46:37.075 onInterfaceAddressUpdated(fe80::b0be:3214:ee84:81f2/64, eth1, 2244, 253) (0.006ms)
-      06-27 16:46:37.075 onInterfaceAddressUpdated(192.168.0.56/24, eth1, 128, 0) (0.01ms)
-      06-27 16:46:37.075 onInterfaceAddressUpdated(192.168.0.56/24, eth1, 128, 0) (0.02ms)
-      06-27 16:46:37.075 onInterfaceAddressUpdated(192.168.0.56/24, eth1, 128, 0) (0.009ms)
-      06-27 16:46:37.075 onInterfaceAddressUpdated(192.168.0.56/24, eth1, 128, 0) (0.007ms)
-      06-27 16:46:37.075 onInterfaceAddressUpdated(192.168.0.56/24, eth1, 128, 0) (0.02ms)
-      06-27 16:46:37.133 onRouteChanged(false, fe80::/64, "", eth1) (0.03ms)
-      06-27 16:46:37.133 onRouteChanged(false, fe80::/64, "", eth1) (0.01ms)
-      06-27 16:46:37.133 onRouteChanged(false, fe80::/64, "", eth1) (0.009ms)
-      06-27 16:46:37.133 onRouteChanged(false, fe80::/64, "", eth1) (0.008ms)
-      06-27 16:46:37.133 onRouteChanged(false, fe80::/64, "", eth1) (0.009ms)
-      06-27 16:46:38.086 onInterfaceAddressUpdated(fe80::b0be:3214:ee84:81f2/64, eth1, 2176, 253) (0.08ms)
-      06-27 16:46:38.086 onInterfaceAddressUpdated(fe80::b0be:3214:ee84:81f2/64, eth1, 2176, 253) (0.01ms)
-      06-27 16:46:38.087 onInterfaceAddressUpdated(fe80::b0be:3214:ee84:81f2/64, eth1, 2176, 253) (0.01ms)
-      06-27 16:46:38.087 onInterfaceAddressUpdated(fe80::b0be:3214:ee84:81f2/64, eth1, 2176, 253) (0.01ms)
-      06-27 16:46:38.087 onInterfaceAddressUpdated(fe80::b0be:3214:ee84:81f2/64, eth1, 2176, 253) (0.008ms)
+
 
 
 ```
