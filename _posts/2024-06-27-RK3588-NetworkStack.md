@@ -4,7 +4,7 @@ title:      RK3588 NetworkStack
 subtitle:   android 12
 date:       2024-06-27
 author:     LXG
-header-img: img/post-bg-android2.jpg
+header-img: img/google_android.jpg
 catalog: true
 tags:
     - android
