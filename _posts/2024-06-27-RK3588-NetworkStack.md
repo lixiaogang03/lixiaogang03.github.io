@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      RK3588 NetworkStack
-subtitle:   android 12
+subtitle:   以太网口软重启后无法上网
 date:       2024-06-27
 author:     LXG
 header-img: img/google_android.jpg
@@ -1073,10 +1073,45 @@ maxrss: 9044kB
 
 ```
 
+## 内核日志分析
+
+![rk3588_eth_error](/images/rk3588/rk3588_eth_error.png)
+
+左边是软重启的异常日志, 右边是断电重启的正常日志
+
+**正常断电重启日志**
+
+```txt
 
 
+[    5.917284] [  T279] r8168 0002:21:00.0 (unnamed net_device) (uninitialized): Invalid ether addr 00:00:00:00:00:00
+[    5.917313] [  T279] [eth]Create an address from the system serial number.
+[    5.917321] [  T279] [eth]eth_mac_from_system_serial: 56:9e:01:68:b8:4f
+[    8.004086] [  T261] using random self ethernet address
+[    8.004108] [  T261] using random host ethernet address
+[   11.657025] [  T418] eth1: 0xffffffc012d7f000, 56:9e:01:68:b8:4f, IRQ 139
+
+[   14.755724] [    C4] r8168: eth1: link up
+[   14.755946] [  T173] IPv6: ADDRCONF(NETDEV_CHANGE): eth1: link becomes ready
+
+```
 
 
+**异常日志**
+
+
+```txt
+
+[    6.193645] [  T279] r8168 0002:21:00.0 (unnamed net_device) (uninitialized): Invalid ether addr 00:00:00:00:00:00
+[    6.193659] [  T279] [eth]Create an address from the system serial number.
+[    6.193666] [  T279] [eth]eth_mac_from_system_serial: 56:9e:01:68:b8:4f
+[    8.171258] [  T260] using random self ethernet address
+[    8.171266] [  T260] using random host ethernet address
+[   11.862948] [  T414] eth1: 0xffffffc012d7f000, 56:9e:01:68:b8:4f, IRQ 139
+
+```
+
+**异常时没有识别到网卡**
 
 
 
