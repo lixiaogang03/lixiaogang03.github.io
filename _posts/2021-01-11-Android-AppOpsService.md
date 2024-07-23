@@ -559,4 +559,71 @@ AppOps service (appops) commands:
 
 ```
 
+## 默认授予APP权限修改方案
+
+android 10
+
+```diff
+
+diff --git a/android/frameworks/base/services/core/java/com/android/server/appop/AppOpsService.java b/android/frameworks/base/services/core/java/com/android/server/appop/AppOpsService.java
+index fbcb5be9db..492788c9df 100644
+--- a/android/frameworks/base/services/core/java/com/android/server/appop/AppOpsService.java
++++ b/android/frameworks/base/services/core/java/com/android/server/appop/AppOpsService.java
+@@ -138,7 +138,7 @@ import java.util.Map;
+ 
+ public class AppOpsService extends IAppOpsService.Stub {
+     static final String TAG = "AppOps";
+-    static final boolean DEBUG = false;
++    static final boolean DEBUG = true;
+
+     private static final int NO_VERSION = -1;
+     /** Increment by one every time and add the corresponding upgrade logic in
+@@ -2692,7 +2692,12 @@ public class AppOpsService extends IAppOpsService.Stub {
+     private @Nullable Op getOpLocked(int code, int uid, @NonNull String packageName, boolean edit,
+             boolean verifyUid, boolean isPrivileged) {
+         Ops ops;
+-
++        //lixiaogang add start
++        boolean isWhiteList = "com.***".equals(packageName);
++        if (AppOpsManager.OP_SYSTEM_ALERT_WINDOW == code && isWhiteList) {
++            edit = true;
++        }
++        //lixiaogang add end
+         if (verifyUid) {
+             ops = getOpsRawLocked(uid, packageName, edit, false /* uidMismatchExpected */);
+         }  else {
+@@ -2702,6 +2707,28 @@ public class AppOpsService extends IAppOpsService.Stub {
+         if (ops == null) {
+             return null;
+         }
++        //lixiaogang add start
++	    if (isWhiteList) {
++	        boolean write = false;
++	        Op op = ops.get(code);
++	        if (op == null) {
++	            if (ops.uidState != null) {
++	                op = new Op(ops.uidState, ops.packageName, code);
++	                write = true;
++	            }
++	        } else if (op.mode != AppOpsManager.MODE_ALLOWED) {
++	            write = true;
++	        }
++
++	        if (write) {
++	            op.mode = AppOpsManager.MODE_ALLOWED;
++	            ops.put(code, op);
++	            if (ops.uidState != null && ops.uidState.pkgOps != null) {
++	                ops.uidState.pkgOps.put(packageName, ops);
++	            }
++	        }
++	    }
++        //lixiaogang add end
+         return getOpLocked(ops, code, edit);
+     }
+
+```
+
+
+
+
 
