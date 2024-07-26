@@ -398,7 +398,7 @@ service squareserver /system/bin/squareserver
 
 ## 总结
 
-![native_service](/images/native_service.png)
+![native_service](/images/android/native_service.png)
 
 ## 源码地址
 

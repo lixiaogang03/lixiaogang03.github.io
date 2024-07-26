@@ -39,7 +39,7 @@ DeviceOwner完善了行业用户的MDM(Mobile Device Manager)行业管理能力�
 12. 获取wifi地址
 13. 重启系统
 
-![device_owner_settings](/images/device_owner_settings.png)
+![device_owner_settings](/images/android/device_owner_settings.png)
 
 ### device_admin.xml
 

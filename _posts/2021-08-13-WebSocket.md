@@ -74,7 +74,7 @@ Socket.io提供了基于事件的实时双向通讯
 
 Netty 是 一个异步事件驱动的网络应用程序框架，用于快速开发可维护的高性能协议服务器和客户端。
 
-![netty_components](/images/netty_components.png)
+![netty_components](/images/network/netty_components.png)
 
 
 

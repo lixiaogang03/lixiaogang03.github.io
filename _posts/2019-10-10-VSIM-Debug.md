@@ -15,7 +15,7 @@ tags:
 
 ### 高通 QXDM
 
-![qcom_qxdm](/images/qcom_qxdm.png)
+![qcom_qxdm](/images/android/ril/qcom_qxdm.png)
 
 ### MTK mtklog
 
@@ -41,7 +41,7 @@ tags:
 
 ```
 
-![mtk_elt](/images/mtk_elt.png)
+![mtk_elt](/images/android/ril/mtk_elt.png)
 
 ## 注册网络失败
 

@@ -32,7 +32,7 @@ Jetpack 包含与平台 API 解除捆绑的 androidx.* 软件包库。这意味�
 
 ## 架构图
 
-![final-architecture](/images/final-architecture.png)
+![final-architecture](/images/android/final-architecture.png)
 
 ## sunflower
 

@@ -21,7 +21,7 @@ tags:
 
 > 系统会定期退出低电耗模式一会儿，好让应用完成其已推迟的 Activity。在此维护时段内，系统会运行所有待定同步、作业和闹铃并允许应用访问网络。
 
-![Doze](/images/doze.png)
+![Doze](/images/android/doze.png)
 
 ### App Standby-应用待机模式
 

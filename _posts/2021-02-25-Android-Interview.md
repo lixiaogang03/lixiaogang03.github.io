@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      Android Interview
+title:      Android 面试
 subtitle:   Android Knowledge System
 date:       2021-02-25
 author:     LXG
@@ -78,6 +78,6 @@ tags:
 
 ## Handler
 
-![handler_arch](/images/handler_arch.jpg)
+![handler_arch](/images/android/handler_arch.jpg)
 
 
