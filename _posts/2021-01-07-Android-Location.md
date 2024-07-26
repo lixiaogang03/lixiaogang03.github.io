@@ -28,7 +28,7 @@ GNSS的全称是全球导航卫星系统（Global Navigation Satellite System）
 
 ## 架构
 
-![android_location](/images/location/android_location.png)
+![android_location](/images/android/location/android_location.png)
 
 ## 请求位置权限
 
@@ -84,11 +84,11 @@ public class LocationManager {
 
 [Android网络定位源码分析-简书](https://www.jianshu.com/p/071722bd9f1c)
 
-![location_service](/images/location/location_service.webp)
+![location_service](/images/android/location/location_service.webp)
 
 ### 位置信息请求时序图
 
-![location_manager](/images/location/location_manager.png)
+![location_manager](/images/android/location/location_manager.png)
 
 ## ServiceWatcher开机日志
 

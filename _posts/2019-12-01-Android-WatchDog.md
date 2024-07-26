@@ -18,11 +18,11 @@ tags:
 
 ## WatchDog
 
-![android_watchdog](/images/watchdog/android_watchdog.webp)
+![android_watchdog](/images/android/watchdog/android_watchdog.webp)
 
 ## 初始化
 
-![watchdog_uml](/images/watchdog/watchdog_uml.png)
+![watchdog_uml](/images/android/watchdog/watchdog_uml.png)
 
 ### startOtherServices
 
@@ -343,7 +343,7 @@ public final class ActivityManagerService extends ActivityManagerNative
 
 ```
 
-![watchdog_add](/images/watchdog/watchdog_add.png)
+![watchdog_add](/images/android/watchdog/watchdog_add.png)
 
 ## 核心原理
 
@@ -592,7 +592,7 @@ public final class ActivityManagerService extends ActivityManagerNative
 
 ```
 
-![watchdog_run](/images/watchdog/watchdog_run.png)
+![watchdog_run](/images/android/watchdog/watchdog_run.png)
 
 ## 总结
 

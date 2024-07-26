@@ -62,7 +62,7 @@ tags:
 
 ## 位置信息服务
 
-![android_location](/images/location/android_location.png)
+![android_location](/images/android/location/android_location.png)
 
 ## lmkd
 

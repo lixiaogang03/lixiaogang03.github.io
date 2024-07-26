@@ -35,7 +35,7 @@ tags:
 
 在这里以外卖app为例：制作了一个订单的简单的状态机图，以订单的状态变更推动
 
-![state_machine_demo](/images/state_machine/state_machine_demo.jpg)
+![state_machine_demo](/images/android/state_machine/state_machine_demo.jpg)
 
 ## StateMachine概念
 
@@ -99,16 +99,16 @@ public class TestStateMachine extends StateMachine {
 
 ```
 
-![demo_state_machine](/images/state_machine/demo_state_machine.webp)
+![demo_state_machine](/images/android/state_machine/demo_state_machine.webp)
 
 1. 通过addState函数初始化状态机的状态层次结构，该层次结构由SmHandler中的HashMap<State,StateInfo> mStateInfo来存储表示。
 2. 通过setInitialState方法设置初始状态
 
-![state_machine_init](/images/state_machine/state_machine_init.png)
+![state_machine_init](/images/android/state_machine/state_machine_init.png)
 
 ## 源码
 
-![state_machine_uml](/images/state_machine/state_machine_uml.webp)
+![state_machine_uml](/images/android/state_machine/state_machine_uml.webp)
 
 ### StateMachine
 
@@ -352,7 +352,7 @@ public class StateMachine {
 
 ### setupInitialStateStack
 
-![setupInitialStateStack](/images/state_machine/setupInitialStateStack.webp)
+![setupInitialStateStack](/images/android/state_machine/setupInitialStateStack.webp)
 
 ### IState
 
@@ -477,11 +477,11 @@ public class State implements IState {
 
 * 假设我们经过前三步基本使用步骤构造的状态层次结构图如下所示：
 
-![state_machine_tree](/images/state_machine/state_machine_tree.webp)
+![state_machine_tree](/images/android/state_machine/state_machine_tree.webp)
 
 * 当我们调用start()方法，进而会调用SmHandler#completeConstruction(),该方法首先会初始化2个状态栈
 
-![state_machine_1](/images/state_machine/state_machine_1.webp)
+![state_machine_1](/images/android/state_machine/state_machine_1.webp)
 
 * 接着发送一个SM_INIT_CMD消息，当SmHandler#handleMessage()，处理这个初始化消息时，会调用SmHandler#invokeEnterMethods(0),依次从mStateStack的栈底（因为传入参数为0）到栈顶调用对应State.enter()方法，即enter方法的调用顺序为P0->P1->S2->S5，并将State.active设置为true，表示已经激活。
 
@@ -494,15 +494,15 @@ public class State implements IState {
 
 * 调用SmHandler#setupTempStateStackWithStatesToEnter方法找到目的状态与当前初始状态S5（mStateStack的栈顶元素）的公共祖先即P1，同时对mTempStateStack进行重新赋值：先将目的状态S4入栈，然后根据S4往上回溯，如果节点未被激活则入栈，直到找到一个处于激活状态的节点，该节点即是目的状态与当前初始状态的公共祖先。此时，mTempStateStack逻辑上的结构应当如下图所示
 
-![state_machine_2](/images/state_machine/state_machine_2.webp)
+![state_machine_2](/images/android/state_machine/state_machine_2.webp)
 
 * 接着调用SmHandler#invokeExitMethods(commonStateInfo)方法，退出旧的状态，mStateStack依次出栈调用State.exit()方法，直到公共祖先P1（不含公共祖先），即exit的调用顺序为S5->S2，此时mStateStack逻辑上结构如下图所示
 
-![state_machine_3](/images/state_machine/state_machine_3.webp)
+![state_machine_3](/images/android/state_machine/state_machine_3.webp)
 
 * 将mTempStateStack整合至mStateStack
 
-![state_machine_4](/images/state_machine/state_machine_4.webp)
+![state_machine_4](/images/android/state_machine/state_machine_4.webp)
 
 * 调用SmHandler# invokeEnterMethods方法，从公共节点之上依次调用State.enter方法，直到栈顶，即新状态的enter调用顺序为S1->S4
 
@@ -811,7 +811,7 @@ public class HSM extends StateMachine {
 
 ```
 
-![state_machine_cmd1](/images/state_machine/state_machine_cmd1.png)
+![state_machine_cmd1](/images/android/state_machine/state_machine_cmd1.png)
 
 ### send CMD2
 
@@ -951,7 +951,7 @@ public class WifiStateMachine extends StateMachine{}
 
 ### WifiController
 
-![wifi_controller](/images/state_machine/wifi_controller.png)
+![wifi_controller](/images/android/state_machine/wifi_controller.png)
 
 ```java
 
@@ -1081,7 +1081,7 @@ public final class SystemServer {
 
 ### WifiStateMachine
 
-![wifi_state_machine](/images/state_machine/wifi_state_machine.jpg)
+![wifi_state_machine](/images/android/state_machine/wifi_state_machine.jpg)
 
 ```java
 
@@ -1143,7 +1143,7 @@ public class WifiStateMachine extends StateMachine implements WifiNative.WifiRss
 
 ### 打开wifi开关
 
-![set_wifi_enable](/images/state_machine/set_wifi_enable.png)
+![set_wifi_enable](/images/android/state_machine/set_wifi_enable.png)
 
 
 
