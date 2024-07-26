@@ -31,7 +31,7 @@ Socket通常翻译为套接字，它是为了方便让两台机器能互相通�
 
 ### Socket通信模型
 
-![socket_model](/images/socket_model.jpg)
+![socket_model](/images/network/socket_model.jpg)
 
 ### 服务端
 

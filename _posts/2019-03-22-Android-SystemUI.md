@@ -35,7 +35,7 @@ tags:
 
 ### 架构
 
-![systemui](/images/systemui.png)
+![systemui](/images/android/systemui/systemui.png)
 
 
 

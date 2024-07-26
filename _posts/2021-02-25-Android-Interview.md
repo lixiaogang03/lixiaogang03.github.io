@@ -74,7 +74,7 @@ tags:
 
 ## Socket
 
-![socket_model](/images/socket_model.jpg)
+![socket_model](/images/network/socket_model.jpg)
 
 ## Handler
 

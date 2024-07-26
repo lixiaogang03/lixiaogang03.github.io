@@ -14,9 +14,9 @@ tags:
 
 ## 效果图
 
-![taskbar_1](/images/taskbar_1.png)
+![taskbar_1](/images/android/systemui/taskbar_1.png)
 
-![taskbar_2](/images/taskbar_2.png)
+![taskbar_2](/images/android/systemui/taskbar_2.png)
 
 ## MainActivity
 
