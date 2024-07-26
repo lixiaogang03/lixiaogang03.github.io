@@ -16,7 +16,7 @@ tags:
 
 Network Identity and Time Zone（网络标识和时区），是一种用于自动配置本地的时间和日期的机制，需要运营商支持，可从运营商获取时间和时区具体信息
 
-![nitz](/images/time/nitz.png)
+![nitz](/images/hardware/time/nitz.png)
 
 ```java
 
@@ -66,7 +66,7 @@ public class ServiceStateTracker extends Handler {
 
 Network Time Protocol（网络时间协议），用来同步网络中各个计算机的时间的协议。在手机中，NTP更新时间的方式是通过GPRS或wifi向特定服务器获取时间信息(不包含时区信息)
 
-![ntp](/images/time/ntp.png)
+![ntp](/images/hardware/time/ntp.png)
 
 ```java
 

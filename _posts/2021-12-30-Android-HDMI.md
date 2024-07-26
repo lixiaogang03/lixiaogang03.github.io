@@ -20,15 +20,15 @@ tags:
 
 VGA: Video Graphics Array 视频图形阵列, 模拟信号, 液晶显示器需要 A/D转换器，模拟信号抗干扰能力差，不适合超高清显示，一般用在**1080p**以内
 
-![vga](/images/hdmi/vga.jpg)
+![vga](/images/hardware/hdmi/vga.jpg)
 
 HDMI: High Definition Multimedia Interface 高清多媒体接口, 全数字化视频和声音发送接口, 最新的**HDMI2.1**带宽达**48Gbps**，可以支持2K 240hz、4K 144hz、5K 60hz、8K 30hz
 
-![hdmi](/images/hdmi/hdmi.jpg)
+![hdmi](/images/hardware/hdmi/hdmi.jpg)
 
 DP: DisplayPort 数字高清接口, 最新的**DP2.0**带宽已经高达**80Gbps**，最大支持16K（15360*8460）的超强分辨率
 
-![dp](/images/hdmi/dp.jpg)
+![dp](/images/hardware/hdmi/dp.jpg)
 
 ## RK3288 dts
 

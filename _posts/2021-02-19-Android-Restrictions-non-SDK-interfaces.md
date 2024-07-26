@@ -373,11 +373,11 @@ void MemberSignature::WarnAboutAccess(AccessMethod access_method,
 
 copy from csdn
 
-![resrtictions_non-sdk_interfaces](/images/resrtictions_non-sdk_interfaces.png)
+![resrtictions_non-sdk_interfaces](/images/android/resrtictions_non-sdk_interfaces.png)
 
 ## android 9 黑白名单
 
-![hidden_api_list](/images/hidden_api_list.png)
+![hidden_api_list](/images/android/hidden_api_list.png)
 
 ### hiddenapi-package-whitelist.xml
 
@@ -526,7 +526,7 @@ public class AndroidPackageUtils {
 
 ### ApplicationInfo
 
-![hidden_api_policy](/images/hidden_api_policy.png)
+![hidden_api_policy](/images/android/hidden_api_policy.png)
 
 ```java
 

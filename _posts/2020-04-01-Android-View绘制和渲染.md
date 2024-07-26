@@ -19,11 +19,11 @@ tags:
 
 ## App Launch Systrace
 
-![systrace_app_launch](/images/systrace/systrace_app_launch.png)
+![systrace_app_launch](/images/performance/systrace/systrace_app_launch.png)
 
 ## View Drawing Rendering
 
-![view_drawing_rendering](/images/systrace/view_drawing_rendering.png)
+![view_drawing_rendering](/images/performance/systrace/view_drawing_rendering.png)
 
 ## performTraversals
 
