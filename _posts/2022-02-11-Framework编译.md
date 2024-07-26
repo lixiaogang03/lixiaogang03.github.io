@@ -24,11 +24,11 @@ JAR文件与zip文件的去区别就是在JAR文件中默认包含了一个名�
 
 ## AAR
 
-![aar](/images/sdk/aar.png)
+![aar](/images/android/sdk/aar.png)
 
 ## AAR 安全验证
 
-![sdk_verify](/images/sdk/sdk_verify.jpg)
+![sdk_verify](/images/android/sdk/sdk_verify.jpg)
 
 ## Baidu LBS JAR
 
@@ -45,7 +45,7 @@ JAR文件与zip文件的去区别就是在JAR文件中默认包含了一个名�
 
 ```
 
-![baidu_lbs](/images/sdk/baidu_lbs.png)
+![baidu_lbs](/images/android/sdk/baidu_lbs.png)
 
 
 ## framework.jar

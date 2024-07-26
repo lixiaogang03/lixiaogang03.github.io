@@ -36,31 +36,31 @@ Chinese (Simplified) Language Pack for Visual Studio Code
 
 ## c++ 环境配置
 
-![visual_studio_code](/images/visual_studio/visual_studio_code.png)
+![visual_studio_code](/images/tools/visual_studio/visual_studio_code.png)
 
 ## 编译和运行
 
 **安装c++插件**
 
-![config_1](/images/visual_studio/config_1.png)
+![config_1](/images/tools/visual_studio/config_1.png)
 
 **添加编译配置**
 
-![config_2](/images/visual_studio/config_2.png)
+![config_2](/images/tools/visual_studio/config_2.png)
 
 **运行和结果**
 
-![config_3](/images/visual_studio/config_3.png)
+![config_3](/images/tools/visual_studio/config_3.png)
 
 ## launch.json
 
-![launch_json](/images/visual_studio/launch_json.png)
+![launch_json](/images/tools/visual_studio/launch_json.png)
 
 ## task.json
 
 **创建task.json快捷键F5**
 
-![task_json](/images/visual_studio/task_json.png)
+![task_json](/images/tools/visual_studio/task_json.png)
 
 
 

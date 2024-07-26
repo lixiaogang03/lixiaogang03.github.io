@@ -14,18 +14,18 @@ tags:
 
 ## 音频架构
 
-![ape_fwk_audio](/images/media/ape_fwk_audio.png)
+![ape_fwk_audio](/images/android/media/ape_fwk_audio.png)
 
 ## 相机架构
 
-![ape_fwk_camera2](/images/media/ape_fwk_camera2.png)
+![ape_fwk_camera2](/images/android/media/ape_fwk_camera2.png)
 
 ## 图形架构
 
-![ape-fwk-graphics](/images/media/ape-fwk-graphics.png)
+![ape-fwk-graphics](/images/android/media/ape-fwk-graphics.png)
 
 ## 媒体架构
 
-![ape_fwk_media](/images/media/ape_fwk_media.png)
+![ape_fwk_media](/images/android/media/ape_fwk_media.png)
 
 

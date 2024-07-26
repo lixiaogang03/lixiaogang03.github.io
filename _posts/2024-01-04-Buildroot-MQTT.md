@@ -365,9 +365,9 @@ Categories=Development;IDE;
 
 **交叉编译环境配置**
 
-![cross_gcc_1](/images/eclipse/cross_gcc_1.png)
+![cross_gcc_1](/images/tools/eclipse/cross_gcc_1.png)
 
-![cross_gcc_2](/images/eclipse/cross_gcc_2.png)
+![cross_gcc_2](/images/tools/eclipse/cross_gcc_2.png)
 
 ## EMQ MQTTX
 
@@ -389,7 +389,7 @@ EMQ X Dashboard 是一个 Web 应用程序，你可以直接通过浏览器来�
 
 ## eclipse 引用源码
 
-![eclipse_include](/images/eclipse/eclipse_include.png)
+![eclipse_include](/images/tools/eclipse/eclipse_include.png)
 
 **编译命令**
 
@@ -399,7 +399,7 @@ arm-linux-gnueabi-gcc -I/home/lxg/code/github/paho.mqtt.c/src -O0 -g3 -Wall -c -
 
 http://download.eclipse.org/ 更换为 https://mirrors.ustc.edu.cn/eclipse/
 
-![eclipse_mirror](/images/eclipse/eclipse_mirror.png)
+![eclipse_mirror](/images/tools/eclipse/eclipse_mirror.png)
 
 
 sudo gedit /etc/hosts

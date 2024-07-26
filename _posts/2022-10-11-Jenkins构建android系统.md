@@ -24,12 +24,12 @@ CI(Continuous integration)翻译为：持续集成，是一种软件开发时间
 
 具体的流程如图：
 
-![jenkins_ci](/images/jenkins/jenkins_ci.png)
+![jenkins_ci](/images/tools/jenkins/jenkins_ci.png)
 
 CD(Continuous Delivery)翻译为：持续交付，是在持续集成的基础上，将集成后的代码部署到更贴近真实运行环境(类生产环境)中。比如我们完成单元测试后，可以把代码部署到连接数据库的Staging环境中更多的测试。
 如果代码没有问题，可以继续手动部署到生产环境。
 
-![jenkins_cd](/images/jenkins/jenkins_cd.png)
+![jenkins_cd](/images/tools/jenkins/jenkins_cd.png)
 
 ## ubuntu 安装 Jenkins
 

@@ -17,7 +17,7 @@ tags:
 
 ## 架构
 
-![ape_fwk_media](/images/media/ape_fwk_media.png)
+![ape_fwk_media](/images/android/media/ape_fwk_media.png)
 
 ## Camera2 app 4.4
 
@@ -605,17 +605,17 @@ status_t MPEG4Writer::start(MetaData *param) {
 
 ### MeidaRecorder init
 
-![set_camera](/images/media/set_camera)
+![set_camera](/images/android/media/set_camera)
 
 ### MeidaRecorder prepare
 
-![media_prepare](/images/media/media_prepare.webp)
+![media_prepare](/images/android/media/media_prepare.webp)
 
-![media_prepare_2](/images/media/media_prepare_2.webp)
+![media_prepare_2](/images/android/media/media_prepare_2.webp)
 
 ### MeidaRecorder start
 
-![media_start](images/media/media_start.webp)
+![media_start](images/android/media/media_start.webp)
 
 
 
