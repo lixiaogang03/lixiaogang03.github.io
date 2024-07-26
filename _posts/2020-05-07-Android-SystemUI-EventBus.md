@@ -16,7 +16,7 @@ tags:
 
 ## EventBus
 
-![event_bus](/images/eventbus/event_bus.webp)
+![event_bus](/images/android/systemui/eventbus/event_bus.webp)
 
 EventBus的处理流程是订阅者在EventBus中register(订阅)事件，当发布者发送出事件时，EventBus根据事件查找到订阅了该事件的订阅者列表，并逐一调用订阅者的onBusEvent()事件响应函数，把事件传给订阅者处理。
 
@@ -26,11 +26,11 @@ EventBus的处理流程是订阅者在EventBus中register(订阅)事件，当发
 
 ### 类图
 
-![event_bus_class](/images/eventbus/event_bus_class.png)
+![event_bus_class](/images/android/systemui/eventbus/event_bus_class.png)
 
 ### 注册订阅者
 
-![event_bus_register](/images/eventbus/event_bus_register.png)
+![event_bus_register](/images/android/systemui/eventbus/event_bus_register.png)
 
 ```java
 
@@ -78,7 +78,7 @@ public class EventBus extends BroadcastReceiver {
 
 ### 发送事件
 
-![event_bus_sendevent](/images/eventbus/event_bus_sendevent.png)
+![event_bus_sendevent](/images/android/systemui/eventbus/event_bus_sendevent.png)
 
 ### 注册日志
 
