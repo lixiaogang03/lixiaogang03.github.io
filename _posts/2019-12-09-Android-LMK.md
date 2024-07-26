@@ -19,7 +19,7 @@ tags:
 
 ## 架构
 
-![lmk_arch](/images/lmk/lmk_arch.png)
+![lmk_arch](/images/performance/lmk/lmk_arch.png)
 
 ## Framework
 
@@ -93,7 +93,7 @@ tags:
 
 ```
 
-![oom_adj](/images/lmk/oom_adj.png)
+![oom_adj](/images/performance/lmk/oom_adj.png)
 
 命令查看：adb shell dumpsys activity oom | grep "com.android.settings" -A 5
 

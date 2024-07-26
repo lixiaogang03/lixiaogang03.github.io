@@ -22,7 +22,7 @@ HAL 运行在用户空间，将硬件的一些重要的操作都放在这一层�
 
 ## 旧版HAL(Android 8.0 之前)
 
-![android_hal_old](/images/hal/android_hal_old.png)
+![android_hal_old](/images/android/hal/android_hal_old.png)
 
 Android 系统的 HAL 层其实并不复杂，只要你能理解清楚下面这 3 个结构体的含义：
 

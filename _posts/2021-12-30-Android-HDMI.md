@@ -135,8 +135,6 @@ public final class DisplayInfo implements Parcelable {
 
 ```
 
-![display_device](/images/dispaly/display_device.awebp)
-
 ## RK3288 HDMI 旋转
 
 | 属性值 | 含义 |
