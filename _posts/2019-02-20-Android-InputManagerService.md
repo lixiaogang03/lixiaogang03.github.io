@@ -17,7 +17,7 @@ tags:
 
 ## 类图
 
-![InputManagerService_uml](/images/input_manager/InputManagerService_uml.jpg)
+![InputManagerService_uml](/images/android/input_manager/InputManagerService_uml.jpg)
 
 ## 整体流程图
 
@@ -30,19 +30,19 @@ tags:
 7. 客户端在将事件分发到各个窗口，处理完毕后会调用 finish 告诉服务端事件已经处理完成
 8. InputDispatcher 收到事件处理完成通知，重新初始化 ANR 相关变量
 
-![InputManagerService](/images/input_manager/InputManagerService.jpg)
+![InputManagerService](/images/android/input_manager/InputManagerService.jpg)
 
 ## IMS 初始化与启动
 
-![InputManagerService_uml_2](/images/input_manager/InputManagerService_uml_2.jpg)
+![InputManagerService_uml_2](/images/android/input_manager/InputManagerService_uml_2.jpg)
 
 ## 输入事件的读取与解析
 
-![InputManagerService_uml_3](/images/input_manager/InputManagerService_uml_3.jpg)
+![InputManagerService_uml_3](/images/android/input_manager/InputManagerService_uml_3.jpg)
 
 ## 输入事件的处理与反馈
 
-![InputManagerService_uml_4](/images/input_manager/InputManagerService_uml_4.jpg)
+![InputManagerService_uml_4](/images/android/input_manager/InputManagerService_uml_4.jpg)
 
 
 

@@ -26,17 +26,17 @@ tags:
 
 ## 输入输出系统
 
-![android_input_system_2](/images/input_manager/android_input_system_2.png)
+![android_input_system_2](/images/android/input_manager/android_input_system_2.png)
 
 ![touch_event_dispatch](/images/android/view/touch_event_dispatch.webp)
 
 ## 包管理器
 
-![pms_arch](/images/pms/pms_arch.png)
+![pms_arch](/images/android/pms/pms_arch.png)
 
 ## startActivity
 
-![start_activity_gityuan](/images/wms/start_activity_gityuan.webp)
+![start_activity_gityuan](/images/android/wms/start_activity_gityuan.webp)
 
 ## AMS WMS
 
@@ -46,7 +46,7 @@ tags:
 
 ## WMS
 
-![window_system](/images/wms/window_system.webp)
+![window_system](/images/android/wms/window_system.webp)
 
 ## 属性系统
 

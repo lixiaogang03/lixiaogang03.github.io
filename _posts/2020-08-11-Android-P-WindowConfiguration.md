@@ -12,7 +12,7 @@ tags:
 
 ## 类图
 
-![window_configuration](/images/wms/window_configuration.png)
+![window_configuration](/images/android/wms/window_configuration.png)
 
 ## 代码
 

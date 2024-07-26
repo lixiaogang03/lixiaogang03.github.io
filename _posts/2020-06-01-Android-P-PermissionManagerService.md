@@ -16,19 +16,19 @@ tags:
 
 ## systrace
 
-![pms_systrace](/images/pms/pms_systrace.png)
+![pms_systrace](/images/android/pms/pms_systrace.png)
 
-![pms_systrace_2](/images/pms/pms_systrace_2.png)
+![pms_systrace_2](/images/android/pms/pms_systrace_2.png)
 
 ## UML-PermissionMS init
 
-![permssion_manager_service](/images/pms/permssion_manager_service.png)
+![permssion_manager_service](/images/android/pms/permssion_manager_service.png)
 
 ## UML-grantInstallPermission
 
-![super_power_app](/images/pms/super_power_app.png)
+![super_power_app](/images/android/pms/super_power_app.png)
 
-![grantInstallPermission](/images/pms/grantInstallPermission.png)
+![grantInstallPermission](/images/android/pms/grantInstallPermission.png)
 
 ## PackageManagerService
 
@@ -259,7 +259,7 @@ tags:
 
 ## 数据结构
 
-![permission_class](/images/pms/permission_class.png)
+![permission_class](/images/android/pms/permission_class.png)
 
 ### PackageParser.Package
 
@@ -616,11 +616,11 @@ public class PermissionSettings {
 
 ```
 
-![dumpsys_package](/images/pms/dumpsys_package.png)
+![dumpsys_package](/images/android/pms/dumpsys_package.png)
 
 ## 总结
 
-![permission_settings](/images/pms/permission_settings.png)
+![permission_settings](/images/android/pms/permission_settings.png)
 
 
 

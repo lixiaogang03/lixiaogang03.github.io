@@ -14,15 +14,15 @@ tags:
 
 ## APP、WMS、SurfaceFlinger
 
-![window_system](/images/wms/window_system.webp)
+![window_system](/images/android/wms/window_system.webp)
 
 ## 窗口组织形式
 
-![window_type](/images/wms/window_type.webp)
+![window_type](/images/android/wms/window_type.webp)
 
 ## 窗口数据结构
 
-![window_state](/images/wms/window_state.png)
+![window_state](/images/android/wms/window_state.png)
 
 ## 窗口的分组
 
@@ -258,7 +258,7 @@ class WindowContainer<E extends WindowContainer> implements Comparable<WindowCon
 
 ## 窗口树
 
-![window_tree](/images/wms/window_tree.webp)
+![window_tree](/images/android/wms/window_tree.webp)
 
 ### WindowState
 
@@ -312,7 +312,7 @@ class WindowToken extends WindowContainer<WindowState> {
 
 android屏幕边界划分，屏幕有overscan区域、状态栏、导航栏、输入法，PhoneWindowManager定义了这些区域代表了屏幕上不同的组合
 
-![window_size](/images/wms/window_size.png)
+![window_size](/images/android/wms/window_size.png)
 
 ### PhoneWindowManager
 
@@ -422,7 +422,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
 ### Activity窗口大小的计算
 
-![window_relayout](/images/wms/window_relayout.png)
+![window_relayout](/images/android/wms/window_relayout.png)
 
 
 

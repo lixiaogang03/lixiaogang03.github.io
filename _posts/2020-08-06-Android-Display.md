@@ -16,11 +16,11 @@ tags:
 
 ## DMS
 
-![display_manager](/images/wms/display_manager.png)
+![display_manager](/images/android/wms/display_manager.png)
 
 ## WMS Display
 
-![wms_display](/images/wms/wms_display.png)
+![wms_display](/images/android/wms/wms_display.png)
 
 
 ### WindowManagerService

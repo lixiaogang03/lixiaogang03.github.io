@@ -13,11 +13,11 @@ tags:
 
 ## Systrace
 
-![systrace_resize_task](/images/wms/systrace_resize_task.png)
+![systrace_resize_task](/images/android/wms/systrace_resize_task.png)
 
 ## System
 
-![resize_task](/images/wms/resize_task.png)
+![resize_task](/images/android/wms/resize_task.png)
 
 ```txt
 
@@ -54,7 +54,7 @@ tags:
 
 ## APP
 
-![resize_task_2](/images/wms/resize_task_2.png)
+![resize_task_2](/images/android/wms/resize_task_2.png)
 
 ## 代码
 

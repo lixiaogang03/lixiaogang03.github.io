@@ -39,7 +39,7 @@ The commands and default sources are:
 
 ```
 
-![input_keyevent](/images/input_manager/input_keyevent.png)
+![input_keyevent](/images/android/input_manager/input_keyevent.png)
 
 ## KeyEvent
 

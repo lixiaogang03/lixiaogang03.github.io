@@ -20,15 +20,15 @@ tags:
 
 ## WMS
 
-![wms_data_structure](/images/wms/wms_data_structure.webp)
+![wms_data_structure](/images/android/wms/wms_data_structure.webp)
 
 ## Token
 
-![window_token](/images/wms/window_token.webp)
+![window_token](/images/android/wms/window_token.webp)
 
 [AMS_WMS_APP 中Token惟一性-简书](https://www.jianshu.com/p/5e2efbaa2949)
 
-![wms_token_2](/images/wms/wms_token_2.webp)
+![wms_token_2](/images/android/wms/wms_token_2.webp)
 
 ### appToken 
 
@@ -842,7 +842,7 @@ public class DisplayWindowController
 
 ```
 
-![wms_window_container](/images/wms/wms_window_container.webp)
+![wms_window_container](/images/android/wms/wms_window_container.webp)
 
 
 

@@ -17,15 +17,15 @@ tags:
 
 ## Android GUI history
 
-![android_gui_history](/images/wms/android_gui_history.png)
+![android_gui_history](/images/android/wms/android_gui_history.png)
 
 ## WMS in GUI system
 
-![android_graphics](/images/wms/android_graphics.png)
+![android_graphics](/images/android/wms/android_graphics.png)
 
 ## AMS/WMS/IMS
 
-![wms_ams_ims](/images/wms/wms_ams_ims.png)
+![wms_ams_ims](/images/android/wms/wms_ams_ims.png)
 
 ## Window
 
@@ -35,13 +35,13 @@ Android系统中的窗口是屏幕上的一块用于绘制各种UI元素的一�
 
 Surface是一块画布，应用可以通过Canvas或者OpenGL在上面作画，然后通过SurfaceFlinger将多块Surface的内容按照特定顺序(Z-order)进行合成，然后输出到FrameBuffer
 
-![surface](/images/wms/surface.png)
+![surface](/images/android/wms/surface.png)
 
 ## WMS
 
 WMS为所有窗口分配Surface, 掌管Surface的显示顺序(Z-order)以及位置尺寸，控制窗口动画，中转输入内容
 
-![android_wms](/images/wms/android_wms.png)
+![android_wms](/images/android/wms/android_wms.png)
 
 ## 启动
 
@@ -201,7 +201,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
 ```
 
-![wms_start](/images/wms/wms_start.png)
+![wms_start](/images/android/wms/wms_start.png)
 
 ## 数据结构
 
@@ -370,17 +370,17 @@ Android支持多屏幕，一个DisplayContent描述了一块可以绘制窗口�
 
 ## startActivity
 
-![start_activity](/images/wms/start_activity.jpeg)
+![start_activity](/images/android/wms/start_activity.jpeg)
 
-![start_activity_2](/images/wms/start_activity_2.jpeg)
+![start_activity_2](/images/android/wms/start_activity_2.jpeg)
 
 ## App-WMS-SurfaceFlinger
 
-![surface_display](/images/wms/surface_display.png)
+![surface_display](/images/android/wms/surface_display.png)
 
 ## 总结
 
-![surface_display_2](/images/wms/surface_display_2.png)
+![surface_display_2](/images/android/wms/surface_display_2.png)
 
 
 

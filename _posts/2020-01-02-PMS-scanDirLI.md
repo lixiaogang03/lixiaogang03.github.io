@@ -12,7 +12,7 @@ tags:
 
 [APK安装流程详解-简书](https://www.jianshu.com/p/f47e45602ad2)
 
-![pms_scan](/images/pms/pms_scan.png)
+![pms_scan](/images/android/pms/pms_scan.png)
 
 ## 卸载系统应用
 
@@ -131,7 +131,7 @@ public final class Pm {
 
 ### pm uninstall
 
-![pm_uninstall](/images/pms/pm_uninstall.png)
+![pm_uninstall](/images/android/pms/pm_uninstall.png)
 
 
 ## 系统应用扫描
