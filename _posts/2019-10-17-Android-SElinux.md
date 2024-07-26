@@ -18,7 +18,7 @@ tags:
 
 SElinux宏观上包含四个基本组件：对象管理器(OM), 访问向量缓存(AVC), 安全服务器, 安全策略
 
-![selinux_arch](/images/selinux/selinux_arch.png)
+![selinux_arch](/images/android/selinux/selinux_arch.png)
 
 ## 基本工作原理
 
@@ -50,15 +50,15 @@ Selinux支持两种形式的安全检查：类型强制(TE)和多层次安全(ML
 
 [AOSP源码](http://androidxref.com/7.1.1_r6/xref/system/sepolicy/)
 
-![selinux_aosp](/images/selinux/selinux_aosp.png)
+![selinux_aosp](/images/android/selinux/selinux_aosp.png)
 
-![selinux_aosp_2](/images/selinux/selinux_aosp_2.png)
+![selinux_aosp_2](/images/android/selinux/selinux_aosp_2.png)
 
-![selinux_aosp_3](/images/selinux/selinux_aosp_3.png)
+![selinux_aosp_3](/images/android/selinux/selinux_aosp_3.png)
 
-![selinux_aosp_4](/images/selinux/selinux_aosp_4.png)
+![selinux_aosp_4](/images/android/selinux/selinux_aosp_4.png)
 
-![selinux_aosp_5](/images/selinux/selinux_aosp_5.png)
+![selinux_aosp_5](/images/android/selinux/selinux_aosp_5.png)
 
 ## 安全上下文
 
@@ -570,7 +570,7 @@ on post-fs-data
 
 ## 总结
 
-![selinux_arch_2](/images/selinux/selinux_arch_2.png)
+![selinux_arch_2](/images/android/selinux/selinux_arch_2.png)
 
 
 
