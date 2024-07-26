@@ -12,7 +12,7 @@ tags:
 
 ## 效果图
 
-![freeform_window](/images/freeform/freeform_window.png)
+![freeform_window](/images/android/freeform/freeform_window.png)
 
 ## 布局文件-Android 9
 

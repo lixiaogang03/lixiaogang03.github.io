@@ -17,7 +17,7 @@ tags:
 
 [Jetpack-Google](https://developer.android.google.cn/jetpack?hl=zh-cn)
 
-![jetpack](/images/jetpack.png)
+![jetpack](/images/android/jetpack.png)
 
 ## build.gradle
 

@@ -15,11 +15,11 @@ tags:
 
 ## logcat system
 
-![android_logcat](/images/logcat/android_logcat.png)
+![android_logcat](/images/android/logcat/android_logcat.png)
 
 ## 缓冲区
 
-![logcat_circle_buffer](/images/logcat/logcat_circle_buffer.png)
+![logcat_circle_buffer](/images/android/logcat/logcat_circle_buffer.png)
 
 Android 日志记录系统为日志消息保留了多个环形缓冲区，而且并非所有的日志消息都会发送到默认的环形缓冲区。
 要查看其他日志消息，可以使用 -b 选项运行 logcat 命令，以请求查看备用的环形缓冲区。可以查看下列任意备用缓冲区：

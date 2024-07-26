@@ -20,7 +20,7 @@ WorkManager 是一个 API，可供您轻松调度那些即使在退出应用或�
 
 在后台，WorkManager 根据以下条件使用底层作业来调度服务：
 
-![overview-criteria](/images/jetpack/overview-criteria.png)
+![overview-criteria](/images/android/jetpack/overview-criteria.png)
 
 ## build.gradle
 

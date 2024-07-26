@@ -12,11 +12,11 @@ tags:
 
 ## 下拉栏
 
-[systemui_qspanel](/images/systemui/systemui_qspanel.png)
+[systemui_qspanel](/images/android/systemui/systemui_qspanel.png)
 
 ## 架构图
 
-![systemui_arch](/images/systemui/systemui_arch.png)
+![systemui_arch](/images/android/systemui/systemui_arch.png)
 
 ## SystemServer
 

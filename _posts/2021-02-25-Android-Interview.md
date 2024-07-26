@@ -58,7 +58,7 @@ tags:
 
 ## 网络管理服务
 
-![android_netd](/images/netd/android_netd.png)
+![android_netd](/images/android/netd/android_netd.png)
 
 ## 位置信息服务
 

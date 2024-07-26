@@ -14,7 +14,7 @@ tags:
 
 ## View.SYSTEM_UI_FLAG_IMMERSIVE
 
-![immesive_mode](/images/statusbar/immesive_mode.png)
+![immesive_mode](/images/android/statusbar/immesive_mode.png)
 
 ## Android 9
 

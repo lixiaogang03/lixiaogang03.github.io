@@ -16,7 +16,7 @@ tags:
 
 ## netd
 
-![android_netd](/images/netd/android_netd.png)
+![android_netd](/images/android/netd/android_netd.png)
 
 ### 概述
 
@@ -346,7 +346,7 @@ kobject一般用于通知内核中某个模块的加载和卸载。对NM来说�
 * NETLINK_NETFILTER: Netfilter 利用一些封包过滤的规则设定, 来定义出什么数据包可以接收, 什么数据包需要剔除,位于内核层。
 iptables 通过命令的方式对 Netfilter 规则进行排序与修改, 位于用户层
 
-![netlink_manager_class](/images/netd/netlink_manager_class.png)
+![netlink_manager_class](/images/android/netd/netlink_manager_class.png)
 
 ### NetlinkHandler.cpp
 
@@ -411,7 +411,7 @@ void NetlinkHandler::notifyStrictCleartext(const char* uid, const char* hex) {
 
 ```
 
-![netlink_manager](/images/netd/netlink_manager.png)
+![netlink_manager](/images/android/netd/netlink_manager.png)
 
 ### CommandListener.cpp(CL)
 
@@ -491,7 +491,7 @@ CommandListener::CommandListener() :
 
 ```
 
-![command_listener](/images/netd/command_listener.png)
+![command_listener](/images/android/netd/command_listener.png)
 
 假设Client端发送的命令名是"nat"，当CL收到这个命令后，首先会从其构造函数中注册的那些命令对象中找到对应该名字（即"nat"）的命令对象，
 其结果就是图中的NatCmd对象。而该命令最终的处理工作将由此NatCmd对象的runCommand函数完成
@@ -679,13 +679,13 @@ REJECT     all  --  anywhere             anywhere             reject-with icmp-p
 
 iptables是Linux系统中最重要的网络管控工具。它与Kernel中的netfilter模块配合工作，其主要功能是为netfilter设置一些过滤（filter）或网络地址转换（NAT）的规则。当Kernel收到网络数据包后，将会依据iptables设置的规则进行相应的操作。举个最简单的例子，可以利用iptables设置这样一条防火墙规则：丢弃来自IP地址为192.168.1.108的所有数据包
 
-![iptables_rule](/images/netd/iptables_rule.jpg)
+![iptables_rule](/images/android/netd/iptables_rule.jpg)
 
 * iptables内部(其实是Kernel的netfilter模块)维护着四个Table，分别是filter、nat、mangle和raw
 * Table中定义了Chain。一个Table可以支持多个Chain，Chain实际上是Rule的集合，每个Table都有默认的Chain。例如filter表默认的Chain有INPUT、OUTPUT、FORWARD。用户可以自定义Chain，也可修改Chain中的Rule
 * Rule就是iptables工作的规则。首先，系统将检查要处理的数据包是否满足Rule设置的条件，如果满足则执行Rule中设置的目标(Target)，否则继续执行Chain中的下一条Rule
 
-![iptables_chain](/images/netd/iptables_chain.jpg)
+![iptables_chain](/images/android/netd/iptables_chain.jpg)
 
 ### 工作过程
 
@@ -694,11 +694,11 @@ iptables是Linux系统中最重要的网络管控工具。它与Kernel中的netf
 3. 若该数据包应该被转发，则它将被钩子函数FORWARD处理，然后还要经钩子函数POST_ROUTING处理后才能传输到网络
 4. 本机进程产生的数据包要先经过钩子函数LOCAL_OUT处理后，再进行路由选择处理，然后经过钩子函数POST_ROUTING处理后再发送到网络
 
-![iptables_principle](/images/netd/iptables_principle.png)
+![iptables_principle](/images/android/netd/iptables_principle.png)
 
 ### 命令
 
-![iptables_rule_format](/images/netd/iptables_rule_format.png)
+![iptables_rule_format](/images/android/netd/iptables_rule_format.png)
 
 **Target**
 
