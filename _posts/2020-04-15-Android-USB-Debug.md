@@ -21,7 +21,7 @@ Adb(Android-Debug-Bridge)是为了方便Host与目标Android设备通讯而出�
 Adb分为三个端：Client & Server & Mobile。Adb的部分源代码是混在一起的，很多部分的功能可以重用，各端独立的逻辑使用预编译指令来分隔离。
 源码中通常使用预编译定义ADB_HOST来表示PC上的代码，其他#else块中表示Mobile代码，其他的表示为3端共享的代码。
 
-![adb_debug](/images/adb/adb_debug.png)
+![adb_debug](/images/android/adb/adb_debug.png)
 
 ## adbd
 
@@ -184,7 +184,7 @@ persist.adb.tcp.port
 
 ### Usb Debugging Init
 
-![UsbDebug_init](/images/adb/UsbDebug_init.png)
+![UsbDebug_init](/images/android/adb/UsbDebug_init.png)
 
 ### 手动打开USB调试
 
@@ -193,7 +193,7 @@ persist.adb.tcp.port
 那么adbd是如何响应property的更改呢？
 这主要依赖init.usb.rc或init.*.usb.rc在一开机就注册好的property事件，当指定的property项如sys.usb.config的值被设为mtp,usb时，就会触发启动adbd的命令。
 
-![open_debug_2](/images/adb/open_debug_2.png)
+![open_debug_2](/images/android/adb/open_debug_2.png)
 
 system/core/rootdir/init.usb.rc
 
@@ -244,11 +244,11 @@ on property:sys.usb.config=adb && property:sys.usb.configfs=0
 
 ```
 
-![open_debug](/images/adb/open_debug.png)
+![open_debug](/images/android/adb/open_debug.png)
 
 ## Adbd 与 Server 的授权过程
 
-![adb_fingerprint](/images/adb/adb_fingerprint.png)
+![adb_fingerprint](/images/android/adb/adb_fingerprint.png)
 
 
 ## dumpsys 调试
@@ -293,7 +293,7 @@ USB Manager State:
 
 ## 小结
 
-![adb_command](/images/adb/adb_command.png)
+![adb_command](/images/android/adb/adb_command.png)
 
 
 
