@@ -15,11 +15,11 @@ tags:
 
 ## Process Start
 
-![runtime_init](/images/crash_anr/runtime_init.png)
+![runtime_init](/images/android/crash_anr/runtime_init.png)
 
 ## Crash Init
 
-![crash_init](/images/crash_anr/crash_init.png)
+![crash_init](/images/android/crash_anr/crash_init.png)
 
 ```java
 
@@ -46,7 +46,7 @@ public class Thread implements Runnable {
 
 ## Crash处理流程
 
-![crash_trace](/images/crash_anr/crash_trace.png)
+![crash_trace](/images/android/crash_anr/crash_trace.png)
 
 
 

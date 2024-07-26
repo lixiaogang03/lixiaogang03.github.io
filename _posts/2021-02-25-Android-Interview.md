@@ -14,7 +14,7 @@ tags:
 
 ## 总体架构
 
-![aosp](/images/aosp.png)
+![aosp](/images/android/aosp.png)
 
 ## 系统启动
 
@@ -22,13 +22,13 @@ tags:
 
 ## 图形显示系统
 
-![android_graphics](/images/android_graphics.png)
+![android_graphics](/images/android/android_graphics.png)
 
 ## 输入输出系统
 
 ![android_input_system_2](/images/input_manager/android_input_system_2.png)
 
-![touch_event_dispatch](/images/view/touch_event_dispatch.webp)
+![touch_event_dispatch](/images/android/view/touch_event_dispatch.webp)
 
 ## 包管理器
 
@@ -70,7 +70,7 @@ tags:
 
 ## Binder
 
-![binder_arch](/images/binder/binder_arch.webp)
+![binder_arch](/images/android/binder/binder_arch.webp)
 
 ## Socket
 

@@ -14,11 +14,11 @@ tags:
 
 ## Context作用域
 
-![](/images/app/context.png)
+![](/images/android/app/context.png)
 
 ## Resources类图
 
-![ResourcesImpl](/images/app/ResourcesImpl.png)
+![ResourcesImpl](/images/android/app/ResourcesImpl.png)
 
 ## 应用冷启动ResourcesManager日志
 

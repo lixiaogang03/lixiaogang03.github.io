@@ -14,7 +14,7 @@ tags:
 
 ## 信号强度表格
 
-![signal_strength](/images/apn/signal_strength.png)
+![signal_strength](/images/android/apn/signal_strength.png)
 
 ## 物联卡正常的日志
 

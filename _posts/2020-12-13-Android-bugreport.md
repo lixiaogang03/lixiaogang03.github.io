@@ -16,7 +16,7 @@ tags:
 
 ## 通过设备获取bugreport
 
-![device_bugreport](/images/bugreport/device_bugreport.png)
+![device_bugreport](/images/android/bugreport/device_bugreport.png)
 
 ## 通过命令获取bugreport
 
@@ -34,7 +34,7 @@ Bug report copied to bugreport.zip
 
 ## UML
 
-![settings_bugreport](/images/bugreport/settings_bugreport.png)
+![settings_bugreport](/images/android/bugreport/settings_bugreport.png)
 
 ## 源码
 

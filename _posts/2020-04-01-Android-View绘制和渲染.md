@@ -48,13 +48,13 @@ private void performTraversals() {
 
 ```
 
-![perform_traversals](/images/view/perform_traversals.webp)
+![perform_traversals](/images/android/view/perform_traversals.webp)
 
 ## View Rendering
 
 UI对象---->CPU处理为多维图形,纹理-----通过OpeGL ES接口调用GPU---->GPU对图进行光栅化(Frame Rate)---->硬件时钟(Refresh Rate)----垂直同步---->投射到屏幕
 
-![view_rendering](/images/view/view_rendering.webp)
+![view_rendering](/images/android/view/view_rendering.webp)
 
 
 

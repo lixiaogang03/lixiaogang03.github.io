@@ -228,7 +228,7 @@ public class DropBoxManager {
 
 ## DropBoxManagerService
 
-![dropbox_manager_service](/images/bugreport/dropbox_manager_service.png)
+![dropbox_manager_service](/images/android/bugreport/dropbox_manager_service.png)
 
 ```java
 

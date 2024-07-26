@@ -60,11 +60,11 @@ public class View implements Drawable.Callback, KeyEvent.Callback,
 
 ## 触摸事件模型
 
-![touch_event](/images/view/touch_event.webp)
+![touch_event](/images/android/view/touch_event.webp)
 
 ## 触摸时间派发
 
-![touch_event_dispatch](/images/view/touch_event_dispatch.webp)
+![touch_event_dispatch](/images/android/view/touch_event_dispatch.webp)
 
 
 

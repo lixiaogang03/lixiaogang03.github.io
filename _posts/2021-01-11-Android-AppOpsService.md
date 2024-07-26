@@ -22,7 +22,7 @@ tags:
 
 ## 架构
 
-![app_ops_service](/images/appops/app_ops_service.png)
+![app_ops_service](/images/android/appops/app_ops_service.png)
 
 ## AppOpsManager
 

@@ -18,7 +18,7 @@ tags:
 
 Android android.graphics.Matrix 类是一个3 x 3的矩阵
 
-![android_matrix](/images/view/android_matrix.png)
+![android_matrix](/images/android/view/android_matrix.png)
 
 ## 源码
 
@@ -69,7 +69,7 @@ public class Matrix {
 
 ## 矩阵乘法
 
-![matrix_cal](/images/view/matrix_cal.awebp)
+![matrix_cal](/images/android/view/matrix_cal.awebp)
 
 注意：矩阵的乘法不满足交换律
 
@@ -88,7 +88,7 @@ public class Matrix {
 
 位移操作是指将坐标（x0,y0）平移一定的距离，我们直接将坐标加上平移的距离即可得到平移后的坐标：
 
-![matrix_translate](/images/view/matrix_translate.webp)
+![matrix_translate](/images/android/view/matrix_translate.webp)
 
 ```java
 
@@ -123,7 +123,7 @@ public class Matrix {
 
 假设对某个点宽度缩放 k1 倍，高度缩放 k2 倍，该点坐标为 x0、y0，缩放后坐标为 x、y，那么缩放的公式如下：
 
-![matrix_scale](/images/view/matrix_scale.webp)
+![matrix_scale](/images/android/view/matrix_scale.webp)
 
 ```java
 
@@ -185,7 +185,7 @@ public class Matrix {
 
 对应 MSKEW_X 与 MSKEW_Y
 
-![matrix_skew](/images/view/matrix_skew.webp)
+![matrix_skew](/images/android/view/matrix_skew.webp)
 
 ```java
 
@@ -223,9 +223,9 @@ public class Matrix {
 
 旋转相对以上三种变化又有一点复杂，这里涉及一些三角函数的计算
 
-![matrix_rotate](/images/view/matrix_rotate.png)
+![matrix_rotate](/images/android/view/matrix_rotate.png)
 
-![matrix_rotate](/images/view/matrix_rotate.webp)
+![matrix_rotate](/images/android/view/matrix_rotate.webp)
 
 ```java
 
@@ -325,7 +325,7 @@ static const JNINativeMethod methods[] = {
 
 ./external/skia/src/core/SkMatrix.cpp
 
-![android_skia](/images/view/android_skia.webp)
+![android_skia](/images/android/view/android_skia.webp)
 
 **SkMatrix.h**
 

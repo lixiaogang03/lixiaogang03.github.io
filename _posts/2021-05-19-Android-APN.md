@@ -18,7 +18,7 @@ In the GPRS backbone, an Access Point Name (APN) is a reference to a GGSN. To su
 
 从定义可看出，APN是GGSN的引用，被internal GPRS DNS转换为GGSN的IP地址。
 
-![apn_define](/images/apn/apn_define.png)
+![apn_define](/images/android/apn/apn_define.png)
 
 那么GGSN是什么，又是做什么的呢？
 **GGSN全称Gateway GPRS Support Node, 网关GPRS支持节点**
@@ -29,11 +29,11 @@ GGSN主要起网关作用，所扮演的角色：
 
 ## APN 参数
 
-![apn_param](/images/apn/apn_param.png)
+![apn_param](/images/android/apn/apn_param.png)
 
 ## APN 类型
 
-![apn_type](/images/apn/apn_type.png)
+![apn_type](/images/android/apn/apn_type.png)
 
 ## apns-conf.xml
 

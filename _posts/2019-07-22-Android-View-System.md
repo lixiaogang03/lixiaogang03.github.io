@@ -29,6 +29,6 @@ tags:
 
 下图显示了关键组件如何协同工作：
 
-![android_graphics](/images/android_graphics.png)
+![android_graphics](/images/android/android_graphics.png)
 
 

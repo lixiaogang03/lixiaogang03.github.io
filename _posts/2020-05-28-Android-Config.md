@@ -95,7 +95,7 @@ context.getResources().getString(Resources.getSystem().getIdentifier("config_ntp
 
 ## framework-res.apk
 
-![framework_res](/images/asset/framework_res.png)
+![framework_res](/images/android/asset/framework_res.png)
 
 ## ResourcesManager
 

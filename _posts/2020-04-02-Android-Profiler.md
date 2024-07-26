@@ -12,7 +12,7 @@ tags:
 
 [Android Profiler](https://developer.android.google.cn/studio/profile/android-profiler?hl=zh-cn)
 
-![android_profiler](/images/view/android_profiler.png)
+![android_profiler](/images/android/view/android_profiler.png)
 
 ### CPU Profiler--函数跟踪
 
