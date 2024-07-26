@@ -14,7 +14,7 @@ tags:
 
 ## 架构图
 
-![property_system](/images/property/property_system.webp)
+![property_system](/images/android/property/property_system.webp)
 
 1. Android系统一启动就会从若干属性脚本文件中加载属性内容
 2. Android系统中的所有属性(key/value)会存入同一块共享内存中

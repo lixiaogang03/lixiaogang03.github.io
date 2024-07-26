@@ -50,7 +50,7 @@ tags:
 
 ## 属性系统
 
-![property_system](/images/property/property_system.webp)
+![property_system](/images/android/property/property_system.webp)
 
 ## 电话系统
 
