@@ -40,9 +40,9 @@ tags:
 
 ## AMS WMS
 
-![ams_wms](/images/ams/ams_wms.webp)
+![ams_wms](/images/android/ams/ams_wms.webp)
 
-![window_structure_2](/images/ams/window_structure_2.png)
+![window_structure_2](/images/android/ams/window_structure_2.png)
 
 ## WMS
 

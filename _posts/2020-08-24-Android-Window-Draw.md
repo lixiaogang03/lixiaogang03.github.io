@@ -14,19 +14,19 @@ tags:
 
 ## 窗口结构
 
-![window_structure](/images/ams/window_structure.png)
+![window_structure](/images/android/ams/window_structure.png)
 
 ## APP 数据结构
 
-![window_structure_2](/images/ams/window_structure_2.png)
+![window_structure_2](/images/android/ams/window_structure_2.png)
 
 ## uml
 
-![activity_window](/images/ams/activity_window.png)
+![activity_window](/images/android/ams/activity_window.png)
 
 ## startWindow
 
-![start_window](/images/ams/start_window.png)
+![start_window](/images/android/ams/start_window.png)
 
 ```txt
 
@@ -67,7 +67,7 @@ system_process D/WWW: onResourcesLoaded:java.lang.Throwable
 
 ## Activity-PhoneWindow-DecorView
 
-![window_decor](/images/ams/window_decor.png)
+![window_decor](/images/android/ams/window_decor.png)
 
 ```txt
 
@@ -98,7 +98,7 @@ system_process D/WWW: onResourcesLoaded:java.lang.Throwable
 
 ## ViewRootImpl
 
-![view_root_impl](/images/ams/view_root_impl.png)
+![view_root_impl](/images/android/ams/view_root_impl.png)
 
 ```txt
 
@@ -122,7 +122,7 @@ system_process D/WWW: onResourcesLoaded:java.lang.Throwable
 
 ## Systrace
 
-![app_launch](/images/ams/app_launch.png)
+![app_launch](/images/android/ams/app_launch.png)
 
 
 

@@ -16,11 +16,11 @@ tags:
 
 ### Home Stack
 
-![home_stack](/images/ams/home_stack.webp)
+![home_stack](/images/android/ams/home_stack.webp)
 
 ### App Stack
 
-![app_stack](/images/ams/app_stack.webp)
+![app_stack](/images/android/ams/app_stack.webp)
 
 ### ActivityManager
 

@@ -14,9 +14,9 @@ tags:
 
 ## AMS
 
-![ams_activity_stack](/images/ams/ams_activity_stack.png)
+![ams_activity_stack](/images/android/ams/ams_activity_stack.png)
 
-![ams_data_structure](/images/ams/ams_data_structure.webp)
+![ams_data_structure](/images/android/ams/ams_data_structure.webp)
 
 ## WMS
 
@@ -224,7 +224,7 @@ public final class ActivityThread {
 
 [Android之AMS和WMS数据对应关系(基于Android9.0)-简书](https://www.jianshu.com/p/c14b1a5a3a84)
 
-![ams_wms](/images/ams/ams_wms.webp)
+![ams_wms](/images/android/ams/ams_wms.webp)
 
 ### ActivityStack vs TaskStack
 
@@ -695,7 +695,7 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
 
 ```
 
-![ams_vs_wms](/images/ams/ams_vs_wms.png)
+![ams_vs_wms](/images/android/ams/ams_vs_wms.png)
 
 
 ### 小结

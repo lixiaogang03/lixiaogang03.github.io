@@ -21,7 +21,7 @@ tags:
 
 ## AMS
 
-![ams_activity_stack](/images/ams/ams_activity_stack.png)
+![ams_activity_stack](/images/android/ams/ams_activity_stack.png)
 
 ### ActivityStarter
 
@@ -68,7 +68,7 @@ public final class ActivityStackSupervisor implements DisplayListener {
 
 ```
 
-![activity_stack](/images/ams/activity_stack.webp)
+![activity_stack](/images/android/ams/activity_stack.webp)
 
 
 ### ActivityStack
@@ -126,14 +126,14 @@ final class ActivityRecord {
 
 ### AMS 启动
 
-![ams_init](/images/ams/init.webp)
+![ams_init](/images/android/ams/init.webp)
 
 ### startActivity 概述
 
-![start_activity](/images/ams/start_activity.webp)
+![start_activity](/images/android/ams/start_activity.webp)
 
 
 ## AMS vs WMS
 
-![ams_vs_wms](/images/ams/ams_vs_wms.png)
+![ams_vs_wms](/images/android/ams/ams_vs_wms.png)
 

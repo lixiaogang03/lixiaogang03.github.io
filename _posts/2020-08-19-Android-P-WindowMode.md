@@ -241,7 +241,7 @@ class ActivityStack<T extends StackWindowController> extends ConfigurationContai
 
 ### 调用栈
 
-![actviity_options](/images/ams/actviity_options.png)
+![actviity_options](/images/android/ams/actviity_options.png)
 
 ```txt
 

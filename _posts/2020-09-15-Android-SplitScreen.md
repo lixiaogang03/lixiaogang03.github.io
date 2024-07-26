@@ -14,7 +14,7 @@ tags:
 
 从Recent启动分屏模式
 
-![recent_split_screen](/images/ams/recent_split_screen.png)
+![recent_split_screen](/images/android/ams/recent_split_screen.png)
 
 ### Launcher
 

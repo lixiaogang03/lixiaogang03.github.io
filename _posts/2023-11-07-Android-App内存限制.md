@@ -468,7 +468,7 @@ DMA-BUF Heaps pool:    98,980K
 
 ## 流程图
 
-![dumpsys_meminfo](/images/ams/dumpsys_meminfo.png)
+![dumpsys_meminfo](/images/android/ams/dumpsys_meminfo.png)
 
 ## 源码
 

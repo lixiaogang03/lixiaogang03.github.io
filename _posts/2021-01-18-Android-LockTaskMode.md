@@ -328,7 +328,7 @@ public class DevicePolicyManagerService extends BaseIDevicePolicyManager {
 
 ## ActivityTaskManagerService
 
-![lock_task_controller](/images/ams/lock_task_controller.png)
+![lock_task_controller](/images/android/ams/lock_task_controller.png)
 
 **Activity**
 
@@ -673,11 +673,11 @@ public class LockTaskController {
 
 **开机初始化---updateLockTaskPackages---updateLockTaskFeaturesLocked**
 
-![lock_task_mode_init](/images/ams/lock_task_mode_init.png)
+![lock_task_mode_init](/images/android/ams/lock_task_mode_init.png)
 
 **进入Lock Task Mode**
 
-![start_lock_task](/images/ams/start_lock_task.png)
+![start_lock_task](/images/android/ams/start_lock_task.png)
 
 ## 跳转拦截日志
 
