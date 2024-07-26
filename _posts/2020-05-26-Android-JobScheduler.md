@@ -116,11 +116,11 @@ public class ScheduleService extends JobService {
 
 ### UML-schedule
 
-![job_scheduler_schedule](/images/job/job_scheduler_schedule.jpg)
+![job_scheduler_schedule](/images/android/job/job_scheduler_schedule.jpg)
 
 ### UML-cancel
 
-![job_scheduler_cancel](/images/job/job_scheduler_cancel.jpg)
+![job_scheduler_cancel](/images/android/job/job_scheduler_cancel.jpg)
 
 ### 策略实现
 
@@ -148,7 +148,7 @@ public class ScheduleService extends JobService {
 
 ```
 
-![state_controller](/images/job/state_controller.jpg)
+![state_controller](/images/android/job/state_controller.jpg)
 
 图片来自Gityuan
 
@@ -200,7 +200,7 @@ public class ScheduleService extends JobService {
 
 [Android P JobScheduler服务源码解析-简书](https://www.jianshu.com/p/3f9bdd69776f)
 
-![job_scheduler_arch](/images/job/job_scheduler_arch.webp)
+![job_scheduler_arch](/images/android/job/job_scheduler_arch.webp)
 
 
 

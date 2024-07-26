@@ -173,7 +173,7 @@ tags:
 
 ## UML
 
-![service_thread](/images/init/service_thread.png)
+![service_thread](/images/android/init/service_thread.png)
 
 ## 主线程
 

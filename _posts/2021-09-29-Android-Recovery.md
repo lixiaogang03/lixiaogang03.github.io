@@ -27,7 +27,7 @@ tags:
 
 ## OTA Install
 
-![ota_mode](/images/recovery/ota_mode.png)
+![ota_mode](/images/android/recovery/ota_mode.png)
 
 ### RecoverySystem
 
@@ -674,7 +674,7 @@ void machine_restart(char *cmd)
 
 ## Recovery Mode
 
-![recovery_mode](/images/recovery/recovery_mode.png)
+![recovery_mode](/images/android/recovery/recovery_mode.png)
 
 ### 源码
 
@@ -747,7 +747,7 @@ Recovery的工作需要整个软件平台的配合，从架构角度看，有三
 * Recovery: 用recovery.img启动的Linux系统，主要是运行Recovery程序。
 * Bootloader: 除了加载、启动系统，还会通过读取flash的MISC分区获得来自Main system和Recovery的消息，并以此决定做何种操作。
 
-![recovery_bootloader_mainsystem](/images/recovery/recovery_bootloader_mainsystem.jpg)
+![recovery_bootloader_mainsystem](/images/android/recovery/recovery_bootloader_mainsystem.jpg)
 
 ```txt
 
@@ -767,11 +767,11 @@ lrwxrwxrwx root     root              2021-01-01 08:00 system -> /dev/block/mmcb
 
 ### Bootloader进入Recovery
 
-![booloader_to_recovery](/images/recovery/booloader_to_recovery.jpg)
+![booloader_to_recovery](/images/android/recovery/booloader_to_recovery.jpg)
 
 ### Recovery 运行流程
 
-![recovery_process](/images/recovery/recovery_process.jpg)
+![recovery_process](/images/android/recovery/recovery_process.jpg)
 
 
 

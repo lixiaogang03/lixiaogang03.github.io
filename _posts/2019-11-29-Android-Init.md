@@ -19,11 +19,11 @@ tags:
 
 ## Android 架构图-Gityuan
 
-![android-stack](/images/init/android-stack.png)
+![android-stack](/images/android/init/android-stack.png)
 
 ## Android 启动架构图-Gityuan
 
-![android-boot](/images/init/android-boot.jpg)
+![android-boot](/images/android/init/android-boot.jpg)
 
 ## init 进程
 
@@ -234,6 +234,6 @@ init进程执行完成后进入循环等待epoll_wait的状态。
 
 ## 小结
 
-![android_9_boot.webp](/images/init/android_9_boot.webp)
+![android_9_boot.webp](/images/android/init/android_9_boot.webp)
 
 

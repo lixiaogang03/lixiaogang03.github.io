@@ -18,7 +18,7 @@ tags:
 
 ## 系统启动
 
-![android-boot](/images/init/android-boot.jpg)
+![android-boot](/images/android/init/android-boot.jpg)
 
 ## 图形显示系统
 
@@ -54,7 +54,7 @@ tags:
 
 ## 电话系统
 
-![phone_architecture](/images/telephony/phone_architecture.png)
+![phone_architecture](/images/android/telephony/phone_architecture.png)
 
 ## 网络管理服务
 

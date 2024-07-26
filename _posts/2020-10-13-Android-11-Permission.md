@@ -12,11 +12,11 @@ tags:
 
 ## 类图
 
-![android_r_permission_2](/images/android_r/android_r_permission_2.png)
+![android_r_permission_2](/images/android/android_r/android_r_permission_2.png)
 
 ## 时序图
 
-![android_r_permission_1](/images/android_r/android_r_permission_1.png)
+![android_r_permission_1](/images/android/android_r/android_r_permission_1.png)
 
 ## SystemServer
 
@@ -566,7 +566,7 @@ public class PermissionManagerService extends IPermissionManager.Stub {
 
 [Android包管理总结](https://www.jianshu.com/p/f47e45602ad2)
 
-![pms_permission](/images/android_r/pms_permission.png)
+![pms_permission](/images/android/android_r/pms_permission.png)
 
 ### Settings
 

@@ -17,7 +17,7 @@ tags:
 
 ## 架构图
 
-![TelephonyRegistry](/images/telephony/phone_architecture.png)
+![TelephonyRegistry](/images/android/telephony/phone_architecture.png)
 
 ## TelephonyTesgistry
 
@@ -37,7 +37,7 @@ TelephonyTesgistry 实现手机无线电信息集中管理和通知，通过回�
 
 ## dumpsys telephony.registry
 
-![TelephonyRegistry](/images/telephony/telephony_registry.png)
+![TelephonyRegistry](/images/android/telephony/telephony_registry.png)
 
 
 ```java

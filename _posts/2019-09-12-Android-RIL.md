@@ -14,7 +14,7 @@ tags:
 
 ## Telephony 整体架构图
 
-![TelephonyRegistry](/images/telephony/phone_architecture.png)
+![TelephonyRegistry](/images/android/telephony/phone_architecture.png)
 
 ## 背景
 
@@ -44,7 +44,7 @@ RIL(Radio Interface Layer) 无线通信接口层， 在 Android 源码中分为�
 1. Framework 层的 Java 部分，简称 RILJ
 2. HAL 层中的 C++ 程序，简称 RILC(rild)
 
-![android_ril](/images/ril/android_ril.gif)
+![android_ril](/images/android/ril/android_ril.gif)
 
 RILJ 与 RILC 之间通过 rild 端口的 Socket 连接进行 RIL 消息的交互和处理
 
@@ -546,7 +546,7 @@ public final class RIL extends BaseCommands implements CommandsInterface {
 3. 将是数据转换成结果数据
 4. 将结果放在RequestMessage中发回到请求的发起者
 
-![android_ril_reciever](/images/ril/android_ril_reciever.gif)
+![android_ril_reciever](/images/android/ril/android_ril_reciever.gif)
 
 ### RIL Sender
 
@@ -556,15 +556,15 @@ public final class RIL extends BaseCommands implements CommandsInterface {
 2. 使用send将RILRequest打包到EVENT_SEND消息中发送到到RIL Sender Handler
 3. RilSender 接收到EVENT_SEND消息，将RILRequest通过套接口发送到RILD，同时将RILRequest保存在mRequest中以便应答消息的返回
 
-![android_ril_sender](/images/ril/android_ril_sender.gif)
+![android_ril_sender](/images/android/ril/android_ril_sender.gif)
 
 ### RIL 数据流
 
-![android_ril_data](/images/ril/android_ril_data.gif)
+![android_ril_data](/images/android/ril/android_ril_data.gif)
 
 ### RILJ 运行机制
 
-![android_ril_java](/images/ril/android_ril_java.gif)
+![android_ril_java](/images/android/ril/android_ril_java.gif)
 
 **CallTracker 通话状态跟踪**
 
@@ -758,13 +758,13 @@ hardware/ril/
 
 **Linux HAL** : 位于操作系统核心层和驱动程序之上，是一个运行在 User Space 用户空间的服务程序(Daemon process), 为上层应用提供统一的接口，硬件更换时需要更新设备驱动
 
-![linux_hal](/images/ril/linux_hal.png)
+![linux_hal](/images/android/ril/linux_hal.png)
 
 ### Android HAL
 
 **旧结构** ：应用或者框架通过 *.so 动态链接库的调用而达到对硬件驱动的访问
 
-![android_hal](/images/ril/android_hal.png)
+![android_hal](/images/android/ril/android_hal.png)
 
 **新结构** ：HAL Stub 是一种 Proxy 代理概念，虽然 Stub 仍然以 *.so 的形式存在，但是具体实现已经隐藏了起来
 
@@ -772,17 +772,17 @@ hardware/ril/
 * Runtime(Daemon process) 通过 Stub 提供的 *.so 获取它的 operation 方法，并设置 Callback
 * 应用通过 Runtime 调用 Stub 的 operation 方法，并通过 Callback 返回执行结果
 
-![android_hal_2](/images/ril/android_hal_2.png)
+![android_hal_2](/images/android/ril/android_hal_2.png)
 
 ### 拨打电话数据流
 
 下面的数据流传递描述图表描述了RIL-JAVA层发出一个电话指令的5 步曲
 
-![android_rild](/images/ril/android_rild.gif)
+![android_rild](/images/android/ril/android_rild.gif)
 
 ### RILD 运行框架
 
-![android_rild_2](/images/ril/android_rild_2.gif)
+![android_rild_2](/images/android/ril/android_rild_2.gif)
 
 
 ### rild
@@ -861,7 +861,7 @@ rild.c 中的 main 函数负责启动 rild，其中最关键的就是将 LibRIL 
 * LibRIL 中有指向 Reference-RIL 中 **funcs** 结构体的指针
 * Reference-RIL中有指向 LibRIL 中 **s_rilEnv** 结构体的指针
 
-![android_rild_start](/images/ril/android_rild_start.png)
+![android_rild_start](/images/android/ril/android_rild_start.png)
 
 ### LibRIL
 
@@ -995,7 +995,7 @@ void ril_event_loop();
 
 ```
 
-![android_rild_starteventloop](/images/ril/android_rild_starteventloop.png)
+![android_rild_starteventloop](/images/android/ril/android_rild_starteventloop.png)
 
 ### Reference-RIL(厂商实现部分)
 
@@ -1226,17 +1226,17 @@ int at_send_command (const char *command, ATResponse **pp_outResponse) {
 
 **RIL_Init函数的基本功能**
 
-![android_ril_init](/images/ril/android_ril_init.png)
+![android_ril_init](/images/android/ril/android_ril_init.png)
 
 ### Solicited消息处理流程-拨号
 
 **拨号流程**
 
-![dial](/images/telephony/dial.webp)
+![dial](/images/android/telephony/dial.webp)
 
 **时序图**
 
-![ril_solicited_message](/images/telephony/ril_solicited_message.png)
+![ril_solicited_message](/images/android/telephony/ril_solicited_message.png)
 
 
 
