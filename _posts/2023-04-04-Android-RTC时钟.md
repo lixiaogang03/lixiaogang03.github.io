@@ -119,7 +119,7 @@ HYM8563 是一款低功耗CMOS实时时钟/日历芯片，它提供一个可编�
 
 [HYM8563.pdf](https://www.t-firefly.com/download/fireprime/hardware/HYM8563.pdf)
 
-![rk3288_rtc_hardware](/images/rk3288/rk3288_rtc_hardware.png)
+![rk3288_rtc_hardware](/images/rockchip/rk3288/rk3288_rtc_hardware.png)
 
 
 

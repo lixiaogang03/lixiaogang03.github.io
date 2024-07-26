@@ -1075,7 +1075,7 @@ maxrss: 9044kB
 
 ## 内核日志分析
 
-![rk3588_eth_error](/images/rk3588/rk3588_eth_error.png)
+![rk3588_eth_error](/images/rockchip/rk3588/rk3588_eth_error.png)
 
 左边是软重启的异常日志, 右边是断电重启的正常日志
 
