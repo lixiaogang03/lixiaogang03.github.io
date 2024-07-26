@@ -18,7 +18,7 @@ tags:
 
 USB 2.0: 理论带宽 480 Mbps, 实际数据的传输速度存理论上最高也只有53 MB/s(426Mbps).实际综合条件下15 MB/s至25 MB/s都可以作为合理的高速目标。
 
-![usb_bandwidth](/images/usb/usb_bandwidth.png)
+![usb_bandwidth](/images/hardware/usb/usb_bandwidth.png)
 
 ## Usb Camera带宽
 

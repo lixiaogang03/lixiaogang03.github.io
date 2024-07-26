@@ -16,7 +16,7 @@ tags:
 
 ## TextureView SurfaceTexture
 
-![surface_texture](/images/camera/surface_texture.png)
+![surface_texture](/images/hardware/camera/surface_texture.png)
 
 ## Camera2 App
 

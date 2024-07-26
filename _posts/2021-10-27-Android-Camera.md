@@ -18,31 +18,31 @@ tags:
 
 ## 传感器
 
-![camera_senser](/images/camera/camera_senser.png)
+![camera_senser](/images/hardware/camera/camera_senser.png)
 
 ## 像素
 
-![pixel](/images/camera/pixel.png)
+![pixel](/images/hardware/camera/pixel.png)
 
 ## 生成图像
 
-![picture_gen](/images/camera/picture_gen.png)
+![picture_gen](/images/hardware/camera/picture_gen.png)
 
-![image_generation](/images/camera/image_generation.png)
+![image_generation](/images/hardware/camera/image_generation.png)
 
 ## 像素大小
 
-![pixel_size](/images/camera/pixel_size.png)
+![pixel_size](/images/hardware/camera/pixel_size.png)
 
 ## 相机分辨率
 
-![camera_resolution](/images/camera/camera_resolution.png)
+![camera_resolution](/images/hardware/camera/camera_resolution.png)
 
-![camera_resolution_2](/images/camera/camera_resolution_2.png)
+![camera_resolution_2](/images/hardware/camera/camera_resolution_2.png)
 
 ## Android Camera 架构
 
-![ape_fwk_camera](/images/camera/ape_fwk_camera.png)
+![ape_fwk_camera](/images/hardware/camera/ape_fwk_camera.png)
 
 ### 应用框架
 
@@ -76,13 +76,13 @@ IPC binder 代理用于促进跨越进程边界的通信。调用相机服务的
 
 [Camera Android架构-简书](https://www.jianshu.com/p/760dec1a9078)
 
-![camera_preview](/images/camera/camera_preview.webp)
+![camera_preview](/images/hardware/camera/camera_preview.webp)
 
-![camera_preview_2](/images/camera/camera_preview_2.webp)
+![camera_preview_2](/images/hardware/camera/camera_preview_2.webp)
 
 ## V4L2 框架
 
-![v4l2](/images/camera/v4l2.png)
+![v4l2](/images/hardware/camera/v4l2.png)
 
 ## USB Camera
 
@@ -100,7 +100,7 @@ MIPI CSI（Camera Serial Interface）是由MIPI联盟下 Camera 工作组指定�
 
 ## Camera 参数
 
-![camera_param](/images/camera/camera_param.png)
+![camera_param](/images/hardware/camera/camera_param.png)
 
 
 

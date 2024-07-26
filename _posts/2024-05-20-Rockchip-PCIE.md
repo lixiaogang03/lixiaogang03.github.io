@@ -24,19 +24,19 @@ PCI Express，简称 PCIe，是电脑总线 PCI 的一种，它沿用了现有�
 
 ## PCIE 速率
 
-![pcie_version](/images/pcie/pcie_version.jpg)
+![pcie_version](/images/hardware/pcie/pcie_version.jpg)
 
 ## 4G PCIE
 
-![pcie_4g](/images/pcie/pcie_4g.png)
+![pcie_4g](/images/hardware/pcie/pcie_4g.png)
 
 实际上走的是USB协议
 
 ## SSD PCIE
 
-![pcie_ssd_1](/images/pcie/pcie_ssd_1.png)
+![pcie_ssd_1](/images/hardware/pcie/pcie_ssd_1.png)
 
-![pcie_ssd_2](/images/pcie/pcie_ssd_2.png)
+![pcie_ssd_2](/images/hardware/pcie/pcie_ssd_2.png)
 
 ## 驱动配置
 

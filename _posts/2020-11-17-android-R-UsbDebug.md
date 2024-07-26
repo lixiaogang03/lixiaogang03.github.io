@@ -14,7 +14,7 @@ tags:
 
 ## 调试菜单
 
-![usb_debug_1](/images/usb/usb_debug_1.png)
+![usb_debug_1](/images/hardware/usb/usb_debug_1.png)
 
 ## 调试命令
 
@@ -91,7 +91,7 @@ connected to 10.10.162.71:42491
 
 **SystemUI---UsbDebuggingActivity**
 
-![usb_debug_fingerprint](/images/usb/usb_debug_fingerprint.png)
+![usb_debug_fingerprint](/images/hardware/usb/usb_debug_fingerprint.png)
 
 ```java
 
@@ -153,7 +153,7 @@ public class UsbDebuggingActivity extends AlertActivity
 
 ### 无线调试
 
-![usb_debug_wifi](/images/usb/usb_debug_wifi.png)
+![usb_debug_wifi](/images/hardware/usb/usb_debug_wifi.png)
 
 **SystemUI---WifiDebuggingActivity.java**
 
@@ -221,7 +221,7 @@ public class WifiDebuggingActivity extends AlertActivity
 
 ```
 
-![usb_debug_2](/images/usb/usb_debug_2.png)
+![usb_debug_2](/images/hardware/usb/usb_debug_2.png)
 
 **adb_wireless_settings.xml**
 
@@ -433,7 +433,7 @@ public class WifiDebuggingActivity extends AlertActivity
 
 **配对码配对---AdbWirelessDialog.java**
 
-![usb_debug_3](/images/usb/usb_debug_3.png)
+![usb_debug_3](/images/hardware/usb/usb_debug_3.png)
 
 ```java
 
@@ -449,7 +449,7 @@ public class WifiDebuggingActivity extends AlertActivity
 
 **已经配对的设备**
 
-![usb_debug_4](/images/usb/usb_debug_4.png)
+![usb_debug_4](/images/hardware/usb/usb_debug_4.png)
 
 ```java
 
