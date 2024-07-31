@@ -52,6 +52,14 @@ tags:
 5. 将out/target/common/R/设置为依赖
 6. 将不需要的目录从索引中删除，提高检索速度
 
+**删除依赖库**
+
+![as_aosp_source](/images/androidstudio/as_aosp_source.png)
+
+**excluded 不常用的目录提高速度**
+
+![as_aosp_source_2](/images/androidstudio/as_aosp_source_2.png)
+
 ## 常见问题
 
 　[AS一直不停的scanning files to index](https://blog.csdn.net/seakisbest/article/details/83752736)
