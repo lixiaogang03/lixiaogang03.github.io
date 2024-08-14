@@ -10,6 +10,8 @@ tags:
     - rtc
 ---
 
+[Linux内核 RTC时间架构](https://www.cnblogs.com/yikoulinux/p/16782978.html)
+
 ## 全志软件架构
 
 ![a133_rtc](/images/allwinner/a133_rtc.png)
@@ -112,6 +114,18 @@ BAT54C是一款正向电压为520mV的半导体二极管
 * J13 是电池供电电源 3V (随着时间会有衰减)，实际上1.8V的电池即可满足要求
 
 当电源供电时，电压大的二极管导通，当电池供电时，下边的二极管导通
+
+## 瑞芯微 RTC 架构
+
+![linux_rtc_arch](/images/linux/linux_rtc_arch.png)
+
+* Hardware：提供时间信息(time&alarm)，通过一定的接口(比如I2C)和RTC Driver进行交互
+* Driver：  完成硬件的访问功能，提供访问接口，以驱动的形式驻留在系统
+* class.c：驱动注册方式由class.c：文件提供。驱动注册成功后会构建rtc_device结构体表征的rtc设备，并把rtc芯片的操作方式存放到rtc设备的ops成员中
+* interface.c：文件屏蔽硬件相关的细节，向上提供统一的获取/设置时间或Alarm的接口
+* rtc-lib.c：文件提供通用的时间操作函数，如rtc_time_to_tm、rtc_valid_tm等
+* rtc-dev.c：文件在/dev/目录下创建设备节点供应用层访问，如open、read、ioctl等，访问方式填充到file_operations结构体中
+* hctosys.c/rtc-sys.c/rtc-proc.c：将硬件时钟写给 wall time
 
 ## RK3288 HYM8563 原理图
 
