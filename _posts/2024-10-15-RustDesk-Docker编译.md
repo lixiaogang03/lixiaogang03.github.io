@@ -83,7 +83,7 @@ newgrp docker
 
 sudo nano /etc/docker/daemon.json
 
-[国内镜像地址](https://xuanyuan.me/blog/archives/1154?from=tencent)
+[国内镜像地址](https://github.com/dongyubin/DockerHub)
 
 ```json
 
