@@ -226,11 +226,80 @@ cat ~/.config/clash-nyanpasu/logs/clash-nyanpasu.2024-10-16.app.log
 
 ![nvidia linux 驱动](https://www.nvidia.cn/drivers/unix/)
 
+**ubuntu 查看本机显卡型号**
+
+```txt
+
+o$ sudo lshw -c video
+  *-display                 
+       description: VGA compatible controller
+       product: GK208B [GeForce GT 710]
+       vendor: NVIDIA Corporation
+       physical id: 0
+       bus info: pci@0000:07:00.0
+       version: a1
+       width: 64 bits
+       clock: 33MHz
+       capabilities: pm msi pciexpress vga_controller bus_master cap_list rom
+       configuration: driver=nvidia latency=0
+       resources: irq:74 memory:fb000000-fbffffff memory:e0000000-e7ffffff memory:e8000000-e9ffffff ioport:e000(size=128) memory:fc000000-fc07ffff
+  *-graphics
+       product: simpledrmdrmfb
+       physical id: 1
+       logical name: /dev/fb0
+       capabilities: fb
+       configuration: depth=32 resolution=2560,1440
+
+```
+
+**查看NVIDIA显卡驱动**
+
+```txt
+
+$ nvidia-smi
+Wed Oct 16 18:20:57 2024       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 470.256.02   Driver Version: 470.256.02   CUDA Version: 11.4     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  NVIDIA GeForce ...  Off  | 00000000:07:00.0 N/A |                  N/A |
+| 37%   50C    P0    N/A /  N/A |    286MiB /  1979MiB |     N/A      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+
+```
+
+GK208B [GeForce GT 710] 最新驱动是: 传统GPU超级新版本(470.xx 系列): 470.256.02
+
+**ubuntu查看系统推荐的驱动**
+
+```txt
+
+$ ubuntu-drivers devices
+== /sys/devices/pci0000:00/0000:00:03.1/0000:07:00.0 ==
+modalias : pci:v000010DEd0000128Bsv00001458sd000036F7bc03sc00i00
+vendor   : NVIDIA Corporation
+model    : GK208B [GeForce GT 710]
+driver   : nvidia-driver-390 - distro non-free
+driver   : nvidia-driver-470 - distro non-free recommended
+driver   : nvidia-driver-470-server - distro non-free
+driver   : nvidia-driver-418-server - distro non-free
+driver   : nvidia-driver-450-server - distro non-free
+driver   : xserver-xorg-video-nouveau - distro free builtin
 
 
-
-
-
+```
 
 
 
