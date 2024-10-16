@@ -181,46 +181,42 @@ ERROR: failed to solve: process "/bin/sh -c git clone --branch 2023.04.15 --dept
 
 ## ssrdog TUN模式
 
+**透明代理**
+
+透明代理的意思是客户端不需要知道有代理服务器的存在，它改变 request fields（报文）并传送真实 IP。本文中的透明代理是指使用 Clash 的 TUN 模式虚拟出来的一块 TUN 网卡，作为局域网中的网关，从而实现透明代理。
+
 ![ssrdog_vpn_clash](/images/network/ssrdog_vpn_clash.png)
 
 ![ssrdog_vpn_tun](/images/network/ssrdog_vpn_tun.png)
 
+**如何判断tun代理是否开启成功**
 
-**docker网络**
+输出结果中应该会有一个类似tun0的设备，表示TUN设备已经被加载, 以下显示TUN没有开启成功
 
 ```txt
 
-$ ifconfig
-docker0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
-        inet 172.17.0.1  netmask 255.255.0.0  broadcast 172.17.255.255
-        ether 02:42:20:66:24:24  txqueuelen 0  (以太网)
-        RX packets 0  bytes 0 (0.0 B)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 0  bytes 0 (0.0 B)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-enp6s0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet 192.168.0.231  netmask 255.255.255.0  broadcast 192.168.0.255
-        inet6 fe80::d3c1:923f:88cd:76cf  prefixlen 64  scopeid 0x20<link>
-        ether 58:11:22:b7:90:07  txqueuelen 1000  (以太网)
-        RX packets 90424  bytes 44922172 (44.9 MB)
-        RX errors 0  dropped 4945  overruns 0  frame 0
-        TX packets 59792  bytes 16159110 (16.1 MB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
-lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
-        inet 127.0.0.1  netmask 255.0.0.0
-        inet6 ::1  prefixlen 128  scopeid 0x10<host>
-        loop  txqueuelen 1000  (本地环回)
-        RX packets 201134  bytes 161334386 (161.3 MB)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 201134  bytes 161334386 (161.3 MB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+$ ip link show
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: enp6s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether 58:11:22:b7:90:07 brd ff:ff:ff:ff:ff:ff
+3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN mode DEFAULT group default 
+    link/ether 02:42:20:66:24:24 brd ff:ff:ff:ff:ff:ff
 
 ```
 
+**TUN模式开启报错日志**
+
+```txt
+
+cat ~/.config/clash-nyanpasu/logs/clash-nyanpasu.2024-10-16.app.log
+
+{"timestamp":"2024-10-16T07:25:59.126565Z","level":"INFO","fields":{"message":"[clash]: ERR [Inbound] start failed error=operation not permitted type=TUN stackType=gvisor inet=198.18.0.1/16\n","log.target":"app","log.module_path":"clash_verge::core::clash::core","log.file":"tauri/src/core/clash/core.rs","log.line":206},"target":"app","filename":"tauri/src/core/clash/core.rs","line_number":206}
 
 
+```
+
+[Ubuntu无法使用Tun模式 #365](https://github.com/libnyanpasu/clash-nyanpasu/issues/365)
 
 
 
