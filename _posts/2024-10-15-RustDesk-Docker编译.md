@@ -218,6 +218,12 @@ cat ~/.config/clash-nyanpasu/logs/clash-nyanpasu.2024-10-16.app.log
 
 [Ubuntu无法使用Tun模式 #365](https://github.com/libnyanpasu/clash-nyanpasu/issues/365)
 
+## Clash Nyanpasun 不显示GUI问题
+
+![clash_gui](/images/network/clash_gui.png)
+
+![clash-nyanpasu](https://github.com/libnyanpasu/clash-nyanpasu/issues/685)
+
 
 
 
