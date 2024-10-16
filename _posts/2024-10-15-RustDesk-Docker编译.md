@@ -224,7 +224,7 @@ cat ~/.config/clash-nyanpasu/logs/clash-nyanpasu.2024-10-16.app.log
 
 ![clash-nyanpasu](https://github.com/libnyanpasu/clash-nyanpasu/issues/685)
 
-
+![nvidia linux 驱动](https://www.nvidia.cn/drivers/unix/)
 
 
 
