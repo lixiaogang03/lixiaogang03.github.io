@@ -46,8 +46,6 @@ source ~/.bashrc
 
 [声网Agora WebRTC团队-国内镜像-已经停止更新了](https://webrtc.org.cn/mirror/)
 
-[webrtc-android)](https://github.com/GetStream/webrtc-android)
-
 Google 已经停止webrtc android sdk 的更新了, 最新的版本是Aug 27, 2020更新的
 
 ```gradle

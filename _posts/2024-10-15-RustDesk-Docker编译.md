@@ -303,8 +303,24 @@ driver   : xserver-xorg-video-nouveau - distro free builtin
 
 ```
 
+## Clash.Nyanpasu_2.0.0-alpha+d87b0e5_amd64.AppImage 报错
 
+```txt
 
+$ sudo ./Clash.Nyanpasu_2.0.0-alpha+d87b0e5_amd64.AppImage 
+[sudo] lxg 的密码： 
+KMS: DRM_IOCTL_MODE_CREATE_DUMB failed: 权限不够
+Failed to create GBM buffer of size 800x642: 权限不够
+
+```
+
+**解决方案**
+
+```txt
+
+sudo WEBKIT_DISABLE_DMABUF_RENDERER=1 ./Clash.Nyanpasu_2.0.0-alpha+d87b0e5_amd64.AppImage
+
+```
 
 
 
