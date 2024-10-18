@@ -322,17 +322,220 @@ sudo WEBKIT_DISABLE_DMABUF_RENDERER=1 ./Clash.Nyanpasu_2.0.0-alpha+d87b0e5_amd64
 
 ```
 
+## 开启TUN模式后构建docker镜像仍然报错
+
+**报错问题-1**
+
+```txt
+
+ => ERROR [3/9] RUN git clone --branch 2023.04.15 --depth=1 https://github.com/microsoft/vcpkg &&     /vcpkg/bootstrap-vcpkg.sh -disableMetrics &&     /vcpkg/vcpkg --disable-metrics install libvpx libyuv opus aom       69.2s
+6.132 
+6.132 Turn off this advice by setting config variable advice.detachedHead to false
+6.132 
+6.632 Downloading vcpkg-glibc...
+69.14 curl: (35) OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to github.com:443 
+
+```
+
+问题原因: VPN代理导致本地网络异常 
+
+**解决方案-1**
+
+查看VPN代理端口号, 执行如下步骤:
+
+1. Dockerfile 中修改系统的源到国内镜像
+
+```sh
+
+在Dockerfile的RUN apt update之前插入两行：
+
+RUN sed -i "s/deb.debian.org/mirrors.163.com/g" /etc/apt/sources.list
+RUN sed -i "s/security.debian.org/mirrors.163.com/g" /etc/apt/sources.list
+
+```
+
+2. Dockerfile 中加入代理的 env
+
+```sh
+
+在User root后插入两行
+
+ENV http_proxy=http://host:port
+ENV https_proxy=http://host:port
+
+```
+
+3. docker build 命令后面加上 proxy 参数
+
+```sh
+
+docker build -t "rustdesk-builder" . --network host --build-arg HTTP_PROXY=http://127.0.0.1:7890 --build-arg HTTPS_PROXY=http://127.0.0.1:7890
+
+```
+
+**报错问题-2**
+
+```txt
+
+ => ERROR [ 5/11] RUN git clone --branch 2023.04.15 --depth=1 https://github.com/microsoft/vcpkg &&     /vcpkg/bootstrap-vcpkg.sh -disableMetrics &&     /vcpkg/vcpkg --disable-metrics install libvpx libyuv opus aom     61.1s 
+------                                                                                                                                                                                                                           
+ > [ 5/11] RUN git clone --branch 2023.04.15 --depth=1 https://github.com/microsoft/vcpkg &&     /vcpkg/bootstrap-vcpkg.sh -disableMetrics &&     /vcpkg/vcpkg --disable-metrics install libvpx libyuv opus aom:                 
+0.059 Cloning into 'vcpkg'...                                                                                                                                                                                                    
+61.04 fatal: unable to access 'https://github.com/microsoft/vcpkg/': gnutls_handshake() failed: The TLS connection was non-properly terminated.                                                                                  
+------                                                                                                                                                                                                                           
+Dockerfile:36
+--------------------
+  35 |     
+  36 | >>> RUN git clone --branch 2023.04.15 --depth=1 https://github.com/microsoft/vcpkg && \
+  37 | >>>     /vcpkg/bootstrap-vcpkg.sh -disableMetrics && \
+  38 | >>>     /vcpkg/vcpkg --disable-metrics install libvpx libyuv opus aom
+  39 |     
+--------------------
+ERROR: failed to solve: process "/bin/sh -c git clone --branch 2023.04.15 --depth=1 https://github.com/microsoft/vcpkg &&     /vcpkg/bootstrap-vcpkg.sh -disableMetrics &&     /vcpkg/vcpkg --disable-metrics install libvpx libyuv opus aom" did not complete successfully: exit code: 128
+
+```
+
+**解决方案-2**
+
+修改容器系统中的 cargo 源，在RUN ./rustup.sh -y后插入下面代码
+
+```sh
+
+RUN echo '[source.crates-io]' > ~/.cargo/config.toml \
+ && echo 'registry = "https://mirrors.sjtug.sjtu.edu.cn/git/crates.io-index"'  >> ~/.cargo/config.toml \
+ && echo '# 上海交通大学镜像源'  >> ~/.cargo/config.toml \
+ && echo "replace-with = 'sjtu'"  >> ~/.cargo/config.toml \
+ && echo '# 上海交通大学'   >> ~/.cargo/config.toml \
+ && echo '[source.sjtu]'   >> ~/.cargo/config.toml \
+ && echo 'registry = "https://mirrors.sjtug.sjtu.edu.cn/git/crates.io-index"'  >> ~/.cargo/config.toml \
+ && echo '' >> ~/.cargo/config.toml
 
 
+```
+
+## docker 镜像制作成功日志
+
+```txt
+
+$ docker build -t "rustdesk-builder" . --network host --build-arg HTTP_PROXY=http://127.0.0.1:7890 --build-arg HTTPS_PROXY=http://127.0.0.1:7890
+
+[+] Building 101.5s (15/16)                                                                                                                                                                                       docker:default 
+[+] Building 101.7s (15/16)                                                                                                                                                                                       docker:default [+] Building 101.8s (15/16)                                                                                                                                                                                       docker:default [+] Building 102.0s (15/16)                                                                                                                                                                                       docker:default [+] Building 102.1s (15/16)                                                                                                                                                                                       docker:default [+] Building 102.3s (15/16)                                                                                                                                                                                       docker:default [+] Building 102.4s (15/16)                                                                                                                                                                                       docker:default [+] Building 102.6s (15/16)                                                                                                                                                                                       docker:default [+] Building 102.7s (15/16)                                                                                                                                                                                       docker:default [+] Building 102.9s (15/16)                                                                                                                                                                                       docker:default [+] Building 103.0s (15/16)                                                                                                                                                                                       docker:default [+] Building 103.2s (15/16)                                                                                                                                                                                       docker:default [+] Building 103.3s (15/16)                                                                                                                                                                                       docker:default [+] Building 103.5s (15/16)                                                                                                                                                                                       docker:default [+] Building 103.6s (15/16)                                                                                                                                                                                       docker:default [+] Building 103.6s (16/16) FINISHED                                                                                                                                                                              docker:default  => [internal] load build definition from Dockerfile                                                                                                                                                                        0.0s  => => transferring dockerfile: 2.24kB                                                                                                                                                                                      0.0s  => [internal] load metadata for docker.io/library/debian:bullseye-slim                                                                                                                                                     0.5s  => [internal] load .dockerignore                                                                                                                                                                                           0.0s  => => transferring context: 2B                                                                                                                                                                                             0.0s  => [ 1/12] FROM docker.io/library/debian:bullseye-slim@sha256:610b4c7ad241e66f6e2f9791e3abdf0cc107a69238ab21bf9b4695d51fd6366a                                                                                             0.0s  => [internal] load build context                                                                                                                                                                                           0.0s  => => transferring context: 35B                                                                                                                                                                                            0.0s  => CACHED [ 2/12] RUN sed -i "s/deb.debian.org/mirrors.163.com/g" /etc/apt/sources.list                                                                                                                                    0.0s  => CACHED [ 3/12] RUN sed -i "s/security.debian.org/mirrors.163.com/g" /etc/apt/sources.list                                                                                                                               0.0s  => CACHED [ 4/12] RUN apt update -y &&     apt install --yes --no-install-recommends         g++         gcc         git         curl         nasm         yasm         libgtk-3-dev         clang         libxcb-randr0-  0.0s  => [ 5/12] RUN git clone --branch 2023.04.15 --depth=1 https://github.com/microsoft/vcpkg &&     /vcpkg/bootstrap-vcpkg.sh -disableMetrics &&     /vcpkg/vcpkg --disable-metrics install libvpx libyuv opus aom           84.1s  => [ 6/12] RUN groupadd -r user &&     useradd -r -g user user --home /home/user &&     mkdir -p /home/user/rustdesk &&     chown -R user: /home/user &&     echo "user ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d  0.1s  => [ 7/12] WORKDIR /home/user                                                                                                                                                                                              0.0s  => [ 8/12] RUN curl -LO https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.lnx/x64/libsciter-gtk.so                                                                                                           1.5s  => [ 9/12] RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > rustup.sh &&     chmod +x rustup.sh &&     ./rustup.sh -y                                                                                      12.7s  => [10/12] RUN echo '[source.crates-io]' > ~/.cargo/config  && echo 'registry = "https://mirrors.sjtug.sjtu.edu.cn/git/crates.io-index"'  >> ~/.cargo/config  && echo '# 替换成你偏好的镜像源'  >> ~/.cargo/con                      0.1s2] COPY ./entrypoint.sh /                                                                                                                                                                                          0.2s
+ => [11/12] COPY ./entrypoint.sh /                                                                                                                                                                                          0.2s
+ => exporting to image                                                                                                                                                                                                      4.3s
+ => => exporting layers                                                                                                                                                                                                     4.3s
+ => => writing image sha256:4926961534aa07dcc3c575d7f844bd3909ed05979af6df4ecefd643bdfc510ff                                                                                                                                0.0s
+ => => naming to docker.io/library/rustdesk-builder
+
+```
+
+## 构建应用程序
+
+**编译命令**
+
+```sh
+
+docker run --rm -it --network host -v $PWD:/home/user/rustdesk -v rustdesk-git-cache:/home/user/.cargo/git -v rustdesk-registry-cache:/home/user/.cargo/registry -e PUID="$(id -u)" -e PGID="$(id -g)" rustdesk-builder
+
+```
+
+**编译生成目录**
+
+```txt
+
+docker/rustdesk/target/debug$ tree -L 1
+.
+├── build
+├── deps
+├── examples
+├── incremental
+├── liblibrustdesk.a
+├── liblibrustdesk.d
+├── liblibrustdesk.rlib
+├── liblibrustdesk.so
+├── libsciter-gtk.so
+├── naming
+├── naming.d
+├── rustdesk
+└── rustdesk.d
 
 
+```
 
+## DockerFile
 
+```dockerfile
 
+FROM debian:bullseye-slim
 
+WORKDIR /
+ARG DEBIAN_FRONTEND=noninteractive
+RUN sed -i "s/deb.debian.org/mirrors.163.com/g" /etc/apt/sources.list
+RUN sed -i "s/security.debian.org/mirrors.163.com/g" /etc/apt/sources.list
+RUN apt update -y && \
+    apt install --yes --no-install-recommends \
+        g++ \
+        gcc \
+        git \
+        curl \
+        nasm \
+        yasm \
+        libgtk-3-dev \
+        clang \
+        libxcb-randr0-dev \
+        libxdo-dev \
+        libxfixes-dev \
+        libxcb-shape0-dev \
+        libxcb-xfixes0-dev \
+        libasound2-dev \
+        libpam0g-dev \
+        libpulse-dev \
+        make \
+        cmake \
+        unzip \
+        zip \
+        sudo \
+        libgstreamer1.0-dev \
+        libgstreamer-plugins-base1.0-dev \
+        ca-certificates \
+        ninja-build && \
+        rm -rf /var/lib/apt/lists/*
 
+RUN git clone --branch 2023.04.15 --depth=1 https://github.com/microsoft/vcpkg && \
+    /vcpkg/bootstrap-vcpkg.sh -disableMetrics && \
+    /vcpkg/vcpkg --disable-metrics install libvpx libyuv opus aom
 
+RUN groupadd -r user && \
+    useradd -r -g user user --home /home/user && \
+    mkdir -p /home/user/rustdesk && \
+    chown -R user: /home/user && \
+    echo "user ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/user
 
+WORKDIR /home/user
+RUN curl -LO https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.lnx/x64/libsciter-gtk.so
+
+USER user
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > rustup.sh && \
+    chmod +x rustup.sh && \
+    ./rustup.sh -y
+
+RUN echo '[source.crates-io]' > ~/.cargo/config.toml \
+ && echo 'registry = "https://github.com/rust-lang/crates.io-index"'  >> ~/.cargo/config.toml \
+ && echo '# 中科大镜像源'  >> ~/.cargo/config.toml \
+ && echo "replace-with = 'ustc'"  >> ~/.cargo/config.toml \
+ && echo '# 中科大'   >> ~/.cargo/config.toml \
+ && echo '[source.ustc]'   >> ~/.cargo/config.toml \
+ && echo 'registry = "https://mirrors.ustc.edu.cn/crates.io-index"'  >> ~/.cargo/config.toml \
+ && echo '' >> ~/.cargo/config.toml
+
+USER root
+ENV http_proxy=http://127.0.0.1:7890
+ENV https_proxy=http://127.0.0.1:7890
+ENV HOME=/home/user
+COPY ./entrypoint.sh /
+ENTRYPOINT ["/entrypoint.sh"]
+
+```
 
 
 
