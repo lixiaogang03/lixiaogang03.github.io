@@ -54,9 +54,17 @@ Google 已经停止webrtc android sdk 的更新了, 最新的版本是Aug 27, 20
 
 ```
 
+**VPN 开启TUN模式后开启下一步**
 
+```sh
 
+$ fetch --nohooks webrtc_android
+$ gclient sync
 
+```
+
+这将获取添加了 Android 特定部分的WebRTC代码。请注意，Android 特定部分（如 Android SDK 和 NDK）非常大（约 8 GB），因此总签出大小约为 16 GB。
+由于您可以为每个构建配置在不同的目录中生成Ninja项目文件，因此相同的签出可用于 Linux 和 Android 开发。
 
 
 
