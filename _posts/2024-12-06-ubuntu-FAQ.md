@@ -77,9 +77,17 @@ UUID=99691cdc-3096-46b0-a385-1b80e18f08dd /home/sy/code/sdj               ext4  
 
 ```
 
+## ubuntu 22.04 中文输入法卡顿问题
 
+[Ubuntu 22.04 环境下，使用 ibus-libpinyin 输入延迟严重](https://github.com/libpinyin/ibus-libpinyin/issues/429)
 
+**解决方案**
 
+```bash
+
+rm ~/.cache/ibus/libpinyin/__db.user_pinyin_index.bin.tmp
+
+```
 
 
 
