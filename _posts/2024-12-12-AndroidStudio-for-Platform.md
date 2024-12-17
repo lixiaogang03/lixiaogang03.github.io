@@ -46,6 +46,53 @@ repo sync -c -j8
 
 -c 参数会指示 Repo 从服务器提取当前的清单分支。-j8 命令会将同步操作拆分成多个线程，以更快地完成同步。此操作应该需要一小时多一点的时间
 
+### SystemUI 单独编译
+
+android 13 单独编译SystemUI时，test 目录编译报错的解决方法
+
+```diff
+
+diff --git a/android/frameworks/base/packages/SystemUI/Android.bp b/android/frameworks/base/packages/SystemUI/Android.bp
+index e148d4f547..757b621fe5 100644
+--- a/android/frameworks/base/packages/SystemUI/Android.bp
++++ b/android/frameworks/base/packages/SystemUI/Android.bp
+@@ -276,6 +276,7 @@ android_library {
+
+ android_library {
+     name: "SystemUI-tests",
++    enabled: false,
+     defaults: [
+         "SystemUI_compose_defaults",
+     ],
+
+diff --git a/android/frameworks/base/packages/SystemUI/tests/Android.bp b/android/frameworks/base/packages/SystemUI/tests/Android.bp
+index 3c418ed49a..2361e815b2 100644
+--- a/android/frameworks/base/packages/SystemUI/tests/Android.bp
++++ b/android/frameworks/base/packages/SystemUI/tests/Android.bp
+@@ -20,6 +20,7 @@ package {
+ 
+ android_test {
+     name: "SystemUITests",
++    enabled: false,
+ 
+     dxflags: ["--multi-dex"],
+     platform_apis: true,
+
+diff --git a/android/build/make/core/Makefile b/android/build/make/core/Makefile
+index 935d59739c..007ad0593c 100755
+--- a/android/build/make/core/Makefile
++++ b/android/build/make/core/Makefile
+@@ -6965,7 +6965,7 @@ include $(sort $(wildcard $(BUILD_SYSTEM)/tasks/*.mk))
+ -include $(sort $(wildcard device/*/*/build/tasks/*.mk))
+ -include $(sort $(wildcard product/*/*/build/tasks/*.mk))
+ # Also add test specifc tasks
+-include $(sort $(wildcard platform_testing/build/tasks/*.mk))
++# include $(sort $(wildcard platform_testing/build/tasks/*.mk))
+ include $(sort $(wildcard test/vts/tools/build/tasks/*.mk))
+ endif
+
+```
+
 
 
 
