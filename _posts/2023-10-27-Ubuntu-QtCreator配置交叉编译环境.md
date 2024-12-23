@@ -125,6 +125,103 @@ LICHEE_COMPILER_TAR=gcc-linaro-5.3.1-2016.05-x86_64_arm-linux-gnueabi.tar.xz
 
 ![qt_kits_config](/images/qt/qt_kits_config.png)
 
+## 重装系统配置
+
+### 重新安装qtcreator
+
+```bash
+
+sudo apt update
+sudo apt install qtcreator
+
+```
+
+**安装后的版本如下:**
+
+![qt_creator_version](/images/qt/qt_creator_version.png)
+
+
+### 修改侧边栏菜单文字太小问题
+
+![qt_creator_size](/images/qt/qt_creator_size.png)
+
+勾选Enable High DPI scaling菜单即可
+
+### 配置交叉编译环境
+
+**配置gcc**
+
+![qt_creator_gcc](/images/qt/qt_creator_gcc.png)
+
+![qt_creator_g++](/images/qt/qt_creator_g++.png)
+
+### 配置qt
+
+**配置的qmake文件必须是项目编译出qmake，否则无法使用**
+
+```bash
+
+sudo apt install libncurses5-dev openssl libssl-dev build-essential pkg-config libc6-dev bison flex libelf-dev minizip libidn11-dev qttools5-dev liblz4-tool u-boot-tools
+
+./wif_build.sh
+
+```
+
+编译完成后qmake目录
+
+/home/lxg/code/project/t113/t113_linux/platform/framework/qt/qt-everywhere-src-5.12.5/Qt_5.12.5/bin/qmake
+
+![qt_creator_qmake](/images/qt/qt_creator_qmake.png)
+
+### 配置编译套件
+
+![qt_creator_kits](/images/qt/qt_creator_kits.png)
+
+导入DeviceTest编译验证
+
+### 配置cmake
+
+sudo apt install cmake
+
+![qt_creator_cmake](/images/qt/qt_creator_cmake.png)
+
+### 导入WifMqtt
+
+**报错1**
+
+```txt
+
+/home/lxg/code/gitlab/linux/WifMqtt/main.c:3: error: curl/curl.h: No such file or directory
+/home/lxg/code/gitlab/linux/WifMqtt/main.c:3:10: fatal error: curl/curl.h: No such file or directory
+ #include <curl/curl.h>
+          ^~~~~~~~~~~~~
+
+```
+
+**解决方案**
+
+由于编译出的程序需要运行在嵌入式平台上，因此编译要用交叉编译的头文件
+
+/home/lxg/code/t113_linux/out/t113/evb1_auto/longan/buildroot/host/arm-buildroot-linux-gnueabi/sysroot/usr/include
+
+将上述目录下需要的头文件拷贝到项目include目录中即可
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
