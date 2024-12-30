@@ -9,6 +9,7 @@ catalog: true
 tags:
     - android
     - pms
+    - awlog
 ---
 
 ### 参考网址
@@ -50,7 +51,38 @@ tags:
 
 ```
 
+### data/media目录访问权限问题
 
+```txt
+BE:/ # ls -al data/media/
+drwxrwx---  4 media_rw media_rw 3452 1970-01-01 08:00 awlog
+
+```
+
+**修改方案**
+
+```diff
+
+diff --git a/android/frameworks/base/data/etc/platform.xml b/android/frameworks/base/data/etc/platform.xml
+index 1c65664893..0bc6349bfe 100644
+--- a/android/frameworks/base/data/etc/platform.xml
++++ b/android/frameworks/base/data/etc/platform.xml
+@@ -64,6 +64,11 @@
+         <group gid="log" />
+     </permission>
+ 
++    <!--lixiaogang add -->
++    <permission name="android.permission.WRITE_MEDIA_STORAGE" >
++        <group gid="media_rw" />
++    </permission>
++
+     <permission name="android.permission.ACCESS_MTP" >
+         <group gid="mtp" />
+     </permission>
+
+```
+
+如此修改后App申请android.permission.WRITE_MEDIA_STORAGE权限后即可访问data/media/awlog目录
 
 ### 调试命令
 
