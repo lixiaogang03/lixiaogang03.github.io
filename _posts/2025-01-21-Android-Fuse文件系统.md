@@ -389,6 +389,18 @@ Android启动后会默认首先挂载内卡，从开机动画结束开始，进�
 
 ## dumpsys mount
 
+设置分区存储白名单
+
+```txt
+
+adb shell device_config  put storage_native_boot forced_scoped_storage_whitelist com.ctq.simkey.sdk.appa
+
+adb shell device_config  get storage_native_boot forced_scoped_storage_whitelist
+
+```
+
+adb shell dumpsys mount
+
 ```txt
 
 Disks:
@@ -629,6 +641,15 @@ u0_a49         1281    274 13985964 155456 0                  0 S com.android.pr
 [ 1104.367364] mmc0: card 0001 removed
 
 ```
+
+## 电信量子加密TF卡SDK初始化失败问题
+
+问题原因：android 11 强制分区存储和fuse文件系统cache模式导致
+
+修改方案：APP 申请系统权限android.permission.MANAGE_EXTERNAL_STORAGE 和  android.permission.WRITE_MEDIA_STORAGE, fuse 文件系统修改为direct_io模式
+
+
+
 
 
 
