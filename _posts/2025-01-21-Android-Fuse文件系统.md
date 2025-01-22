@@ -55,6 +55,8 @@ none on /sys/fs/fuse/connections type fusectl (rw,relatime)
 /dev/fuse on /mnt/installer/0/emulated type fuse (rw,lazytime,nosuid,nodev,noexec,noatime,user_id=0,group_id=0,allow_other)
 /dev/fuse on /mnt/androidwritable/0/emulated type fuse (rw,lazytime,nosuid,nodev,noexec,noatime,user_id=0,group_id=0,allow_other)
 /dev/fuse on /storage/emulated type fuse (rw,lazytime,nosuid,nodev,noexec,noatime,user_id=0,group_id=0,allow_other)
+
+# TF卡
 /dev/fuse on /mnt/user/0/4552-4F43 type fuse (rw,lazytime,nosuid,nodev,noexec,noatime,user_id=0,group_id=0,allow_other)
 /dev/fuse on /mnt/installer/0/4552-4F43 type fuse (rw,lazytime,nosuid,nodev,noexec,noatime,user_id=0,group_id=0,allow_other)
 /dev/fuse on /mnt/androidwritable/0/4552-4F43 type fuse (rw,lazytime,nosuid,nodev,noexec,noatime,user_id=0,group_id=0,allow_other)
@@ -431,21 +433,202 @@ Last maintenance: 2025-01-21 09:26:5
 
 ```
 
+## 外部存储卡的挂载过程
+
+### MediaProvider
+
+```txt
+
+u0_a49         1281    274 13985964 155456 0                  0 S com.android.providers.media.module
+
+```
+
+**TF卡拔出日志**
+
+```txt
+
+2025-01-22 14:01:22.899  1265-1415  MediaStore              com.android.providers.media.module   V  Examining volume emulated;0 with name external_primary and state mounted
+2025-01-22 14:01:22.899  1265-1415  MediaStore              com.android.providers.media.module   V  Examining volume public:179,1 with name 4552-4f43 and state ejecting
+2025-01-22 14:01:22.900  1265-1415  MediaProvider           com.android.providers.media.module   V  Updated external volumes to: {external_primary}
+2025-01-22 14:01:22.919  1265-1265  MediaStore              com.android.providers.media.module   V  Examining volume emulated;0 with name external_primary and state mounted
+2025-01-22 14:01:22.919  1265-1265  MediaStore              com.android.providers.media.module   V  Examining volume public:179,1 with name 4552-4f43 and state ejecting
+2025-01-22 14:01:22.920  1265-1265  MediaProvider           com.android.providers.media.module   V  Updated external volumes to: {external_primary}
+2025-01-22 14:01:22.939  1265-1265  MediaStore              com.android.providers.media.module   V  Examining volume emulated;0 with name external_primary and state mounted
+2025-01-22 14:01:22.939  1265-1265  MediaStore              com.android.providers.media.module   V  Examining volume public:179,1 with name 4552-4f43 and state ejecting
+2025-01-22 14:01:22.939  1265-1265  MediaProvider           com.android.providers.media.module   V  Updated external volumes to: {external_primary}
+2025-01-22 14:01:23.394  1265-1563  FuseDaemon              com.android.providers.media.module   I  Ending fuse...
+2025-01-22 14:01:23.394  1265-1563  FuseDaemon              com.android.providers.media.module   I  DESTROY /storage/4552-4F43
+2025-01-22 14:01:23.394  1265-1563  FuseDaemon              com.android.providers.media.module   I  Ended fuse
+2025-01-22 14:01:23.395  1265-1563  FuseDaemonThread        com.android.providers.media.module   I  Exiting thread for public:179,1 ...
+2025-01-22 14:01:23.395  1265-1563  ExternalSt...erviceImpl com.android.providers.media.module   I  Exiting session for id: public:179,1
+2025-01-22 14:01:23.395  1265-1563  FuseDaemonThread        com.android.providers.media.module   I  Exited thread for public:179,1
+2025-01-22 14:01:23.426  1265-1415  MediaStore              com.android.providers.media.module   V  Examining volume emulated;0 with name external_primary and state mounted
+2025-01-22 14:01:23.426  1265-1415  MediaProvider           com.android.providers.media.module   V  Updated external volumes to: {external_primary}
+
+```
+
+**TF卡插入日志**
+
+```txt
+
+2025-01-22 14:04:26.519  1265-1415  ExternalSt...erviceImpl com.android.providers.media.module   I  Starting session for id: public:179,1
+2025-01-22 14:04:26.520  1265-1415  FuseDaemonThread        com.android.providers.media.module   V  Waiting 1000ms for FUSE start. Count 4
+2025-01-22 14:04:26.521  1265-2190  FuseDaemonThread        com.android.providers.media.module   I  Starting thread for public:179,1 ...
+2025-01-22 14:04:26.522  1265-2190  FuseDaemon              com.android.providers.media.module   I  Starting fuse...
+2025-01-22 14:04:27.600  1265-1415  MediaStore              com.android.providers.media.module   V  Examining volume emulated;0 with name external_primary and state mounted
+2025-01-22 14:04:27.600  1265-1415  MediaStore              com.android.providers.media.module   V  Examining volume public:179,1 with name 4552-4f43 and state mounted
+2025-01-22 14:04:27.600  1265-1415  MediaProvider           com.android.providers.media.module   V  Updated external volumes to: {external_primary, 4552-4f43}
+2025-01-22 14:04:27.630  1265-1265  MediaStore              com.android.providers.media.module   V  Examining volume emulated;0 with name external_primary and state mounted
+2025-01-22 14:04:27.630  1265-1265  MediaStore              com.android.providers.media.module   V  Examining volume public:179,1 with name 4552-4f43 and state mounted
+2025-01-22 14:04:27.630  1265-1265  MediaProvider           com.android.providers.media.module   V  Updated external volumes to: {external_primary, 4552-4f43}
+2025-01-22 14:04:27.645  1265-1415  MediaStore              com.android.providers.media.module   V  Examining volume emulated;0 with name external_primary and state mounted
+2025-01-22 14:04:27.645  1265-1415  MediaStore              com.android.providers.media.module   V  Examining volume public:179,1 with name 4552-4f43 and state mounted
+2025-01-22 14:04:27.645  1265-1415  MediaProvider           com.android.providers.media.module   V  Updated external volumes to: {external_primary, 4552-4f43}
+2025-01-22 14:04:27.679  1265-1265  MediaStore              com.android.providers.media.module   V  Examining volume emulated;0 with name external_primary and state mounted
+2025-01-22 14:04:27.679  1265-1265  MediaStore              com.android.providers.media.module   V  Examining volume public:179,1 with name 4552-4f43 and state mounted
+2025-01-22 14:04:27.679  1265-1265  MediaProvider           com.android.providers.media.module   V  Updated external volumes to: {external_primary, 4552-4f43}
+2025-01-22 14:04:27.695  1265-1415  MediaStore              com.android.providers.media.module   V  Examining volume emulated;0 with name external_primary and state mounted
+2025-01-22 14:04:27.695  1265-1415  MediaStore              com.android.providers.media.module   V  Examining volume public:179,1 with name 4552-4f43 and state mounted
+2025-01-22 14:04:27.695  1265-1415  MediaProvider           com.android.providers.media.module   V  Updated external volumes to: {external_primary, 4552-4f43}
+2025-01-22 14:04:27.704  1265-1265  MediaStore              com.android.providers.media.module   V  Examining volume emulated;0 with name external_primary and state mounted
+2025-01-22 14:04:27.705  1265-1265  MediaStore              com.android.providers.media.module   V  Examining volume public:179,1 with name 4552-4f43 and state mounted
+2025-01-22 14:04:27.705  1265-1265  MediaProvider           com.android.providers.media.module   V  Updated external volumes to: {external_primary, 4552-4f43}
+2025-01-22 14:04:27.723  1265-1265  MediaStore              com.android.providers.media.module   V  Examining volume emulated;0 with name external_primary and state mounted
+2025-01-22 14:04:27.723  1265-1265  MediaStore              com.android.providers.media.module   V  Examining volume public:179,1 with name 4552-4f43 and state mounted
+2025-01-22 14:04:27.723  1265-1265  MediaProvider           com.android.providers.media.module   V  Updated external volumes to: {external_primary, 4552-4f43}
+2025-01-22 14:04:27.747  1265-1265  MediaStore              com.android.providers.media.module   V  Examining volume emulated;0 with name external_primary and state mounted
+2025-01-22 14:04:27.747  1265-1265  MediaStore              com.android.providers.media.module   V  Examining volume public:179,1 with name 4552-4f43 and state mounted
+2025-01-22 14:04:27.748  1265-1265  MediaProvider           com.android.providers.media.module   V  Updated external volumes to: {external_primary, 4552-4f43}
+2025-01-22 14:04:27.793  1265-1988  MediaProvider           com.android.providers.media.module   I  Begin Intent { act=android.intent.action.MEDIA_MOUNTED dat=file:///storage/4552-4F43 flg=0x5000010 cmp=com.android.providers.media.module/com.android.providers.media.MediaService (has extras) }
+2025-01-22 14:04:27.813  1265-1988  MediaProvider           com.android.providers.media.module   I  Scanned internal due to REASON_MOUNTED, found 2 items in 11ms, 0 inserts 0 updates 0 deletes
+2025-01-22 14:04:27.817  1265-1988  ModernMediaScanner      com.android.providers.media.module   W  Failed to visit /oem/media: java.nio.file.NoSuchFileException: /oem/media
+2025-01-22 14:04:27.820  1265-1988  MediaProvider           com.android.providers.media.module   I  Scanned internal due to REASON_MOUNTED, found 0 items in 4ms, 0 inserts 0 updates 0 deletes
+2025-01-22 14:04:28.435  1265-1988  MediaProvider           com.android.providers.media.module   I  Scanned internal due to REASON_MOUNTED, found 230 items in 611ms, 0 inserts 7 updates 0 deletes
+2025-01-22 14:04:28.616  1265-1988  MediaProvider           com.android.providers.media.module   I  Scanned 4552-4f43 due to REASON_MOUNTED, found 25 items in 163ms, 0 inserts 0 updates 0 deletes
+2025-01-22 14:04:28.621  1265-1988  MediaProvider           com.android.providers.media.module   I  End Intent { act=android.intent.action.MEDIA_MOUNTED dat=file:///storage/4552-4F43 flg=0x5000010 cmp=com.android.providers.media.module/com.android.providers.media.MediaService (has extras) }
+2025-01-22 14:04:28.622  1265-1988  MediaProvider           com.android.providers.media.module   I  Begin Intent { act=android.intent.action.MEDIA_MOUNTED dat=file:///storage/4552-4F43 flg=0x5000010 cmp=com.android.providers.media.module/com.android.providers.media.MediaService (has extras) }
+2025-01-22 14:04:28.640  1265-1988  MediaProvider           com.android.providers.media.module   I  Scanned internal due to REASON_MOUNTED, found 2 items in 10ms, 0 inserts 0 updates 0 deletes
+2025-01-22 14:04:28.645  1265-1988  ModernMediaScanner      com.android.providers.media.module   W  Failed to visit /oem/media: java.nio.file.NoSuchFileException: /oem/media
+2025-01-22 14:04:28.649  1265-1988  MediaProvider           com.android.providers.media.module   I  Scanned internal due to REASON_MOUNTED, found 0 items in 5ms, 0 inserts 0 updates 0 deletes
+2025-01-22 14:04:29.190  1265-1988  MediaProvider           com.android.providers.media.module   I  Scanned internal due to REASON_MOUNTED, found 230 items in 537ms, 0 inserts 7 updates 0 deletes
+2025-01-22 14:04:29.270  1265-1988  MediaProvider           com.android.providers.media.module   I  Scanned 4552-4f43 due to REASON_MOUNTED, found 25 items in 67ms, 0 inserts 0 updates 0 deletes
+2025-01-22 14:04:29.274  1265-1988  MediaProvider           com.android.providers.media.module   I  End Intent { act=android.intent.action.MEDIA_MOUNTED dat=file:///storage/4552-4F43 flg=0x5000010 cmp=com.android.providers.media.module/com.android.providers.media.MediaService (has extras) }
+
+```
+
+### system_process
+
+**TF 卡插入日志**
+
+```txt
+
+2025-01-22 14:09:49.603   494-2129  StorageManagerService   system_process                       D  -----for all public volume is visible-----
+2025-01-22 14:09:49.604   494-576   StorageManagerService   system_process                       I  Mounting volume VolumeInfo{public:179,1}:
+                                                                                                        type=PUBLIC diskId=disk:179,0 partGuid= mountFlags=VISIBLE mountUserId=0 
+                                                                                                        state=UNMOUNTED 
+                                                                                                        fsType=null fsUuid=null fsLabel=null 
+                                                                                                        path=null internalPath=null 
+2025-01-22 14:09:50.227   494-576   StorageSes...Controller system_process                       I  On volume mount VolumeInfo{public:179,1}:
+                                                                                                        type=PUBLIC diskId=disk:179,0 partGuid= mountFlags=VISIBLE mountUserId=0 
+                                                                                                        state=CHECKING 
+                                                                                                        fsType=vfat fsUuid=4552-4F43 fsLabel= 
+                                                                                                        path=/storage/4552-4F43 internalPath=/mnt/media_rw/4552-4F43 
+2025-01-22 14:09:50.228   494-576   StorageSes...Controller system_process                       I  Creating and starting session with id: public:179,1
+2025-01-22 14:09:51.278   494-576   StorageManagerService   system_process                       I  Mounted volume VolumeInfo{public:179,1}:
+                                                                                                        type=PUBLIC diskId=disk:179,0 partGuid= mountFlags=VISIBLE mountUserId=0 
+                                                                                                        state=MOUNTED 
+                                                                                                        fsType=vfat fsUuid=4552-4F43 fsLabel= 
+                                                                                                        path=/storage/4552-4F43 internalPath=/mnt/media_rw/4552-4F43 
+2025-01-22 14:09:51.294   494-576   StorageSes...Controller system_process                       I  Notifying volume state changed for session with id: public:179,1
+2025-01-22 14:09:51.403   494-576   StorageSes...Controller system_process                       I  Notifying volume state changed for session with id: public:179,1
+2025-01-22 14:09:51.447   494-576   StorageManagerService   system_process                       D  Volume public:179,1 broadcasting mounted to UserHandle{0}
+2025-01-22 14:09:51.451   494-576   StorageManagerService   system_process                       D  Volume public:179,1 broadcasting mounted to UserHandle{0}
+
+```
+
+**TF卡拔出日志**
+
+```txt
+
+2025-01-22 14:13:26.174   494-576   StorageSes...Controller system_process                       I  Notifying volume state changed for session with id: public:179,1
+2025-01-22 14:13:26.210   494-576   StorageManagerService   system_process                       D  Volume public:179,1 broadcasting ejecting to UserHandle{0}
+2025-01-22 14:13:26.720   494-576   StorageSes...Controller system_process                       I  Notifying volume state changed for session with id: public:179,1
+2025-01-22 14:13:26.721   494-864   StorageSes...Controller system_process                       I  On volume remove VolumeInfo{public:179,1}:
+                                                                                                        type=PUBLIC diskId=disk:179,0 partGuid= mountFlags=VISIBLE mountUserId=0 
+                                                                                                        state=BAD_REMOVAL 
+                                                                                                        fsType=vfat fsUuid=4552-4F43 fsLabel= 
+                                                                                                        path=/storage/4552-4F43 internalPath=/mnt/media_rw/4552-4F43 
+2025-01-22 14:13:26.730   494-864   StorageSes...Controller system_process                       I  Removed session for vol with id: public:179,1
+2025-01-22 14:13:26.745   494-576   StorageSes...Controller system_process                       I  Notifying volume state changed for session with id: public:179,1
+2025-01-22 14:13:26.746   494-576   StorageUserConnection   system_process                       I  No session found for sessionId: public:179,1
+2025-01-22 14:13:26.748   494-576   StorageManagerService   system_process                       D  Volume public:179,1 broadcasting bad_removal to UserHandle{0}
+
+```
+
+### vold
+
+**TF卡插入日志**
+
+```txt
+
+01-22 14:16:17.329   170   186 D vold    : /system/bin/sgdisk
+01-22 14:16:17.329   170   186 D vold    :     --android-dump
+01-22 14:16:17.329   170   186 D vold    :     /dev/block/vold/disk:179,0
+01-22 14:16:17.357   170   186 D vold    : DISK mbr
+01-22 14:16:17.357   170   186 D vold    : PART 1 b
+01-22 14:16:17.363   170  1260 D vold    : /system/bin/blkid
+01-22 14:16:17.363   170  1260 D vold    :     -c
+01-22 14:16:17.363   170  1260 D vold    :     /dev/null
+01-22 14:16:17.363   170  1260 D vold    :     -s
+01-22 14:16:17.363   170  1260 D vold    :     TYPE
+01-22 14:16:17.364   170  1260 D vold    :     -s
+01-22 14:16:17.364   170  1260 D vold    :     UUID
+01-22 14:16:17.364   170  1260 D vold    :     -s
+01-22 14:16:17.364   170  1260 D vold    :     LABEL
+01-22 14:16:17.364   170  1260 D vold    :     /dev/block/vold/public:179,1
+01-22 14:16:17.661   170  1260 D vold    : /dev/block/vold/public:179,1: UUID="4552-4F43" TYPE="vfat" 
+01-22 14:16:17.665   170  1260 D vold    : /system/bin/fsck_msdos
+01-22 14:16:17.665   170  1260 D vold    :     -p
+01-22 14:16:17.665   170  1260 D vold    :     -f
+01-22 14:16:17.665   170  1260 D vold    :     -y
+01-22 14:16:17.665   170  1260 D vold    :     /dev/block/vold/public:179,1
+01-22 14:16:17.950   170  1260 D vold    : /dev/block/vold/public:179,1: 71 files, 5554432 KiB free (173576 clusters)
+01-22 14:16:17.954   170  1260 I vold    : Filesystem check completed OK
+01-22 14:16:17.972   170  1260 I vold    : Mounting public fuse volume
+01-22 14:16:17.980   170  1260 I vold    : Bind mounting /mnt/media_rw/4552-4F43 to /mnt/pass_through/0/4552-4F43
+01-22 14:16:19.029   170  1260 I vold    : Configuring read_ahead of /mnt/user/0/4552-4F43 fuse filesystem to 256kb
+01-22 14:16:19.031   170  1260 I vold    : Writing 256 to /sys/class/bdi/0:65/read_ahead_kb
+01-22 14:16:19.031   170  1260 I vold    : Configuring max_ratio of /mnt/user/0/4552-4F43 fuse filesystem to 40
+01-22 14:16:19.032   170  1260 I vold    : Writing 40 to /sys/class/bdi/0:65/max_ratio
 
 
+```
 
+**TF卡拔出日志**
 
+```txt
 
+01-22 14:18:01.848   170   186 I vold    : Unmounting pass_through_path /mnt/pass_through/0/4552-4F43
+01-22 14:18:01.866   170   186 I vold    : Unmounting fuse path /mnt/user/0/4552-4F43
 
+```
 
+**内核日志**
 
+```txt
 
+// TF卡插入
+[ 1000.053504] mmc_host mmc0: Bus speed (slot 0) = 375000Hz (slot req 400000Hz, actual 375000HZ div = 0)
+[ 1000.366490] mmc_host mmc0: Bus speed (slot 0) = 50000000Hz (slot req 50000000Hz, actual 50000000HZ div = 0)
+[ 1000.366720] mmc0: new high speed SDHC card at address 0001
+[ 1000.372287] mmcblk0: mmc0:0001  5.31 GiB 
+[ 1000.375717] mmcblk0: p1
 
+// TF卡拔出
+[ 1001.015799] FAT-fs (mmcblk0p1): Volume was not properly unmounted. Some data may be corrupt. Please run fsck.
+[ 1104.367364] mmc0: card 0001 removed
 
-
-
-
-
+```
 
 
 
