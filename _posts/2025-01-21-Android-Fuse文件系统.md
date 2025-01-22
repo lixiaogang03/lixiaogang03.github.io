@@ -45,6 +45,8 @@ rk3568_android_11/kernel/fs/fuse$ tree
 
 ### rk3568 android 11
 
+fuse 分区
+
 ```
 
 rk3568_r:/ $ mount | grep fuse
@@ -383,7 +385,51 @@ Android启动后会默认首先挂载内卡，从开机动画结束开始，进�
 
 ![storage_manager](/images/fuse/storage_manager.webp)
 
+## dumpsys mount
 
+```txt
+
+Disks:
+  DiskInfo{disk:179,0}:
+    flags=SD size=5699010560 label= 
+    sysPath=/sys//devices/platform/fe2b0000.dwmmc/mmc_host/mmc0/mmc0:0001/block/mmcblk0 
+
+Volumes:
+  VolumeInfo{public:179,1}:
+    type=PUBLIC diskId=disk:179,0 partGuid= mountFlags=VISIBLE mountUserId=0 state=MOUNTED 
+    fsType=vfat fsUuid=4552-4F43 fsLabel= 
+    path=/storage/4552-4F43 internalPath=/mnt/media_rw/4552-4F43 
+  VolumeInfo{emulated;0}:
+    type=EMULATED diskId=null partGuid= mountFlags=PRIMARY|VISIBLE mountUserId=0 state=MOUNTED 
+    fsType=null fsUuid=null fsLabel=null 
+    path=/storage/emulated internalPath=/data/media 
+
+Records:
+  VolumeRecord:
+    type=PUBLIC fsUuid=4552-4F43 partGuid= 
+    nickname=null userFlags=0 
+    createdMillis=2025-01-21 09:27:06 lastSeenMillis=2025-01-22 01:56:06 lastTrimMillis=unknown lastBenchMillis=unknown 
+
+Primary storage UUID: null
+
+Internal storage (null) total size: 16000000000 (16777216000000000 MiB)
+
+Local unlocked users: [0]
+System unlocked users: [0]
+
+Isolated storage, local feature flag: 0
+Isolated storage, remote feature flag: 0
+Isolated storage, resolved: true
+Forced scoped storage app list: com.ctq.simkey.sdk.appa
+isAutomotive:false
+
+mObbMounts:
+
+mObbPathToStateMap:
+
+Last maintenance: 2025-01-21 09:26:5
+
+```
 
 
 
