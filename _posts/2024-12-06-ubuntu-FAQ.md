@@ -115,7 +115,8 @@ ATA device, with non-removable media
 
 ## 如何诊断硬盘是否损坏
 
-sudo smartctl -H /dev/sdd
+* sudo smartctl -H /dev/sdd： 仅检查硬盘健康状态，快速确认硬盘是否有问题。
+* sudo smartctl -a /dev/sdd： 查看完整的 SMART 数据，包括硬盘的健康状态、详细属性、错误日志等，适用于更深入的硬盘状态分析。
 
 **损坏**
 
