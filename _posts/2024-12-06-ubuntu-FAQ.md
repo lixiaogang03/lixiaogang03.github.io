@@ -95,6 +95,8 @@ rm ~/.cache/ibus/libpinyin/__db.user_pinyin_index.bin.tmp
 
 sudo hdparm -I /dev/sdd  命令获取PRODUCT Revision 和 服务器开机画面的对比，确定盘编号
 
+`Firmware Revision:  SCV10121`
+
 ```txt
 
 sy@sy:~$ sudo hdparm -I /dev/sdd
