@@ -89,6 +89,66 @@ rm ~/.cache/ibus/libpinyin/__db.user_pinyin_index.bin.tmp
 
 ```
 
+## 服务器硬盘编号和dev/sdx路径之间的对应关系如何判断
+
+**方式一**
+
+sudo hdparm -I /dev/sdd  命令获取PRODUCT Revision 和 服务器开机画面的对比，确定盘编号
+
+```txt
+
+sy@sy:~$ sudo hdparm -I /dev/sdd
+
+/dev/sdd:
+
+ATA device, with non-removable media
+	Model Number:       INTEL SSDSC2KB240G7                     
+	Serial Number:      BTYS81950860240AGN  
+	Firmware Revision:  SCV10121
+	Media Serial Num:   
+	Media Manufacturer: 
+	Transport:          Serial, ATA8-AST, SATA 1.0a, SATA II Extensions, SATA Rev 2.5, SATA Rev 2.6, SATA Rev 3.0
+
+```
+
+## 如何诊断硬盘是否损坏
+
+sudo smartctl -H /dev/sdd
+
+**损坏**
+
+```txt
+
+sy@sy:~$ sudo smartctl -H /dev/sdd
+smartctl 7.2 2020-12-30 r5155 [x86_64-linux-6.8.0-52-generic] (local build)
+Copyright (C) 2002-20, Bruce Allen, Christian Franke, www.smartmontools.org
+
+=== START OF READ SMART DATA SECTION ===
+SMART overall-health self-assessment test result: FAILED!
+Drive failure expected in less than 24 hours. SAVE ALL DATA.
+No failed Attributes found.
+
+```
+
+**正常**
+
+```txt
+
+sy@sy:~$ sudo smartctl -H /dev/sdc
+smartctl 7.2 2020-12-30 r5155 [x86_64-linux-6.8.0-52-generic] (local build)
+Copyright (C) 2002-20, Bruce Allen, Christian Franke, www.smartmontools.org
+
+=== START OF READ SMART DATA SECTION ===
+SMART overall-health self-assessment test result: PASSED
+
+```
+
+
+
+
+
+
+
 
 
 
