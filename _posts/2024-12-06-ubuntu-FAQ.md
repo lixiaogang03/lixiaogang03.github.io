@@ -91,6 +91,8 @@ rm ~/.cache/ibus/libpinyin/__db.user_pinyin_index.bin.tmp
 
 ## 服务器硬盘编号和dev/sdx路径之间的对应关系如何判断
 
+![intel_sata](/images/hardware/intel_sata.jpg)
+
 **方式一**
 
 sudo hdparm -I /dev/sdd  命令获取PRODUCT Revision 和 服务器开机画面的对比，确定盘编号
