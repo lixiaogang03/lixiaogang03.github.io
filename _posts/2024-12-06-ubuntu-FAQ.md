@@ -148,13 +148,54 @@ SMART overall-health self-assessment test result: PASSED
 
 ```
 
+## 新硬盘挂载
 
+**判断是否是新硬盘**
 
+方式一： 查看通电情况
 
+sudo smartctl -a /dev/sdd
 
+`Power_On_Hours（累计通电时间）`
 
+`Power_Cycle_Count（通电次数）`
 
+方式二： 检查磁盘的 SMART 自检日志
 
+sudo smartctl -l selftest /dev/sdd
+
+```txt
+
+$ sudo smartctl -l selftest /dev/sdd
+smartctl 7.2 2020-12-30 r5155 [x86_64-linux-6.8.0-52-generic] (local build)
+Copyright (C) 2002-20, Bruce Allen, Christian Franke, www.smartmontools.org
+
+=== START OF READ SMART DATA SECTION ===
+SMART Self-test log structure revision number 1
+No self-tests have been logged.  [To run self-tests, use: smartctl -t]
+
+```
+
+**格式化**
+
+sudo mkfs.ext4 /dev/sdd
+
+**默认挂载**
+
+```bash
+
+sy@sy:~$ sudo blkid /dev/sdd
+/dev/sdd: UUID="70ca94bd-9bcd-48a6-bcfb-397bc1abd499" BLOCK_SIZE="4096" TYPE="ext4"
+
+```
+
+sudo nano /etc/fstab
+
+```txt
+
+UUID=70ca94bd-9bcd-48a6-bcfb-397bc1abd499 /home/sy/code/sdd               ext4    defaults     0       0
+
+```
 
 
 
