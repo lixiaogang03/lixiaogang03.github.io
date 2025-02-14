@@ -10,6 +10,8 @@ tags:
     - rockchip
 ---
 
+[嵌入式AI应用开发实战指南](https://doc.embedfire.com/linux/rk356x/Ai/zh/latest/README.html)
+
 ## NPU 概念
 
 NPU 英语全称为 Neural Process Unit，译为神经网络处理器。NPU 是在电路层来模拟人类的神经元和突触，所以特别擅长处理人工智能任务。
