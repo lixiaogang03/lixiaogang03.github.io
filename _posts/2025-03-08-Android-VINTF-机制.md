@@ -127,11 +127,11 @@ endif
 
 ```
 
-device/rockchip/common/manifest.xml
+**device/rockchip/common/manifest.xml**
 
 ```xml
 
-<manifest version="1.0" type="device" target-level="5">
+<manifest version="2.0" type="device" target-level="5">
     <hal format="hidl">
         <name>android.hardware.audio</name>
         <transport>hwbinder</transport>
@@ -140,69 +140,30 @@ device/rockchip/common/manifest.xml
             <name>IDevicesFactory</name>
             <instance>default</instance>
         </interface>
+        <fqname>@6.0::IDevicesFactory/default</fqname>
     </hal>
-    <hal format="hidl">
-        <name>android.hardware.audio.effect</name>
-        <transport>hwbinder</transport>
-        <version>6.0</version>
-        <interface>
-            <name>IEffectsFactory</name>
-            <instance>default</instance>
-        </interface>
-    </hal>
-    <hal format="hidl">
-        <name>android.hardware.bluetooth</name>
-        <transport>hwbinder</transport>
-        <version>1.0</version>
-        <interface>
-            <name>IBluetoothHci</name>
-            <instance>default</instance>
-        </interface>
-    </hal>
-    <hal format="hidl">
-        <name>android.hardware.graphics.composer</name>
-        <transport>hwbinder</transport>
-        <version>2.1</version>
-        <interface>
-            <name>IComposer</name>
-            <instance>default</instance>
-        </interface>
-    </hal>
-    <hal format="hidl">
-        <name>android.hardware.health</name>
-        <transport>hwbinder</transport>
-        <version>2.1</version>
-        <interface>
-            <name>IHealth</name>
-            <instance>default</instance>
-        </interface>
-    </hal>
-    <hal format="hidl">
-        <name>android.hardware.media.omx</name>
-        <transport>hwbinder</transport>
-        <version>1.0</version>
-        <interface>
-            <name>IOmx</name>
-            <instance>default</instance>
-        </interface>
-        <interface>
-            <name>IOmxStore</name>
-            <instance>default</instance>
-        </interface>
-    </hal>
-    <hal format="hidl">
-        <name>android.hardware.sensors</name>
-        <transport>hwbinder</transport>
-        <version>1.0</version>
-        <interface>
-            <name>ISensors</name>
-            <instance>default</instance>
-        </interface>
-    </hal>
-    <kernel target-level="5"/>
 </manifest>
 
 ```
+
+**system/etc/vintf/compatibility_matrix.5.xml**
+
+```xml
+
+<compatibility-matrix version="2.0" type="framework" level="5">
+    <hal format="hidl" optional="false">
+        <name>android.hardware.audio</name>
+        <version>6.0</version>
+        <interface>
+            <name>IDevicesFactory</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+</compatibility-matrix>
+
+```
+
+可以看到manifest.xml和compatibility_matrix.5.xml是存在对应关系的
 
 ### 在编译阶段进行 VINTF 验证
 
