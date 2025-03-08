@@ -142,6 +142,7 @@ endif
         </interface>
         <fqname>@6.0::IDevicesFactory/default</fqname>
     </hal>
+    <kernel target-level="5"/>
 </manifest>
 
 ```
@@ -159,11 +160,12 @@ endif
             <instance>default</instance>
         </interface>
     </hal>
+    <kernel version="5.4.42" level="5">
 </compatibility-matrix>
 
 ```
 
-可以看到manifest.xml和compatibility_matrix.5.xml是存在对应关系的
+可以看到manifest.xml和compatibility_matrix.5.xml是存在对应关系的, compatibility_matrix.5.xml是系统需求， manifest.xml是设备实际供给
 
 ### 在编译阶段进行 VINTF 验证
 
@@ -238,15 +240,6 @@ checkvintf I 03-03 16:38:21 25030 25030 VintfObject.cpp:61] getFrameworkCompatib
 
 从 out/target/product/rk3568_r/system/etc/vintf/ 目录下依次获取各个兼容性矩阵文件（例如 compatibility_matrix.1.xml、compatibility_matrix.device.xml、compatibility_matrix.2.xml、compatibility_matrix.legacy.xml、compatibility_matrix.3.xml、compatibility_matrix.4.xml、compatibility_matrix.5.xml），并验证这些文件是否正确反映了系统对 HAL 接口和版本的要求
 
-
-## 异常日志和分析
-
-```txt
-
-FAILED: ninja: out/target/product/rk3566_r/system/etc/vintf/compatibility_matrix.1.xml, needed by 'out/target/product/rk3566_r/obj/PACKAGING/check_vintf_all_intermediates/check_vintf.system.log', missing and no known rule to make it
-
-```
-
 在 Android 8.0（Oreo）引入 Treble 架构后，Google 提出了 VINTF（Vendor Interface Versioning and Testing Framework）机制，用于解耦 系统框架（System / Framework） 与 供应商实现（Vendor）。
 VINTF 通过一组 XML 文件 来描述 系统所需的硬件接口（Compatibility Matrix） 和 设备实际提供的硬件接口（Manifest），从而在 编译时 和 设备启动时 检查二者是否兼容。
 
@@ -264,8 +257,15 @@ vendor/etc/vintf/manifest.xml
 ![android_vintf](/images/hardware/android_vintf.png)
 
 
+## 异常日志和分析
 
+```txt
 
+FAILED: ninja: out/target/product/rk3566_r/system/etc/vintf/compatibility_matrix.1.xml, needed by 'out/target/product/rk3566_r/obj/PACKAGING/check_vintf_all_intermediates/check_vintf.system.log', missing and no known rule to make it
+
+```
+
+问题原因： hardware/interfaces/compatibility_matrices/android.bp 文件被打开，导致编译系统无法访问
 
 
 
