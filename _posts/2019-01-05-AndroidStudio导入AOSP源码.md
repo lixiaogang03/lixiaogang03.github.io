@@ -4,7 +4,7 @@ title:      AndroidStudio导入AOSP源码
 subtitle:   android studio
 date:       2019-01-05
 author:     LXG
-header-img: img/home-bg-geek.jpg
+header-img: img/home-bg-android.jpg
 catalog: true
 tags:
     - Android
