@@ -4,7 +4,7 @@ title:      Android 11 Permission
 subtitle:   PermissionPolicyService
 date:       2020-10-13
 author:     LXG
-header-img: img/home-bg-android.jpg
+header-img: img/post-bg-android.jpg
 catalog: true
 tags:
     - android
