@@ -4,7 +4,7 @@ title:      Adb Shell Conmand
 subtitle:   Shell
 date:       2018-10-10
 author:     LXG
-header-img: img/post-bg-ios10.jpg
+header-img: img/post-bg-ios9-web.jpg
 catalog: true
 tags:
     - adb
