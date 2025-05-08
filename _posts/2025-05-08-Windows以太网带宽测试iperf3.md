@@ -30,13 +30,13 @@ tags:
 
 ## 最新主板固件地址
 
-**V2主板**
+**V2主板下载地址**
 
-[V2KFH_1024x768_12_20250421.1104_user](http://rk3588image.wif.ink/V2KFH/V2KFH_1024x768_12_20250421.1104_user.img)
+http://rk3588image.wif.ink/V2KFH/V2KFH_1024x768_12_20250421.1104_user.img
 
-**V3主板**
+**V3主板下载地址**
 
-[V3KFH_1024x768_12_20250421.1431_user](http://rk3588image.wif.ink/V3KFH/V3KFH_1024x768_12_20250421.1431_user.img)
+http://rk3588image.wif.ink/V3KFH/V3KFH_1024x768_12_20250421.1431_user.img
 
 ## 查看windows本机IP地址
 
