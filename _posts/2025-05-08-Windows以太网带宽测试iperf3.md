@@ -24,9 +24,9 @@ tags:
 
 ## 测试准备
 
-Windows主机和待测试主板接在同一个局域网内
+`Windows主机和待测试主板接在同一个局域网内`
 
-**注意需要用千兆的路由器或者交换机，还有支持千兆的网线**
+`注意需要用千兆的路由器或者交换机，还有支持千兆的网线`
 
 ## 查看windows本机IP地址
 
@@ -34,11 +34,11 @@ Windows主机和待测试主板接在同一个局域网内
 
 ![windows_ipconfig](/images/tools/windows_ipconfig.png)
 
-可以看到当前windows电脑的IP地址为 192.168.1.54
+可以看到当前windows电脑的IP地址为 **192.168.1.54**
 
 ## 运行windows端的iperf3指令
 
-将iperf3.exe文件用鼠标拖入终端窗口即可, 然后输入-s参数，此时服务端就运行起来了
+将iperf3.exe文件用鼠标拖入终端窗口即可, 然后输入-s参数，此时服务端就运行起来了，等待测试端的连接
 
 ![windows_iperf3_cmd](/images/tools/windows_iperf3_cmd.png)
 
@@ -52,11 +52,11 @@ Windows电脑上新打开一个终端窗口
 
 ![rk3588_ifconfig](/images/tools/rk3588_ifconfig.png)
 
-运行iperf3指令
+运行iperf3指令: ipef3 -c 192.168.1.54 (电脑的IP地址)
 
 ![rk3588_iperf3_cmd](/images/tools/rk3588_iperf3_cmd.png)
 
-可以看到测试结果的带宽是256MB，显然未达到千兆, 此时的测试结果是**失败**的
+可以看到测试结果的带宽是256MB，显然未达到千兆, 此时的测试结果是`失败`的
 
 
 
