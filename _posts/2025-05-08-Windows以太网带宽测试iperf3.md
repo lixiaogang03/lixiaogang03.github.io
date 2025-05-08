@@ -28,13 +28,23 @@ tags:
 
 `注意需要用千兆的路由器或者交换机，还有支持千兆的网线`
 
+## 最新主板固件地址
+
+**V2主板**
+
+[V2KFH_1024x768_12_20250421.1104_user](http://rk3588image.wif.ink/V2KFH/V2KFH_1024x768_12_20250421.1104_user.img)
+
+**V3主板**
+
+[V3KFH_1024x768_12_20250421.1431_user](http://rk3588image.wif.ink/V3KFH/V3KFH_1024x768_12_20250421.1431_user.img)
+
 ## 查看windows本机IP地址
 
 打开window终端，执行ipconfig命令
 
 ![windows_ipconfig](/images/tools/windows_ipconfig.png)
 
-可以看到当前windows电脑的IP地址为 **192.168.1.54**
+可以看到当前windows电脑的IP地址为 `192.168.1.54`
 
 ## 运行windows端的iperf3指令
 
@@ -52,11 +62,14 @@ Windows电脑上新打开一个终端窗口
 
 ![rk3588_ifconfig](/images/tools/rk3588_ifconfig.png)
 
-运行iperf3指令: ipef3 -c 192.168.1.54 (电脑的IP地址)
+运行iperf3指令: `ipef3 -c 192.168.1.54` (电脑的IP地址)
 
 ![rk3588_iperf3_cmd](/images/tools/rk3588_iperf3_cmd.png)
 
 可以看到测试结果的带宽是256MB，显然未达到千兆, 此时的测试结果是`失败`的
+
+针对3588主板，另一个网口使用相同办法测试即可
+
 
 
 
