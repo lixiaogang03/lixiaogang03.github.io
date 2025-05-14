@@ -202,7 +202,6 @@ User Controls
                         timeout 0x0098f902 (int)    : min=0 max=100000 step=1 default=0 value=0
                timeout_image_io 0x0098f903 (button) : flags=write-only, execute-on-write
 
-
 ```
 
 ## buildroot 添加 v4l2loopback-ctl
@@ -265,8 +264,112 @@ $(eval $(generic-package))
 
 ```
 
+## 测试demo
+
+![v4l2_camera_demo](https://github.com/ConvergenceSoftware/v4l2_camera_demo)
+
+**对开源项目做如下修改**
+
+添加lib/libjpeg.so 和 jpeglib.h 文件, 从T113-S3源码out目录中提取
+
+```diff
+
+diff --git a/camera_demo.pro b/camera_demo.pro
+index 14fdae1..7cad2a6 100644
+--- a/camera_demo.pro
++++ b/camera_demo.pro
+@@ -16,7 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
+ # You can also select to disable deprecated APIs only up to a certain version of Qt.
+ #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+ 
+-unix:LIBS += /usr/lib/x86_64-linux-gnu/libjpeg.so
++unix:LIBS += $$PWD/lib/libjpeg.so
+ 
+ SOURCES += \
+     main.cpp \
+
+diff --git a/widget.cpp b/widget.cpp
+index bb0ce64..ed69b5a 100644
+--- a/widget.cpp
++++ b/widget.cpp
+@@ -39,7 +39,7 @@ void Widget::InitWidget()
+             ui->cb_camera_name->addItem(QString::fromLatin1(GetCameraName(i)));
+ 
+         //启动默认视频
+-        StartRun(2);
++        StartRun(0);
+         imageprocessthread->init(ui->cb_camera_name->currentIndex());
+         imageprocessthread->start();
+
+diff --git a/v4l2.c b/v4l2.c
+index 014c5b0..6d9ef68 100644
+--- a/v4l2.c
++++ b/v4l2.c
+@@ -2,6 +2,7 @@
+ #include <jpeglib.h>
+ #include "sys/time.h"
+ #include "libv4l2.h"
++#include <stdbool.h>
+ 
+ #ifdef __cplusplus
+ extern "C" {
+@@ -22,7 +23,7 @@ int fd = -1;
+ int videoIsRun = -1;
+ int deviceIsOpen = -1;
+ unsigned char *rgb24 = NULL;
+-int WIDTH = 1280, HEIGHT = 720;
++int WIDTH = 640, HEIGHT = 480;
+ 
+ //V4l2相关结构体
+ static struct v4l2_capability cap;
+@@ -101,7 +102,7 @@ int MJPEG2RGB(unsigned char* data_frame, unsigned char *rgb, int bytesused)
+     cinfo.err = jpeg_std_error(&jerr);
+     jpeg_create_decompress(&cinfo);
+     jpeg_mem_src(&cinfo, data, data_size);
+-     int rc = jpeg_read_header(&cinfo, TRUE);
++     int rc = jpeg_read_header(&cinfo, true);
+      if(!(1==rc))
+      {
+          //printf("Not a jpg frame.\n");
+@@ -169,7 +170,7 @@ void StartVideoPrePare()
+     format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+     format.fmt.pix.width = WIDTH;
+     format.fmt.pix.height = HEIGHT;
+-    format.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;
++    format.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG; //V4L2_PIX_FMT_YUYV
+     ioctl(fd, VIDIOC_S_FMT, &format);
+ 
+     //申请帧缓存区
+@@ -434,7 +435,7 @@ int V4L2SetResolution(int new_width, int new_height)
+     WIDTH = new_width;
+     HEIGHT = new_height;
+ 
+-    StartRun(2);
++    StartRun(0);
+ 
+     return 0;
+ }
 
 
+```
+
+## 测试命令
+
+```bash
+
+ffmpeg -re -loop 1 -i image.jpg -vcodec mjpeg -f v4l2 /dev/video0
+
+```
+
+| 参数               | 说明                                                                 |
+|--------------------|----------------------------------------------------------------------|
+| `ffmpeg`           | 启动 FFmpeg 工具。                                                    |
+| `-re`              | 按“实时”速度读取输入，模拟真实摄像头的帧率（而不是尽快读完）。         |
+| `-loop 1`          | 循环输入，`1` 表示无限次循环播放输入图片。                            |
+| `-i image.jpg`     | 指定输入文件为 `image.jpg`。                                          |
+| `-vcodec mjpeg`    | 设置视频编码格式为 MJPEG（Motion JPEG），每帧都是独立 JPEG 图像。       |
+| `-f v4l2`          | 设置输出格式为 V4L2（Linux 视频设备接口标准）。                        |
+| `/dev/video0`      | 指定输出为虚拟摄像头设备 `/dev/video0`（由 v4l2loopback 驱动创建）。    |
 
 
 
