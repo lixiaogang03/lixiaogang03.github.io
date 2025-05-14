@@ -256,7 +256,10 @@ $(eval $(generic-package))
 
 ```
 
-### v4l2loopback-ctl 使用
+### v4l2loopback-ctl 和  v4l2-ctl
+
+* v4l2-ctl：用于与实际的硬件摄像头（或者视频捕捉设备）进行交互，操作摄像头的参数。
+* v4l2loopback-ctl：用于与虚拟摄像头设备交互，通常与 v4l2loopback 驱动一起使用，用于创建和管理虚拟视频设备。
 
 ```bash
 
@@ -266,7 +269,7 @@ $(eval $(generic-package))
 
 ## 测试demo
 
-![v4l2_camera_demo](https://github.com/ConvergenceSoftware/v4l2_camera_demo)
+[v4l2_camera_demo](https://github.com/ConvergenceSoftware/v4l2_camera_demo)
 
 **对开源项目做如下修改**
 
@@ -353,7 +356,7 @@ index 014c5b0..6d9ef68 100644
 
 ```
 
-## 测试命令
+## 图片测试命令
 
 ```bash
 
@@ -372,7 +375,26 @@ ffmpeg -re -loop 1 -i image.jpg -vcodec mjpeg -f v4l2 /dev/video0
 | `/dev/video0`      | 指定输出为虚拟摄像头设备 `/dev/video0`（由 v4l2loopback 驱动创建）。    |
 
 
+## 视频测试命令
 
+```bash
+
+ffmpeg -re -stream_loop -1 -i meihua_640x480.mp4 -vcodec mjpeg -f v4l2 /dev/video0
+
+```
+
+| **参数**               | **解释**                                                                 |
+|------------------------|--------------------------------------------------------------------------|
+| `ffmpeg`                | `ffmpeg` 是一个强大的命令行工具，用于处理音频和视频数据。                  |
+| `-re`                   | 以实时速度读取输入文件。这是为了模拟实时播放视频，确保推送到虚拟摄像头时不会过快地发送帧。 |
+| `-stream_loop -1`       | `-stream_loop` 参数指定循环播放视频。`-1` 表示无限循环，即视频将持续不断地播放，直到手动停止。 |
+| `-i meihua_640x480.mp4` | 指定输入文件，这里是名为 `meihua_640x480.mp4` 的视频文件。该文件将被推送到虚拟摄像头。 |
+| `-vcodec mjpeg`         | 设置视频编码格式为 **MJPEG**（Motion JPEG），这是虚拟摄像头通常支持的格式。 |
+| `-f v4l2`               | 指定输出格式为 **v4l2**，表示将视频流推送到 V4L2（Video for Linux 2）设备，即虚拟摄像头。 |
+| `/dev/video0`           | 输出设备的路径，指向虚拟相机设备 `/dev/video0`。这是虚拟摄像头的设备文件，应用程序可以通过它获取视频流。 |
+
+
+、
 
 
 
