@@ -263,9 +263,26 @@ $(eval $(generic-package))
 
 ```bash
 
-
+sh-4.4# v4l2loopback-ctl list
+OUTPUT       	CAPTURE      	NAME
+/dev/video0  	/dev/video0  	Dummy video device (0x0000)
 
 ```
+
+**v4l2loopback-ctl常用命令**
+
+| 命令                      | 参数说明                                                     | 功能描述                                       |
+|---------------------------|--------------------------------------------------------------|------------------------------------------------|
+| `add`                     | `[OPTIONS] [<outputdevice> [<capturedevice>]]`               | 添加新的 v4l2loopback 虚拟设备                 |
+| `delete`                  | `<device>`                                                   | 删除指定的虚拟设备                             |
+| `list`                    | `[OPTIONS]`                                                  | 列出当前所有 v4l2loopback 虚拟设备             |
+| `query`                   | `<device>`                                                   | 查询设备的当前配置与能力                       |
+| `set-fps`                 | `<device> <fps>`                                             | 设置指定设备的帧率                             |
+| `get-fps`                 | `<device>`                                                   | 获取指定设备的帧率                             |
+| `set-caps`                | `<device> <caps>`                                            | 设置视频格式能力（如分辨率、帧率）            |
+| `get-caps`                | `<device>`                                                   | 获取当前设置的视频格式能力                    |
+| `set-timeout-image`       | `[OPTIONS] <device> <image>`                                 | 设置在无输入帧时显示的占位图像                 |
+
 
 ## 测试demo
 
