@@ -167,7 +167,7 @@ class StorageManagerService extends IStorageManager.Stub
             case VolumeInfo.STATE_MOUNTED_READ_ONLY:
             case VolumeInfo.STATE_EJECTING:
             case VolumeInfo.STATE_UNMOUNTED:
-            case VolumeInfo.STATE_UNMOUNTABLE:
+            case VolumeInfo.STATE_UNMOUNTABLE:  // 此状态时会提示SD卡损坏
             case VolumeInfo.STATE_BAD_REMOVAL:
                 break;
             default:
@@ -221,6 +221,8 @@ interface IVold {
 05-26 16:02:06.430632  1806  1819 D vold    : 
 05-26 16:02:06.430651  1806  1819 D vold    : Available space              32 GB
 05-26 16:02:06.430664  1806  1819 D vold    : 
+
+# 这是 exfat 文件系统解析目录项时发生异常
 05-26 16:02:06.430848  2771  2771 E exfat   : unexpected entry type 0x84 after 0x85 at 1/225
 05-26 16:02:07.322705  2771  2771 E exfat   : unexpected entry type 0x45 after 0x85 at 1/51
 05-26 16:02:08.399323  1806  1819 D vold    : Totally 63 directories and 26236 files.
@@ -243,6 +245,12 @@ interface IVold {
 05-26 16:02:08.406522  2239  2331 E StorageManagerService: 	at android.os.Handler.dispatchMessage(Handler.java:107)
 05-26 16:02:08.406522  2239  2331 E StorageManagerService: 	at android.os.Looper.loop(Looper.java:214)
 05-26 16:02:08.406522  2239  2331 E StorageManagerService: 	at android.os.HandlerThread.run(HandlerThread.java:67)
+
+05-26 16:02:16.583012  2375  2375 D StorageNotification: Notifying about public volume: VolumeInfo{public:179,65}:
+05-26 16:02:16.583012  2375  2375 D StorageNotification:     type=PUBLIC diskId=disk:179,64 partGuid= mountFlags=VISIBLE mountUserId=0 
+05-26 16:02:16.583012  2375  2375 D StorageNotification:     state=UNMOUNTABLE 
+05-26 16:02:16.583012  2375  2375 D StorageNotification:     fsType=exfat fsUuid=86BA-1239 fsLabel=android 
+05-26 16:02:16.583012  2375  2375 D StorageNotification:     path=null internalPath=null 
 
 05-26 16:08:31.504062[    1.522384] FAT-fs (mmcblk0p16): Volume was not properly unmounted. Some data may be corrupt. Please run fsck.
 
@@ -275,6 +283,134 @@ interface IVold {
        标记状态为 STATE_UNMOUNTABLE
              ▼
        UI 提示用户“SD 卡已损坏”
+
+```
+
+state=UNMOUNTABLE 时会提示`已损坏`
+
+## exfat 文件系统报错日志
+
+**./vendor/aw/public/package/bin/fstools/exfat**
+
+```bash
+
+lxg@lxg:~/code/project/a133/haoqiang_BE/A133_android_10/android/vendor/aw/public/package/bin/fstools$ grep -ri "exfat_error(\"" .
+./exfat/fuse/main.c:		exfat_error("'%s' is not a directory (%#hx)", path, parent->attrib);
+./exfat/fuse/main.c:		exfat_error("failed to open directory '%s'", path);
+./exfat/fuse/main.c:		exfat_error("failed to reallocate options string");
+./exfat/fuse/main.c:		exfat_error("failed to allocate escaped string for %s", spec);
+./exfat/fuse/main.c:		exfat_error("failed to determine username");
+./exfat/fuse/main.c:		exfat_error("failed to allocate options string");
+./exfat/mkfs/fat.c:		exfat_error("failed to write FAT entry 0x%x", value);
+./exfat/mkfs/uct.c:		exfat_error("failed to write upcase table of %zu bytes",
+./exfat/mkfs/main.c:			exfat_error("cluster size %"PRIu64" %s is too small for "
+./exfat/mkfs/main.c:		exfat_error("failed to form volume id");
+./exfat/mkfs/main.c:				exfat_error("invalid option value: '%s'", optarg);
+./exfat/mkfs/cbm.c:		exfat_error("failed to allocate bitmap of %zu bytes",
+./exfat/mkfs/cbm.c:		exfat_error("failed to write bitmap of %zu bytes",
+./exfat/mkfs/vbr.c:		exfat_error("failed to allocate sector-sized block of memory");
+./exfat/mkfs/vbr.c:		exfat_error("failed to write super block sector");
+./exfat/mkfs/vbr.c:			exfat_error("failed to write a sector with boot signature");
+./exfat/mkfs/vbr.c:			exfat_error("failed to write an empty sector");
+./exfat/mkfs/vbr.c:		exfat_error("failed to write checksum sector");
+./exfat/mkfs/mkexfat.c:		exfat_error("too small device (%"PRIu64" %s)", vhb.value, vhb.unit);
+./exfat/mkfs/mkexfat.c:		exfat_error("seek to 0x%"PRIx64" failed", start);
+./exfat/mkfs/mkexfat.c:			exfat_error("failed to erase block %"PRIu64"/%"PRIu64
+./exfat/mkfs/mkexfat.c:		exfat_error("failed to allocate erase block");
+./exfat/mkfs/mkexfat.c:			exfat_error("seek to 0x%"PRIx64" failed", position);
+./exfat/libexfat/repair.c:		exfat_error("failed to write correct VBR checksum");
+./exfat/libexfat/node.c:	exfat_error("read %zd bytes instead of %zu bytes", size,
+./exfat/libexfat/node.c:	exfat_error("wrote %zd bytes instead of %zu bytes", size,
+./exfat/libexfat/node.c:		exfat_error("failed to allocate node");
+./exfat/libexfat/node.c:			exfat_error("unexpected entry type %#x after %#x at %d/%d",
+./exfat/libexfat/node.c:		exfat_error("'%s' has invalid checksum (%#hx != %#hx)", buffer,
+./exfat/libexfat/node.c:		exfat_error("'%s' has valid size (%"PRIu64") greater than size "
+./exfat/libexfat/node.c:		exfat_error("'%s' is empty but start cluster is %#x", buffer,
+./exfat/libexfat/node.c:		exfat_error("'%s' points to invalid cluster %#x", buffer,
+./exfat/libexfat/node.c:		exfat_error("'%s' is larger than clusters heap: %"PRIu64" > %"PRIu64,
+./exfat/libexfat/node.c:		exfat_error("'%s' is empty but marked as contiguous (%#hx)", buffer,
+./exfat/libexfat/node.c:		exfat_error("'%s' directory size %"PRIu64" is not divisible by %d", buffer,
+./exfat/libexfat/node.c:		exfat_error("too few continuations (%hhu)", meta1->continuations);
+./exfat/libexfat/node.c:		exfat_error("unknown flags in meta2 (%#hhx)", meta2->flags);
+./exfat/libexfat/node.c:		exfat_error("too few continuations (%hhu < %d)",
+./exfat/libexfat/node.c:				exfat_error("invalid cluster 0x%x in upcase table",
+./exfat/libexfat/node.c:				exfat_error("bad upcase table size (%"PRIu64" bytes)",
+./exfat/libexfat/node.c:				exfat_error("failed to allocate upcase table (%"PRIu64" bytes)",
+./exfat/libexfat/node.c:				exfat_error("failed to read upper case table "
+./exfat/libexfat/node.c:				exfat_error("failed to allocate decompressed upcase table");
+./exfat/libexfat/node.c:				exfat_error("invalid cluster 0x%x in clusters bitmap",
+./exfat/libexfat/node.c:				exfat_error("invalid clusters bitmap size: %"PRIu64
+./exfat/libexfat/node.c:				exfat_error("failed to allocate clusters bitmap chunk "
+./exfat/libexfat/node.c:				exfat_error("failed to read clusters bitmap "
+./exfat/libexfat/node.c:				exfat_error("too long label (%hhu chars)", label->length);
+./exfat/libexfat/node.c:			exfat_error("unknown entry type %#hhx", entry.type);
+./exfat/libexfat/node.c:		exfat_error("failed to allocate directory bitmap (%"PRIu64")",
+./exfat/libexfat/utf.c:			exfat_error("illegal UTF-16 sequence");
+./exfat/libexfat/utf.c:			exfat_error("name is too long");
+./exfat/libexfat/utf.c:		exfat_error("name is too long");
+./exfat/libexfat/utf.c:			exfat_error("illegal UTF-8 sequence");
+./exfat/libexfat/utf.c:			exfat_error("name is too long");
+./exfat/libexfat/utf.c:		exfat_error("name is too long");
+./exfat/libexfat/mount.c:			exfat_error("root directory cannot occupy all %d clusters",
+./exfat/libexfat/mount.c:			exfat_error("bad cluster %#x while reading root directory",
+./exfat/libexfat/mount.c:		exfat_error("failed to read boot sector");
+./exfat/libexfat/mount.c:			exfat_error("failed to read VBR sector");
+./exfat/libexfat/mount.c:		exfat_error("failed to read VBR checksum sector");
+./exfat/libexfat/mount.c:			exfat_error("invalid VBR checksum 0x%x (expected 0x%x)",
+./exfat/libexfat/mount.c:		exfat_error("failed to write super block");
+./exfat/libexfat/mount.c:		exfat_error("failed to allocate memory for the super block");
+./exfat/libexfat/mount.c:		exfat_error("failed to read boot sector");
+./exfat/libexfat/mount.c:		exfat_error("exFAT file system is not found");
+./exfat/libexfat/mount.c:		exfat_error("too small sector size: 2^%hhd", ef->sb->sector_bits);
+./exfat/libexfat/mount.c:		exfat_error("too big cluster size: 2^(%hhd+%hhd)",
+./exfat/libexfat/mount.c:		exfat_error("failed to allocate zero sector");
+./exfat/libexfat/mount.c:		exfat_error("unsupported exFAT version: %hhu.%hhu",
+./exfat/libexfat/mount.c:		exfat_error("unsupported FAT count: %hhu", ef->sb->fat_count);
+./exfat/libexfat/mount.c:		exfat_error("file system in clusters is larger than device: "
+./exfat/libexfat/mount.c:		exfat_error("failed to allocate root node");
+./exfat/libexfat/mount.c:		exfat_error("upcase table is not found");
+./exfat/libexfat/mount.c:		exfat_error("clusters bitmap is not found");
+./exfat/libexfat/time.c:		exfat_error("bad date %u-%02hu-%02hu",
+./exfat/libexfat/time.c:		exfat_error("bad time %hu:%02hu:%02u",
+./exfat/libexfat/time.c:		exfat_error("bad centiseconds count %hhu", centisec);
+./exfat/libexfat/io.c:			exfat_error("failed to open /dev/null");
+./exfat/libexfat/io.c:		exfat_error("failed to allocate memory for device structure");
+./exfat/libexfat/io.c:			exfat_error("failed to open '%s' in read-only mode: %s", spec,
+./exfat/libexfat/io.c:			exfat_error("failed to open '%s' in read-write mode: %s", spec,
+./exfat/libexfat/io.c:		exfat_error("failed to open '%s': %s", spec, strerror(errno));
+./exfat/libexfat/io.c:		exfat_error("failed to fstat '%s'", spec);
+./exfat/libexfat/io.c:		exfat_error("'%s' is neither a device, nor a regular file", spec);
+./exfat/libexfat/io.c:			exfat_error("failed to get block size");
+./exfat/libexfat/io.c:			exfat_error("failed to get blocks count");
+./exfat/libexfat/io.c:			exfat_error("failed to get disklabel");
+./exfat/libexfat/io.c:			exfat_error("failed to get size of '%s'", spec);
+./exfat/libexfat/io.c:			exfat_error("failed to seek to the beginning of '%s'", spec);
+./exfat/libexfat/io.c:		exfat_error("failed to initialize ublio");
+./exfat/libexfat/io.c:		exfat_error("failed to close ublio");
+./exfat/libexfat/io.c:		exfat_error("failed to close device: %s", strerror(errno));
+./exfat/libexfat/io.c:		exfat_error("ublio fsync failed");
+./exfat/libexfat/io.c:		exfat_error("fsync failed: %s", strerror(errno));
+./exfat/libexfat/io.c:		exfat_error("invalid cluster 0x%x while reading", cluster);
+./exfat/libexfat/io.c:			exfat_error("invalid cluster 0x%x while reading", cluster);
+./exfat/libexfat/io.c:			exfat_error("failed to read cluster %#x", cluster);
+./exfat/libexfat/io.c:		exfat_error("invalid cluster 0x%x while writing", cluster);
+./exfat/libexfat/io.c:			exfat_error("invalid cluster 0x%x while writing", cluster);
+./exfat/libexfat/io.c:			exfat_error("failed to write cluster %#x", cluster);
+./exfat/libexfat/cluster.c:			exfat_error("failed to write clusters bitmap");
+./exfat/libexfat/cluster.c:		exfat_error("failed to write the next cluster %#x after %#x", next,
+./exfat/libexfat/cluster.c:		exfat_error("no free space left");
+./exfat/libexfat/cluster.c:			exfat_error("invalid cluster 0x%x while growing", previous);
+./exfat/libexfat/cluster.c:			exfat_error("invalid cluster 0x%x while shrinking", last);
+./exfat/libexfat/cluster.c:			exfat_error("invalid cluster 0x%x while freeing after shrink",
+./exfat/libexfat/cluster.c:		exfat_error("failed to erase %zu bytes at %"PRId64, size, offset);
+./exfat/libexfat/cluster.c:		exfat_error("invalid cluster 0x%x while erasing", cluster);
+./exfat/fsck/main.c:			exfat_error("file '%s' has invalid cluster 0x%x", name, c);
+./exfat/fsck/main.c:			exfat_error("cluster 0x%x of file '%s' is not allocated", c, name);
+./exfat/fsck/main.c:		exfat_error("out of memory");
+./exfat/dump/main.c:		exfat_error("failed to read from '%s'", spec);
+./exfat/dump/main.c:		exfat_error("exFAT file system is not found on '%s'", spec);
+./exfat/dump/main.c:		exfat_error("'%s': %s", path, strerror(-rc));
+./exfat/dump/main.c:			exfat_error("'%s' has invalid cluster %#x", path, cluster);
 
 ```
 
@@ -425,7 +561,6 @@ interface IVold {
 05-26 16:11:22.901784  2375  2375 D StorageNotification:     state=MOUNTED 
 05-26 16:11:22.901784  2375  2375 D StorageNotification:     fsType=exfat fsUuid=22A3-B024 fsLabel=android 
 05-26 16:11:22.901784  2375  2375 D StorageNotification:     path=/storage/22A3-B024 internalPath=/mnt/media_rw/22A3-B024 
-
 
 ```
 
