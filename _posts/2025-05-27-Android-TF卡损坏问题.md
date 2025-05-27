@@ -278,7 +278,156 @@ interface IVold {
 
 ```
 
+## 格式化日志
 
+```txt
+
+05-26 16:11:19.885454  2239  2660 V KioskMode: Resuming ActivityRecord{2d34d58 u0 com.android.settings/.deviceinfo.StorageWizardFormatProgress t549}
+
+05-26 16:11:20.016075  1806  1819 D vold    : /system/bin/sgdisk
+05-26 16:11:20.016240  1806  1819 D vold    :     --zap-all
+05-26 16:11:20.016270  1806  1819 D vold    :     /dev/block/vold/disk:179,64
+05-26 16:11:20.017775  2239  2331 D StorageManagerService: Volume public:179,65 broadcasting removed to UserHandle{0}
+--------- switch to main
+05-26 16:11:20.029110  2375  2375 D StorageNotification: Notifying about public volume: VolumeInfo{public:179,65}:
+05-26 16:11:20.029110  2375  2375 D StorageNotification:     type=PUBLIC diskId=disk:179,64 partGuid= mountFlags=VISIBLE mountUserId=0 
+05-26 16:11:20.029110  2375  2375 D StorageNotification:     state=REMOVED 
+05-26 16:11:20.029110  2375  2375 D StorageNotification:     fsType=exfat fsUuid=86BA-1239 fsLabel=android 
+05-26 16:11:20.029110  2375  2375 D StorageNotification:     path=null internalPath=null 
+05-26 16:11:21.147359  1806  1819 D vold    : 
+05-26 16:11:21.147487  1806  1819 D vold    : 
+05-26 16:11:21.147550  1806  1819 D vold    : ***************************************************************
+05-26 16:11:21.147570  1806  1819 D vold    : 
+05-26 16:11:21.147603  1806  1819 D vold    : Found invalid GPT and valid MBR; converting MBR to GPT format
+05-26 16:11:21.147622  1806  1819 D vold    : 
+05-26 16:11:21.147651  1806  1819 D vold    : in memory. 
+05-26 16:11:21.147669  1806  1819 D vold    : 
+05-26 16:11:21.147706  1806  1819 D vold    : ***************************************************************
+05-26 16:11:21.147725  1806  1819 D vold    : 
+05-26 16:11:21.147768  1806  1819 D vold    : 
+05-26 16:11:21.147801  1806  1819 D vold    : GPT data structures destroyed! You may now partition the disk using fdisk or
+05-26 16:11:21.147819  1806  1819 D vold    : 
+05-26 16:11:21.147846  1806  1819 D vold    : other utilities.
+05-26 16:11:21.147864  1806  1819 D vold    : 
+05-26 16:11:21.148873  1806  1819 D vold    : /system/bin/sgdisk
+05-26 16:11:21.148932  1806  1819 D vold    :     --new=0:0:-0
+05-26 16:11:21.148961  1806  1819 D vold    :     --typecode=0:0c00
+05-26 16:11:21.148989  1806  1819 D vold    :     --gpttombr=1
+05-26 16:11:21.149016  1806  1819 D vold    :     /dev/block/vold/disk:179,64
+05-26 16:11:22.198774  1806  1819 D vold    : Creating new GPT entries.
+05-26 16:11:22.198849  1806  1819 D vold    : 
+05-26 16:11:22.198899  1806  1819 D vold    : GPT data structures destroyed! You may now partition the disk using fdisk or
+05-26 16:11:22.198916  1806  1819 D vold    : 
+05-26 16:11:22.198944  1806  1819 D vold    : other utilities.
+05-26 16:11:22.198961  1806  1819 D vold    : 
+05-26 16:11:22.200371  1806  1818 D vold    : Disk at 179:64 changed
+05-26 16:11:22.201923  1806  1818 D vold    : /system/bin/sgdisk
+05-26 16:11:22.201997  1806  1818 D vold    :     --android-dump
+05-26 16:11:22.202018  1806  1818 D vold    :     /dev/block/vold/disk:179,64
+05-26 16:11:22.221743  1806  1818 D vold    : DISK mbr
+05-26 16:11:22.221821  1806  1818 D vold    : 
+05-26 16:11:22.221855  1806  1818 D vold    : PART 1 c
+05-26 16:11:22.221870  1806  1818 D vold    : 
+05-26 16:11:22.222893  1806  1818 D vold    : Device just partitioned; silently formatting
+05-26 16:11:22.225588  1806  1818 I vold    : About to discard 125084089856 on /dev/block/vold/public:179,65
+05-26 16:11:22.225696  1806  1818 E vold    : Discard failure on /dev/block/vold/public:179,65: Operation not supported on transport endpoint
+05-26 16:11:22.225730  1806  1818 W vold    : public:179,65 failed to wipe
+05-26 16:11:22.225835  1806  1818 D vold    : /system/bin/mkfs.exfat
+05-26 16:11:22.225867  1806  1818 D vold    :     -n
+05-26 16:11:22.225885  1806  1818 D vold    :     android
+05-26 16:11:22.225905  1806  1818 D vold    :     /dev/block/vold/public:179,65
+05-26 16:11:22.241836  1806  1818 D vold    : mkexfatfs 1.3.0
+05-26 16:11:22.241925  1806  1818 D vold    : 
+05-26 16:11:22.262466  1806  1818 D vold    : Creating... done.
+05-26 16:11:22.262545  1806  1818 D vold    : 
+05-26 16:11:22.400120  1806  1818 D vold    : Flushing... done.
+05-26 16:11:22.400201  1806  1818 D vold    : 
+05-26 16:11:22.400245  1806  1818 D vold    : File system created successfully.
+05-26 16:11:22.400258  1806  1818 D vold    : 
+05-26 16:11:22.401051  1806  1818 I vold    : Format OK
+05-26 16:11:22.402058  1806  1818 D vold    : VolumeBase create onVolumeCreated
+05-26 16:11:22.402316  1806  1818 D vold    : Disk at 179:64 changed
+--------- switch to main
+05-26 16:11:22.403982  2375  2375 D StorageNotification: Notifying about public volume: VolumeInfo{public:179,65}:
+05-26 16:11:22.403982  2375  2375 D StorageNotification:     type=PUBLIC diskId=disk:179,64 partGuid= mountFlags=VISIBLE mountUserId=0 
+05-26 16:11:22.403982  2375  2375 D StorageNotification:     state=UNMOUNTED 
+05-26 16:11:22.403982  2375  2375 D StorageNotification:     fsType=null fsUuid=null fsLabel=null 
+05-26 16:11:22.403982  2375  2375 D StorageNotification:     path=null internalPath=null 
+--------- switch to system
+05-26 16:11:22.404312  1806  1818 D vold    : /system/bin/sgdisk
+05-26 16:11:22.404376  1806  1818 D vold    :     --android-dump
+05-26 16:11:22.404396  1806  1818 D vold    :     /dev/block/vold/disk:179,64
+05-26 16:11:22.407516  2375  2375 D StorageNotification: Notifying about public volume: VolumeInfo{public:179,65}:
+05-26 16:11:22.407516  2375  2375 D StorageNotification:     type=PUBLIC diskId=disk:179,64 partGuid= mountFlags=VISIBLE mountUserId=0 
+05-26 16:11:22.407516  2375  2375 D StorageNotification:     state=REMOVED 
+05-26 16:11:22.407516  2375  2375 D StorageNotification:     fsType=null fsUuid=null fsLabel=null 
+05-26 16:11:22.407516  2375  2375 D StorageNotification:     path=null internalPath=null 
+--------- switch to system
+05-26 16:11:22.424104  1806  1818 D vold    : DISK mbr
+05-26 16:11:22.424175  1806  1818 D vold    : 
+05-26 16:11:22.424206  1806  1818 D vold    : PART 1 c
+05-26 16:11:22.424219  1806  1818 D vold    : 
+05-26 16:11:22.425915  1806  1818 D vold    : VolumeBase create onVolumeCreated
+05-26 16:11:22.426196  1806  2972 D vold    : /system/bin/blkid
+05-26 16:11:22.426237  1806  2972 D vold    :     -c
+05-26 16:11:22.426256  1806  2972 D vold    :     /dev/null
+05-26 16:11:22.426273  1806  2972 D vold    :     -s
+05-26 16:11:22.426288  1806  2972 D vold    :     TYPE
+05-26 16:11:22.426303  1806  2972 D vold    :     -s
+05-26 16:11:22.426318  1806  2972 D vold    :     UUID
+05-26 16:11:22.426333  1806  2972 D vold    :     -s
+05-26 16:11:22.426347  1806  2972 D vold    :     LABEL
+05-26 16:11:22.426365  1806  2972 D vold    :     /dev/block/vold/public:179,65
+05-26 16:11:22.430189  2239  3055 V KioskMode: Resuming ActivityRecord{8057b8 u0 com.android.settings/.deviceinfo.StorageWizardFormatSlow t549}
+05-26 16:11:22.434692  2375  2375 D StorageNotification: Notifying about public volume: VolumeInfo{public:179,65}:
+05-26 16:11:22.434692  2375  2375 D StorageNotification:     type=PUBLIC diskId=disk:179,64 partGuid= mountFlags=VISIBLE mountUserId=0 
+05-26 16:11:22.434692  2375  2375 D StorageNotification:     state=UNMOUNTED 
+05-26 16:11:22.434692  2375  2375 D StorageNotification:     fsType=null fsUuid=null fsLabel=null 
+05-26 16:11:22.434692  2375  2375 D StorageNotification:     path=null internalPath=null 
+05-26 16:11:22.436403  2375  2375 D StorageNotification: Notifying about public volume: VolumeInfo{public:179,65}:
+05-26 16:11:22.436403  2375  2375 D StorageNotification:     type=PUBLIC diskId=disk:179,64 partGuid= mountFlags=VISIBLE mountUserId=0 
+05-26 16:11:22.436403  2375  2375 D StorageNotification:     state=CHECKING 
+05-26 16:11:22.436403  2375  2375 D StorageNotification:     fsType=null fsUuid=null fsLabel=null 
+05-26 16:11:22.436403  2375  2375 D StorageNotification:     path=null internalPath=null 
+
+05-26 16:11:22.625115  2239  2492 I ActivityTaskManager: START u0 {cmp=com.android.settings/.deviceinfo.StorageWizardReady (has extras)} from uid 1000
+05-26 16:11:22.637249  1806  2972 D vold    : exfatfsck 1.3.0
+05-26 16:11:22.637667  1806  2972 D vold    : 
+05-26 16:11:22.637717  1806  2972 D vold    : Checking file system on /dev/block/vold/public:179,65.
+05-26 16:11:22.637731  1806  2972 D vold    : 
+05-26 16:11:22.637776  1806  2972 D vold    : File system version           1.0
+05-26 16:11:22.637791  1806  2972 D vold    : 
+05-26 16:11:22.637813  1806  2972 D vold    : Sector size                 512 bytes
+05-26 16:11:22.637826  1806  2972 D vold    : 
+05-26 16:11:22.637847  1806  2972 D vold    : Cluster size                128 KB
+05-26 16:11:22.637860  1806  2972 D vold    : 
+05-26 16:11:22.637881  1806  2972 D vold    : Volume size                 116 GB
+05-26 16:11:22.637900  1806  2972 D vold    : 
+05-26 16:11:22.637921  1806  2972 D vold    : Used space                 4336 KB
+05-26 16:11:22.637934  1806  2972 D vold    : 
+05-26 16:11:22.637954  1806  2972 D vold    : Available space             116 GB
+05-26 16:11:22.637966  1806  2972 D vold    : 
+05-26 16:11:22.637986  1806  2972 D vold    : Totally 0 directories and 0 files.
+05-26 16:11:22.637998  1806  2972 D vold    : 
+05-26 16:11:22.637304  2239  2492 V KioskMode: Resuming ActivityRecord{d12e3ef u0 com.android.settings/.deviceinfo.StorageWizardReady t549}
+05-26 16:11:22.638018  1806  2972 D vold    : File system checking finished. No errors found.
+05-26 16:11:22.638030  1806  2972 D vold    : 
+05-26 16:11:22.638679  1806  2972 I vold    : Check OK
+05-26 16:11:22.644355  1806  2972 E vold    : Mount failed; attempting read-only: No such device
+05-26 16:11:22.646085  1806  2972 D vold    : /system/bin/mount.exfat
+05-26 16:11:22.646162  1806  2972 D vold    :     -o
+05-26 16:11:22.646183  1806  2972 D vold    :     uid=1023,gid=1023,fmask=7,dmask=7
+05-26 16:11:22.646204  1806  2972 D vold    :     /dev/block/vold/public:179,65
+05-26 16:11:22.646221  1806  2972 D vold    :     /mnt/media_rw/22A3-B024
+
+05-26 16:11:22.901784  2375  2375 D StorageNotification: Notifying about public volume: VolumeInfo{public:179,65}:
+05-26 16:11:22.901784  2375  2375 D StorageNotification:     type=PUBLIC diskId=disk:179,64 partGuid= mountFlags=VISIBLE mountUserId=0 
+05-26 16:11:22.901784  2375  2375 D StorageNotification:     state=MOUNTED 
+05-26 16:11:22.901784  2375  2375 D StorageNotification:     fsType=exfat fsUuid=22A3-B024 fsLabel=android 
+05-26 16:11:22.901784  2375  2375 D StorageNotification:     path=/storage/22A3-B024 internalPath=/mnt/media_rw/22A3-B024 
+
+
+```
 
 
 
