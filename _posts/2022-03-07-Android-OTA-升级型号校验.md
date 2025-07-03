@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      Android OTA
+title:      Android OTA 升级型号校验
 subtitle:   Recovery
 date:       2022-03-07
 author:     LXG
