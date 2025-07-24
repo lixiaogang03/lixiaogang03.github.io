@@ -67,10 +67,22 @@ $ gclient sync
 由于您可以为每个构建配置在不同的目录中生成Ninja项目文件，因此相同的签出可用于 Linux 和 Android 开发。
 
 
+## 三方webrtc
 
+| SDK 名称                  | Android 支持 | 音视频通话 | 屏幕共享 | 服务端方案         | 活跃度 | 典型用途                     |
+|---------------------------|---------------|--------------|------------|----------------------|--------|------------------------------|
+| LiveKit (`io.livekit`)    | ✅ 官方 SDK    | ✅            | ✅          | LiveKit SFU          | ⭐⭐⭐⭐⭐ | 多人通话、协作、直播         |
+| react-native-webrtc       | ✅ 可提取 AAR  | ✅            | ❌*         | 自定义（WebSocket）  | ⭐⭐⭐⭐  | 远程控制、轻量音视频         |
+| OpenVidu                  | ✅ 官方 SDK    | ✅            | ✅          | Kurento/KMS          | ⭐⭐⭐⭐  | 教育平台、Web+App会议        |
+| mediasoup-android         | ✅ 官方 SDK    | ✅            | ❌*         | mediasoup SFU        | ⭐⭐⭐⭐  | 低延迟多方通信               |
+| Jitsi Meet SDK            | ✅ 官方 SDK    | ✅            | ✅          | Jitsi Videobridge    | ⭐⭐⭐⭐  | 视频会议系统                 |
+| Pion WebRTC (Go)          | ✅ 客户端接入  | ✅            | ❌*         | Pion SFU 或 P2P      | ⭐⭐⭐⭐  | 自建信令服务，远控/语音视频 |
+| webrtc-sdk                | ✅ AAR 发布    | ✅            | ❌          | 无（需自建）         | ⭐⭐⭐   | 原生开发者快速接入           |
+| WebRTC-Android (Piasy)    | ✅ 编译脚本    | ✅            | ❌          | 无（需自建）         | ⭐⭐⭐   | 自编译 AAR / 学习项目        |
 
+## 最新aar编译
 
-
+[google-webrtc-aar](https://repo.maven.apache.org/maven2/com/infobip/google-webrtc/)
 
 
 
