@@ -82,7 +82,9 @@ $ gclient sync
 
 ## 最新aar编译
 
-[google-webrtc-aar](https://repo.maven.apache.org/maven2/com/infobip/google-webrtc/)
+**更新aar版本后的报错日志**
+
+![webrtc_aar_error](/images/webrtc/webrtc_aar_error.png)
 
 
 
