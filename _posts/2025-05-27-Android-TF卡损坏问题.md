@@ -564,12 +564,72 @@ lxg@lxg:~/code/project/a133/haoqiang_BE/A133_android_10/android/vendor/aw/public
 
 ```
 
+## 20250807 TF卡不识别问题分析
+
+```txt
+
+[    2.761917] mmc1: card never left busy state
+[    2.761950] mmc1: error -110 whilst initialising SD card
+
+```
+
+这类问题 在 嵌入式 Android/Linux 设备中非常典型，一般是由于软重启时 TF 卡电源或复位未正确拉低，导致卡仍处于 busy 状态，无法重新初始化。
 
 
+1. 软重启时 TF 卡没有断电
 
+* TF 卡在 reset 过程中需要完整的断电/上电周期，否则它的控制器会残留上一次 session 的状态（即“卡一直 busy”）。
+* 断电重启时主控和卡都掉电，重新初始化 OK。
+* 软重启时，如果 TF 卡电源由某个 LDO 或 GPIO 控制，而该供电未重新拉低，那么就会出现 card never left busy state
 
+**DTS**
 
+```c
 
+		sdc0: sdmmc@04020000 {
+			bus-width = <4>;
+			cd-gpios = <&pio PF 6 6 1 3 0xffffffff>;
+			/*non-removable;*/
+			/*broken-cd;*/
+			/*cd-inverted;*/
+			/*data3-detect;*/
+			cd-used-24M;
+			cap-sd-highspeed;
+			sd-uhs-sdr50;
+			sd-uhs-ddr50;
+			sd-uhs-sdr104;
+			no-sdio;
+			no-mmc;
+			sunxi-power-save-mode;
+			/*sunxi-dis-signal-vol-sw;*/
+			max-frequency = <150000000>;
+			ctl-spec-caps = <0x8>;
+			vmmc-supply = <&reg_dcdc1>;
+			vqmmc33sw-supply = <&reg_dcdc1>;
+			vdmmc33sw-supply = <&reg_dcdc1>;
+			vqmmc18sw-supply = <&reg_eldo1>;
+			vdmmc18sw-supply = <&reg_eldo1>;
+			status = "okay";
+		};
+
+```
+
+![a133_tf_card](/images/hardware/a133_tf_card.png)
+
+![a133_tf_card_vcc](/images/hardware/a133_tf_card_vcc.png)
+
+**结论：软重启时TF卡电源不可控**
+
+结合两张图来看，可以得出以下结论：
+
+1. 第一张图显示VCC-CARD通过一个0欧姆电阻RC3连接到VCC-CARD-3.3V，然后为TF卡供电。
+2. 第二张图显示VCC-CARD直接由DCDC1的3.3V输出供电。
+
+问题点在于：
+
+1. DCDC1是一个电源转换器。通常在嵌入式系统中，DCDC转换器只有在系统完全关机（即硬重启）时才会断电。
+2. 当主控芯片执行软重启时，DCDC1通常会持续工作，保持3.3V输出不变。
+3. 由于VCC-CARD直接连接到DCDC1的输出，因此在软重启时，VCC-CARD（以及VCC-CARD-3.3V）的电压不会被拉低，TF卡会一直保持供电状态。
 
 
 
