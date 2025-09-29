@@ -631,7 +631,19 @@ lxg@lxg:~/code/project/a133/haoqiang_BE/A133_android_10/android/vendor/aw/public
 2. 当主控芯片执行软重启时，DCDC1通常会持续工作，保持3.3V输出不变。
 3. 由于VCC-CARD直接连接到DCDC1的输出，因此在软重启时，VCC-CARD（以及VCC-CARD-3.3V）的电压不会被拉低，TF卡会一直保持供电状态。
 
+## 软重启导致的TF卡异常
 
+**文件系统未正常卸载**
+
+软重启过程中，TF 卡上的文件系统缓存（页缓存、写缓存）没来得及 flush 到物理卡，导致 FS 出现 dirty 标记甚至损坏。
+
+下次挂载时可能被内核标记为“脏盘”或“只读”。
+
+**驱动/电源管理问题**
+
+某些平台（尤其 Allwinner、Rockchip 等）在 reboot 时，SDIO/SDMMC 控制器掉电不彻底，卡状态机没有复位干净。
+
+下次挂载时，驱动读到卡状态异常，导致“掉卡”或不可识别。
 
 
 
