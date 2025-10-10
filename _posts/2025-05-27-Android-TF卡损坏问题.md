@@ -645,12 +645,200 @@ lxg@lxg:~/code/project/a133/haoqiang_BE/A133_android_10/android/vendor/aw/public
 
 下次挂载时，驱动读到卡状态异常，导致“掉卡”或不可识别。
 
+## TF卡修复时间过长导致watchdog超时循环重启
+
+**日志**
+
+```bash
+
+10-09 18:17:47.887  1694  1706 D vold    : /system/bin/blkid
+10-09 18:17:47.887  1694  1706 D vold    :     -c
+10-09 18:17:47.887  1694  1706 D vold    :     /dev/null
+10-09 18:17:47.887  1694  1706 D vold    :     -s
+10-09 18:17:47.887  1694  1706 D vold    :     TYPE
+10-09 18:17:47.887  1694  1706 D vold    :     -s
+10-09 18:17:47.887  1694  1706 D vold    :     UUID
+10-09 18:17:47.887  1694  1706 D vold    :     -s
+10-09 18:17:47.887  1694  1706 D vold    :     LABEL
+10-09 18:17:47.887  1694  1706 D vold    :     /dev/block/vold/public:179,65
+10-09 18:17:48.123  1694  1706 D vold    : /dev/block/vold/public:179,65: LABEL="Lenovo" UUID="0B75-114C" TYPE="vfat" 
+10-09 18:17:48.123  1694  1706 D vold    : 
+10-09 18:17:48.129  1694  1706 D vold    : /system/bin/fsck_msdos
+10-09 18:17:48.129  1694  1706 D vold    :     -p
+10-09 18:17:48.129  1694  1706 D vold    :     -f
+10-09 18:17:48.129  1694  1706 D vold    :     -y
+10-09 18:17:48.129  1694  1706 D vold    :     /dev/block/vold/public:179,65
+10-09 18:17:50.706  1694  1706 D vold    : /dev/block/vold/public:179,65: Cluster 32 is marked free in FAT 0, as EOF in FAT 1
+10-09 18:17:50.706  1694  1706 D vold    : 
+10-09 18:17:50.706  1694  1706 D vold    : FIXED
+10-09 18:17:50.706  1694  1706 D vold    : 
+10-09 18:17:50.706  1694  1706 D vold    : /dev/block/vold/public:179,65: /WifIPC/037a0002009e37c083ef starts with free cluster
+10-09 18:17:50.706  1694  1706 D vold    : 
+10-09 18:17:50.706  1694  1706 D vold    : FIXED
+10-09 18:17:50.706  1694  1706 D vold    : 
+10-09 18:17:50.706  1694  1706 D vold    : /dev/block/vold/public:179,65: /WifIPC/037a0002009e262a5afe/20250923 has entries after end of directory
+10-09 18:17:50.706  1694  1706 D vold    : 
+10-09 18:17:50.706  1694  1706 D vold    : FIXED
+10-09 18:17:50.706  1694  1706 D vold    : 
+10-09 18:17:50.706  1694  1706 D vold    : /dev/block/vold/public:179,65: /WifIPC/037a0002009e262a5afe/20250923 has entries after end of directory
 
 
+10-09 18:17:55.307  1694  1706 D vold    : /dev/block/vold/public:179,65: Lost cluster chain at cluster 2869994
+10-09 18:17:55.307  1694  1706 D vold    : 126 Cluster(s) lost
+10-09 18:17:55.307  1694  1706 D vold    : FIXED
+10-09 18:17:55.307  1694  1706 D vold    : 
+10-09 18:17:55.307  1694  1706 D vold    : /dev/block/vold/public:179,65: Lost cluster chain at cluster 2870246
+10-09 18:17:55.307  1694  1706 D vold    : 
+10-09 18:17:55.307  1694  1706 D vold    : 126 Cluster(s) lost
+10-09 18:17:55.307  1694  1706 D vold    : FIXED
+10-09 18:17:55.307  1694  1706 D vold    : /dev/block/vold/public:179,65: Lost cluster chain at cluster 2870497
+10-09 18:17:55.307  1694  1706 D vold    : 125 Cluster(s) lost
+10-09 18:17:55.307  1694  1706 D vold    : 
+10-09 18:17:55.307  1694  1706 D vold    : 118 Cluster(s) lost
+10-09 18:17:55.307  1694  1706 D vold    : 
+10-09 18:17:55.307  1694  1706 D vold    : FIXED
+10-09 18:17:55.307  1694  1706 D vold    : 
+10-09 18:17:55.307  1694  1706 D vold    : /dev/block/vold/public:179,65: Lost cluster chain at cluster 2870989
+
+```
+
+**代码**
+
+A133_android_10/android/system/vold/fs/Exfat.cpp
+
+```cpp
+
+static const char* kMkfsPath = "/system/bin/newfs_msdos";
+static const char* kFsckPath = "/system/bin/fsck_msdos";
+
+bool IsSupported() {
+    return access(kMkfsPath, X_OK) == 0 && access(kFsckPath, X_OK) == 0 &&
+           IsFilesystemSupported("vfat");
+}
+
+status_t Check(const std::string& source) {
+    int pass = 1;
+    int rc = 0;
+    do {
+        std::vector<std::string> cmd;
+        cmd.push_back(kFsckPath);
+        cmd.push_back("-p");
+        cmd.push_back("-f");
+        cmd.push_back("-y");
+        cmd.push_back(source);
+
+        // Fat devices are currently always untrusted
+        rc = ForkExecvp(cmd, nullptr, sFsckUntrustedContext);  // 卡在了此函数无法返回
+
+        if (rc < 0) {
+            LOG(ERROR) << "Filesystem check failed due to logwrap error";
+            errno = EIO;
+            return -1;
+        }
+
+        switch (rc) {
+            case 0:
+                LOG(INFO) << "Filesystem check completed OK";
+                return 0;
+
+            case 2:
+                LOG(ERROR) << "Filesystem check failed (not a FAT filesystem)";
+                errno = ENODATA;
+                return -1;
+
+            case 4:
+                if (pass++ <= 3) {
+                    LOG(WARNING) << "Filesystem modified - rechecking (pass " << pass << ")";
+                    continue;
+                }
+                LOG(ERROR) << "Failing check after too many rechecks";
+                errno = EIO;
+                return -1;
+
+            case 8:
+                LOG(ERROR) << "Filesystem check failed (no filesystem)";
+                errno = ENODATA;
+                return -1;
+
+            default:
+                LOG(ERROR) << "Filesystem check failed (unknown exit code " << rc << ")";
+                errno = EIO;
+                return -1;
+        }
+    } while (0);
+
+    return 0;
+}
+
+```
+
+**exFAT vs FAT32**
+
+| 属性     | FAT（FAT12/16/32）      | exFAT                          |
+| ------ | --------------------- | ------------------------------ |
+| 全称     | File Allocation Table | Extended File Allocation Table |
+| 发布年份   | 1980 / 1984 / 1996    | 2006                           |
+| 文件系统类型 | FAT12 / FAT16 / FAT32 | exFAT                          |
+| 最大文件大小 | FAT32: 4 GB           | 16 EB（理论上，实际受操作系统限制）           |
+| 最大分区大小 | FAT32: 2 TB           | 128 PB（理论上）                    |
+| 日志功能   | 无                     | 无（轻量级设计）                       |
+| 目录条目限制 | FAT12/16 小，FAT32 可扩展  | 几乎无限制                          |
+| 设计目标   | 小容量磁盘（软盘、U盘）          | 大容量闪存、存储卡                      |
+
+**主要区别**
+| 方面        | FAT                         | exFAT                      |
+| --------- | --------------------------- | -------------------------- |
+| **容量支持**  | 最大 2TB 分区，单文件 ≤ 4GB         | 超大分区，单文件 > 4GB             |
+| **性能**    | 小分区性能好，分区越大越慢               | 适合大容量闪存，簇管理更高效             |
+| **兼容性**   | 极高，几乎所有系统和嵌入式设备             | Windows/Mac/Linux（需驱动或新版本） |
+| **目录结构**  | 限制根目录条目数（FAT12/16），FAT32 改进 | 几乎无限制，适合大文件夹               |
+| **错误处理**  | 容易碎片化，无日志，易损坏               | 更现代的簇分配算法，容错略好，但仍无日志       |
+| **文件名编码** | 短文件名 8.3 + 可选 VFAT 长文件名     | UTF-16 文件名，支持长文件名          |
+| **用途**    | 小容量闪存、嵌入式、相机、老设备            | 大容量 SD 卡、U盘、外置存储、大文件       |
 
 
+**正常TF卡**
+
+```bash
+
+1|ceres-c3:/ $ mount | grep exfat
+/dev/block/vold/public:179,65 on /mnt/media_rw/6CB2-AB67 type exfat (rw,dirsync,nosuid,nodev,noexec,noatime,uid=1023,gid=1023,fmask=0007,dmask=0007,allow_utime=177777,iocharset=utf8,errors=remount-ro)
 
 
+ceres-c3:/ # blkid /dev/block/vold/public:179,65
+/dev/block/vold/public:179,65: LABEL="android" UUID="6CB2-AB67" TYPE="exfat"
+
+09-29 18:10:46.226  1708  4393 D vold    : /system/bin/blkid
+09-29 18:10:46.226  1708  4393 D vold    :     -c
+09-29 18:10:46.226  1708  4393 D vold    :     /dev/null
+09-29 18:10:46.226  1708  4393 D vold    :     -s
+09-29 18:10:46.226  1708  4393 D vold    :     TYPE
+09-29 18:10:46.226  1708  4393 D vold    :     -s
+09-29 18:10:46.226  1708  4393 D vold    :     UUID
+09-29 18:10:46.226  1708  4393 D vold    :     -s
+09-29 18:10:46.226  1708  4393 D vold    :     LABEL
+09-29 18:10:46.226  1708  4393 D vold    :     /dev/block/vold/public:179,65
+09-29 18:10:46.390  1708  4393 D vold    : /dev/block/vold/public:179,65: LABEL="android" UUID="6CB2-AB67" TYPE="exfat" 
+
+```
+
+**异常TF卡**
+
+```bash
+
+09-29 18:07:09.764  1708  8708 D vold    : /system/bin/blkid
+09-29 18:07:09.764  1708  8708 D vold    :     -c
+09-29 18:07:09.764  1708  8708 D vold    :     /dev/null
+09-29 18:07:09.765  1708  8708 D vold    :     -s
+09-29 18:07:09.765  1708  8708 D vold    :     TYPE
+09-29 18:07:09.765  1708  8708 D vold    :     -s
+09-29 18:07:09.765  1708  8708 D vold    :     UUID
+09-29 18:07:09.765  1708  8708 D vold    :     -s
+09-29 18:07:09.765  1708  8708 D vold    :     LABEL
+09-29 18:07:09.765  1708  8708 D vold    :     /dev/block/vold/public:179,65
+09-29 18:07:09.797  1708  8708 D vold    : /dev/block/vold/public:179,65: LABEL="Lenovo" UUID="0B75-114C" TYPE="vfat"
+
+```
 
 
 
