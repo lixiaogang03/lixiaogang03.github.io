@@ -840,7 +840,40 @@ ceres-c3:/ # blkid /dev/block/vold/public:179,65
 
 ```
 
+## TF卡大量视频文件fsck.exfat导致开机缓慢问题
 
+**rk3568 耗时 12s**
+
+```bash
+
+2025-10-17 15:30:02.075   162-264   vold                    vold                                 D  /dev/block/vold/public:179,1: LABEL="android" UUID="FDCA-7843" TYPE="exfat" 
+2025-10-17 15:30:02.076   162-264   vold                    vold                                 D  /system/bin/fsck.exfat
+2025-10-17 15:30:02.076   162-264   vold                    vold                                 D      -y
+2025-10-17 15:30:02.076   162-264   vold                    vold                                 D      /dev/block/vold/public:179,1
+2025-10-17 15:30:14.436   162-264   vold                    vold                                 D  exfatprogs version : 1.2.9
+2025-10-17 15:30:14.436   162-264   vold                    vold                                 D  /dev/block/vold/public:179,1: clean. directories 91, files 60222
+
+2025-10-17 15:30:14.437   162-264   vold                    vold                                 I  Check OK
+
+```
+
+**A133 耗时57秒, 接近一分钟而且是阻塞了vold主线程**
+
+```bash
+
+2025-10-17 12:59:26.387  1716-1716  vold                    vold                                 D  /dev/block/vold/public:179,65: LABEL="android" UUID="FDCA-7843" TYPE="exfat" 
+2025-10-17 12:59:26.387  1716-1716  vold                    vold                                 D  
+2025-10-17 12:59:26.391  1716-1716  vold                    vold                                 D  /system/bin/fsck.exfat
+2025-10-17 12:59:26.391  1716-1716  vold                    vold                                 D      -y
+2025-10-17 12:59:26.391  1716-1716  vold                    vold                                 D      /dev/block/vold/public:179,65
+2025-10-17 13:00:23.398  1716-1716  vold                    vold                                 D  exfatprogs version : 1.2.9
+2025-10-17 13:00:23.398  1716-1716  vold                    vold                                 D  
+2025-10-17 13:00:23.398  1716-1716  vold                    vold                                 D  /dev/block/vold/public:179,65: clean. directories 96, files 60228
+2025-10-17 13:00:23.398  1716-1716  vold                    vold                                 D  
+
+2025-10-17 13:00:23.399  1716-1716  vold                    vold                                 I  Check OK
+
+```
 
 
 
