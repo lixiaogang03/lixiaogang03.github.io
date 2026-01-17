@@ -96,27 +96,29 @@ Framework / APP：稳定 CameraID
 
 ```bash
 
-# USB 1
+# USB 1 cameraID = 100 ~ 200 之间允许动态变化(为了解决热插拔的问题)
 rk3568_r:/ $ readlink /sys/class/video4linux/video0/device
 ../../../2-1:1.0
 
-# USB 2
+# USB 2 cameraID = 200 ~ 300 之间允许动态变化(为了解决热插拔的问题)
 rk3568_r:/ $ readlink /sys/class/video4linux/video0/device
 ../../../1-1.1:1.0
 
-# USB 3
+# USB 3 cameraID = 300 ~ 400 之间允许动态变化(为了解决热插拔的问题)
 rk3568_r:/ $ readlink /sys/class/video4linux/video0/device
 ../../../1-1.2:1.0
 
-# USB 4
+# USB 4 cameraID = 400 ~ 500 之间允许动态变化(为了解决热插拔的问题)
 rk3568_r:/ $ readlink /sys/class/video4linux/video0/device
 ../../../1-1.4:1.0
 
-# USB 5
+# USB 5 cameraID = 500 ~ 600 之间允许动态变化(为了解决热插拔的问题)
 rk3568_r:/ $ readlink /sys/class/video4linux/video0/device
 ../../../5-1:1.0
 
 ```
+
+**为了解决热插拔的问题，不再固定一个写死的ID, 改成一个USB口一个范围，APP 可以根据范围判断USB口**
 
 **注意事项**
 
@@ -256,13 +258,27 @@ rk3568_r:/ $ readlink /sys/class/video4linux/video0/device
 * 查找硬编码映射表 → 找到 2-1 → 返回 "100"
 * APP 获取到的 CameraID = 100
 
+## 如何解决热插拔后framework识别不了的问题
 
+修改方案能算出稳定 CameraID，但 Framework 并不会接受“同一个 logical cameraId 指向新的 video node”这一事实
 
+Google 的默认实现假设外部摄像头是“理想状态”的：即插即用，拔掉即没。
+它没有考虑到某些国产 SoC 或 UVC 驱动在快速插拔时，会因为内核缓冲没刷新而导致 /dev/video 编号跳变（例如从 video0 变成 video2）。
+新方案本质上是针对这种 “硬件驱动不理想” 场景做的补丁。
 
+为了解决热插拔的问题，不再固定一个写死的ID, 改成一个USB口一个范围，APP 可以根据范围判断USB口
 
+```bash
 
+| USB path | CameraID 范围 |
+| -------- | ----------- |
+| 2-1      | 100 ~ 200   |
+| 1-1.1    | 200 ~ 300   |
+| 1-1.2    | 300 ~ 400   |
+| 1-1.4    | 400 ~ 500   |
+| 5-1      | 500 ~ 600   |
 
-
+```
 
 
 
