@@ -1,8 +1,8 @@
 ---
 layout:     post
 title:      RK3568 USB 相机固定CameraID
-subtitle:   多USB相机
-date:       2025-01-17
+subtitle:   使用 Cursor 实现修改
+date:       2026-01-17
 author:     LXG
 header-img: img/post-bg-camera.jpg
 catalog: true
