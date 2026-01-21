@@ -61,7 +61,7 @@ Claude Code 是由 Anthropic 推出的一个 AI 编程助手 / 编程代理（ag
 
 {
   export ANTHROPIC_BASE_URL="https://api.jiekou.ai/anthropic"
-  export ANTHROPIC_AUTH_TOKEN="<API Key>"
+  export ANTHROPIC_AUTH_TOKEN="sk_14xa-BdpJBNKF0bQnN9APvE-WZh7wajw6rlkVPE9Vq8"
   # 设置本平台支持的模型
   export ANTHROPIC_MODEL="claude-opus-4-1-20250805"
   export ANTHROPIC_SMALL_FAST_MODEL="claude-sonnet-4-20250514"
