@@ -51,23 +51,57 @@ Claude Code 是由 Anthropic 推出的一个 AI 编程助手 / 编程代理（ag
 
 [接口AI](https://jiekou.ai/)
 
-**接口AI官网购买API Key**
+**接口AI官网创建API Key**
 
-
+![jiekou_ai](/images/ai/jiekou_ai.png)
 
 **配置环境变量**
 
 ```bash
 
 {
-  export ANTHROPIC_BASE_URL="https://api.jiekou.ai/anthropic"
-  export ANTHROPIC_AUTH_TOKEN="sk_14xa-BdpJBNKF0bQnN9APvE-WZh7wajw6rlkVPE9Vq8"
-  # 设置本平台支持的模型
-  export ANTHROPIC_MODEL="claude-opus-4-1-20250805"
-  export ANTHROPIC_SMALL_FAST_MODEL="claude-sonnet-4-20250514"
+
+# Anthropic API 代理地址（第三方中转：jiekou.ai）
+export ANTHROPIC_BASE_URL="https://api.jiekou.ai/anthropic"
+
+# Anthropic API 密钥（由 jiekou.ai 分配，用于鉴权）
+export ANTHROPIC_AUTH_TOKEN="API key"
+
+# Claude Code 默认使用的主模型（高质量 / 复杂任务 / 多文件修改）
+export ANTHROPIC_MODEL="claude-sonnet-4-5-20250929"
+
+# Claude Code 使用的快速小模型（用于补全、搜索、轻量修改等高频操作）
+export ANTHROPIC_SMALL_FAST_MODEL="claude-haiku-4-5-20251001"
+
+
+
+# GPT 默认使用的主模型（高质量 / 复杂任务 / 多文件修改）
+export ANTHROPIC_MODEL="gpt-5.1-codex"
+
+# GPT 使用的快速小模型（用于补全、搜索、轻量修改等高频操作）
+export ANTHROPIC_SMALL_FAST_MODEL="gpt-5-mini"
+
+
+# gemini 默认使用的主模型（高质量 / 复杂任务 / 多文件修改）
+export ANTHROPIC_MODEL="gemini-2.5-pro"
+
+# gemini 使用的快速小模型（用于补全、搜索、轻量修改等高频操作）
+export ANTHROPIC_SMALL_FAST_MODEL="gemini-2.5-flash-lite"
+
+# qwen 默认使用的主模型（高质量 / 复杂任务 / 多文件修改）
+export ANTHROPIC_MODEL="qwen/qwen3-coder-480b-a35b-instruct"
+
+# qwen 使用的快速小模型（用于补全、搜索、轻量修改等高频操作）
+export ANTHROPIC_SMALL_FAST_MODEL="qwen/qwen3-30b-a3b-fp8"
+
 }
 
 ```
+
+**充值**
+
+
+
 
 进入工程目录，启动 Claude Code 接口
 
