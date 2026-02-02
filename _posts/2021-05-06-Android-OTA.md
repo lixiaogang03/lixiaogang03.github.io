@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-miui-ux.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [OTA更新-AOSP](https://source.android.google.cn/devices/tech/ota?hl=zh-cn)

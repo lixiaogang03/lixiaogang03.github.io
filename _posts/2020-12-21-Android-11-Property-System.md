@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - property
+    - Android
 ---
 
 [Android属性系统-简书](https://www.jianshu.com/p/d9a49248a1b5)

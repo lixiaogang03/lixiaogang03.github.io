@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - android
-    - systemui
+    - Android
 ---
 
 [SystemUI-googlesource](https://android.googlesource.com/platform/frameworks/base/+/master/packages/SystemUI/README.md)

@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [LocalBroadcastManager-Android](https://developer.android.google.cn/jetpack/androidx/releases/localbroadcastmanager?hl=zh-cn)

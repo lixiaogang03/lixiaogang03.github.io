@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - eSIM
-    - debug
+    - Android
 ---
 
 ## Modem 日志抓取

@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - permission
+    - Android
 ---
 
 [Android原生权限管理AppOps-简书](https://www.jianshu.com/p/a26f0dd024a6)

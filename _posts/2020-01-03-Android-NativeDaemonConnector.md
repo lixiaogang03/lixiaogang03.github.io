@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-miui-ux.jpg
 catalog: true
 tags:
-    - Ethernet
+    - Android
 ---
 
 [源码NativeDaemonConnector解析](http://gaozhipeng.me/posts/nativedaemonconnector_source_code/)

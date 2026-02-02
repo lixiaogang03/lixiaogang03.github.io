@@ -8,7 +8,6 @@ header-img: img/post-bg-android.jpg
 catalog: true
 tags:
     - Android
-    - debug
 ---
 
 

@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-miui-ux.jpg
 catalog: true
 tags:
-    - camera
+    - Android
+    - 硬件
 ---
 
 [相机基础](https://www.princetoninstruments.com/learn/camera-fundamentals/fundamentals-behind-modern-scientific-cameras)

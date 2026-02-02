@@ -8,7 +8,6 @@ header-img: img/post-bg-e2e-ux.jpg
 catalog: true
 tags:
     - Android
-    - NetworkStatsService
 ---
 
 [Android性能测试之网络流量-简书](https://www.jianshu.com/p/47e2f4540f29)

@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - EventBus
+    - Android
 ---
 
 [Android_System_UI_EventBus](http://dogee.tech/2016/09/05/2016-09-05_Android_System_UI_EventBus/)

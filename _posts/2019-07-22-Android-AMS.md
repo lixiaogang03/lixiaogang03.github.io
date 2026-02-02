@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-digital-native.jpg
 catalog: true
 tags:
-    - android
-    - ams
+    - Android
 ---
 
 ## 参考链接

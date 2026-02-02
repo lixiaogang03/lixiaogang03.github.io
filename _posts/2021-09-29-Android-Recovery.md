@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - recovery
+    - Android
 ---
 
 [Linux系统调用(syscall)原理-Gityuan](http://gityuan.com/2016/05/21/syscall/)

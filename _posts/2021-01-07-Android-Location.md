@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-os-metro.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [构建位置感知应用-Google](https://developer.android.google.cn/training/location?hl=zh-cn)

@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-miui-ux.jpg
 catalog: true
 tags:
-    - statusbar
+    - Android
 ---
 
 [WindowInsets 在View下的的分发-简书](https://www.jianshu.com/p/756e94fa2e09)

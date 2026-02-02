@@ -8,8 +8,6 @@ header-img: img/post-bg-perfomance.jpg
 catalog: true
 tags:
     - Android
-    - Performance
-    - Power
 ---
 
 ## Android Performance Optimization

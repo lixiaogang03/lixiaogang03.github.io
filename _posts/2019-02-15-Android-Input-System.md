@@ -7,9 +7,7 @@ author:     LXG
 header-img: img/post-bg-keybord.jpg
 catalog: true
 tags:
-    - android
-    - IMS
-    - input
+    - Android
 ---
 
 注：下文摘录自《深入理解android卷三》一书

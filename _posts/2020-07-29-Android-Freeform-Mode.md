@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-e2e-ux.jpg
 catalog: true
 tags:
-    - wms
+    - Android
 ---
 
 [WindowManagerService架构剖析-简书](https://www.jianshu.com/p/6e575d9160f2)

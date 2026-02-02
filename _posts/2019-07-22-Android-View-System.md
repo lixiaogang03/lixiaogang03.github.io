@@ -7,9 +7,7 @@ author:     LXG
 header-img: img/post-bg-miui6.jpg
 catalog: true
 tags:
-    - android
-    - wms
-    - view
+    - Android
 ---
 
 ## 参考链接

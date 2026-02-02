@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-universe.jpg
 catalog: true
 tags:
-    - android
-    - StateMachine
+    - Android
 ---
 
 [Android StateMachine-简书](https://www.jianshu.com/p/4f01cb96f8c2)

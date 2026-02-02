@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-hacker.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [lock-task-mode-Google](https://developer.android.com/work/dpc/dedicated-devices/lock-task-mode)

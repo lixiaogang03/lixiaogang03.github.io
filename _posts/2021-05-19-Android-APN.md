@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-digital-native.jpg
 catalog: true
 tags:
-    - apn
+    - Android
 ---
 
 [全面&详细解析APN](https://blog.csdn.net/GentelmanTsao/article/details/103234535)

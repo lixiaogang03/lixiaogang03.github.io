@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-os-metro.jpg
 catalog: true
 tags:
-    - NDK
-    - JNI
+    - Android
 ---
 
 [NDK官网](https://developer.android.com/ndk/)

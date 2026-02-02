@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - okgo
+    - Android
 ---
 
 [okhttp-OkGo-github](https://github.com/jeasonlzy/okhttp-OkGo)

@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - android
-    - view
+    - Android
 ---
 
 [一文彻底搞懂Android View的绘制流程](https://juejin.im/post/5e17e4726fb9a030176e6352)

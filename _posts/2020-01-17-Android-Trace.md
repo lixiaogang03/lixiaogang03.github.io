@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - android
-    - trace
+    - Android
 ---
 
 [Android打印Trace堆栈-Gityuan](http://gityuan.com/2017/07/09/android_debug/)

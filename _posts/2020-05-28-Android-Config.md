@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [config.xml-androidxref](http://androidxref.com/9.0.0_r3/xref/frameworks/base/core/res/res/values/)

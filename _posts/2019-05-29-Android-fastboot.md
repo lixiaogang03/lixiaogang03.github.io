@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - fastboot
+    - Android
 ---
 
 [fastboot和recovery-简书](https://www.jianshu.com/p/d960a6f517d8)

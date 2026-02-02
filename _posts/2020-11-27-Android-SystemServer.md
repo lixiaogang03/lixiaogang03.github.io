@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - system_server
-    - android
+    - Android
 ---
 
 [进程的Binder线程池工作过程-Gityuan](http://gityuan.com/2016/10/29/binder-thread-pool/)

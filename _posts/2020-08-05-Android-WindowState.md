@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-miui-ux.jpg
 catalog: true
 tags:
-    - wms
+    - Android
 ---
 
 [Android窗口管理分析-简书](https://www.jianshu.com/p/e4b19fc36a0e)

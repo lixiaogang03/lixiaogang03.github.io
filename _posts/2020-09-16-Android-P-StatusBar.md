@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - android
-    - statusbar
+    - Android
 ---
 
 [十分钟了解Android触摸事件原理-简书](https://www.jianshu.com/p/0a72736a9a4a)

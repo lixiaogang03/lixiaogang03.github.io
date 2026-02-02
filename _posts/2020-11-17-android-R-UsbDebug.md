@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [android 11 无线调试-Google](https://developer.android.google.cn/studio/command-line/adb?hl=zh-cn)

@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-ios9-web.jpg
 catalog: true
 tags:
-    - selinux
+    - Android
 ---
 
 [AOSP源码](http://androidxref.com/7.1.1_r6/xref/system/sepolicy/)

@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-miui-ux.jpg
 catalog: true
 tags:
-    - bugreport
+    - Android
 ---
 
 [获取并阅读错误报告-Google](https://developer.android.google.cn/studio/debug/bug-report?hl=zh-cn)

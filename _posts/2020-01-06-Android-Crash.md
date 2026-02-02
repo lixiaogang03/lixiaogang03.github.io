@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - android
-    - crash
+    - Android
 ---
 
 [理解Android Crash处理流程-gityuan](http://gityuan.com/2016/06/24/app-crash/)

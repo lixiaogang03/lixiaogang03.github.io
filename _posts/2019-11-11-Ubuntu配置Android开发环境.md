@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - ubuntu
+    - Android
+    - Ubuntu
 ---
 
 ## 安装Ubuntu 16.04

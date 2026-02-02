@@ -7,10 +7,7 @@ author:     LXG
 header-img: img/post-bg-ios9-web.jpg
 catalog: true
 tags:
-    - adb
-    - debug
-    - shell
-    - linux
+    - Android
 ---
 
 ## 参考文章

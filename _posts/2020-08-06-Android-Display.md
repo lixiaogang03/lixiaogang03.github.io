@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-ioses.jpg
 catalog: true
 tags:
-    - wms
+    - Android
 ---
 
 [Android Display的初始化-简书](https://www.jianshu.com/p/764c132a5026)

@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-ioses.jpg
 catalog: true
 tags:
-    - android
-    - pms
+    - Android
 ---
 
 ## 应用安装检查 Package Verifiers

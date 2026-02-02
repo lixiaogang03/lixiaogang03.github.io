@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - docker
+    - Tool
 ---
 
 ## 安装Docker

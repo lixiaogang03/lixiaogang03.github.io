@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - android
+    - Android
+    - 职业
 ---
 
 [AOSP-Google](https://source.android.google.cn/)

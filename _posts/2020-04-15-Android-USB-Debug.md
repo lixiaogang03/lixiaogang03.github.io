@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - android
-    - usb
+    - Android
 ---
 
 [Android 调试桥 (adb)](https://developer.android.google.cn/studio/command-line/adb?hl=zh-cn)

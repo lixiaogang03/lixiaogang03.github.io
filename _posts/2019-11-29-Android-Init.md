@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - android
-    - init
+    - Android
 ---
 
 ## 参考链接

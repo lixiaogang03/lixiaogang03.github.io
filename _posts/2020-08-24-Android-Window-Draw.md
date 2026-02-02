@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - wms
+    - Android
 ---
 
 [Activity窗口构成和绘制解析-简书](https://www.jianshu.com/p/0b99db3b8ed8)

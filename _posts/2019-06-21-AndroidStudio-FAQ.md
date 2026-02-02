@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - androidstudio
+    - Tool
 ---
 
 [AS快捷键](https://developer.android.google.cn/studio/intro/keyboard-shortcuts?hl=zh-cn)

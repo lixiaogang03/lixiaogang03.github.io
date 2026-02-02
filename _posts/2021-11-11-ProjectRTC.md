@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - webrtc
+    - Android
+    - Tool
 ---
 
 [AndroidRTC](https://github.com/pchab/AndroidRTC)

@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - android
-    - SubscriptionManager
+    - Android
 ---
 
 [SubscriptionController-简书](https://www.jianshu.com/p/02f0f9b03415)

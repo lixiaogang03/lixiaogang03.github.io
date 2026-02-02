@@ -7,9 +7,7 @@ author:     LXG
 header-img: img/post-bg-alibaba.jpg
 catalog: true
 tags:
-    - android
-    - pms
-    - awlog
+    - Android
 ---
 
 ### 参考网址

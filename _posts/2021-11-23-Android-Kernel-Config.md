@@ -7,7 +7,9 @@ author:     LXG
 header-img: img/post-bg-unix-linux.jpg
 catalog: true
 tags:
-    - kernel
+    - Android
+    - Linux
+    - 驱动
 ---
 
 ## 内核配置

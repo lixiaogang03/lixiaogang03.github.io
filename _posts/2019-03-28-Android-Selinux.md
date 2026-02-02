@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-hacker.jpg
 catalog: true
 tags:
-    - selinux
-    - android
+    - Android
 ---
 
 [Selinux-AOSP](https://source.android.com/security/selinux)

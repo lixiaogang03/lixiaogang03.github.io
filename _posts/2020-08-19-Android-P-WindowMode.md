@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-miui-ux.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [Taskbar-github](https://github.com/farmerbb/Taskbar)

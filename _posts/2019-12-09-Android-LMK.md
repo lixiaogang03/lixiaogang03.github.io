@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - android
-    - lmk
+    - Android
 ---
 
 [lowmemorykiller-Gityuan](http://gityuan.com/2016/09/17/android-lowmemorykiller/)

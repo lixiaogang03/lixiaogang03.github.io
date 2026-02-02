@@ -8,7 +8,6 @@ header-img: img/post-bg-os-metro.jpg
 catalog: true
 tags:
     - Android
-    - Network
 ---
 
 [Android Net架构-CSDN](https://blog.csdn.net/qq_14978113/article/details/79069002)

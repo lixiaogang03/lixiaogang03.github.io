@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-re-vs-ng2.jpg
 catalog: true
 tags:
-    - Binder
-    - IPC
+    - Android
 ---
 
 ### 框架图

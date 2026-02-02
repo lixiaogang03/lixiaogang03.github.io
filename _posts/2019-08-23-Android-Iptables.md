@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-hacker.jpg
 catalog: true
 tags:
-    - android
-    - iptables
+    - Android
 ---
 
 [linux网络基础知识-简书](https://www.jianshu.com/p/47baebc39923)

@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-miui-ux.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [理解Android Context-Gityuan](http://gityuan.com/2017/04/09/android_context/)

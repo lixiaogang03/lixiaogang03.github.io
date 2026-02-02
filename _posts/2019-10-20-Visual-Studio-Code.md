@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-e2e-ux.jpg
 catalog: true
 tags:
-    - c++
+    - Tool
 ---
 
 [官网](https://visualstudio.microsoft.com/zh-hans/vs/)

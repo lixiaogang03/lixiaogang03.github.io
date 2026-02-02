@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [Linux设备模型之Uevent-简书](https://www.jianshu.com/p/10653d83909d)

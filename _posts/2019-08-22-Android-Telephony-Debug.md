@@ -7,12 +7,10 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - android
-    - debug
+    - Android
 ---
 
 [adb_command](https://github.com/mzlogin/awesome-adb/blob/master/README.md)
-
 
 ## 概念
 

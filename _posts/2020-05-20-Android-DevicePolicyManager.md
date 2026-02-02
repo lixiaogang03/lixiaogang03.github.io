@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-miui-ux.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [DevicePolicyManager-Google](https://developer.android.google.cn/reference/android/app/admin/DevicePolicyManager?hl=zh-cn)

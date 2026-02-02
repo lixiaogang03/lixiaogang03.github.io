@@ -7,9 +7,7 @@ author:     LXG
 header-img: img/post-bg-iWatch.jpg
 catalog: true
 tags:
-    - android
-    - telephony
-    - ril
+    - Android
 ---
 
 ## Telephony 整体架构图

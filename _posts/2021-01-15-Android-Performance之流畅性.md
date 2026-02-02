@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - performance
+    - Android
 ---
 
 [androidperformance.com](https://www.androidperformance.com/)

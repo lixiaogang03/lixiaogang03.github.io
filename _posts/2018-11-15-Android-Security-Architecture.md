@@ -8,9 +8,6 @@ header-img: img/post-bg-hacker.jpg
 catalog: true
 tags:
     - Android
-    - Permission
-    - Security
-    - SELinux
 ---
 
 ## Android Security Architecture

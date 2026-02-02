@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - android
-    - debug
+    - Android
 ---
 
 [android-logcat](https://developer.android.google.cn/studio/command-line/logcat.html)

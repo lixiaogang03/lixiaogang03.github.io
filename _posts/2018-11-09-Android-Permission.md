@@ -8,7 +8,6 @@ header-img: img/post-bg-hacker.jpg
 catalog: true
 tags:
     - Android
-    - Permission
 ---
 
 ## Android Permission

@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [Android Permissions-简书](https://www.jianshu.com/p/ffd583f720f4)

@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/home-bg-o.jpg
 catalog: true
 tags:
-    - IMS
+    - Android
 ---
 
 注：下文摘自[RickAi的博客](http://navyblue.top/)

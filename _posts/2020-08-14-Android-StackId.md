@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [Android Stack与Task-简书](https://www.jianshu.com/p/82f3af2135a8)

@@ -7,9 +7,7 @@ author:     LXG
 header-img: img/post-bg-digital-native.jpg
 catalog: true
 tags:
-    - android
-    - netd
-    - iptables
+    - Android
 ---
 
 [深入理解Netd](https://www.kancloud.cn/alex_wsc/android-wifi-nfc-gps/414019)

@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - android
-    - battery
+    - Android
 ---
 
 [电池优化-官网](https://developer.android.com/topic/performance/power)

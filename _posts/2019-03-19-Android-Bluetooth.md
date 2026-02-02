@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-unix-linux.jpg
 catalog: true
 tags:
-    - bluetooth
-    - android
+    - Android
 ---
 
 [蓝牙-AOSP官网](https://source.android.google.cn/devices/bluetooth)

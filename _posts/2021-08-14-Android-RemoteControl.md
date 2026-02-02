@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-os-metro.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [WebRTC学习之ProjectRTC & AndroidRTC运行](https://www.codenong.com/cs106800658/)

@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-kuaidi.jpg
 catalog: true
 tags:
-    - watchdog
+    - Android
 ---
 
 [Android WatchDog-Gityuan](http://gityuan.com/2016/06/21/watchdog/)

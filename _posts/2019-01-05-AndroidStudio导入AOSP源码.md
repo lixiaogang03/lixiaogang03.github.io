@@ -8,8 +8,7 @@ header-img: img/post-bg-android.jpg
 catalog: true
 tags:
     - Android
-    - debug
-    - dumpsys
+    - Tool
 ---
 
 ## 环境准备

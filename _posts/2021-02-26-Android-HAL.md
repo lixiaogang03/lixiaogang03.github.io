@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-unix-linux.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [Android HAL](https://source.android.google.cn/devices/architecture/hal)

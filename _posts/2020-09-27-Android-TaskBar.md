@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - taskbar
+    - Android
 ---
 
 [Taskbar-github](https://github.com/farmerbb/Taskbar)

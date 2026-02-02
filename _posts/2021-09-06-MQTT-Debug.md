@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - mqtt
+    - Android
 ---
 
 [MQTT X](https://mqttx.app/zh/docs)

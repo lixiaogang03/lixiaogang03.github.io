@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - pms
+    - Android
 ---
 
 [APK安装流程详解-简书](https://www.jianshu.com/p/f47e45602ad2)

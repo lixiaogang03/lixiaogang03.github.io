@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [使用 WorkManager 调度任务-Google](https://developer.android.google.cn/topic/libraries/architecture/workmanager?hl=zh-cn)

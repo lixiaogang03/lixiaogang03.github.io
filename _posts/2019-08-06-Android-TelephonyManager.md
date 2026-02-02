@@ -7,13 +7,10 @@ author:     LXG
 header-img: img/post-bg-ios9-web.jpg
 catalog: true
 tags:
-    - TelephonyManager
     - Android
-    - eSIM
 ---
 
 [TelephonyManager-developer](https://developer.android.google.cn/reference/android/telephony/TelephonyManager)
-
 
 ## 架构图
 

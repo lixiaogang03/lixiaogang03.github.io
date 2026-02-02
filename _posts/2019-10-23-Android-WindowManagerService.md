@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - android
-    - wms
+    - Android
 ---
 
 [WMS-刘望舒的博客](http://liuwangshu.cn/framework/wms/1-wms-produce.html)

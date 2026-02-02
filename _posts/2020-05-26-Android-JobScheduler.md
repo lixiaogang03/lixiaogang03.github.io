@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-iWatch.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [JobScheduler-Google](https://developer.android.google.cn/reference/android/app/job/JobScheduler?hl=zh-cn)

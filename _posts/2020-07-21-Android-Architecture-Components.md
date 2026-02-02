@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-ioses.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [Android 架构组件-google](https://developer.android.google.cn/topic/libraries/architecture)
