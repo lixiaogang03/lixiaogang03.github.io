@@ -823,3 +823,309 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<!-- 点赞功能 -->
+<style>
+.post-like-container {
+    margin: 40px 0;
+    padding: 30px 0;
+    text-align: center;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.like-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.like-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    padding: 15px 40px;
+    border-radius: 50px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.like-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.like-button:active {
+    transform: scale(0.95);
+}
+
+.like-button i {
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+.like-button .like-text {
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+/* 已点赞状态 */
+.like-button.liked {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+}
+
+.like-button.liked:hover {
+    box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+}
+
+.like-button.liked i {
+    animation: heartBeat 0.5s ease;
+}
+
+/* 点赞动画 */
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.3); }
+    50% { transform: scale(1.1); }
+    75% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+
+/* 粒子动画 */
+.like-button.animating::before {
+    content: '❤️';
+    position: absolute;
+    font-size: 20px;
+    animation: particleAnimation 1s ease-out;
+    pointer-events: none;
+}
+
+@keyframes particleAnimation {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50px) scale(1.5);
+    }
+}
+
+/* 点赞数显示 */
+.like-count-wrapper {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    color: #666;
+    font-size: 16px;
+}
+
+.like-count {
+    font-size: 28px;
+    font-weight: bold;
+    color: #0085a1;
+    font-family: 'Arial', sans-serif;
+}
+
+.like-label {
+    color: #999;
+}
+
+/* 数字变化动画 */
+.like-count.increment {
+    animation: countIncrement 0.5s ease;
+}
+
+@keyframes countIncrement {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); color: #f5576c; }
+    100% { transform: scale(1); }
+}
+
+/* 涟漪效果 */
+.like-button::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+    opacity: 0;
+    transform: scale(0);
+    transition: transform 0.5s, opacity 1s;
+}
+
+.like-button:active::after {
+    transform: scale(3);
+    opacity: 1;
+    transition: 0s;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .like-button {
+        padding: 12px 30px;
+        font-size: 16px;
+    }
+
+    .like-count {
+        font-size: 24px;
+    }
+}
+
+/* 加载状态 */
+.like-button.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.like-button.loading i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const likeButton = document.getElementById('like-button');
+    const likeCount = document.getElementById('like-count');
+
+    if (!likeButton || !likeCount) return;
+
+    const postUrl = likeButton.getAttribute('data-post-url');
+    const likeKey = 'post_like_' + postUrl;
+    const countKey = 'post_like_count_' + postUrl;
+
+    // 初始化点赞状态
+    function initLikeStatus() {
+        // 检查用户是否已点赞
+        const hasLiked = localStorage.getItem(likeKey) === 'true';
+        if (hasLiked) {
+            likeButton.classList.add('liked');
+            likeButton.querySelector('.like-text').textContent = '已喜欢';
+        }
+
+        // 获取点赞数（注意：这是本地存储，不是全局统计）
+        const count = parseInt(localStorage.getItem(countKey) || '0');
+        likeCount.textContent = count;
+    }
+
+    // 点赞功能
+    likeButton.addEventListener('click', function() {
+        const hasLiked = localStorage.getItem(likeKey) === 'true';
+
+        if (!hasLiked) {
+            // 点赞
+            localStorage.setItem(likeKey, 'true');
+            likeButton.classList.add('liked', 'animating');
+            likeButton.querySelector('.like-text').textContent = '已喜欢';
+
+            // 增加点赞数
+            let count = parseInt(localStorage.getItem(countKey) || '0');
+            count++;
+            localStorage.setItem(countKey, count.toString());
+            likeCount.textContent = count;
+            likeCount.classList.add('increment');
+
+            // 创建多个飘心动画
+            createFloatingHearts();
+
+            // 移除动画类
+            setTimeout(() => {
+                likeButton.classList.remove('animating');
+                likeCount.classList.remove('increment');
+            }, 500);
+        } else {
+            // 取消点赞
+            localStorage.removeItem(likeKey);
+            likeButton.classList.remove('liked');
+            likeButton.querySelector('.like-text').textContent = '喜欢';
+
+            // 减少点赞数
+            let count = parseInt(localStorage.getItem(countKey) || '0');
+            if (count > 0) {
+                count--;
+                localStorage.setItem(countKey, count.toString());
+                likeCount.textContent = count;
+            }
+        }
+    });
+
+    // 创建飘心动画
+    function createFloatingHearts() {
+        const hearts = ['❤️', '💖', '💕', '💗', '💓'];
+        for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+                const heart = document.createElement('div');
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.position = 'fixed';
+                heart.style.fontSize = '24px';
+                heart.style.pointerEvents = 'none';
+                heart.style.zIndex = '9999';
+
+                const buttonRect = likeButton.getBoundingClientRect();
+                heart.style.left = (buttonRect.left + buttonRect.width / 2 - 12 + (Math.random() - 0.5) * 40) + 'px';
+                heart.style.top = (buttonRect.top + buttonRect.height / 2 - 12) + 'px';
+
+                document.body.appendChild(heart);
+
+                // 动画
+                const duration = 1500 + Math.random() * 500;
+                const distance = 80 + Math.random() * 40;
+                const angle = (Math.random() - 0.5) * 60;
+
+                heart.animate([
+                    {
+                        transform: 'translateY(0) translateX(0) rotate(0deg) scale(1)',
+                        opacity: 1
+                    },
+                    {
+                        transform: `translateY(-${distance}px) translateX(${angle}px) rotate(${angle * 2}deg) scale(1.5)`,
+                        opacity: 0
+                    }
+                ], {
+                    duration: duration,
+                    easing: 'ease-out'
+                });
+
+                // 移除元素
+                setTimeout(() => {
+                    document.body.removeChild(heart);
+                }, duration);
+            }, i * 100);
+        }
+    }
+
+    // 双击点赞（额外的交互方式）
+    let lastTap = 0;
+    document.querySelector('.post-container').addEventListener('dblclick', function(e) {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+
+        if (tapLength < 500 && tapLength > 0) {
+            e.preventDefault();
+            if (localStorage.getItem(likeKey) !== 'true') {
+                likeButton.click();
+            }
+        }
+        lastTap = currentTime;
+    });
+
+    // 初始化
+    initLikeStatus();
+});
+</script>
+

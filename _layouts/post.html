@@ -62,6 +62,22 @@ layout: default
 
                 <hr style="visibility: hidden;">
 
+                <!-- 点赞功能 -->
+                <div class="post-like-container">
+                    <div class="like-wrapper">
+                        <button class="like-button" id="like-button" data-post-url="{{ page.url }}">
+                            <i class="fa fa-heart"></i>
+                            <span class="like-text">喜欢</span>
+                        </button>
+                        <div class="like-count-wrapper">
+                            <span class="like-count" id="like-count">0</span>
+                            <span class="like-label">次点赞</span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr style="visibility: hidden;">
+
                 <ul class="pager">
                     {% if page.previous.url %}
                     <li class="previous">
