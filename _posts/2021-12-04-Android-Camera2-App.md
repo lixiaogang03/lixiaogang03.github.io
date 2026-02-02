@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - camera
+    - Android
 ---
 
 [camera-AOSP](https://source.android.google.cn/devices/camera)

@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-re-vs-ng2.jpg
 catalog: true
 tags:
-    - linux
+    - Linux
+    - Allwinner
 ---
 
 [Tina Linux 系统介绍](https://d1.docs.aw-ol.com/study/study_1tina/)

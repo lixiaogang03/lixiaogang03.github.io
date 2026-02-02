@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-unix-linux.jpg
 catalog: true
 tags:
-    - linux
+    - Linux
 ---
 
 [一文搞懂 Linux 内核链表](https://cloud.tencent.com/developer/article/1805773)

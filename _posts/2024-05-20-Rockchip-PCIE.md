@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-smart_phone.jpg
 catalog: true
 tags:
-    - rk3399
+    - Rockchip
+    - 驱动
 ---
 
 [patchwork.kernel.org](https://patchwork.kernel.org/project/linux-rockchip/list/)

@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-alibaba.jpg
 catalog: true
 tags:
-    - linux
+    - Linux
 ---
 
 [全志Linux Tina-SDK开发完全手册](https://tina.100ask.net/SdkModule/Linux_OTA_DevelopmentGuide-01/#13)

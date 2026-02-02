@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - camera
+    - 硬件
 ---
 
 [android设备外接多个usb摄像头](https://youshaohua.com/post/android-device-external-multiple-USB-camera)

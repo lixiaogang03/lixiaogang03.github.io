@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-ioses.jpg
 catalog: true
 tags:
-    - media
-    - android
+    - Android
 ---
 
 [media-AOSP](https://source.android.google.cn/devices/media)

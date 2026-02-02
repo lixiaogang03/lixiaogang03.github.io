@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [规范化启动原因](https://source.android.google.cn/docs/core/architecture/bootloader/boot-reason?hl=zh-cn)

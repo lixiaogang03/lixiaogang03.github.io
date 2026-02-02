@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-phone.jpg
 catalog: true
 tags:
-    - android
+    - Android
+    - 硬件
 ---
 
 ## 整体工作流程

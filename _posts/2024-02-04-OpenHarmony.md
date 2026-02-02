@@ -6,7 +6,7 @@ author:     LXG
 header-img: img/open_harmony.jpg
 catalog: true
 tags:
-    - huawei
+    - 鸿蒙
 ---
 
 [OpenHarmony](https://www.openharmony.cn/mainPlay)

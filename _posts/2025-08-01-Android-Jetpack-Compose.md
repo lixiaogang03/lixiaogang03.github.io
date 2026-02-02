@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/google_android.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [Android-Google](https://developer.android.google.cn/get-started/overview?hl=zh-cn)

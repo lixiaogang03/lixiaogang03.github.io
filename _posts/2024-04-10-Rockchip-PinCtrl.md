@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-electronics.jpg
 catalog: true
 tags:
-    - rockchip
+    - Rockchip
+    - 驱动
 ---
 
 ## 代码调试

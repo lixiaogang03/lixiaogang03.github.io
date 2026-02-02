@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-kuaidi.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [MPAndroidChart](https://github.com/PhilJay/MPAndroidChart)

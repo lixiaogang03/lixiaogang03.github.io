@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-rwd.jpg
 catalog: true
 tags:
-    - android
+    - Android
+    - 驱动
 ---
 
 [显示器接口VGA、DVI、HDMI、DP](https://www.jianshu.com/p/4b77dc78b0e8)

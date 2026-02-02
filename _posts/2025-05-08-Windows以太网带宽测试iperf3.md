@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-os-metro.jpg
 catalog: true
 tags:
-    - linux
+    - Tool
 ---
 
 ## 下载iperf3测试工具

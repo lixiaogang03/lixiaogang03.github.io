@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-unix-linux.jpg
 catalog: true
 tags:
-    - markdown
+    - Ubuntu
 ---
 
 ## 无法开机问题

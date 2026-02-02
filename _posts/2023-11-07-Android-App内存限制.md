@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [内存管理概览](https://developer.android.google.cn/topic/performance/memory-overview?hl=zh-cn)

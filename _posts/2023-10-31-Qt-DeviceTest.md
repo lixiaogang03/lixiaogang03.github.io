@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-kuaidi.jpg
 catalog: true
 tags:
-    - qt
+    - Linux
 ---
 
 ## 命令行测试硬件

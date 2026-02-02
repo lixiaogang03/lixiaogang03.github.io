@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [Android Go 版本-Google](https://developer.android.google.cn/guide/topics/androidgo?hl=zh-cn)

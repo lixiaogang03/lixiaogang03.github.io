@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-phone.jpg
 catalog: true
 tags:
-    - radio
+    - Android
 ---
 
 [移动物联卡查询地址](https://m.fjtytx.com/renew)

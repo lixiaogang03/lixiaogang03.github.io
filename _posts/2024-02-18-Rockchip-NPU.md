@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-nvida.jpg
 catalog: true
 tags:
-    - rockchip
+    - Rockchip
+    - AI
 ---
 
 [嵌入式AI应用开发实战指南](https://doc.embedfire.com/linux/rk356x/Ai/zh/latest/README.html)

@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - openharmony
+    - 鸿蒙
+    - Ubuntu
 ---
 
 ## 触觉智能

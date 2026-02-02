@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-universe.jpg
 catalog: true
 tags:
-    - webrtc
+    - Tool
 ---
 
 [WebRTC API](https://developer.mozilla.org/zh-CN/docs/Web/API/WebRTC_API)

@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-unix-linux.jpg
 catalog: true
 tags:
-    - modbus
+    - Tool
+    - Android
 ---
 
 [Android-SerialPort-API-Github](https://github.com/licheedev/Android-SerialPort-API)

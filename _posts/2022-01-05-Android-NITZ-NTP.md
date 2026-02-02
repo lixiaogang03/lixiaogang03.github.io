@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-iWatch.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [Android 7.1.1时间更新NITZ和NTP详解](https://blog.csdn.net/yin1031468524/article/details/65447849?utm_source=tuicool)

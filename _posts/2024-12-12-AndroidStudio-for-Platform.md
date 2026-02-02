@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-digital_circuits.jpg
 catalog: true
 tags:
-    - androidstudio
+    - Tool
 ---
 
 [Android Studio for Platform](https://developer.android.google.cn/studio/platform)

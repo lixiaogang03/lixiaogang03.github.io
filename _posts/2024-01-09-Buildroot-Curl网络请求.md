@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-os-metro.jpg
 catalog: true
 tags:
-    - t113
+    - Linux
 ---
 
 ## curl 编译

@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-miui-ux.jpg
 catalog: true
 tags:
-    - rockchip
+    - Rockchip
+    - 驱动
 ---
 
 Rockchip_Developer_Guide_DRM_Panel_Porting_CN.pdf

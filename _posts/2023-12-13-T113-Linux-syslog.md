@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-coffee.jpeg
 catalog: true
 tags:
-    - syslog
+    - Linux
 ---
 
 ## syslog

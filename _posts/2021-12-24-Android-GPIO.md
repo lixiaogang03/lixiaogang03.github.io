@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - gpio
+    - Android
+    - 驱动
 ---
 
 [RK3288-GPIO](https://wiki.t-firefly.com/zh_CN/Firefly-RK3288/driver_gpio.html)

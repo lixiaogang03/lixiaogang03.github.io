@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-os-metro.jpg
 catalog: true
 tags:
-    - linux
+    - Linux
 ---
 
 ## 编译报错日志

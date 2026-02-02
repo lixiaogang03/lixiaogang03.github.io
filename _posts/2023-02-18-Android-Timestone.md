@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-digital-native.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [介绍addr2line调试命令-Gityuan](http://gityuan.com/2017/09/02/addr2line/)

@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-camera.jpg
 catalog: true
 tags:
-    - camera
+    - Linux
+    - 相机
 ---
 
 [T113-S3荣品电子](https://doc.rpdzkj.cn/#/zh_cn/%E5%85%A8%E5%BF%97%E7%B3%BB%E5%88%97/t113-s3/4.Linux%E5%BC%80%E5%8F%91)

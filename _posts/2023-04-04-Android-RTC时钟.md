@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - rtc
+    - Allwinner
+    - 驱动
 ---
 
 [Linux内核 RTC时间架构](https://www.cnblogs.com/yikoulinux/p/16782978.html)

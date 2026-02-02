@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-miui-ux.jpg
 catalog: true
 tags:
-    - framework
+    - Android
 ---
 
 [Android SDK开发艺术探索](https://zhuanlan.zhihu.com/p/151406299)

@@ -7,8 +7,7 @@ author:     LXG
 header-img: img/post-bg-digital-native.jpg
 catalog: true
 tags:
-    - android
-    - video
+    - Android
 ---
 
 [音频和视频-Google](https://developer.android.google.cn/guide/topics/media?hl=zh-cn)

@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/google_android.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [网络堆栈-AOSP](https://source.android.com/docs/core/architecture/modular-system/networking?hl=zh-cn)

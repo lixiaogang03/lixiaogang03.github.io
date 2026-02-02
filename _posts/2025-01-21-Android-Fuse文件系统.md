@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-xiaomi.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [分区存储-AOSP](https://source.android.com/docs/core/storage/scoped?hl=zh-cn)

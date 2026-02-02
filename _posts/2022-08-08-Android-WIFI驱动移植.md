@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - Realtek
+    - Android
+    - 驱动
 ---
 
 [intgyl.com-wifi](https://intgyl.com/categories/Linux/rockchip/wifi/)

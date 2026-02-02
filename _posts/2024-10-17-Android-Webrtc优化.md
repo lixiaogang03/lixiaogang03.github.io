@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-xiaomi.jpg
 catalog: true
 tags:
-    - Webrtc
+    - Android
 ---
 
 [2021-08-12-WebRTC](https://lixiaogang03.github.io/2021/08/12/WebRTC/)

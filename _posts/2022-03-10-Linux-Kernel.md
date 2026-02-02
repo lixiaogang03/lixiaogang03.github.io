@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-unix-linux.jpg
 catalog: true
 tags:
-    - linux
+    - Linux
 ---
 
 ## Linux Kernel

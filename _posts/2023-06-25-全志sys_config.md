@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-ioses.jpg
 catalog: true
 tags:
-    - hardware
+    - Allwinner
+    - 驱动
 ---
 
 ## 全志量产工具列表

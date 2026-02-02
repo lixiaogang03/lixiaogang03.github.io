@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - rockchip
+    - Rockchip
 ---
 
 ## rk3568 android 11

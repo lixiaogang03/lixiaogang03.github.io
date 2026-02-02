@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - android
+    - Android
 ---
 
 [供应商接口对象](https://source.android.com/docs/core/architecture/vintf?hl=zh-cn)

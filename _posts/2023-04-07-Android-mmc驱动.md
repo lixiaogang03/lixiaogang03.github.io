@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-miui-ux.jpg
 catalog: true
 tags:
-    - mmc
+    - Linux
+    - 驱动
 ---
 
 ## 概念

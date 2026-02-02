@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-unix-linux.jpg
 catalog: true
 tags:
-    - dvfs
+    - Linux
+    - 驱动
 ---
 
 [Devfreq学习笔记](https://www.cnblogs.com/hellokitty2/p/13061707.html)

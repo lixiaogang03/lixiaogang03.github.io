@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-alibaba.jpg
 catalog: true
 tags:
-    - jenkins
+    - Tool
 ---
 
 [www.jenkins.io](https://www.jenkins.io/zh/)

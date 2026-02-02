@@ -7,7 +7,7 @@ author:     LXG
 header-img: img/post-bg-android.jpg
 catalog: true
 tags:
-    - buildroot
+    - Linux
 ---
 
 ## 新增app源码

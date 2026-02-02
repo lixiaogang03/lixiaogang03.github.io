@@ -7,7 +7,8 @@ author:     LXG
 header-img: img/post-bg-kuaidi.jpg
 catalog: true
 tags:
-    - rk3588
+    - Linux
+    - 驱动
 ---
 
 ## 参考文档
