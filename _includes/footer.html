@@ -534,3 +534,292 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<!-- 代码块优化 -->
+<style>
+/* 代码块容器 */
+.code-block-wrapper {
+    position: relative;
+    margin: 20px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 代码块头部 */
+.code-block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(90deg, #2d2d2d 0%, #1e1e1e 100%);
+    padding: 10px 15px;
+    border-bottom: 1px solid #404040;
+}
+
+/* 语言标识 */
+.code-language {
+    color: #61dafb;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Courier New', monospace;
+}
+
+.code-language i {
+    margin-right: 5px;
+    color: #98c379;
+}
+
+/* 复制按钮 */
+.copy-code-button {
+    background: #4a4a4a;
+    border: 1px solid #5a5a5a;
+    color: #e0e0e0;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.copy-code-button:hover {
+    background: #0085a1;
+    border-color: #0085a1;
+    transform: translateY(-2px);
+}
+
+.copy-code-button.copied {
+    background: #28a745;
+    border-color: #28a745;
+}
+
+.copy-code-button i {
+    font-size: 13px;
+}
+
+/* 优化代码块本身 */
+.code-block-wrapper pre {
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+}
+
+.code-block-wrapper pre code {
+    display: block;
+    padding: 20px !important;
+    font-size: 14px;
+    line-height: 1.6;
+    font-family: 'Courier New', Consolas, Monaco, monospace;
+}
+
+/* 行号样式（如果使用了行号插件） */
+.code-block-wrapper .lineno {
+    color: #5a5a5a;
+    padding-right: 15px;
+    border-right: 1px solid #404040;
+    margin-right: 15px;
+    user-select: none;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .code-block-header {
+        padding: 8px 12px;
+    }
+
+    .code-language {
+        font-size: 11px;
+    }
+
+    .copy-code-button {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+
+    .code-block-wrapper pre code {
+        font-size: 12px;
+        padding: 15px !important;
+    }
+}
+
+/* 代码块滚动条优化 */
+.code-block-wrapper pre::-webkit-scrollbar {
+    height: 8px;
+}
+
+.code-block-wrapper pre::-webkit-scrollbar-track {
+    background: #2d2d2d;
+}
+
+.code-block-wrapper pre::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+}
+
+.code-block-wrapper pre::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 语言映射表
+    const languageMap = {
+        'language-javascript': 'JavaScript',
+        'language-js': 'JavaScript',
+        'language-typescript': 'TypeScript',
+        'language-ts': 'TypeScript',
+        'language-python': 'Python',
+        'language-py': 'Python',
+        'language-java': 'Java',
+        'language-c': 'C',
+        'language-cpp': 'C++',
+        'language-csharp': 'C#',
+        'language-php': 'PHP',
+        'language-ruby': 'Ruby',
+        'language-go': 'Go',
+        'language-rust': 'Rust',
+        'language-swift': 'Swift',
+        'language-kotlin': 'Kotlin',
+        'language-html': 'HTML',
+        'language-xml': 'XML',
+        'language-css': 'CSS',
+        'language-scss': 'SCSS',
+        'language-sass': 'Sass',
+        'language-less': 'Less',
+        'language-json': 'JSON',
+        'language-yaml': 'YAML',
+        'language-yml': 'YAML',
+        'language-markdown': 'Markdown',
+        'language-md': 'Markdown',
+        'language-bash': 'Bash',
+        'language-sh': 'Shell',
+        'language-shell': 'Shell',
+        'language-sql': 'SQL',
+        'language-r': 'R',
+        'language-matlab': 'MATLAB',
+        'language-diff': 'Diff',
+        'language-plaintext': 'Text',
+        'language-text': 'Text'
+    };
+
+    // 查找所有代码块
+    const codeBlocks = document.querySelectorAll('pre > code, div.highlight > pre');
+
+    codeBlocks.forEach(function(codeBlock, index) {
+        // 获取父元素
+        let pre = codeBlock.tagName === 'PRE' ? codeBlock : codeBlock.parentElement;
+
+        // 如果已经被包装过，跳过
+        if (pre.parentElement.classList.contains('code-block-wrapper')) {
+            return;
+        }
+
+        // 识别语言
+        let language = 'Code';
+        let codeElement = pre.querySelector('code') || codeBlock;
+
+        if (codeElement.className) {
+            const classes = codeElement.className.split(' ');
+            for (let cls of classes) {
+                if (languageMap[cls]) {
+                    language = languageMap[cls];
+                    break;
+                }
+                // 尝试匹配 highlight-source-xxx 格式
+                if (cls.startsWith('highlight-source-')) {
+                    language = cls.replace('highlight-source-', '').toUpperCase();
+                    break;
+                }
+            }
+        }
+
+        // 创建包装容器
+        const wrapper = document.createElement('div');
+        wrapper.className = 'code-block-wrapper';
+
+        // 创建头部
+        const header = document.createElement('div');
+        header.className = 'code-block-header';
+
+        // 创建语言标识
+        const langLabel = document.createElement('div');
+        langLabel.className = 'code-language';
+        langLabel.innerHTML = '<i class="fa fa-code"></i>' + language;
+
+        // 创建复制按钮
+        const copyButton = document.createElement('button');
+        copyButton.className = 'copy-code-button';
+        copyButton.innerHTML = '<i class="fa fa-copy"></i><span>复制代码</span>';
+        copyButton.setAttribute('data-index', index);
+
+        // 添加复制功能
+        copyButton.addEventListener('click', function() {
+            const code = codeElement.innerText || codeElement.textContent;
+
+            // 使用现代 Clipboard API
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(code).then(function() {
+                    showCopySuccess(copyButton);
+                }).catch(function(err) {
+                    console.error('复制失败:', err);
+                    fallbackCopy(code, copyButton);
+                });
+            } else {
+                // 降级方案
+                fallbackCopy(code, copyButton);
+            }
+        });
+
+        // 组装元素
+        header.appendChild(langLabel);
+        header.appendChild(copyButton);
+
+        // 在原位置插入包装容器
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(header);
+        wrapper.appendChild(pre);
+    });
+
+    // 显示复制成功状态
+    function showCopySuccess(button) {
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fa fa-check"></i><span>已复制!</span>';
+        button.classList.add('copied');
+
+        setTimeout(function() {
+            button.innerHTML = originalHTML;
+            button.classList.remove('copied');
+        }, 2000);
+    }
+
+    // 降级复制方案
+    function fallbackCopy(text, button) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        try {
+            const successful = document.execCommand('copy');
+            if (successful) {
+                showCopySuccess(button);
+            } else {
+                alert('复制失败，请手动复制');
+            }
+        } catch (err) {
+            console.error('复制失败:', err);
+            alert('复制失败，请手动复制');
+        }
+
+        document.body.removeChild(textarea);
+    }
+});
+</script>
+
