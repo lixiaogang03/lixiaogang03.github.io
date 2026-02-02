@@ -5,92 +5,564 @@ description: "Rome was not built in a day"
 header-img: "img/post-bg-rwd.jpg"
 ---
 
-<!-- Language Selector -->
-<!-- <select class="sel-lang" onchange= "onLanChange(this.options[this.options.selectedIndex].value)">
-    <option value="0" selected> 中文 Chinese </option>
-    <option value="1"> 英文 English </option>
-</select> -->
+<div class="about-container">
+    <!-- 个人信息卡片 -->
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <img src="{{ site.sidebar-avatar }}" alt="李晓刚">
+            </div>
+            <div class="profile-info">
+                <h2 class="profile-name">李晓刚 (LXG)</h2>
+                <p class="profile-title">Android 系统研发工程师</p>
+                <div class="profile-meta">
+                    <span><i class="fa fa-map-marker"></i> 郑州</span>
+                    <span><i class="fa fa-briefcase"></i> 上海 → 郑州</span>
+                </div>
+            </div>
+        </div>
+        <div class="profile-bio">
+            <p>{{ site.sidebar-about-description }}</p>
+            <p>这是我使用 <a href="https://pages.github.com/" target="_blank">GitHub Pages</a> 与 <a href="http://jekyll.com.cn/" target="_blank">Jekyll</a> 搭建的个人博客，分享 Android 系统开发相关的技术文章和经验。</p>
+        </div>
+    </div>
 
-<!-- Chinese Version -->
-<div class="zh post-container">
+    <!-- 技能栈 -->
+    <div class="skills-section">
+        <h3 class="section-title">
+            <i class="fa fa-code"></i> 技术栈
+        </h3>
+        <div class="skills-grid">
+            <div class="skill-item">
+                <div class="skill-header">
+                    <span class="skill-name">Android Framework</span>
+                    <span class="skill-level">90%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" style="width: 90%"></div>
+                </div>
+            </div>
 
-    <!--copied from markdown -->
-    <!--<blockquote><p></p></blockquote>-->
+            <div class="skill-item">
+                <div class="skill-header">
+                    <span class="skill-name">Java / Kotlin</span>
+                    <span class="skill-level">85%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" style="width: 85%"></div>
+                </div>
+            </div>
 
-    <p>Hey，我是<strong>李晓刚(LXG)</strong></p>
+            <div class="skill-item">
+                <div class="skill-header">
+                    <span class="skill-name">Linux Kernel</span>
+                    <span class="skill-level">75%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" style="width: 75%"></div>
+                </div>
+            </div>
 
-    <p>从上海回郑州工作的安卓系统研发工程师</p>
+            <div class="skill-item">
+                <div class="skill-header">
+                    <span class="skill-name">系统性能优化</span>
+                    <span class="skill-level">80%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" style="width: 80%"></div>
+                </div>
+            </div>
 
-    <p>这是我的利用 <a href="https://pages.github.com/">GitHub Pages</a> 与 <a href="http://jekyll.com.cn/">Jekyll</a> 搭建的 个人博客</p>
+            <div class="skill-item">
+                <div class="skill-header">
+                    <span class="skill-name">网络协议</span>
+                    <span class="skill-level">70%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" style="width: 70%"></div>
+                </div>
+            </div>
 
-    <p></p>
+            <div class="skill-item">
+                <div class="skill-header">
+                    <span class="skill-name">C/C++</span>
+                    <span class="skill-level">75%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" style="width: 75%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <p><strong>可接安卓系统定制需求开发工作, 有需求的老板可在评论区留言, 或者扫右侧二维码</strong></p>
+    <!-- 服务说明 -->
+    <div class="services-section">
+        <h3 class="section-title">
+            <i class="fa fa-wrench"></i> 技术服务
+        </h3>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fa fa-android"></i>
+                </div>
+                <h4>Android 系统定制</h4>
+                <p>提供 Android 系统深度定制开发服务，包括 Framework 层修改、系统功能增强等。</p>
+            </div>
 
-    <p></p>
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fa fa-cogs"></i>
+                </div>
+                <h4>性能优化</h4>
+                <p>应用和系统性能分析与优化，解决卡顿、内存泄漏、功耗等问题。</p>
+            </div>
 
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fa fa-bug"></i>
+                </div>
+                <h4>问题诊断</h4>
+                <p>疑难问题分析与解决，系统 Crash、ANR 等问题的深度诊断。</p>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fa fa-graduation-cap"></i>
+                </div>
+                <h4>技术咨询</h4>
+                <p>Android 系统架构设计、技术选型、团队培训等咨询服务。</p>
+            </div>
+        </div>
+
+        <div class="service-note">
+            <p><i class="fa fa-info-circle"></i> 如有合作需求，欢迎通过以下方式联系我</p>
+        </div>
+    </div>
+
+    <!-- 联系方式 -->
+    <div class="contact-section">
+        <h3 class="section-title">
+            <i class="fa fa-envelope"></i> 联系方式
+        </h3>
+        <div class="contact-grid">
+            <a href="mailto:{{ site.email }}" class="contact-card">
+                <div class="contact-icon">
+                    <i class="fa fa-envelope-o"></i>
+                </div>
+                <div class="contact-info">
+                    <h4>邮箱</h4>
+                    <p>{{ site.email }}</p>
+                </div>
+            </a>
+
+            <a href="https://github.com/{{ site.github_username }}" target="_blank" class="contact-card">
+                <div class="contact-icon">
+                    <i class="fa fa-github"></i>
+                </div>
+                <div class="contact-info">
+                    <h4>GitHub</h4>
+                    <p>@{{ site.github_username }}</p>
+                </div>
+            </a>
+
+            <a href="https://www.jianshu.com/u/{{ site.jianshu_username }}" target="_blank" class="contact-card">
+                <div class="contact-icon">
+                    <i class="fa fa-book"></i>
+                </div>
+                <div class="contact-info">
+                    <h4>简书</h4>
+                    <p>技术专栏</p>
+                </div>
+            </a>
+
+            <div class="contact-card contact-wechat">
+                <div class="contact-icon">
+                    <i class="fa fa-wechat"></i>
+                </div>
+                <div class="contact-info">
+                    <h4>微信</h4>
+                    <p>扫右侧二维码</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 博客统计 -->
+    <div class="blog-stats-section">
+        <h3 class="section-title">
+            <i class="fa fa-bar-chart"></i> 博客数据
+        </h3>
+        <div class="stats-mini-grid">
+            <div class="stat-mini-card">
+                <div class="stat-mini-number">{{ site.posts | size }}</div>
+                <div class="stat-mini-label">文章</div>
+            </div>
+            <div class="stat-mini-card">
+                <div class="stat-mini-number">{{ site.tags | size }}</div>
+                <div class="stat-mini-label">标签</div>
+            </div>
+            <div class="stat-mini-card">
+                {% assign postsByYear = site.posts | group_by_exp:"post", "post.date | date: '%Y'" %}
+                <div class="stat-mini-number">{{ postsByYear | size }}</div>
+                <div class="stat-mini-label">年份</div>
+            </div>
+            <div class="stat-mini-card">
+                <div class="stat-mini-number" id="days-count">...</div>
+                <div class="stat-mini-label">运行天数</div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- English Version -->
-<!-- <div class="en post-container">
-    <blockquote><p>Yet another iOS Developer. <br>
-    Yet another Life-long Student.</p></blockquote>
+<style>
+.about-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
 
-    <p>Hi, I am <strong>Baiying Qiu</strong>，you can call me <strong>BY</strong>. I am an iOS software engineer and currently working in Xiamen</p>
+/* 个人信息卡片 */
+.profile-card {
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
 
-    <p>This is my personal blog, through making Github Pages and Jekyll.My GitHub  👉 <a href="http://github.com/qiubaiying">Github·BY</a>.</p>
-    
-    <p>I am a sports enthusiast, I like fitness, running and boxing.</p>
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 30px;
+}
 
-    <h5>Talks</h5>
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #0085a1;
+    box-shadow: 0 4px 12px rgba(0, 133, 161, 0.3);
+}
 
-    <ul>
-    <li><a href="https://github.com">GitHub</a></li>
-    <li><a href="http://jekyll.com.cn/">jekyll</a></li>
-    <li><a href="https://pages.github.com/">GitHub Pages</a></li>
-    <li><a href="https://qiubaiying.github.io">BY</a></li>
-    </ul>
-</div> -->
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
-<!-- Handle Language Change -->
-<script type="text/javascript">
-    // get nodes
-    var $zh = document.querySelector(".zh");
-    var $en = document.querySelector(".en");
-    var $select = document.querySelector("select");
+.profile-info {
+    flex: 1;
+}
 
-    // bind hashchange event
-    window.addEventListener('hashchange', _render);
+.profile-name {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 28px;
+}
 
-    // handle render
-    function _render(){
-        var _hash = window.location.hash;
-        // en
-        if(_hash == "#en"){
-            $select.selectedIndex = 1;
-            $en.style.display = "block";
-            $zh.style.display = "none";
-        // zh by default
-        }else{
-            // not trigger onChange, otherwise cause a loop call.
-            $select.selectedIndex = 0;
-            $zh.style.display = "block";
-            $en.style.display = "none";
-        }
+.profile-title {
+    margin: 0 0 15px 0;
+    color: #0085a1;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.profile-meta {
+    display: flex;
+    gap: 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+.profile-meta i {
+    margin-right: 5px;
+    color: #0085a1;
+}
+
+.profile-bio {
+    color: #666;
+    line-height: 1.8;
+}
+
+.profile-bio a {
+    color: #0085a1;
+    text-decoration: none;
+}
+
+.profile-bio a:hover {
+    text-decoration: underline;
+}
+
+/* 章节标题 */
+.section-title {
+    color: #0085a1;
+    font-size: 22px;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #0085a1;
+}
+
+.section-title i {
+    margin-right: 10px;
+}
+
+/* 技能栈 */
+.skills-section {
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.skills-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.skill-item {
+    margin-bottom: 10px;
+}
+
+.skill-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.skill-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.skill-level {
+    color: #0085a1;
+    font-weight: bold;
+}
+
+.skill-bar {
+    height: 12px;
+    background: #f0f0f0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.skill-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 6px;
+    transition: width 1.5s ease;
+}
+
+/* 服务说明 */
+.services-section {
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.service-card {
+    background: #f9f9f9;
+    padding: 25px;
+    border-radius: 8px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.service-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 28px;
+}
+
+.service-card h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 16px;
+}
+
+.service-card p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.service-note {
+    background: #f0f8ff;
+    padding: 15px 20px;
+    border-radius: 8px;
+    border-left: 4px solid #0085a1;
+    color: #666;
+}
+
+.service-note i {
+    color: #0085a1;
+    margin-right: 8px;
+}
+
+/* 联系方式 */
+.contact-section {
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.contact-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s;
+}
+
+.contact-card:hover {
+    background: #f0f8ff;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.contact-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.contact-info h4 {
+    margin: 0 0 5px 0;
+    color: #333;
+    font-size: 16px;
+}
+
+.contact-info p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* 博客统计 */
+.blog-stats-section {
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.stats-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.stat-mini-card {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    color: white;
+}
+
+.stat-mini-number {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-mini-label {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
     }
 
-    // handle select change
-    function onLanChange(index){
-        if(index == 0){
-            window.location.hash = "#zh"
-        }else{
-            window.location.hash = "#en"
-        }
+    .services-grid {
+        grid-template-columns: 1fr;
     }
 
-    // init
-    _render();
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-mini-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .profile-card,
+    .skills-section,
+    .services-section,
+    .contact-section,
+    .blog-stats-section {
+        padding: 25px;
+    }
+}
+</style>
+
+<script>
+// 计算博客运行天数
+document.addEventListener('DOMContentLoaded', function() {
+    {% if site.posts.size > 0 %}
+    const firstPostDate = new Date('{{ site.posts.last.date | date: "%Y-%m-%d" }}');
+    const today = new Date();
+    const daysDiff = Math.floor((today - firstPostDate) / (1000 * 60 * 60 * 24));
+    document.getElementById('days-count').textContent = daysDiff;
+    {% endif %}
+
+    // 技能条动画
+    const skillBars = document.querySelectorAll('.skill-progress');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.width = entry.target.style.width;
+            }
+        });
+    });
+
+    skillBars.forEach(bar => observer.observe(bar));
+});
 </script>
-
-
-
