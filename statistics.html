@@ -77,6 +77,16 @@ header-img: "img/tag-bg.jpg"
                 </h2>
                 <div class="year-stats">
                     {% assign postsByYear = site.posts | group_by_exp:"post", "post.date | date: '%Y'" %}
+
+                    <!-- 先计算最大值 -->
+                    {% assign max_count = 0 %}
+                    {% for y in postsByYear %}
+                        {% if y.items.size > max_count %}
+                            {% assign max_count = y.items.size %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- 显示每年的统计 -->
                     {% for year in postsByYear %}
                     <div class="year-stat-item">
                         <div class="year-stat-header">
@@ -84,13 +94,11 @@ header-img: "img/tag-bg.jpg"
                             <span class="year-count">{{ year.items | size }} 篇</span>
                         </div>
                         <div class="year-stat-bar-container">
-                            {% assign max_count = 0 %}
-                            {% for y in postsByYear %}
-                                {% if y.items.size > max_count %}
-                                    {% assign max_count = y.items.size %}
-                                {% endif %}
-                            {% endfor %}
-                            {% assign percentage = year.items.size | times: 100 | divided_by: max_count %}
+                            {% if max_count > 0 %}
+                                {% assign percentage = year.items.size | times: 100 | divided_by: max_count %}
+                            {% else %}
+                                {% assign percentage = 0 %}
+                            {% endif %}
                             <div class="year-stat-bar" style="width: {{ percentage }}%;">
                                 <div class="year-stat-bar-fill"></div>
                             </div>
@@ -106,7 +114,7 @@ header-img: "img/tag-bg.jpg"
                     <i class="fa fa-fire"></i> 热门标签 TOP 10
                 </h2>
                 <div class="tag-stats">
-                    {% assign sorted_tags = site.tags | sort: 'size' | reverse %}
+                    {% assign sorted_tags = site.tags | sort %}
                     {% for tag in sorted_tags limit:10 %}
                     <div class="tag-stat-item">
                         <a href="{{ site.baseurl }}/tags.html#tag-{{ tag[0] }}" class="tag-stat-link">
