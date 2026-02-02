@@ -19,10 +19,10 @@ description: "Rome was not built in a day."
 
 <!-- Main Content -->
 <div class="container">
-    <!-- 顶部统计卡片 -->
-    <div class="stats-cards-container">
-        <div class="row">
-            <div class="col-lg-3 col-md-6 col-sm-6">
+    <div class="row">
+        <!-- 左侧统计卡片 -->
+        <div class="col-lg-3 col-md-3 hidden-sm hidden-xs">
+            <div class="stats-sidebar">
                 <div class="stats-card stats-card-1">
                     <div class="stats-icon">
                         <i class="fa fa-file-text"></i>
@@ -32,8 +32,7 @@ description: "Rome was not built in a day."
                         <div class="stats-label">文章总数</div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-6">
+
                 <div class="stats-card stats-card-2">
                     <div class="stats-icon">
                         <i class="fa fa-tags"></i>
@@ -43,8 +42,7 @@ description: "Rome was not built in a day."
                         <div class="stats-label">标签总数</div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-6">
+
                 <div class="stats-card stats-card-3">
                     <div class="stats-icon">
                         <i class="fa fa-calendar"></i>
@@ -55,8 +53,7 @@ description: "Rome was not built in a day."
                         <div class="stats-label">年份跨度</div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-6">
+
                 <div class="stats-card stats-card-4">
                     <div class="stats-icon">
                         <i class="fa fa-clock-o"></i>
@@ -70,11 +67,9 @@ description: "Rome was not built in a day."
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row">
-        <!-- 左侧文章列表 -->
-        <div class="col-lg-8 col-md-8">
+        <!-- 中间文章列表 -->
+        <div class="col-lg-6 col-md-6 col-sm-12">
 
             <!-- 按年份分组 -->
             {% assign postsByYear = site.posts | group_by_exp:"post", "post.date | date: '%Y'" %}
@@ -104,13 +99,6 @@ description: "Rome was not built in a day."
                                 {% if post.subtitle %}
                                 <p class="post-card-subtitle">
                                     {{ post.subtitle }}
-                                </p>
-                                {% endif %}
-
-                                <!-- 文章摘要 -->
-                                {% if post.content %}
-                                <p class="post-card-excerpt">
-                                    {{ post.content | strip_html | truncatewords: 30 }}
                                 </p>
                                 {% endif %}
 
@@ -146,7 +134,7 @@ description: "Rome was not built in a day."
         </div>
 
         <!-- 右侧月份导航 -->
-        <div class="col-lg-4 col-md-4">
+        <div class="col-lg-3 col-md-3 hidden-sm hidden-xs">
             <div class="sidebar-module" style="position: sticky; top: 80px;">
                 <h4 style="border-bottom: 2px solid #0085a1; padding-bottom: 10px; margin-bottom: 15px;">
                     <i class="fa fa-list"></i> 快速导航
@@ -178,19 +166,22 @@ description: "Rome was not built in a day."
 </div>
 
 <style>
-/* 顶部统计卡片 */
-.stats-cards-container {
-    margin: -30px 0 40px 0;
+/* 左侧统计卡片 */
+.stats-sidebar {
+    position: sticky;
+    top: 80px;
 }
 
 .stats-card {
     background: white;
     border-radius: 12px;
-    padding: 25px;
-    margin-bottom: 20px;
+    padding: 20px;
+    margin-bottom: 15px;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 20px;
+    text-align: center;
+    gap: 15px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     position: relative;
@@ -228,13 +219,13 @@ description: "Rome was not built in a day."
 }
 
 .stats-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
+    font-size: 32px;
     color: white;
 }
 
@@ -317,13 +308,6 @@ description: "Rome was not built in a day."
     color: #666;
     font-size: 15px;
     font-weight: normal;
-}
-
-.post-card-excerpt {
-    margin: 0 0 15px 0;
-    color: #888;
-    font-size: 14px;
-    line-height: 1.6;
 }
 
 .post-card-tags {
