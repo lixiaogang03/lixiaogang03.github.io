@@ -1,0 +1,492 @@
+---
+title: Statistics
+layout: default
+description: 博客数据统计
+header-img: "img/tag-bg.jpg"
+---
+
+<!-- Page Header -->
+<header class="intro-header" style="background-image: url('{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="site-heading">
+                    <h1>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</h1>
+                    <span class="subheading">{{ page.description }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-10 col-lg-offset-1">
+
+            <!-- 顶部统计卡片 -->
+            <div class="stats-grid">
+                <div class="stats-card stats-card-1">
+                    <div class="stats-icon">
+                        <i class="fa fa-file-text"></i>
+                    </div>
+                    <div class="stats-content">
+                        <div class="stats-number">{{ site.posts | size }}</div>
+                        <div class="stats-label">文章总数</div>
+                    </div>
+                </div>
+
+                <div class="stats-card stats-card-2">
+                    <div class="stats-icon">
+                        <i class="fa fa-tags"></i>
+                    </div>
+                    <div class="stats-content">
+                        <div class="stats-number">{{ site.tags | size }}</div>
+                        <div class="stats-label">标签总数</div>
+                    </div>
+                </div>
+
+                <div class="stats-card stats-card-3">
+                    <div class="stats-icon">
+                        <i class="fa fa-calendar"></i>
+                    </div>
+                    <div class="stats-content">
+                        {% assign postsByYear = site.posts | group_by_exp:"post", "post.date | date: '%Y'" %}
+                        <div class="stats-number">{{ postsByYear | size }}</div>
+                        <div class="stats-label">年份跨度</div>
+                    </div>
+                </div>
+
+                <div class="stats-card stats-card-4">
+                    <div class="stats-icon">
+                        <i class="fa fa-clock-o"></i>
+                    </div>
+                    <div class="stats-content">
+                        {% if site.posts.size > 0 %}
+                        <div class="stats-number">{{ site.posts.first.date | date: "%m-%d" }}</div>
+                        <div class="stats-label">最近更新</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 按年份统计 -->
+            <div class="stats-section" style="margin-top: 40px;">
+                <h2 style="color: #0085a1; border-bottom: 2px solid #0085a1; padding-bottom: 10px; margin-bottom: 30px;">
+                    <i class="fa fa-bar-chart"></i> 文章年度统计
+                </h2>
+                <div class="year-stats">
+                    {% assign postsByYear = site.posts | group_by_exp:"post", "post.date | date: '%Y'" %}
+                    {% for year in postsByYear %}
+                    <div class="year-stat-item">
+                        <div class="year-stat-header">
+                            <span class="year-label">{{ year.name }}年</span>
+                            <span class="year-count">{{ year.items | size }} 篇</span>
+                        </div>
+                        <div class="year-stat-bar-container">
+                            {% assign max_count = 0 %}
+                            {% for y in postsByYear %}
+                                {% if y.items.size > max_count %}
+                                    {% assign max_count = y.items.size %}
+                                {% endif %}
+                            {% endfor %}
+                            {% assign percentage = year.items.size | times: 100 | divided_by: max_count %}
+                            <div class="year-stat-bar" style="width: {{ percentage }}%;">
+                                <div class="year-stat-bar-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 热门标签 -->
+            <div class="stats-section" style="margin-top: 40px;">
+                <h2 style="color: #0085a1; border-bottom: 2px solid #0085a1; padding-bottom: 10px; margin-bottom: 30px;">
+                    <i class="fa fa-fire"></i> 热门标签 TOP 10
+                </h2>
+                <div class="tag-stats">
+                    {% assign sorted_tags = site.tags | sort: 'size' | reverse %}
+                    {% for tag in sorted_tags limit:10 %}
+                    <div class="tag-stat-item">
+                        <a href="{{ site.baseurl }}/tags.html#tag-{{ tag[0] }}" class="tag-stat-link">
+                            <div class="tag-stat-name">
+                                <i class="fa fa-tag"></i> {{ tag[0] }}
+                            </div>
+                            <div class="tag-stat-count">{{ tag[1].size }}</div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 最新文章 -->
+            <div class="stats-section" style="margin-top: 40px;">
+                <h2 style="color: #0085a1; border-bottom: 2px solid #0085a1; padding-bottom: 10px; margin-bottom: 30px;">
+                    <i class="fa fa-newspaper-o"></i> 最新文章
+                </h2>
+                <div class="recent-posts">
+                    {% for post in site.posts limit:5 %}
+                    <div class="recent-post-item">
+                        <a href="{{ post.url | prepend: site.baseurl }}">
+                            <h4 class="recent-post-title">{{ post.title }}</h4>
+                            {% if post.subtitle %}
+                            <p class="recent-post-subtitle">{{ post.subtitle }}</p>
+                            {% endif %}
+                            <div class="recent-post-meta">
+                                <span><i class="fa fa-calendar"></i> {{ post.date | date: "%Y-%m-%d" }}</span>
+                                {% if post.tags.size > 0 %}
+                                <span class="recent-post-tags">
+                                    {% for tag in post.tags limit:2 %}
+                                    <span class="tag-badge">{{ tag }}</span>
+                                    {% endfor %}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 博客运行信息 -->
+            <div class="stats-section" style="margin-top: 40px; margin-bottom: 40px;">
+                <h2 style="color: #0085a1; border-bottom: 2px solid #0085a1; padding-bottom: 10px; margin-bottom: 30px;">
+                    <i class="fa fa-info-circle"></i> 博客信息
+                </h2>
+                <div class="blog-info">
+                    <div class="info-card">
+                        <div class="info-label">第一篇文章</div>
+                        <div class="info-value">{{ site.posts.last.date | date: "%Y年%m月%d日" }}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">最新文章</div>
+                        <div class="info-value">{{ site.posts.first.date | date: "%Y年%m月%d日" }}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">博客运行</div>
+                        <div class="info-value" id="blog-running-days">计算中...</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">总字数</div>
+                        {% assign total_words = 0 %}
+                        {% for post in site.posts %}
+                            {% assign words = post.content | strip_html | number_of_words %}
+                            {% assign total_words = total_words | plus: words %}
+                        {% endfor %}
+                        <div class="info-value">{{ total_words | divided_by: 10000 }}万+ 字</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+/* 统计卡片 */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.stats-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.stats-card-1::before {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stats-card-2::before {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.stats-card-3::before {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.stats-card-4::before {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.stats-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: white;
+}
+
+.stats-card-1 .stats-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stats-card-2 .stats-icon {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.stats-card-3 .stats-icon {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.stats-card-4 .stats-icon {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.stats-number {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
+    line-height: 1;
+}
+
+.stats-label {
+    font-size: 14px;
+    color: #999;
+}
+
+/* 年份统计 */
+.year-stats {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.year-stat-item {
+    margin-bottom: 25px;
+}
+
+.year-stat-item:last-child {
+    margin-bottom: 0;
+}
+
+.year-stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.year-label {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.year-count {
+    font-size: 16px;
+    color: #0085a1;
+    font-weight: bold;
+}
+
+.year-stat-bar-container {
+    background: #f0f0f0;
+    border-radius: 10px;
+    height: 20px;
+    overflow: hidden;
+}
+
+.year-stat-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    transition: width 1s ease;
+}
+
+/* 标签统计 */
+.tag-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.tag-stat-item {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s;
+}
+
+.tag-stat-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tag-stat-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.tag-stat-name {
+    color: #333;
+    font-size: 15px;
+}
+
+.tag-stat-name i {
+    color: #0085a1;
+    margin-right: 8px;
+}
+
+.tag-stat-count {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* 最新文章 */
+.recent-posts {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.recent-post-item {
+    padding: 20px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.recent-post-item:last-child {
+    border-bottom: none;
+}
+
+.recent-post-item a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.recent-post-title {
+    color: #333;
+    margin: 0 0 8px 0;
+    transition: color 0.3s;
+}
+
+.recent-post-item:hover .recent-post-title {
+    color: #0085a1;
+}
+
+.recent-post-subtitle {
+    color: #666;
+    margin: 0 0 10px 0;
+    font-size: 14px;
+}
+
+.recent-post-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #999;
+    font-size: 13px;
+}
+
+.recent-post-tags {
+    display: flex;
+    gap: 8px;
+}
+
+.tag-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+/* 博客信息 */
+.blog-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.info-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.info-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.info-label {
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 10px;
+}
+
+.info-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #0085a1;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .tag-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .blog-info {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+
+<script>
+// 计算博客运行天数
+document.addEventListener('DOMContentLoaded', function() {
+    const firstPostDate = new Date('{{ site.posts.last.date | date: "%Y-%m-%d" }}');
+    const today = new Date();
+    const daysDiff = Math.floor((today - firstPostDate) / (1000 * 60 * 60 * 24));
+
+    document.getElementById('blog-running-days').textContent = daysDiff + ' 天';
+});
+</script>
