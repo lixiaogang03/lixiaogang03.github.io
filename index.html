@@ -1,42 +1,210 @@
 ---
-layout: page
+layout: default
 description: "Rome was not built in a day."
 ---
 
-{% for post in paginator.posts %}
-<div class="post-preview">
-    <a href="{{ post.url | prepend: site.baseurl }}">
-        <h2 class="post-title">
-            {{ post.title }}
-        </h2>
-        {% if post.subtitle %}
-        <h3 class="post-subtitle">
-            {{ post.subtitle }}
-        </h3>
-        {% endif %}
-        <div class="post-content-preview">
-            {{ post.content | strip_html | truncate:200 }}
+<!-- Page Header -->
+<header class="intro-header" style="background-image: url('{{ site.baseurl }}/{% if page.header-img %}{{ site.header-img }}{% else %}{{ site.header-img }}{% endif %}')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="site-heading">
+                    <h1>{{ site.title }}</h1>
+                    <span class="subheading">{{ page.description }}</span>
+                </div>
+            </div>
         </div>
-    </a>
-    <p class="post-meta">
-        Posted by {% if post.author %}{{ post.author }}{% else %}{{ site.title }}{% endif %} on {{ post.date | date: "%B %-d, %Y" }}
-    </p>
-</div>
-<hr>
-{% endfor %}
+    </div>
+</header>
 
-<!-- Pager -->
-{% if paginator.total_pages > 1 %}
-<ul class="pager">
-    {% if paginator.previous_page %}
-    <li class="previous">
-        <a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&larr; Newer Posts</a>
-    </li>
-    {% endif %}
-    {% if paginator.next_page %}
-    <li class="next">
-        <a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">Older Posts &rarr;</a>
-    </li>
-    {% endif %}
-</ul>
-{% endif %}
+<!-- Main Content -->
+<div class="container">
+    <div class="row">
+        <!-- 左侧文章列表 -->
+        <div class="col-lg-8 col-md-8">
+            <!-- 文章总数统计 -->
+            <div style="margin-bottom: 30px; color: #404040;">
+                <i class="fa fa-file-text"></i> 共 {{ site.posts | size }} 篇文章
+            </div>
+
+            <!-- 按年份分组 -->
+            {% assign postsByYear = site.posts | group_by_exp:"post", "post.date | date: '%Y'" %}
+            {% for year in postsByYear %}
+            <div class="archive-year">
+                <h2 class="archive-year-header" style="border-bottom: 2px solid #0085a1; padding-bottom: 10px; margin-bottom: 20px;">
+                    <i class="fa fa-calendar"></i> {{ year.name }}
+                    <span style="font-size: 16px; color: #999;"> ({{ year.items | size }} 篇)</span>
+                </h2>
+
+                <!-- 按月份分组 -->
+                {% assign postsByMonth = year.items | group_by_exp:"post", "post.date | date: '%m'" %}
+                {% for month in postsByMonth %}
+                <div class="archive-month" id="month-{{ year.name }}-{{ month.name }}">
+                    <h3 style="color: #0085a1; margin-top: 25px; margin-bottom: 15px;">
+                        <i class="fa fa-calendar-o"></i> {{ month.name }} 月
+                    </h3>
+
+                    <!-- 文章列表 -->
+                    {% for post in month.items %}
+                    <div class="archive-post" style="margin-bottom: 15px; padding-left: 20px; border-left: 3px solid #e0e0e0;">
+                        <div class="post-preview">
+                            <a href="{{ post.url | prepend: site.baseurl }}" style="text-decoration: none;">
+                                <h4 class="post-title" style="margin-top: 0; margin-bottom: 5px; color: #333;">
+                                    {{ post.title }}
+                                </h4>
+                                {% if post.subtitle %}
+                                <h5 class="post-subtitle" style="margin-top: 0; color: #999; font-weight: normal;">
+                                    {{ post.subtitle }}
+                                </h5>
+                                {% endif %}
+                            </a>
+                            <p class="post-meta" style="margin-top: 5px; color: #999; font-size: 14px;">
+                                <i class="fa fa-clock-o"></i> {{ post.date | date: "%Y-%m-%d" }}
+                                {% if post.author %}
+                                <span style="margin-left: 10px;"><i class="fa fa-user"></i> {{ post.author }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            <hr style="margin: 40px 0;">
+            {% endfor %}
+        </div>
+
+        <!-- 右侧月份导航 -->
+        <div class="col-lg-4 col-md-4">
+            <div class="sidebar-module" style="position: sticky; top: 80px;">
+                <h4 style="border-bottom: 2px solid #0085a1; padding-bottom: 10px; margin-bottom: 15px;">
+                    <i class="fa fa-list"></i> 快速导航
+                </h4>
+                <div class="month-navigation">
+                    {% assign postsByYear = site.posts | group_by_exp:"post", "post.date | date: '%Y'" %}
+                    {% for year in postsByYear %}
+                    <div class="year-nav" style="margin-bottom: 15px;">
+                        <h5 style="color: #0085a1; margin-bottom: 10px; font-weight: bold;">
+                            <i class="fa fa-calendar"></i> {{ year.name }}
+                        </h5>
+                        {% assign postsByMonth = year.items | group_by_exp:"post", "post.date | date: '%m'" %}
+                        <ul style="list-style: none; padding-left: 10px;">
+                            {% for month in postsByMonth %}
+                            <li style="margin-bottom: 8px;">
+                                <a href="#month-{{ year.name }}-{{ month.name }}" class="month-link" style="color: #666; text-decoration: none; display: block; padding: 5px 10px; border-radius: 3px; transition: all 0.3s;">
+                                    <i class="fa fa-angle-right"></i> {{ month.name }} 月
+                                    <span style="color: #999; font-size: 12px;">({{ month.items | size }})</span>
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.archive-post:hover {
+    border-left-color: #0085a1;
+    transition: border-color 0.3s;
+}
+
+.archive-post .post-title {
+    transition: color 0.3s;
+}
+
+.archive-post:hover .post-title {
+    color: #0085a1 !important;
+}
+
+.month-link:hover {
+    background-color: #f5f5f5;
+    color: #0085a1 !important;
+    padding-left: 15px !important;
+}
+
+.month-link.active {
+    background-color: #0085a1;
+    color: #fff !important;
+}
+
+.sidebar-module {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 响应式设计 */
+@media (max-width: 991px) {
+    .sidebar-module {
+        position: relative !important;
+        top: 0 !important;
+        margin-top: 30px;
+    }
+}
+</style>
+
+<script>
+// 平滑滚动
+document.addEventListener('DOMContentLoaded', function() {
+    const monthLinks = document.querySelectorAll('.month-link');
+
+    monthLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+
+            if (targetElement) {
+                // 移除所有活动状态
+                monthLinks.forEach(l => l.classList.remove('active'));
+                // 添加当前活动状态
+                this.classList.add('active');
+
+                // 平滑滚动
+                const offsetTop = targetElement.offsetTop - 80;
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+
+    // 监听滚动，高亮当前月份
+    let isScrolling = false;
+    window.addEventListener('scroll', function() {
+        if (isScrolling) return;
+
+        const scrollPosition = window.scrollY + 150;
+        const months = document.querySelectorAll('.archive-month');
+
+        months.forEach(month => {
+            const monthTop = month.offsetTop;
+            const monthBottom = monthTop + month.offsetHeight;
+
+            if (scrollPosition >= monthTop && scrollPosition < monthBottom) {
+                const monthId = month.getAttribute('id');
+                monthLinks.forEach(link => {
+                    if (link.getAttribute('href') === '#' + monthId) {
+                        monthLinks.forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    });
+
+    // 点击后短暂禁用滚动监听
+    monthLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            isScrolling = true;
+            setTimeout(() => { isScrolling = false; }, 1000);
+        });
+    });
+});
+</script>
