@@ -24,7 +24,25 @@
                         <a href="{{ page.url | prepend: site.baseurl }}">{{ page.title }}</a>
                     </li>
                     {% endif %}{% endfor %}
+                    <li>
+                        <a href="javascript:void(0)" id="search-icon">
+                            <i class="fa fa-search"></i>
+                        </a>
+                    </li>
                 </ul>
+            </div>
+        </div>
+
+        <!-- 搜索弹窗 -->
+        <div id="search-overlay" style="display: none;">
+            <div id="search-container">
+                <div id="search-header">
+                    <input type="text" id="search-input" placeholder="搜索文章标题、标签、内容..." autocomplete="off">
+                    <button id="search-close">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+                <div id="results-container"></div>
             </div>
         </div>
         <!-- /.navbar-collapse -->
