@@ -1,3 +1,8 @@
+<!-- 返回顶部按钮 -->
+<button id="back-to-top" class="back-to-top-btn" title="返回顶部">
+    <i class="fa fa-chevron-up"></i>
+</button>
+
 <!-- Footer -->
 <footer>
     <div class="container">
@@ -1126,6 +1131,142 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 初始化
     initLikeStatus();
+});
+</script>
+
+<!-- 返回顶部按钮样式和功能 -->
+<style>
+.back-to-top-btn {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    z-index: 9998;
+}
+
+.back-to-top-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.back-to-top-btn:active {
+    transform: translateY(-2px);
+}
+
+.back-to-top-btn.show {
+    display: flex;
+    animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 滚动进度环 */
+.back-to-top-btn::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-top-color: #fff;
+    opacity: 0.3;
+    transition: transform 0.3s ease;
+}
+
+.back-to-top-btn:hover::before {
+    transform: rotate(180deg);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .back-to-top-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const backToTopBtn = document.getElementById('back-to-top');
+
+    if (!backToTopBtn) return;
+
+    // 监听滚动事件
+    let scrollTimeout;
+    window.addEventListener('scroll', function() {
+        // 防抖优化
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(function() {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.add('show');
+            } else {
+                backToTopBtn.classList.remove('show');
+            }
+
+            // 更新进度环（可选）
+            const scrollPercentage = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            backToTopBtn.style.setProperty('--scroll-percentage', scrollPercentage + '%');
+        }, 100);
+    });
+
+    // 点击返回顶部
+    backToTopBtn.addEventListener('click', function() {
+        // 平滑滚动到顶部
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+        // 添加点击动画
+        backToTopBtn.style.transform = 'scale(0.9)';
+        setTimeout(function() {
+            backToTopBtn.style.transform = '';
+        }, 150);
+    });
+
+    // 双击快速回顶
+    let lastClickTime = 0;
+    backToTopBtn.addEventListener('click', function() {
+        const currentTime = new Date().getTime();
+        const timeDiff = currentTime - lastClickTime;
+
+        if (timeDiff < 500 && timeDiff > 0) {
+            // 双击快速回顶（无动画）
+            window.scrollTo({
+                top: 0,
+                behavior: 'auto'
+            });
+        }
+
+        lastClickTime = currentTime;
+    });
 });
 </script>
 
