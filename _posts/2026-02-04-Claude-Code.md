@@ -10,6 +10,29 @@ tags:
     - AI
 ---
 
+## Claude Code 缓存目录
+
+```bash
+
+~/.claude/
+├── cache/               # 临时缓存文件，比如下载的模型、接口响应缓存
+├── debug/               # 调试信息存放目录，模型调用、报错日志等
+├── downloads/           # 通过 Claude Code 下载的文件，或用户拖入的资源
+├── file-history/        # 文件操作历史记录，比如每次修改、生成、保存的版本
+├── history.jsonl        # 会话历史记录文件（JSON Lines 格式），保存每次对话内容
+├── plans/               # Plan Mode 相关的计划文件，存储模型生成的多步任务计划
+├── plugins/             # 插件目录，存放自定义插件或官方扩展
+├── projects/            # 项目配置目录，每个 Claude Code 项目一个子目录
+├── session-env/         # 会话环境变量、上下文信息存储
+├── shell-snapshots/     # Shell 命令执行快照，用于回溯或调试命令操作
+├── stats-cache.json     # 模型统计缓存文件，记录 token 使用、响应时间等信息
+├── statsig/             # 内部实验/特性标记文件夹（A/B 测试或新功能标记）
+├── tasks/               # 待办任务或 AI 自动执行任务列表
+├── telemetry/           # 遥测数据，记录使用行为、性能数据（可能用于优化）
+├── todos/               # 用户或模型生成的待办事项列表
+
+```
+
 ## 启动
 
 **设置环境变量后再启动**
@@ -146,8 +169,29 @@ lxg@lxg:~/code/github/lixiaogang03.github.io$ claude
 
 ![claude_code_init_2](/images/ai/claude_code_init_2.png)
 
+## /Exit 退出Claude Code
 
+```bash
 
+❯ /exit                                                                                                                                                                                             
+  ⎿  See ya!                                                                                                                                                                                        
+                                                                                                                                                                                                    
+  5 tasks (4 done, 1 open) · ctrl+t to hide tasks
+  ◻ 测试 Giscus 评论功能                                                                                                                                                                            
+  ✔ 启用 GitHub Discussions      
+  ✔ 安装和配置 Giscus                                                                                                                                                                               
+  ✔ 修改 _config.yml 配置文件                                                                                                                                                                       
+  ✔ 修改 post.html 模板文件   
+                                                                                                                                                                                                    
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯  
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ? for shortcuts 
+
+Resume this session with:
+claude --resume 429a6c1c-a5d6-4ca3-a363-36f725970f57
+
+```
 
 
 
