@@ -84,6 +84,8 @@ lxg@lxg:~/code/github/lixiaogang03.github.io$ claude
 
 ![claude_prompt](/images/ai/claude_prompt.png)
 
+## /task 查看后台服务
+
 
 
 
