@@ -84,7 +84,29 @@ lxg@lxg:~/code/github/lixiaogang03.github.io$ claude
 
 ![claude_prompt](/images/ai/claude_prompt.png)
 
-## /task 查看后台服务
+## 命令
+
+**tasks查看后台任务命令**
+
+```bash
+
+  /tasks                  List and manage background tasks
+
+```
+
+**rewind 回滚命令**
+
+```bash
+
+  /rewind                 Restore the code and/or conversation to a previous
+
+```
+
+## 将图片传给Claude Code
+
+**将图片直接拖入Claude Code窗口即可**
+
+![claude_code_image](/images/ai/claude_code_image.png)
 
 
 
