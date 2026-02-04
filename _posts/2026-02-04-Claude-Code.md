@@ -86,21 +86,43 @@ lxg@lxg:~/code/github/lixiaogang03.github.io$ claude
 
 ## 命令
 
-**tasks查看后台任务命令**
+**一眼能救命的高频命令**
 
-```bash
+| 命令        | 核心作用        | 什么时候用       |
+| --------- | ----------- | ----------- |
+| `/init`   | 建立项目认知与协作规则 | 刚进新项目       |
+| `/resume` | 继续刚才被打断的任务  | 输出被截断 / 插话  |
+| `/rewind` | 回到过去的某个状态   | 方向跑偏、误操作    |
+| `/clear`  | 清空当前上下文     | 聊乱了，想“干净重来” |
 
-  /tasks                  List and manage background tasks
+**提升“可控性”的命令**
 
-```
+| 命令         | 干什么的          | 实战价值   |
+| ---------- | ------------- | ------ |
+| `/plan`    | 只生成修改方案，不动代码  | 大改前防翻车 |
+| `/explain` | 解释当前文件 / 选中代码 | 接手陌生代码 |
+| `/review`  | 审查代码、找问题      | PR 前自检 |
+| `/test`    | 生成或完善测试思路     | 防回归    |
 
-**rewind 回滚命令**
+**偏工程化 / 重构向**
 
-```bash
+| 命令          | 作用          | 适合谁      |
+| ----------- | ----------- | -------- |
+| `/refactor` | 结构性重构而不改行为  | 有经验的工程师  |
+| `/optimize` | 性能 / 资源优化   | 嵌入式 / 后端 |
+| `/lint`     | 风格 / 潜在问题检查 | 团队规范强    |
+| `/doc`      | 生成文档或注释     | 代码交付前    |
 
-  /rewind                 Restore the code and/or conversation to a previous
+**认知类 & 定位问题**
 
-```
+| 命令       | 作用          |
+| -------- | ----------- |
+| `/map`   | 梳理项目结构和依赖关系 |
+| `/trace` | 跟踪某个逻辑的调用路径 |
+| `/why`   | 解释“为什么这么写”  |
+| `/risk`  | 指出改动可能引入的风险 |
+
+
 
 ## 将图片传给Claude Code
 
@@ -108,6 +130,23 @@ lxg@lxg:~/code/github/lixiaogang03.github.io$ claude
 
 ![claude_code_image](/images/ai/claude_code_image.png)
 
+## /init 命令
+
+**为当前项目建立“初始认知和工作规则”**
+
+| 场景            | 是否推荐               |
+| ------------- | ------------------ |
+| 第一次进入一个新项目    | ✅ 强烈推荐             |
+| 刚 clone 别人的仓库 | ✅                  |
+| 项目结构复杂        | ✅                  |
+| 已经聊了很多但方向混乱   | ⚠️ 可重新开会话再 `/init` |
+| 只问一个临时小问题     | ❌ 不必要              |
+
+![claude_code_init](/images/ai/claude_code_init.png)
+
+**每次新会话先做一件事**
+
+![claude_code_init_2](/images/ai/claude_code_init_2.png)
 
 
 
