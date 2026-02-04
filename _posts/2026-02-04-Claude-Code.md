@@ -122,8 +122,6 @@ lxg@lxg:~/code/github/lixiaogang03.github.io$ claude
 | `/why`   | 解释“为什么这么写”  |
 | `/risk`  | 指出改动可能引入的风险 |
 
-
-
 ## 将图片传给Claude Code
 
 **将图片直接拖入Claude Code窗口即可**

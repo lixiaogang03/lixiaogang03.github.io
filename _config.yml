@@ -59,15 +59,20 @@ kramdown:
 # Disqus（https://disqus.com/）
 # disqus_username: qiubaiying
 
-# Gitalk
-gitalk:
-  enable: true    #是否开启Gitalk评论
-  clientID: 79e6eb16e0d7e28a3795                            #生成的clientID
-  clientSecret: a36938d30af6cb2ef74c3958b168678d8daf06e7    #生成的clientSecret
-  repo: lixiaogang03.github.io    #仓库名称
-  owner: lixiaogang03    #github用户名
-  admin: lixiaogang03
-  distractionFreeMode: true #是否启用类似FB的阴影遮罩
+# Giscus
+giscus:
+  enable: true    #是否开启Giscus评论
+  repo: lixiaogang03/lixiaogang03.github.io
+  repo-id: MDEwOlJlcG9zaXRvcnkxNDkyNTc3ODU=
+  category: Q&A
+  category-id: DIC_kwDOCOV-Oc4C13GJ
+  mapping: pathname
+  strict: 0
+  reactions-enabled: 1
+  emit-metadata: 0
+  input-position: top
+  theme: preferred_color_scheme
+  lang: zh-CN
 
 
 # 统计
