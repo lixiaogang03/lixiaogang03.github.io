@@ -79,7 +79,51 @@ AI 大模型在 VS Code 上普遍适配，是因为 VS Code 开放、轻量、�
 
 ![vs_code_ai](/images/ai/vs_code_ai.png)
 
+## VS Code 使用 codex
 
+[VS Code 使用 codex](https://docs.jiekou.ai/docs/integration/codex)
+
+## PoloAPI
+
+国内的 AI 大模型聚合与中转服务平台，主要面向开发者和企业用户提供统一、大模型 API 的调用入口
+
+[PoloAPI](https://poloai.cn/pricing)
+
+**通过 VS Code 使用 PoloAI**
+
+* 安装插件，比如 CodeGPT / LocalAI / CodeGeeX
+* 在插件设置里，把 API Base URL 改成 PoloAI 提供的接口地址
+* 例如 https://api.poloai.cn/v1
+* 填写 PoloAI 提供的 API Key
+
+![code_gpt](/images/ai/code_gpt.png)
+
+## CodeGPT 添加模型和 VS code直接添加模型区别
+
+| 场景       | 插件添加模型                                       | 直接添加模型                    |
+| -------- | -------------------------------------------- | ------------------------- |
+| 多模型对比    | ✅ 可同时添加 OpenAI + Claude + LLaMA              | ❌ 通常只支持官方提供的              |
+| 企业内网使用   | ✅ 本地部署模型，API Key 可控                          | ❌ 受官方网络限制，无法使用本地模型        |
+| 快速个人测试   | ⚠️ 需配置插件                                     | ✅ 开箱即用                    |
+| 多 IDE 支持 | ✅ 可在 VS Code / Android Studio / JetBrains 同步 | ❌ 主要局限 VS Code / 官方支持 IDE |
+
+![vs_code_add_model](/images/ai/vs_code_add_model.png)
+
+## PoloAPI 和 接口AI 区别
+
+| 特性 / 平台   | **PoloAPI**             | **接口AI (JieKou.AI)** |
+| --------- | ----------------------- | -------------------- |
+| 模型聚合      | 是，支持多家主流模型              | 是，同样支持多模型            |
+| Target 用户 | 企业优先 + 企业级服务            | 企业 + 个人开发者均支持        |
+| 企业级保障     | 强调 SLA / 7×24 支持 / 专属服务 | 有基础服务与管理             |
+| 价格策略      | 主打降本和折扣（原厂 API 折扣）      | 支持按量付费、透明计费          |
+| 国内访问优化    | 提供国内加速和稳定通道             | 同样支持国内可访问模型 API      |
+| 支持协议      | 统一标准 API                | 兼容 OpenAI API 标准     |
+| 侧重场景      | 生产级稳定性、成本控制             | 通用聚合 + 模型体验 + 本地调用支持 |
+
+## 聚合平台的透明度和可能的套利问题
+
+![jiekou_ai_com](/images/ai/jiekou_ai_com.png)
 
 
 
