@@ -31,5 +31,25 @@ Temporary Items
 
 # End of https://www.gitignore.io/api/macos
 
-# debug file
+# Jekyll build output
 _site
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+
+# Node.js dependencies
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+Thumbs.db
