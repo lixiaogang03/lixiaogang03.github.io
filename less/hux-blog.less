@@ -113,8 +113,9 @@ pre,.table-responsive{
 pre code{
 	display: block;
 	width: auto;
-	white-space: pre;	// save it but no-wrap;
-	word-wrap: normal;	// no-wrap
+	white-space: pre-wrap;	// 保持格式并自动换行
+	word-wrap: break-word;	// 允许在单词内换行
+	word-break: break-word;	// 确保长单词也能换行
 }
 
 // In the list of posts

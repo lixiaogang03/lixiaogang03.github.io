@@ -318,8 +318,9 @@ pre,
 pre code {
   display: block;
   width: auto;
-  white-space: pre;
-  word-wrap: normal;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 .postlist-container {
   margin-bottom: 15px;
