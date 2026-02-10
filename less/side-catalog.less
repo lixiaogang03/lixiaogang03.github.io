@@ -28,6 +28,23 @@
     height: 100%;
     padding-bottom: 40px;
     width: 195px;
+
+    // 美化滚动条
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+        &:hover {
+            background: #a8a8a8;
+        }
+    }
+
     .catalog-body{
         position: relative;
         list-style: none;
@@ -39,6 +56,32 @@
         li{
             position: relative;
             list-style: none;
+            margin-bottom: 2px;
+            transition: all 0.2s ease;
+
+            // 左侧层级指示线
+            &::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 3px;
+                height: 0;
+                background: #0085a1;
+                border-radius: 2px;
+                transition: height 0.2s ease;
+            }
+
+            &:hover {
+                &::before {
+                    height: 60%;
+                }
+                a {
+                    color: #0085a1;
+                }
+            }
+
             a{
                 padding-left: 10px;
                 max-width: 180px;
@@ -50,50 +93,120 @@
                 text-decoration: none;
                 white-space: nowrap;
                 text-overflow: ellipsis;
+                transition: all 0.2s ease;
+                border-radius: 3px;
             }
         }
+
+        // H1级别 - 主标题
         .h1_nav{
             margin-left: 0;
+            margin-top: 8px;
+            margin-bottom: 4px;
             font-size: 14px;
             font-weight: bold;
+
+            &::before {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+
+            a {
+                color: #333;
+                font-weight: 600;
+            }
         }
+
+        // H2级别 - 二级标题
         .h2_nav{
             margin-left: 10px;
             font-size: 13px;
             font-weight: bold;
+
+            &::before {
+                background: linear-gradient(135deg, #0085a1 0%, #00a8cc 100%);
+            }
+
+            a {
+                color: #444;
+                font-weight: 600;
+            }
         }
+
+        // H3级别 - 三级标题
         .h3_nav{
             margin-left: 20px;
             font-size: 13px;
             font-weight: normal;
+
+            &::before {
+                background: #52c41a;
+            }
+
+            a {
+                color: #666;
+            }
         }
+
+        // H4级别
         .h4_nav{
             margin-left: 30px;
             font-size: 12px;
-            a{
+
+            &::before {
+                background: #faad14;
+            }
+
+            a {
+                color: #777;
                 max-width: 150px;
             }
         }
+
+        // H5级别
         .h5_nav{
             margin-left: 40px;
             font-size: 12px;
-            a{
+
+            &::before {
+                background: #ff7875;
+            }
+
+            a {
+                color: #888;
                 max-width: 140px;
             }
         }
+
+        // H6级别
         .h6_nav{
             margin-left: 50px;
             font-size: 11px;
-            a{
+
+            &::before {
+                background: #d3adf7;
+            }
+
+            a {
+                color: #999;
                 max-width: 130px;
             }
         }
+
+        // 激活状态
         .active{
+            &::before {
+                height: 80% !important;
+                width: 4px;
+            }
+
             a{
                 color: #0085a1!important;
+                font-weight: 600;
+                background-color: rgba(0, 133, 161, 0.08);
             }
+
             border-radius: 4px;
-            background-color: #F5F5F5;
+            background-color: rgba(0, 133, 161, 0.05);
         }
     }
 }
