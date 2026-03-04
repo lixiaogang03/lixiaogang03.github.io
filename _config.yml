@@ -34,6 +34,7 @@ permalink: pretty
 paginate: 10
 exclude: ["less","node_modules","Gruntfile.js","package.json","README.md","CLAUDE.md"]
 anchorjs: true                          # if you want to customize anchor. check out line:181 of `post.html`
+mathjax: true                           # enable MathJax rendering for all posts/pages by default
 
 
 
