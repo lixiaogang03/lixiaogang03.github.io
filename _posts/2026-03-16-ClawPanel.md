@@ -1,7 +1,7 @@
 ---
 layout:     post
-title:      OpenClaw
-subtitle:   ClawPanel
+title:      ClawPanel
+subtitle:   OpenClaw 可视化面板
 date:       2026-03-16
 author:     LXG
 header-img: img/post-bg-hacker.jpg
