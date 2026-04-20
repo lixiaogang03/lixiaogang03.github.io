@@ -71,6 +71,38 @@ git clone https://huggingface.co/JianyuanWang/skyseg
 * SLAM / 重建容易产生“漂浮点”
 * 会污染点云质量
 
+## 测试目录
+
+```bash
+
+(lingbot-map) xt@xt-2288H-V5:~/lixiaogang/lingbot-map$ tree  -L 2
+.
+├── lingbot-map
+│   ├── assets
+│   ├── demo.py
+│   ├── example
+│   ├── gct_profile.py
+│   ├── LICENSE.txt
+│   ├── lingbot_map
+│   ├── lingbot_map.egg-info
+│   ├── lingbot-map_paper.pdf
+│   ├── pyproject.toml
+│   └── README.md
+├── models
+│   ├── assets
+│   ├── configuration.json
+│   ├── lingbot-map
+│   ├── lingbot-map-long.pt
+│   ├── lingbot-map.pt
+│   ├── lingbot-map-stage1.pt
+│   ├── README.md
+│   └── strip_checkpoint.py
+└── skyseg
+    ├── README.md
+    └── skyseg.onnx
+
+```
+
 ## 模型测试命令
 
 ```bash
@@ -131,15 +163,164 @@ Sky segmentation applied successfully
 
 ![lingbot_map_demo](/images/2026/0420/lingbot_map_demo.png)
 
+## 模型输出
+
+* 输入：RGB 图像序列
+* 输出：相机轨迹 + 稠密3D点云 + 深度信息
+
+### 相机位姿（Camera Pose）
+
+```py
+
+predictions["extrinsic"]
+predictions["intrinsic"]
+
+```
+
+| 项目        | 说明             |
+| --------- | -------------- |
+| extrinsic | 相机在世界坐标的位置（位姿） |
+| intrinsic | 相机内参           |
+
+👉 本质就是：每一帧摄像头在哪、朝哪看
+
+### 3D点云（核心输出）
+
+```py
+
+predictions["world_points"]
+predictions["world_points_conf"]
+
+```
+
+| 项目                | 说明          |
+| ----------------- | ----------- |
+| world_points      | 每个像素对应的3D坐标 |
+| world_points_conf | 置信度         |
+
+👉 本质：2D图像 → 3D世界坐标
+
+### 深度图（Depth）
+
+```py
+
+predictions["depth"]
+predictions["depth_conf"]
+
+```
+
+| 项目         | 说明      |
+| ---------- | ------- |
+| depth      | 每个像素的深度 |
+| depth_conf | 深度置信度   |
+
+👉 类似：单目 → 深度估计
+
+## 改成Video视频推理
+
+**fps 30视频推理**
+
+平均单帧耗时: 641.97 ms
+
+```bash
+
+(lingbot-map) xt@xt-2288H-V5:~/lixiaogang/lingbot-map/lingbot-map$ CUDA_VISIBLE_DEVICES=1 python demo.py --model_path ../models/lingbot-map.pt --video_path video.mp4 --fps 30 --use_sdpa
+
+========== LingBot-MAP Demo ==========
+[配置] 输入模式: 视频
+[配置] 推理模式: streaming
+[配置] 模型路径: ../models/lingbot-map.pt
+[配置] 视频路径: video.mp4 (采样FPS=30)
+======================================
+
+[阶段] 开始加载数据与模型...
+Extracting frames: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 708/708 [00:03<00:00, 219.41frame/s]
+从视频抽取完成: 708 帧 (总帧数=708, 抽帧间隔=1)
+正在加载 708 张图像...
+原始图像分辨率(首帧): 720x1280
+Loading images: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 708/708 [00:02<00:00, 311.66it/s]
+图像预处理完成: 尺寸=518x518, 模式=canonical crop
+正在构建模型...
+正在加载权重文件: ../models/lingbot-map.pt
+  缺失参数键数量: 62
+  权重加载完成。
+[耗时] 数据与模型加载完成: 22.2s
+正在将 aggregator 转为 torch.bfloat16 (heads 保持 fp32)
+[输入] 帧数: 708, 张量形状: (708, 3, 518, 518)
+[输入] 当前模式: streaming
+加载后 GPU 显存: alloc=5.22 GB, reserved=5.27 GB
+[阶段] 开始模型推理 (mode=streaming, dtype=torch.bfloat16)...
+Streaming inference: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 708/708 [07:30<00:00,  1.56it/s]
+[耗时] 模型推理完成: 454.52s
+[统计] 平均单帧耗时: 641.97 ms
+[统计] 推理吞吐: 1.56 FPS
+推理阶段 GPU 峰值显存: 22.11 GB (reserved 峰值 22.63 GB)
+[阶段] 开始后处理...
+正在将结果移动到 CPU...
+[耗时] 后处理完成: 0.06s
+
+```
+
+**fps 10视频推理**
+
+```bash
+
+(lingbot-map) xt@xt-2288H-V5:~/lixiaogang/lingbot-map/lingbot-map$ CUDA_VISIBLE_DEVICES=1 python demo.py --model_path ../models/lingbot-map.pt --video_path video.mp4 --fps 10 --use_sdpa
+
+========== LingBot-MAP Demo ==========
+[配置] 输入模式: 视频
+[配置] 推理模式: streaming
+[配置] 模型路径: ../models/lingbot-map.pt
+[配置] 视频路径: video.mp4 (采样FPS=10)
+======================================
+
+[阶段] 开始加载数据与模型...
+Extracting frames: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 708/708 [00:01<00:00, 406.82frame/s]
+从视频抽取完成: 236 帧 (总帧数=708, 抽帧间隔=3)
+正在加载 236 张图像...
+原始图像分辨率(首帧): 720x1280
+Loading images: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 236/236 [00:00<00:00, 296.29it/s]
+图像预处理完成: 尺寸=518x518, 模式=canonical crop
+正在构建模型...
+正在加载权重文件: ../models/lingbot-map.pt
+  缺失参数键数量: 62
+  权重加载完成。
+[耗时] 数据与模型加载完成: 18.8s
+正在将 aggregator 转为 torch.bfloat16 (heads 保持 fp32)
+[输入] 帧数: 236, 张量形状: (236, 3, 518, 518)
+[输入] 当前模式: streaming
+加载后 GPU 显存: alloc=3.70 GB, reserved=3.74 GB
+[阶段] 开始模型推理 (mode=streaming, dtype=torch.bfloat16)...
+Streaming inference: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 236/236 [02:14<00:00,  1.70it/s]
+[耗时] 模型推理完成: 136.94s
+[统计] 平均单帧耗时: 580.25 ms
+[统计] 推理吞吐: 1.72 FPS
+推理阶段 GPU 峰值显存: 20.02 GB (reserved 峰值 21.58 GB)
+[阶段] 开始后处理...
+正在将结果移动到 CPU...
+[耗时] 后处理完成: 0.02s
+
+```
+
+## 对比
+
+| 设置     | 帧数  | 单帧耗时       | FPS  | 显存峰值    |
+| ------ | --- | ---------- | ---- | ------- |
+| 30 FPS | 708 | **642 ms** | 1.56 | 22.1 GB |
+| 10 FPS | 236 | **580 ms** | 1.72 | 20.0 GB |
 
 
+```md
 
+帧数减少 3倍
+但单帧耗时几乎没变（642ms → 580ms）
 
+👉 这说明：
 
+性能瓶颈 ≠ 帧数
+而是“每一帧的计算本身”
 
-
-
-
+```
 
 
 
