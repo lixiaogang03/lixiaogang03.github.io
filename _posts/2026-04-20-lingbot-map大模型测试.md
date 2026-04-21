@@ -4,7 +4,7 @@ title:      lingbot-map大模型测试
 subtitle:   蚂蚁灵波科技
 date:       2026-04-20
 author:     LXG
-header-img: img/post-bg-DJI.jpg
+header-img: img/post-bg-tesla.jpg
 catalog: true
 tags:
     - AI
