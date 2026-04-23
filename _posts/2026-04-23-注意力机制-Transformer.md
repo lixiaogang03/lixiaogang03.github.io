@@ -786,6 +786,260 @@ attention(X, Y, Y, valid_lens).shape
 | 可扩展性        | 增head需加模块                        | 改 num_heads 即可            | 灵活           |
 | GPU利用率      | 低（循环）                            | 高（并行）                     | 核心优势         |
 
+## 自注意力和位置编码
+
+### 自注意力
+
+自注意力（Self-Attention）= 句子里的每个词，都会去“看”同一句子里的其他词，决定该关注谁
+
+```py
+
+import math
+import torch
+from torch import nn
+from d2l import torch as d2l
+
+num_hiddens, num_heads = 100, 5
+attention = d2l.MultiHeadAttention(num_hiddens, num_hiddens, num_hiddens,
+                                   num_hiddens, num_heads, 0.5)
+attention.eval()
+
+batch_size, num_queries, valid_lens = 2, 4, torch.tensor([3, 2])
+X = torch.ones((batch_size, num_queries, num_hiddens))
+attention(X, X, X, valid_lens).shape
+
+```
+
+这段代码其实就是一个标准“多头自注意力（Multi-Head Self-Attention）”的最小示例。
+
+**为什么这是“自注意力”？**
+
+```md
+
+关键在这里👇
+
+attention(X, X, X, valid_lens)
+
+❗Q、K、V 全是 X
+Q = X  
+K = X  
+V = X
+
+👉 含义：
+
+每个词都在“看自己这句话里的所有词”
+
+```
+
+**这段代码在干嘛**
+
+```md
+
+🧾 输入
+X = torch.ones((2, 4, 100))
+
+👉 表示：
+
+batch = 2（两句话）
+每句 4 个词
+每个词 100维
+🧠 自注意力在做什么？
+
+对每一句话里的每个词：
+
+“我应该关注句子里的谁？”
+
+👉 举个直觉例子：
+
+第1个词：
+
+看第1个词 ✔  
+看第2个词 ✔  
+看第3个词 ✔  
+看第4个词 ✔  
+
+👉 然后加权融合
+
+```
+
+**shape流动**
+
+```md
+
+Step1️⃣ 输入
+(2, 4, 100)
+
+Step2️⃣ 多头拆分（内部发生）
+num_heads = 5
+
+👉 变成：
+
+(2 × 5, 4, 20) = (10, 4, 20)
+
+👉 含义：
+
+5个头 → 变成10个“伪batch”
+Step3️⃣ 每个 head 做 attention
+(10, 4, 20) → (10, 4, 20)
+Step4️⃣ 拼回来
+(2, 4, 100)
+
+```
+
+**自注意力 (Self-Attention)**
+
+* 代码特征：attention(X, X, X)
+* 信息源：自己看自己。
+* 目的：为了让词与词之间发生关系。比如处理“苹果”时，看看句子后面有没有出现“好吃”或“手机”。
+* 场景：Transformer 的编码器（Encoder）内部，或者解码器（Decoder）的开头。
+
+**自注意力学到的参数是什么含义**
+
+| 参数          | 学到的“现实意义” |
+| ----------- | --------- |
+| W_q         | 我想找什么信息   |
+| W_k         | 我提供什么信息   |
+| W_v         | 信息内容本身    |
+| attention权重 | 谁应该关注谁    |
+| W_o         | 如何整合多种理解  |
+
+### 比较卷积神经网络、循环神经网络和自注意力
+
+**用一句话理解三者差异**
+
+🟩 CNN : “我只看你附近发生了什么”
+
+🟦 RNN : “我按时间顺序，一步一步记住过去”
+
+🟨 自注意力 : “我直接看全局，决定谁重要”
+
+![cnn-rnn-self-attention](/images/2026/0423/cnn-rnn-self-attention.svg)
+
+### 案例
+
+示例句子： The animal didn't cross the street because it was tired
+
+**CNN（局部窗口滑动）**
+
+```md
+
+[The animal] → 提取局部特征
+     ↓
+   [animal didn't]
+        ↓
+     [didn't cross]
+           ↓
+        [cross the]
+              ↓
+           [the street]
+                ↓
+         [street because]
+                ↓
+           [because it]
+                ↓
+            [it was]
+                ↓
+           [was tired]
+
+```
+
+🧠 信息流特点
+局部 → 局部 → 局部 → ... → 全局（需要多层）
+
+👉 ❗信息是“慢慢扩散”的
+👉 ❗远距离关系很难直接捕捉
+
+**RNN（按时间顺序流动）**
+
+```md
+
+The → animal → didn't → cross → the → street → because → it → was → tired
+  ↓      ↓        ↓        ↓       ↓       ↓         ↓       ↓     ↓
+ h1 →   h2 →     h3 →     h4 →    h5 →    h6 →      h7 →    h8 →  h9
+
+```
+
+🧠 信息流特点
+前一个状态 → 传给后一个
+
+👉 ❗信息是“链式传递”
+👉 ❗距离越远，信息越弱（梯度消失）
+
+**自注意力（全连接关系）**
+
+```md
+
+            ┌───────────────┐
+The  ──────▶│               │◀────── animal
+            │               │
+animal ────▶│               │◀────── didn't
+            │   Attention   │
+didn't ────▶│   Matrix      │◀────── cross
+            │               │
+cross ─────▶│               │◀────── street
+            │               │
+street ────▶│               │◀────── because
+            │               │
+because ───▶│               │◀────── it
+            │               │
+it ────────▶│               │◀────── was
+            │               │
+was ───────▶│               │◀────── tired
+            └───────────────┘
+
+
+或者更直观一点👇
+
+每个词 ↔ 所有词（全连接）
+
+it → The
+it → animal   ✅（重点）
+it → didn't
+it → cross
+it → street
+it → because
+it → was
+it → tired
+
+```
+
+🧠 信息流特点
+任意词 ↔ 任意词（一步完成）
+
+👉 ✅ 全局感知
+👉 ✅ 无距离限制
+👉 ✅ 并行计算
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
