@@ -1476,7 +1476,31 @@ tensor([[[     0.0000,      1.0000,      0.0000,  ...,      1.0000,  0.0000,    
 
 ![position_encode](/images/2026/0423/position_encode.png)
 
-### 动画理解上述案例
+**👉 类比（非常关键）**
+
+就像：音频合成
+
+* 一个音 = 多个频率叠加
+* 不同组合 → 不同音
+
+**Step 6：forward 时发生了什么？**
+
+```md
+
+X = X + pos_encoding
+
+👉 关键点：
+
+embedding（语义）
+position（位置）
+
+👉 合在一起：
+
+👉 “这个词 + 它在哪”
+
+```
+
+### 多个钟表动画理解位置编码
 
 **动画源码**
 
@@ -1626,7 +1650,144 @@ plt.show()
 
 ![location_encode_animation](/gif/2026/0423/location_encode_animation.gif)
 
+### 音频合成角度理解位置编码
 
+**源码**
+
+```py
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation, PillowWriter
+import matplotlib.font_manager as fm
+import os
+
+
+def configure_matplotlib_chinese_font():
+    """自动选择可用中文字体，避免中文显示异常。"""
+    candidates = [
+        "Noto Sans CJK SC",
+        "Noto Sans CJK",
+        "WenQuanYi Micro Hei",
+        "WenQuanYi Zen Hei",
+        "SimHei",
+        "Microsoft YaHei",
+        "PingFang SC",
+        "Source Han Sans CN",
+        "Arial Unicode MS",
+    ]
+    installed = {f.name for f in fm.fontManager.ttflist}
+    for name in candidates:
+        if name in installed:
+            plt.rcParams["font.family"] = "sans-serif"
+            plt.rcParams["font.sans-serif"] = [name, "DejaVu Sans"]
+            break
+    plt.rcParams["axes.unicode_minus"] = False
+
+
+configure_matplotlib_chinese_font()
+
+# ===============================
+# 1. 模拟参数
+# ===============================
+num_positions = 100   # 序列长度（相当于时间轴）
+dim = 32              # 向量维度（位置矩阵每行32维）
+x_axis = np.linspace(0, 10, dim)
+
+# 模拟一个“词向量”：比如它是一个平滑的低频波
+def get_word_vector():
+    # 模拟“猫”这个词的语义信号（相对稳定）
+    return 0.5 * np.sin(x_axis * 0.8) + 0.2 * np.cos(x_axis * 0.3)
+
+# 模拟位置编码：随位置变化的三角函数
+def get_pe_signal(pos, dim):
+    pe_vec = np.zeros(dim)
+    # 选取几个不同频率的“音叉”来模拟叠加
+    frequencies = [1.0, 3.0, 8.0] # 模拟快慢不同的维度
+    for f in frequencies:
+        # 频率随维度变化，相位随位置(pos)变化
+        pe_vec += 0.3 * np.sin(x_axis * f + pos * (f / 5.0))
+    return pe_vec
+
+word_vec = get_word_vector()
+
+# ===============================
+# 2. 画布初始化
+# ===============================
+fig, (ax1, ax2, ax3, ax4) = plt.subplots(
+    4, 1, figsize=(10, 14), gridspec_kw={"height_ratios": [1, 1, 1, 0.9]}
+)
+# 增加子图间距与底部留白，避免标题、曲线、底部文字互相重叠。
+plt.subplots_adjust(hspace=0.45, bottom=0.10, top=0.95)
+
+# 词向量图
+line1, = ax1.plot(x_axis, word_vec, lw=2, color='blue')
+ax1.set_title("1. 原始语义信号 (Word Embedding: 'CAT')", fontsize=12)
+ax1.set_ylim(-1.5, 1.5)
+ax1.grid(True, alpha=0.3)
+
+# 位置编码图
+line2, = ax2.plot(x_axis, np.zeros(dim), lw=2, color='orange')
+ax2.set_title("2. 位置纹理信号 (Positional Encoding Signal)", fontsize=12)
+ax2.set_ylim(-1.5, 1.5)
+ax2.grid(True, alpha=0.3)
+
+# 叠加结果图
+line3, = ax3.plot(x_axis, np.zeros(dim), lw=3, color='purple')
+ax3.set_title("3. 最终合成信号 (Embedding + PE)", fontsize=12)
+ax3.set_ylim(-1.5, 1.5)
+ax3.grid(True, alpha=0.3)
+
+# 位置矩阵行向量图（参考 demo_07）
+# 含义：在当前位置frame，取位置矩阵P的第frame行（即当前PE向量）并显示各维度数值。
+ax4.set_title("4. 当前位置 PE 向量（位置矩阵的一行）", fontsize=12)
+ax4.set_xlim(-0.5, dim - 0.5)
+ax4.set_ylim(-1.5, 1.5)
+ax4.set_ylabel("PE值")
+ax4.set_xticks(np.arange(dim))
+ax4.set_xticklabels([f"D{i}" for i in range(dim)], rotation=45, fontsize=8)
+ax4.grid(axis='y', linestyle='--', alpha=0.3)
+bars = ax4.bar(np.arange(dim), np.zeros(dim), color='purple', alpha=0.7)
+
+# 文字提示（使用整张图坐标，而不是某个子图坐标）
+pos_text = fig.text(0.5, 0.03, '', ha='center', fontsize=16, fontweight='bold', color='darkred')
+
+# ===============================
+# 3. 动画更新
+# ===============================
+def update(frame):
+    # 获取当前位置的PE信号
+    current_pe = get_pe_signal(frame, dim)
+    
+    # 更新PE图
+    line2.set_ydata(current_pe)
+    
+    # 更新叠加图（相加操作）
+    combined = word_vec + current_pe
+    line3.set_ydata(combined)
+
+    # 更新“当前位置PE向量”柱状图
+    for i, bar in enumerate(bars):
+        val = current_pe[i]
+        bar.set_height(val)
+        bar.set_color('green' if val > 0 else 'red')
+    
+    pos_text.set_text(f"当前句子位置 (Position Index): {frame}")
+
+    return [line2, line3, pos_text, *bars]
+
+ani = FuncAnimation(fig, update, frames=num_positions, interval=100, blit=True)
+
+# 保存为GIF（保存在当前脚本同目录）
+gif_path = os.path.join(os.path.dirname(__file__), "demo_08_animation.gif")
+ani.save(gif_path, writer=PillowWriter(fps=10))
+print(f"GIF已保存: {gif_path}")
+
+plt.show()
+
+```
+
+![location_encode_aduio](/gif/2026/0423/location_encode_aduio.gif)
 
 
 
