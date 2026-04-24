@@ -1044,24 +1044,587 @@ it → tired
 
 大模型在设计阶段就“固定了最大上下文长度（context window）”，训练和推理都必须遵守这个上限。
 
+### 位置编码
+
+**核心问题：Self-Attention 根本不懂顺序**
+
+```md
+
+Self-Attention 本身是“无序”的（permutation invariant）
+
+也就是说：
+
+输入：我 爱 你
+输入：你 爱 我
+
+在 self-attention 眼里，这两句话本质一样（只是一个集合）
+
+因为它做的是：
+
+所有 token 两两计算关系（Q·K）
+完全不关心谁在前谁在后
+
+👉 这就出大问题：语言是有顺序的！
+
+```
+
+### 经典位置编码（正弦/余弦）
+
+**核心直观：把位置映射到圆周上**
+
+想象一个半径为 1 的圆。在三角函数中，一对 $(sin(\theta), cos(\theta))$ 实际上代表了圆周上的一个点（或者说是一个角度）。
+
+* 第 0 个位置：对应角度 $0^\circ$。
+* 第 1 个位置：我们将角度旋转一个固定的步长（比如 $30^\circ$）。
+* 第 2 个位置：再旋转 $30^\circ$。
+
+为什么这比单纯用数字 $1, 2, 3$ 好？因为圆周运动是有界的。无论你的句子多长，坐标永远在 $[-1, 1]$ 之间波动，不会像直线增长的数字那样让神经元的数值溢出或失去平衡。
+
+**相对位置的几何本质：旋转**
+
+这是最精妙的地方。在几何上，从位置 $i$ 移动到位置 $i+\delta$，本质上就是旋转了一个固定的角度。
+
+对于模型来说，判断两个词的距离，不再是做减法（$100 - 98 = 2$），而是看这两个词在圆周上的夹角。
+
+由于旋转操作在数学上可以通过“线性变换”（旋转矩阵）来实现，Transformer 的注意力机制只需要通过简单的矩阵运算，就能感知到：“哦，这两个词之间的相对夹角很小，说明它们离得很近。”
+
+**多维度的“齿轮组”**
+
+如果只用一个圆，当句子很长时，圆周上的点会挤在一起分不清。所以 Transformer 用了一组圆（就像机械表里的齿轮组）：
+
+* 快齿轮（低维度）：角度随位置变化极快。第一个词在 $0^\circ$，第二个词可能就转到了 $180^\circ$。它负责捕捉相邻词的微小差异。
+* 慢齿轮（高维度）：角度随位置变化极慢。可能句子过了一百个词，它才转了 $1^\circ$。
+
+它负责捕捉长距离的宏观位置信息。当你把这些快慢不一的“齿轮状态”组合在一起时，就为句子中的每一个位置生成了一个唯一的、具有几何规律的坐标。
+
+**为什么是“加”在词向量上？**
+
+从几何上理解，词向量（Embedding）是高维空间里的一个方向（代表词义）。
+位置编码则是给这个方向微调了一个旋转偏置。
+
+相加之后，向量在空间里的指向变了。模型在后续处理时，既能识别出它的“主方向”（词义：苹果），又能识别出它被微调的“偏移量”（位置：句首）。
+
+### 有无位置编码对比
+
+**❌ 没有位置编码**
+
+```md
+
+        我   爱   你   吗
+我      0.25 0.25 0.25 0.25
+爱      0.25 0.25 0.25 0.25
+你      0.25 0.25 0.25 0.25
+吗      0.25 0.25 0.25 0.25
 
 
+👉 解释
+每个词对所有词一视同仁
+完全不知道：
+谁在前 ❌
+谁在后 ❌
+谁更近 ❌
+
+👉 本质：
+
+Self-Attention 退化成“全连接平均池化”
+
+```
+
+**✅ 加了 sin/cos 位置编码**
+
+```md
+
+        我   爱   你   吗
+我      0.4  0.3  0.2  0.1
+爱      0.3  0.4  0.2  0.1
+你      0.1  0.2  0.4  0.3
+吗      0.05 0.1  0.3  0.55
+
+👉 解释
+
+你能看到明显规律：
+
+对角线强（自己最重要）
+邻近词权重大
+远距离权重低
+
+```
+
+### 位置编码源码
+
+```py
+
+import math
+import torch
+from torch import nn
+from d2l import torch as d2l
 
 
+def log_tensor_info(name, tensor, max_items=8):
+    """打印张量的形状、dtype和前几个元素，便于跟踪中间结果。"""
+    flat = tensor.reshape(-1)
+    preview = flat[:max_items].detach().cpu().tolist()
+    print(f"[LOG] {name}: shape={tuple(tensor.shape)}, dtype={tensor.dtype}")
+    print(f"[LOG] {name} 前{len(preview)}个元素: {preview}")
 
 
+#@save
+class PositionalEncoding(nn.Module):
+    """位置编码"""
+    def __init__(self, num_hiddens, dropout, max_len=1000):
+        super(PositionalEncoding, self).__init__()
+        # dropout作用：训练时对“token表示 + 位置编码”的结果做随机失活，
+        # 防止过拟合；推理模式下（eval）会自动关闭。
+        self.dropout = nn.Dropout(dropout)
+
+        # 创建一个足够长的位置编码表 P，形状为 (1, max_len, num_hiddens)。
+        # 第0维保留batch维，方便后续与输入X做广播相加。
+        self.P = torch.zeros((1, max_len, num_hiddens))
+
+        # X中每个元素对应公式里的 pos / (10000^(2i/num_hiddens))。
+        # 其中：
+        # - 行索引是位置pos（0 ~ max_len-1）
+        # - 列索引是偶数维对应的频率索引i
+        # 得到X形状：(max_len, num_hiddens/2)
+        X = torch.arange(max_len, dtype=torch.float32).reshape(
+            -1, 1) / torch.pow(10000, torch.arange(
+            0, num_hiddens, 2, dtype=torch.float32) / num_hiddens)
+
+        # 偶数维用sin，奇数维用cos。
+        # 这样每个位置都对应一组周期不同的三角函数值，模型可据此感知相对/绝对位置信息。
+        self.P[:, :, 0::2] = torch.sin(X)
+        self.P[:, :, 1::2] = torch.cos(X)
+
+        # 初始化日志：帮助你确认位置编码表已正确构建。
+        print("[LOG] PositionalEncoding 初始化完成")
+        print(f"[LOG] num_hiddens={num_hiddens}, dropout={dropout}, max_len={max_len}")
+        log_tensor_info("self.P", self.P, max_items=10)
+
+    def forward(self, X):
+        # X形状通常为 (batch_size, num_steps, num_hiddens)。
+        print("\n[LOG] ===== 进入 PositionalEncoding.forward =====")
+        log_tensor_info("输入X", X)
+
+        # 截取与当前序列长度匹配的位置编码：(1, num_steps, num_hiddens)
+        pos_slice = self.P[:, :X.shape[1], :].to(X.device)
+        log_tensor_info("截取的位置编码pos_slice", pos_slice)
+
+        # 把位置编码加到输入上（按batch维广播）。
+        X = X + self.P[:, :X.shape[1], :].to(X.device)
+        log_tensor_info("相加后的X", X)
+
+        # 经过dropout后返回。eval()模式下这里不会随机置零。
+        out = self.dropout(X)
+        log_tensor_info("dropout后的输出", out)
+        print("[LOG] ===== 退出 PositionalEncoding.forward =====\n")
+        return out
+    
+# 示例参数
+encoding_dim, num_steps = 32, 60
+
+# 构造位置编码模块并切到推理模式（便于稳定观察数值）
+pos_encoding = PositionalEncoding(encoding_dim, 0)
+pos_encoding.eval()
+
+# 用全零输入，只保留“纯位置编码”效果，便于可视化观察
+X = pos_encoding(torch.zeros((1, num_steps, encoding_dim)))
+P = pos_encoding.P[:, :X.shape[1], :]
+
+# 打印关键张量信息，帮助理解形状流转
+log_tensor_info("示例输出X", X)
+log_tensor_info("用于绘图的P", P)
+
+# 画部分维度（第6~9维）随位置变化的曲线
+d2l.plot(torch.arange(num_steps), P[0, :, 6:10].T, xlabel='Row (position)',
+         figsize=(6, 2.5), legend=["Col %d" % d for d in torch.arange(6, 10)])
+
+d2l.plt.show()
+
+# 打印前8个位置编号的二进制表示：
+# 常用于类比“不同频率基函数组合后可编码位置信息”这一直觉。
+for i in range(8):
+    print(f'{i}的二进制是：{i:>03b}')
+
+# d2l.show_heatmaps 需要四维输入：(batch, heads, query_len, key_len)
+# 这里把二维位置编码扩成(1, 1, num_steps, encoding_dim)做热力图展示。
+P = P[0, :, :].unsqueeze(0).unsqueeze(0)
+log_tensor_info("heatmap输入P", P)
+d2l.show_heatmaps(P, xlabel='Column (encoding dimension)',
+                  ylabel='Row (position)', figsize=(3.5, 4), cmap='Blues')
+d2l.plt.show()
+
+```
+
+**Step 0：你最终想得到什么？**
+
+```md
+
+目标其实很简单：
+
+👉 给每个位置（pos），生成一个 32维向量
+
+比如：
+
+position	向量
+0	[0.0, 1.0, 0.0, 1.0, ...]
+1	[0.84, 0.54, 0.01, 0.99, ...]
+2	[...]
+
+```
+
+**Step 1：初始化位置编码表**
+
+```md
+
+self.P = torch.zeros((1, max_len, num_hiddens))
+
+假设：
+
+max_len = 1000
+num_hiddens = 32
+
+👉 那就是：
+
+P.shape = (1, 1000, 32)
+
+理解成：
+
+batch维（占位）
+   ↓
+[ 
+  [pos0的32维向量],
+  [pos1的32维向量],
+  ...
+]
+
+```
+
+**Step 2：生成“位置矩阵”**
+
+```md
+
+torch.arange(max_len).reshape(-1, 1)
+
+得到：
+
+[[0],
+ [1],
+ [2],
+ ...
+ [999]]
+
+👉 shape：
+
+(1000, 1)
+
+👉 含义：
+
+每一行 = 一个位置 pos
+
+```
+
+**Step 3：生成“频率”**
+
+```md
+
+torch.arange(0, num_hiddens, 2)
+
+👉 得到：
+
+[0, 2, 4, 6, ..., 30]
+
+👉 一共 16 个（因为步长是2）
+
+然后：
+
+torch.pow(10000, index / num_hiddens)
+
+👉 举个例子：
+
+index	计算结果
+0	10000^(0/32)=1
+2	10000^(2/32)
+30	很大
+
+👉 关键结论：
+
+维度	分母大小	变化速度
+前面维度	小	变化快（高频）
+后面维度	大	变化慢（低频）
+
+```
+
+**Step 4：组合成 X**
+
+```md
+
+X = pos / frequency
+
+👉 shape：
+
+(1000, 16)
+
+👉 每个元素：
+
+X[pos, i] = pos / (10000^(2i/d))
 
 
+👉 shape / frequency
+
+(1000, 1)  / (1, 16)  = （1000, 16）
+
+X 形状: torch.Size([1000, 16])
+tensor([[    0.0000,     0.0000,     0.0000,  ...,     0.0000,     0.0000,  0.0000],
+        [    1.0000,     0.5623,     0.3162,  ...,     0.0006,     0.0003,  0.0002],
+        [    2.0000,     1.1247,     0.6325,  ...,     0.0011,     0.0006,  0.0004],
+        ...,
+        [  997.0000,   560.6543,   315.2791,  ...,     0.5607,     0.3153,  0.1773],
+        [  998.0000,   561.2166,   315.5953,  ...,     0.5612,     0.3156,  0.1775],
+        [  999.0000,   561.7790,   315.9115,  ...,     0.5618,     0.3159,  0.1777]])
+
+```
+
+看行（位置 pos）：随着行数增加（从 0 到 999），数字在变大。这意味着位置越往后的词，旋转的角度越大。
+
+看列（维度 dim）：
+
+* 左边的列（低维）：数字增加得非常快。比如第二行（pos=1）第一列是 1.0000，而最后一行（pos=999）第一列变成了 999.0000。这说明“秒针”转得飞快。
+* 右边的列（高维）：数字增加得非常慢。比如最后一行最后两列才 0.1777。这说明“时针”几乎没怎么动。
+
+**Step 5：应用 sin / cos**
+
+```md
+
+self.P[:, :, 0::2] = sin(X)
+self.P[:, :, 1::2] = cos(X)
+
+👉 拆开看：
+
+维度	内容
+0	sin
+1	cos
+2	sin
+3	cos
+
+👉 举个具体例子（pos=0）：
+
+sin(0) = 0
+cos(0) = 1
+
+👉 所以：
+
+pos=0 → [0,1,0,1,0,1,...]
+
+👉 pos=1：
+
+sin(1/1) ≈ 0.84
+cos(1/1) ≈ 0.54
+sin(1/100) ≈ 很小
 
 
+初始Position位置编码: torch.Size([1, 1000, 32])
+tensor([[[0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         ...,
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.],
+         [0., 0., 0.,  ..., 0., 0., 0.]]])
+
+Position位置编码后: torch.Size([1, 1000, 32])
+tensor([[[     0.0000,      1.0000,      0.0000,  ...,      1.0000,  0.0000,      1.0000],
+         [     0.8415,      0.5403,      0.5332,  ...,      1.0000,  0.0002,      1.0000],
+         [     0.9093,     -0.4161,      0.9021,  ...,      1.0000,  0.0004,      1.0000],
+         ...,
+         [    -0.8980,     -0.4401,      0.9928,  ...,      0.9507,  0.1764,      0.9843],
+         [    -0.8555,      0.5178,      0.9038,  ...,      0.9506,  0.1765,      0.9843],
+         [    -0.0265,      0.9996,      0.5363,  ...,      0.9505,  0.1767,      0.9843]]])
+
+```
+
+**想象你面前有一个非常复杂的表，它不是只有时针、分针、秒针，而是有 16 根针。**
+
+**理解坐标的概念**
+
+位置编码的理解：圆周（坐标）当我们把 $sin$ 和 $cos$ 配对时，我们实际上是把位置映射到了一个单位圆上。
+
+* $sin(\theta)$：对应圆上点的 横坐标 (x)。
+* $cos(\theta)$：对应圆上点的 纵坐标 (y)。
+
+每一对 $(sin, cos)$ 就是圆周上的一个“点的坐标”：
+
+* 位置 0：角度是 0，坐标是 $(0, 1)$。
+* 位置 1：角度变大，坐标沿着圆周移动到了 $(sin(1), cos(1))$。
+* 位置 $n$：坐标继续旋转。
+
+**为什么说它是“独一无二”的？（坐标的概念）**
+
+在你的 Position编码后 矩阵中，每一行对应一个单词。每一对 (sin, cos) 其实就是一根指针在表盘上的位置。
+
+* 位置 0：所有 16 根针都指在正北方（12点钟方向）。
+* 位置 1：所有针都开始转动，但速度不一样。
+* 位置 999：所有针都转了很多圈了。
+
+虽然每根针都在转，但由于它们转速不同，在 1000 个位置里，绝对不会出现两次“所有针指向完全相同”的情况。这就是“独一无二”的坐标。
+
+**当你把这组数字（位置编码）加到词向量上时：**
+
+* 低维度波形：给词向量加上了细微的、快速变化的“指纹”，用来分清谁是左邻右舍。
+* 高维度波形：给词向量加上了宏观的、缓慢变化的“背景色”，用来感知词在整句话中的大体位置。
+
+这就是几何直观： 位置编码把每一个位置，都变成了一个由“16个不同转速齿轮状态”组成的精密密码。模型只需要看一眼这个密码，就能算出来这两个词到底离了多远。
+
+![position_encode](/images/2026/0423/position_encode.png)
+
+### 动画理解上述案例
+
+**动画源码**
+
+```py
+
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation, PillowWriter
+import matplotlib.gridspec as gridspec
+import matplotlib.font_manager as fm
 
 
+def configure_matplotlib_chinese_font():
+    """自动选择可用中文字体，避免图中中文显示异常。"""
+    candidates = [
+        "Noto Sans CJK SC",
+        "Noto Sans CJK",
+        "WenQuanYi Micro Hei",
+        "WenQuanYi Zen Hei",
+        "SimHei",
+        "Microsoft YaHei",
+        "PingFang SC",
+        "Source Han Sans CN",
+        "Arial Unicode MS",
+    ]
+    installed = {f.name for f in fm.fontManager.ttflist}
+    for name in candidates:
+        if name in installed:
+            plt.rcParams["font.family"] = "sans-serif"
+            plt.rcParams["font.sans-serif"] = [name, "DejaVu Sans"]
+            break
+    # 避免负号显示为方块
+    plt.rcParams["axes.unicode_minus"] = False
 
 
+configure_matplotlib_chinese_font()
 
+# ===============================
+# 1. 位置编码生成函数
+# ===============================
+def get_pe(seq_len, dim):
+    pe = np.zeros((seq_len, dim))
+    position = np.arange(seq_len)[:, np.newaxis]
+    # 频率指数：低维度对应高频率，高维度对应低频率
+    div_term = np.exp(np.arange(0, dim, 2) * -(np.log(10000.0) / dim))
+    pe[:, 0::2] = np.sin(position * div_term)
+    pe[:, 1::2] = np.cos(position * div_term)
+    return pe
 
+num_steps = 200    # 足够长的步数
+encoding_dim = 32  # 编码总维度
+pe_matrix = get_pe(num_steps, encoding_dim)
 
+# ===============================
+# 2. 画布初始化（使用 GridSpec 布局）
+# ===============================
+fig = plt.figure(figsize=(10, 12))
+# 创建 3x2 的布局，最后一行用来展示向量
+gs = gridspec.GridSpec(3, 2, height_ratios=[1, 1, 0.8])
 
+# A. 四个圆周表盘
+axes_circles = []
+dims_to_show = [0, 8, 16, 30] # 选择四个观察的维度起始点
+colors = ['red', 'blue', 'green', 'orange']
+pointers = []
+
+for i in range(4):
+    row, col = i // 2, i % 2
+    ax = fig.add_subplot(gs[row, col])
+    d = dims_to_show[i]
+    ax.set_xlim(-1.2, 1.2)
+    ax.set_ylim(-1.2, 1.2)
+    ax.set_aspect('equal')
+    ax.grid(True, linestyle='--', alpha=0.5)
+    
+    # 绘制背景圆圈
+    circle = plt.Circle((0, 0), 1, fill=False, color='gray', alpha=0.3)
+    ax.add_artist(circle)
+    
+    # 设置标题和速度描述
+    speed_desc = ["Fast (区分邻居)", "Medium", "Medium-Slow", "Slow (感知大局)"][i]
+    ax.set_title(f"Compass {i+1}: Dim {d}-{d+1}\nSpeed: {speed_desc}")
+    
+    # 初始化指针
+    p, = ax.plot([], [], 'o-', lw=3, color=colors[i], markersize=8)
+    pointers.append(p)
+    axes_circles.append(ax)
+
+# B. 位置向量可视化区域 (占据最后一整行)
+ax_vec = fig.add_subplot(gs[2, :])
+ax_vec.set_xlim(-0.5, encoding_dim - 0.5)
+ax_vec.set_ylim(-1.1, 1.1)
+ax_vec.set_title(f"Current Position Vector P (Dim 0-{encoding_dim-1})")
+ax_vec.set_xticks(np.arange(encoding_dim))
+ax_vec.set_xticklabels([f"D{i}" for i in range(encoding_dim)], rotation=45, fontsize=8)
+ax_vec.set_ylabel("PE Value")
+ax_vec.grid(axis='y', linestyle='--', alpha=0.5)
+
+# 初始化向量柱状图
+bars = ax_vec.bar(np.arange(encoding_dim), np.zeros(encoding_dim), color='purple', alpha=0.7)
+
+# 全局位置和文本显示
+info_text = fig.text(0.5, 0.015, '', ha='center', fontsize=12, fontweight='bold', color='purple')
+
+# ===============================
+# 3. 动画更新
+# ===============================
+def update(frame):
+    artists = []
+    current_pe_vector = pe_matrix[frame, :]
+    
+    # 3.1 更新四个圆周表盘的指针
+    for i, p in enumerate(pointers):
+        d = dims_to_show[i]
+        # x 为 sin, y 为 cos
+        x = current_pe_vector[d]
+        y = current_pe_vector[d+1]
+        p.set_data([0, x], [0, y])
+        artists.append(p)
+    
+    # 3.2 更新向量柱状图
+    for i, bar in enumerate(bars):
+        val = current_pe_vector[i]
+        bar.set_height(val)
+        # 根据数值给柱子点色（正数绿色，负数红色）
+        bar.set_color('green' if val > 0 else 'red')
+        artists.append(bar)
+    
+    # 3.3 更新文本信息
+    info_text.set_text(f"--- Position Index: {frame} ---")
+    artists.append(info_text)
+    
+    return artists
+
+ani = FuncAnimation(fig, update, frames=num_steps, interval=60, blit=True)
+
+# 保存为GIF（保存在当前脚本同目录）
+gif_path = os.path.join(os.path.dirname(__file__), "demo_07_animation.gif")
+ani.save(gif_path, writer=PillowWriter(fps=15))
+print(f"GIF已保存: {gif_path}")
+
+plt.tight_layout(rect=[0, 0.04, 1, 0.96]) # 留出文本空间
+plt.show()
+
+```
+
+![location_encode_animation](/gif/2026/0423/location_encode_animation.gif)
 
 
 
