@@ -1693,6 +1693,10 @@ configure_matplotlib_chinese_font()
 num_positions = 100   # 序列长度（相当于时间轴）
 dim = 32              # 向量维度（位置矩阵每行32维）
 x_axis = np.linspace(0, 10, dim)
+# 位置纹理由多个正弦分量叠加而成（可视化重点）
+# 第3个分量频率不宜过高，否则在32个采样点下会出现“看起来不像正弦”的锯齿感。
+frequencies = [1.0, 2.5, 4.0]   # 不同频率（平滑且层次分明）
+amplitude = 0.3                 # 每个分量的振幅
 
 # 模拟一个“词向量”：比如它是一个平滑的低频波
 def get_word_vector():
@@ -1700,14 +1704,20 @@ def get_word_vector():
     return 0.5 * np.sin(x_axis * 0.8) + 0.2 * np.cos(x_axis * 0.3)
 
 # 模拟位置编码：随位置变化的三角函数
-def get_pe_signal(pos, dim):
-    pe_vec = np.zeros(dim)
-    # 选取几个不同频率的“音叉”来模拟叠加
-    frequencies = [1.0, 3.0, 8.0] # 模拟快慢不同的维度
+def get_pe_components(pos):
+    """返回当前位置下的各正弦分量列表。"""
+    components = []
     for f in frequencies:
-        # 频率随维度变化，相位随位置(pos)变化
-        pe_vec += 0.3 * np.sin(x_axis * f + pos * (f / 5.0))
-    return pe_vec
+        # 相位随位置变化：位置越靠后，波形整体相位越向前推进
+        comp = amplitude * np.sin(x_axis * f + pos * (f / 5.0))
+        components.append(comp)
+    return components
+
+
+def get_pe_signal(pos, dim):
+    # 位置纹理信号 = 多个正弦分量逐维相加
+    components = get_pe_components(pos)
+    return np.sum(components, axis=0)
 
 word_vec = get_word_vector()
 
@@ -1717,8 +1727,8 @@ word_vec = get_word_vector()
 fig, (ax1, ax2, ax3, ax4) = plt.subplots(
     4, 1, figsize=(10, 14), gridspec_kw={"height_ratios": [1, 1, 1, 0.9]}
 )
-# 增加子图间距与底部留白，避免标题、曲线、底部文字互相重叠。
-plt.subplots_adjust(hspace=0.45, bottom=0.10, top=0.95)
+# 增加子图间距与底部留白，避免第2图图例与第3图重叠。
+plt.subplots_adjust(hspace=0.72, bottom=0.10, top=0.95)
 
 # 词向量图
 line1, = ax1.plot(x_axis, word_vec, lw=2, color='blue')
@@ -1726,11 +1736,26 @@ ax1.set_title("1. 原始语义信号 (Word Embedding: 'CAT')", fontsize=12)
 ax1.set_ylim(-1.5, 1.5)
 ax1.grid(True, alpha=0.3)
 
-# 位置编码图
-line2, = ax2.plot(x_axis, np.zeros(dim), lw=2, color='orange')
-ax2.set_title("2. 位置纹理信号 (Positional Encoding Signal)", fontsize=12)
+# 位置编码拆解图：多个正弦分量 + 总叠加曲线
+component_colors = ['tab:blue', 'tab:green', 'tab:red']
+component_lines = []
+for idx, f in enumerate(frequencies):
+    comp_line, = ax2.plot(
+        x_axis,
+        np.zeros(dim),
+        lw=1.5,
+        color=component_colors[idx % len(component_colors)],
+        alpha=0.9,
+        linestyle='--',
+        label=f"分量{idx+1}: sin(freq={f})",
+    )
+    component_lines.append(comp_line)
+
+line2, = ax2.plot(x_axis, np.zeros(dim), lw=2.6, color='orange', label="分量叠加结果")
+ax2.set_title("2. 位置纹理信号拆解：多个正弦波叠加", fontsize=12)
 ax2.set_ylim(-1.5, 1.5)
 ax2.grid(True, alpha=0.3)
+ax2.legend(loc='upper center', bbox_to_anchor=(0.5, -0.16), ncol=4, frameon=False, fontsize=8)
 
 # 叠加结果图
 line3, = ax3.plot(x_axis, np.zeros(dim), lw=3, color='purple')
@@ -1757,9 +1782,12 @@ pos_text = fig.text(0.5, 0.03, '', ha='center', fontsize=16, fontweight='bold', 
 # ===============================
 def update(frame):
     # 获取当前位置的PE信号
-    current_pe = get_pe_signal(frame, dim)
+    components = get_pe_components(frame)
+    current_pe = np.sum(components, axis=0)
     
-    # 更新PE图
+    # 更新PE拆解图（分量 + 总和）
+    for comp_line, comp in zip(component_lines, components):
+        comp_line.set_ydata(comp)
     line2.set_ydata(current_pe)
     
     # 更新叠加图（相加操作）
@@ -1774,7 +1802,7 @@ def update(frame):
     
     pos_text.set_text(f"当前句子位置 (Position Index): {frame}")
 
-    return [line2, line3, pos_text, *bars]
+    return [*component_lines, line2, line3, pos_text, *bars]
 
 ani = FuncAnimation(fig, update, frames=num_positions, interval=100, blit=True)
 
@@ -1789,7 +1817,18 @@ plt.show()
 
 ![location_encode_aduio](/gif/2026/0423/location_encode_aduio.gif)
 
+在 标准 Sin/Cos 位置编码 里：
 
+- d_model = 32 时，一共是 32 个维度分量 。
+- 其中按 (sin, cos) 成对出现，所以是 16 对 。
+- 每一对对应一个频率尺度，因此可理解为 16 组频率分量 。
+
+也就是说：
+
+- 从“维度数”看： 32 个分量
+- 从“频率对（sin/cos对）”看： 16 个分量组
+
+**图形2中只画出了三个频率分量，理论上有16个**
 
 
 
