@@ -2599,6 +2599,28 @@ logits (B,T,V)
 
 ```
 
+![transformer_encode_decode](/images/2026/0425/transformer_encode_decode.png)
+
+## 训练和推理的区别
+
+| 特性                 | 训练（Training）               | 推理（Inference）       |
+| ------------------ | -------------------------- | ------------------- |
+| **模式**             | `model.train()`            | `model.eval()`      |
+| **Dropout**        | ✅ 开启（防过拟合）                 | ❌ 关闭（稳定输出）          |
+| **梯度计算**           | ✅ 计算 + 反向传播                | ❌ `torch.no_grad()` |
+| **参数更新**           | ✅ 更新权重                     | ❌ 不更新               |
+| **输入方式**           | 并行（整句输入）                   | 自回归（逐token）         |
+| **Mask机制**         | causal mask + padding mask | 主要是 causal mask     |
+| **Self-Attention** | 全序列并行计算                    | 只算当前token + cache   |
+| **KV Cache**       | ❌ 不使用                      | ✅ 必须使用              |
+| **计算复杂度**          | O(n²)（每层）                  | O(n)（有cache）        |
+| **显存占用**           | 高（存梯度）                     | 低（仅前向）              |
+| **输出**             | logits（用于loss）             | token（用于生成）         |
+| **目标**             | 学习参数                       | 生成结果                |
+| **是否知道未来**         | ✅（teacher forcing）         | ❌（只能看历史）            |
+| **速度瓶颈**           | 反向传播                       | 自回归串行（latency）      |
+| **并行性**            | 高（GPU友好）                   | 低（逐步生成）             |
+
 
 
 
