@@ -1564,6 +1564,1057 @@ TransformerEncoder.forward 做了三件事：
 * 👉 注入位置信息（pos encoding）
 * 👉 用多层 EncoderBlock 提取上下文特征
 
+### 编码器的权重数量
+
+**模型配置**
+
+```md
+
+vocab_size = 200
+num_hiddens = 24
+num_heads = 8
+num_layers = 2
+ffn_num_hiddens = 48
+
+```
+
+**1️⃣ Embedding 层**
+
+```md
+
+nn.Embedding(200, 24)
+
+👉 参数量：
+
+200 × 24 = 4800
+
+```
+
+**2️⃣ Positional Encoding**
+
+```md
+
+d2l.PositionalEncoding
+
+👉 是：
+
+sin/cos 固定函数 ❗
+
+👉 参数量：
+
+0
+
+```
+
+**3️⃣ 一个 EncoderBlock 的参数**
+
+```md
+
+3.1 多头注意力（MultiHeadAttention）
+
+在 d2l 实现中，本质是：
+
+Wq, Wk, Wv, Wo
+
+每个线性层：
+(24 × 24) + 24 = 576 + 24 = 600
+
+一共 4 个：600 × 4 = 2400
+
+✅ Attention 总参数：2400
+
+3.2 AddNorm（第一个）
+LayerNorm([100,24])
+
+👉 参数：
+
+gamma：100×24
+beta：100×24
+= 2 × (100×24)
+= 4800
+
+
+3.3 FFN（前馈网络）
+24 → 48 → 24
+第一层：
+24×48 + 48 = 1152 + 48 = 1200
+第二层：
+48×24 + 24 = 1152 + 24 = 1176
+总计：
+1200 + 1176 = 2376
+3.4 AddNorm（第二个）
+
+同上：
+
+4800
+
+✅ 一个 EncoderBlock 总参数
+Attention     = 2400
+AddNorm1      = 4800
+FFN           = 2376
+AddNorm2      = 4800
+--------------------------------
+合计          = 14376
+
+```
+
+**2层 EncoderBlock**
+
+14376 × 2 = 28752
+
+**最终总参数量**
+
+```md
+
+Embedding        = 4800
+EncoderBlocks    = 28752
+--------------------------------
+Total            = 33552
+
+```
+
+## 解码器
+
+### 解码器代码一
+
+```py
+
+class DecoderBlock(nn.Module):
+    """解码器中第i个块"""
+    def __init__(self, key_size, query_size, value_size, num_hiddens,
+                 norm_shape, ffn_num_input, ffn_num_hiddens, num_heads,
+                 dropout, i, **kwargs):
+        super(DecoderBlock, self).__init__(**kwargs)
+        # 记录当前块编号，便于缓存state[2]中不同层的历史解码表示
+        self.i = i
+        # 子层1：Masked Self-Attention（解码器自注意力）
+        # 新版 d2l.MultiHeadAttention 签名: (num_hiddens, num_heads, dropout, bias=False)
+        self.attention1 = d2l.MultiHeadAttention(
+            num_hiddens, num_heads, dropout)
+        self.addnorm1 = AddNorm(norm_shape, dropout)
+        # 子层2：Encoder-Decoder Attention（跨注意力）
+        self.attention2 = d2l.MultiHeadAttention(
+            num_hiddens, num_heads, dropout)
+        self.addnorm2 = AddNorm(norm_shape, dropout)
+        # 子层3：逐位置前馈网络
+        self.ffn = PositionWiseFFN(ffn_num_input, ffn_num_hiddens,
+                                   num_hiddens)
+        self.addnorm3 = AddNorm(norm_shape, dropout)
+
+        print(f"[LOG] DecoderBlock 初始化完成: block_index={i}")
+        print(f"[LOG] num_hiddens={num_hiddens}, num_heads={num_heads}, "
+              f"ffn_num_hiddens={ffn_num_hiddens}, dropout={dropout}")
+
+    def forward(self, X, state):
+        print(f"\n[LOG] ===== 进入 DecoderBlock.forward (block {self.i}) =====")
+        log_tensor_info("DecoderBlock输入X", X)
+
+        enc_outputs, enc_valid_lens = state[0], state[1]
+        log_tensor_info("编码器输出 enc_outputs", enc_outputs)
+        print(f"[LOG] 编码器有效长度 enc_valid_lens={enc_valid_lens}")
+
+        # 训练阶段，输出序列的所有词元都在同一时间处理，
+        # 因此state[2][self.i]初始化为None。
+        # 预测阶段，输出序列是通过词元一个接着一个解码的，
+        # 因此state[2][self.i]包含着直到当前时间步第i个块解码的输出表示
+        if state[2][self.i] is None:
+            key_values = X
+            print(f"[LOG] block {self.i} 缓存为空，key_values 直接使用当前X")
+        else:
+            key_values = torch.cat((state[2][self.i], X), axis=1)
+            print(f"[LOG] block {self.i} 使用历史缓存拼接当前X")
+        state[2][self.i] = key_values
+        log_tensor_info("当前块缓存 key_values", key_values)
+
+        if self.training:
+            batch_size, num_steps, _ = X.shape
+            # dec_valid_lens的开头:(batch_size,num_steps),
+            # 其中每一行是[1,2,...,num_steps]
+            dec_valid_lens = torch.arange(
+                1, num_steps + 1, device=X.device).repeat(batch_size, 1)
+            log_tensor_info("训练阶段 dec_valid_lens", dec_valid_lens)
+        else:
+            dec_valid_lens = None
+            print("[LOG] 推理阶段 dec_valid_lens=None")
+
+        # 子层1：Masked Self-Attention + AddNorm
+        X2 = self.attention1(X, key_values, key_values, dec_valid_lens)
+        log_tensor_info("自注意力输出 X2", X2)
+        Y = self.addnorm1(X, X2)
+        log_tensor_info("AddNorm1输出 Y", Y)
+
+        # 编码器－解码器注意力。
+        # enc_outputs的开头:(batch_size,num_steps,num_hiddens)
+        # 子层2：Cross-Attention + AddNorm
+        Y2 = self.attention2(Y, enc_outputs, enc_outputs, enc_valid_lens)
+        log_tensor_info("跨注意力输出 Y2", Y2)
+        Z = self.addnorm2(Y, Y2)
+        log_tensor_info("AddNorm2输出 Z", Z)
+
+        # 子层3：FFN + AddNorm
+        ffn_out = self.ffn(Z)
+        log_tensor_info("FFN输出 ffn_out", ffn_out)
+        out = self.addnorm3(Z, ffn_out)
+        log_tensor_info("DecoderBlock最终输出 out", out)
+        print(f"[LOG] ===== 退出 DecoderBlock.forward (block {self.i}) =====\n")
+        return out, state
+    
+decoder_blk = DecoderBlock(24, 24, 24, 24, [100, 24], 24, 48, 8, 0.5, 0)
+decoder_blk.eval()
+X = torch.ones((2, 100, 24))
+state = [encoder_blk(X, valid_lens), valid_lens, [None]]
+print("\n[LOG] ===== 解码器块测试 =====")
+log_tensor_info("解码器测试输入 X", X)
+decoder_out, new_state = decoder_blk(X, state)
+print(f"[LOG] DecoderBlock输出形状: {tuple(decoder_out.shape)}")
+log_tensor_info("DecoderBlock输出 decoder_out", decoder_out)
+print(f"[LOG] state缓存层数: {len(new_state[2])}")
+print("[LOG] ===== 解码器块测试结束 =====")
+
+```
+
+#### 整体结构
+
+```md
+
+输入 X（当前已生成序列）
+        │
+        ▼
+1️⃣ Masked Self-Attention   ← 只能看“过去”
+        │
+        ▼
+2️⃣ Cross Attention         ← 看 Encoder（源句）
+        │
+        ▼
+3️⃣ FFN                     ← 非线性加工
+
+```
+
+### 创建 DecoderBlock
+
+```md
+
+DecoderBlock(24, 24, 24, 24, [100, 24], 24, 48, 8, 0.5, 0)
+
+```
+
+| 参数       | 含义          |
+| -------- | ----------- |
+| 24       | hidden size |
+| 48       | FFN中间层      |
+| 8        | 8头注意力       |
+| [100,24] | LayerNorm维度 |
+| i=0      | 第0层decoder  |
+
+#### 输入数据
+
+```md
+
+[LOG] 解码器测试输入 X: shape=(2, 100, 24), dtype=torch.float32
+[LOG] 解码器测试输入 X 完整内容:
+tensor([[[1., 1., 1.,  ..., 1., 1., 1.],
+         [1., 1., 1.,  ..., 1., 1., 1.],
+         [1., 1., 1.,  ..., 1., 1., 1.],
+         ...,
+         [1., 1., 1.,  ..., 1., 1., 1.],
+         [1., 1., 1.,  ..., 1., 1., 1.],
+         [1., 1., 1.,  ..., 1., 1., 1.]],
+
+        [[1., 1., 1.,  ..., 1., 1., 1.],
+         [1., 1., 1.,  ..., 1., 1., 1.],
+         [1., 1., 1.,  ..., 1., 1., 1.],
+         ...,
+         [1., 1., 1.,  ..., 1., 1., 1.],
+         [1., 1., 1.,  ..., 1., 1., 1.],
+         [1., 1., 1.,  ..., 1., 1., 1.]]])
+
+```
+
+#### state 构造
+
+```md
+
+state = [encoder_blk(X, valid_lens), valid_lens, [None]]
+结构
+state = [
+    enc_outputs,        # 编码器输出
+    valid_lens,         # 编码mask
+    cache               # decoder缓存
+]
+cache
+[None]
+
+👉 表示：
+
+第0层 decoder 还没有历史缓存
+
+# 编码器输出
+
+tensor([[[-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         ...,
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131]],
+
+        [[-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         ...,
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131]]])
+
+```
+
+**下面进入DecoderBlock.forward**
+
+#### Step 1：取出 encoder 信息
+
+```md
+
+enc_outputs, enc_valid_lens = state[0], state[1]
+结果
+enc_outputs.shape = (2, 100, 24)
+enc_valid_lens = [3, 2]
+
+👉 含义：
+
+每个样本只看前几个 token
+
+[LOG] 编码器输出 enc_outputs: shape=(2, 100, 24), dtype=torch.float32
+[LOG] 编码器输出 enc_outputs 完整内容:
+tensor([[[-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         ...,
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131]],
+
+        [[-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         ...,
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131],
+         [-0.6796,  1.1780, -1.1474,  ...,  2.4620,  0.2389,  0.1131]]])
+[LOG] 编码器有效长度 enc_valid_lens=tensor([3, 2])
+[LOG] block 0 缓存为空，key_values 直接使用当前X
+
+```
+
+#### Step 2：构造 key_values（缓存机制）
+
+```md
+
+if state[2][self.i] is None:
+    key_values = X
+当前情况
+state[2][0] = None
+
+👉 所以：
+
+key_values = X
+更新缓存
+state[2][self.i] = key_values
+
+👉 cache 变成：
+
+state[2] = [X]
+
+🧠 解释
+
+👉 这是“推理优化机制”的一部分：
+
+但你现在：
+
+一次性输入100个token（训练风格）
+
+👉 所以缓存没有体现优势
+
+```
+
+#### Step 3：dec_valid_lens（mask）
+
+```md
+
+if self.training:
+    ...
+else:
+    dec_valid_lens = None
+当前是 eval 模式
+dec_valid_lens = None
+
+👉 意味着：
+
+没有mask ❗
+⚠️ 重要
+
+这意味着：
+
+token可以看到未来 ❗
+
+👉 这其实不符合“真正Decoder推理”
+
+```
+
+#### Step 4：Masked Self-Attention
+
+```md
+
+X2 = self.attention1(X, key_values, key_values, dec_valid_lens)
+实际变成
+Q = X
+K = X
+V = X
+
+👉 因为：
+
+key_values = X
+⚠️ 且没有mask
+
+👉 实际效果：
+
+= 普通 Self-Attention（和 Encoder 一样）
+⚠️ 再叠加
+X 全是1
+
+👉 所以：
+
+所有位置 attention 结果几乎一样
+
+[LOG] 自注意力输出 X2: shape=(2, 100, 24), dtype=torch.float32
+[LOG] 自注意力输出 X2 完整内容:
+tensor([[[-0.1445,  0.3495,  0.0163,  ..., -0.2074, -0.1041, -0.3527],
+         [-0.1445,  0.3495,  0.0163,  ..., -0.2074, -0.1041, -0.3527],
+         [-0.1445,  0.3495,  0.0163,  ..., -0.2074, -0.1041, -0.3527],
+         ...,
+         [-0.1445,  0.3495,  0.0163,  ..., -0.2074, -0.1041, -0.3527],
+         [-0.1445,  0.3495,  0.0163,  ..., -0.2074, -0.1041, -0.3527],
+         [-0.1445,  0.3495,  0.0163,  ..., -0.2074, -0.1041, -0.3527]],
+
+        [[-0.1445,  0.3495,  0.0163,  ..., -0.2074, -0.1041, -0.3527],
+         [-0.1445,  0.3495,  0.0163,  ..., -0.2074, -0.1041, -0.3527],
+         [-0.1445,  0.3495,  0.0163,  ..., -0.2074, -0.1041, -0.3527],
+         ...,
+         [-0.1445,  0.3495,  0.0163,  ..., -0.2074, -0.1041, -0.3527],
+         [-0.1445,  0.3495,  0.0163,  ..., -0.2074, -0.1041, -0.3527],
+         [-0.1445,  0.3495,  0.0163,  ..., -0.2074, -0.1041, -0.3527]]])
+
+```
+
+#### Step 5：AddNorm1
+
+```md
+
+Y = self.addnorm1(X, X2)
+计算
+Y = LayerNorm(X + X2)
+
+👉 输出：
+
+shape = (2, 100, 24)
+
+[LOG] AddNorm1输出 Y: shape=(2, 100, 24), dtype=torch.float32
+[LOG] AddNorm1输出 Y 完整内容:
+tensor([[[-0.5387,  0.8173, -0.0974,  ..., -0.7115, -0.4280, -1.1104],
+         [-0.5387,  0.8173, -0.0974,  ..., -0.7115, -0.4280, -1.1104],
+         [-0.5387,  0.8173, -0.0974,  ..., -0.7115, -0.4280, -1.1104],
+         ...,
+         [-0.5387,  0.8173, -0.0974,  ..., -0.7115, -0.4280, -1.1104],
+         [-0.5387,  0.8173, -0.0974,  ..., -0.7115, -0.4280, -1.1104],
+         [-0.5387,  0.8173, -0.0974,  ..., -0.7115, -0.4280, -1.1104]],
+
+        [[-0.5387,  0.8173, -0.0974,  ..., -0.7115, -0.4280, -1.1104],
+         [-0.5387,  0.8173, -0.0974,  ..., -0.7115, -0.4280, -1.1104],
+         [-0.5387,  0.8173, -0.0974,  ..., -0.7115, -0.4280, -1.1104],
+         ...,
+         [-0.5387,  0.8173, -0.0974,  ..., -0.7115, -0.4280, -1.1104],
+         [-0.5387,  0.8173, -0.0974,  ..., -0.7115, -0.4280, -1.1104],
+         [-0.5387,  0.8173, -0.0974,  ..., -0.7115, -0.4280, -1.1104]]])
+
+```
+
+AddNorm1 = 把“原始信息 + 上下文信息”融合，并保证数值稳定
+
+#### Step 6：Cross-Attention
+
+```md
+
+2 = self.attention2(Y, enc_outputs, enc_outputs, enc_valid_lens)
+
+展开就是：
+
+Q = Y
+K = enc_outputs
+V = enc_outputs
+
+[LOG] 跨注意力输出 Y2: shape=(2, 100, 24), dtype=torch.float32
+[LOG] 跨注意力输出 Y2 完整内容:
+tensor([[[ 0.5185,  0.3513, -0.2478,  ...,  0.0662, -0.2986, -0.0262],
+         [ 0.5185,  0.3513, -0.2478,  ...,  0.0662, -0.2986, -0.0262],
+         [ 0.5185,  0.3513, -0.2478,  ...,  0.0662, -0.2986, -0.0262],
+         ...,
+         [ 0.5185,  0.3513, -0.2478,  ...,  0.0662, -0.2986, -0.0262],
+         [ 0.5185,  0.3513, -0.2478,  ...,  0.0662, -0.2986, -0.0262],
+         [ 0.5185,  0.3513, -0.2478,  ...,  0.0662, -0.2986, -0.0262]],
+
+        [[ 0.5185,  0.3513, -0.2478,  ...,  0.0662, -0.2986, -0.0262],
+         [ 0.5185,  0.3513, -0.2478,  ...,  0.0662, -0.2986, -0.0262],
+         [ 0.5185,  0.3513, -0.2478,  ...,  0.0662, -0.2986, -0.0262],
+         ...,
+         [ 0.5185,  0.3513, -0.2478,  ...,  0.0662, -0.2986, -0.0262],
+         [ 0.5185,  0.3513, -0.2478,  ...,  0.0662, -0.2986, -0.0262],
+         [ 0.5185,  0.3513, -0.2478,  ...,  0.0662, -0.2986, -0.0262]]])
+
+```
+
+Cross-Attention = 用“当前生成状态”去“查询输入句子的信息”
+
+| 类型                  | Q       | K       | V       | 作用         |
+| ------------------- | ------- | ------- | ------- | ---------- |
+| Self-Attention      | 当前序列    | 当前序列    | 当前序列    | 内部信息融合     |
+| **Cross-Attention** | Decoder | Encoder | Encoder | **读取输入信息** |
+
+#### Step 7：AddNorm2
+
+```md
+
+[LOG] AddNorm2输出 Z: shape=(2, 100, 24), dtype=torch.float32
+[LOG] AddNorm2输出 Z 完整内容:
+tensor([[[-0.0642,  1.0724, -0.3748,  ..., -0.6618, -0.7396, -1.1315],
+         [-0.0642,  1.0724, -0.3748,  ..., -0.6618, -0.7396, -1.1315],
+         [-0.0642,  1.0724, -0.3748,  ..., -0.6618, -0.7396, -1.1315],
+         ...,
+         [-0.0642,  1.0724, -0.3748,  ..., -0.6618, -0.7396, -1.1315],
+         [-0.0642,  1.0724, -0.3748,  ..., -0.6618, -0.7396, -1.1315],
+         [-0.0642,  1.0724, -0.3748,  ..., -0.6618, -0.7396, -1.1315]],
+
+        [[-0.0642,  1.0724, -0.3748,  ..., -0.6618, -0.7396, -1.1315],
+         [-0.0642,  1.0724, -0.3748,  ..., -0.6618, -0.7396, -1.1315],
+         [-0.0642,  1.0724, -0.3748,  ..., -0.6618, -0.7396, -1.1315],
+         ...,
+         [-0.0642,  1.0724, -0.3748,  ..., -0.6618, -0.7396, -1.1315],
+         [-0.0642,  1.0724, -0.3748,  ..., -0.6618, -0.7396, -1.1315],
+         [-0.0642,  1.0724, -0.3748,  ..., -0.6618, -0.7396, -1.1315]]])
+
+```
+
+#### Step 8：FFN
+
+```md
+
+[LOG] FFN输出 ffn_out: shape=(2, 100, 24), dtype=torch.float32
+[LOG] FFN输出 ffn_out 完整内容:
+tensor([[[-0.3130, -0.1238, -0.2373,  ..., -0.1869,  0.0442,  0.1742],
+         [-0.3130, -0.1238, -0.2373,  ..., -0.1869,  0.0442,  0.1742],
+         [-0.3130, -0.1238, -0.2373,  ..., -0.1869,  0.0442,  0.1742],
+         ...,
+         [-0.3130, -0.1238, -0.2373,  ..., -0.1869,  0.0442,  0.1742],
+         [-0.3130, -0.1238, -0.2373,  ..., -0.1869,  0.0442,  0.1742],
+         [-0.3130, -0.1238, -0.2373,  ..., -0.1869,  0.0442,  0.1742]],
+
+        [[-0.3130, -0.1238, -0.2373,  ..., -0.1869,  0.0442,  0.1742],
+         [-0.3130, -0.1238, -0.2373,  ..., -0.1869,  0.0442,  0.1742],
+         [-0.3130, -0.1238, -0.2373,  ..., -0.1869,  0.0442,  0.1742],
+         ...,
+         [-0.3130, -0.1238, -0.2373,  ..., -0.1869,  0.0442,  0.1742],
+         [-0.3130, -0.1238, -0.2373,  ..., -0.1869,  0.0442,  0.1742],
+         [-0.3130, -0.1238, -0.2373,  ..., -0.1869,  0.0442,  0.1742]]])
+
+```
+
+#### AddNorm3 （最终输出）
+
+```md
+
+[LOG] DecoderBlock最终输出 out: shape=(2, 100, 24), dtype=torch.float32
+[LOG] DecoderBlock最终输出 out 完整内容:
+tensor([[[-0.3319,  0.9702, -0.5628,  ..., -0.7952, -0.6445, -0.9018],
+         [-0.3319,  0.9702, -0.5628,  ..., -0.7952, -0.6445, -0.9018],
+         [-0.3319,  0.9702, -0.5628,  ..., -0.7952, -0.6445, -0.9018],
+         ...,
+         [-0.3319,  0.9702, -0.5628,  ..., -0.7952, -0.6445, -0.9018],
+         [-0.3319,  0.9702, -0.5628,  ..., -0.7952, -0.6445, -0.9018],
+         [-0.3319,  0.9702, -0.5628,  ..., -0.7952, -0.6445, -0.9018]],
+
+        [[-0.3319,  0.9702, -0.5628,  ..., -0.7952, -0.6445, -0.9018],
+         [-0.3319,  0.9702, -0.5628,  ..., -0.7952, -0.6445, -0.9018],
+         [-0.3319,  0.9702, -0.5628,  ..., -0.7952, -0.6445, -0.9018],
+         ...,
+         [-0.3319,  0.9702, -0.5628,  ..., -0.7952, -0.6445, -0.9018],
+         [-0.3319,  0.9702, -0.5628,  ..., -0.7952, -0.6445, -0.9018],
+         [-0.3319,  0.9702, -0.5628,  ..., -0.7952, -0.6445, -0.9018]]])
+[LOG] ===== 退出 DecoderBlock.forward (block 0) =====
+
+```
+
+#### 这次运行“本质发生了什么”
+
+```md
+
+👉 因为你的设置：
+
+❗ 特殊点1
+X 全是1
+
+👉 → 所有token一样
+
+❗ 特殊点2
+eval模式 → 没有mask
+
+👉 → 可以看未来
+
+❗ 特殊点3
+一次性输入100个token
+
+👉 → KV cache没发挥作用
+
+🔥 最终效果
+
+👉 你的 DecoderBlock 实际变成：
+
+≈ EncoderBlock + CrossAttention
+
+```
+
+### TransformerDecoder 解码器
+
+```py
+
+class TransformerDecoder(d2l.AttentionDecoder):
+    """Transformer解码器
+    
+    结构：
+      输入token_ids (batch_size, target_seq_len)
+        │
+        ├──► 词嵌入 ──► 缩放 ──► 位置编码 ──► X0
+        │
+        ├──► [循环通过num_layers个解码器块]
+        │   ├── block 0: Masked Self-Attn + Cross-Attn + FFN ──► X1
+        │   ├── block 1: Masked Self-Attn + Cross-Attn + FFN ──► X2
+        │   └── ...
+        │   └── block (L-1): ... ──► XL
+        │
+        └──► 线性投影（num_hiddens -> vocab_size） ──► 输出logits
+    """
+    def __init__(self, vocab_size, key_size, query_size, value_size,
+                 num_hiddens, norm_shape, ffn_num_input, ffn_num_hiddens,
+                 num_heads, num_layers, dropout, **kwargs):
+        super(TransformerDecoder, self).__init__(**kwargs)
+        # 保存关键超参
+        self.num_hiddens = num_hiddens
+        self.num_layers = num_layers
+        # 目标端词嵌入：把目标语言token id映射到连续向量
+        self.embedding = nn.Embedding(vocab_size, num_hiddens)
+        # 位置编码：为目标序列注入位置信息
+        self.pos_encoding = d2l.PositionalEncoding(num_hiddens, dropout)
+        # 解码器块堆叠容器
+        self.blks = nn.Sequential()
+        for i in range(num_layers):
+            # 逐层添加解码器块，每块包含3个子层：
+            # 1. Masked Self-Attention（仅能看当前及之前的位置）
+            # 2. Cross-Attention（注意编码器输出）
+            # 3. Position-wise FFN
+            self.blks.add_module("block"+str(i),
+                DecoderBlock(key_size, query_size, value_size, num_hiddens,
+                             norm_shape, ffn_num_input, ffn_num_hiddens,
+                             num_heads, dropout, i))
+        # 最终投影层：把隐藏维度映射回词表大小，用于生成输出token概率
+        self.dense = nn.Linear(num_hiddens, vocab_size)
+
+        print("[LOG] TransformerDecoder 初始化完成")
+        print(f"[LOG] vocab_size={vocab_size}, num_hiddens={num_hiddens}, "
+              f"num_heads={num_heads}, num_layers={num_layers}, dropout={dropout}")
+        print(f"[LOG] norm_shape={norm_shape}, ffn_num_input={ffn_num_input}, "
+              f"ffn_num_hiddens={ffn_num_hiddens}")
+
+    def init_state(self, enc_outputs, enc_valid_lens, *args):
+        """初始化解码器状态
+        
+        状态结构 state：
+          [0]: enc_outputs - 编码器的输出表示，用于Cross-Attention
+          [1]: enc_valid_lens - 编码端有效长度掩码
+          [2]: [None] * num_layers - 各解码器块的缓存（推理时用于增量解码）
+        """
+        print("\n[LOG] ===== TransformerDecoder.init_state 初始化解码器状态 =====")
+        log_tensor_info("编码器输出 enc_outputs", enc_outputs)
+        print(f"[LOG] 编码器有效长度 enc_valid_lens={enc_valid_lens}")
+        state = [enc_outputs, enc_valid_lens, [None] * self.num_layers]
+        print(f"[LOG] 初始化 {self.num_layers} 层解码器块缓存")
+        print("[LOG] ===== 状态初始化完成 =====\n")
+        return state
+
+    def forward(self, X, state):
+        """前向传播：解码生成目标序列表示
+        
+        参数：
+            X: (batch_size, target_seq_len) 目标序列token索引
+            state: [enc_outputs, enc_valid_lens, decoder_cache]
+        返回：
+            logits: (batch_size, target_seq_len, vocab_size)
+            state: 更新后的解码器状态
+        """
+        print("\n[LOG] ========= 进入 TransformerDecoder.forward ==========")
+        log_tensor_info("目标序列输入 X", X)
+        
+        # 词嵌入
+        emb = self.embedding(X)
+        log_tensor_info("目标序列词嵌入 embedding(X)", emb)
+        
+        # 缩放
+        scaled_emb = emb * math.sqrt(self.num_hiddens)
+        log_tensor_info("缩放后的词嵌入 scaled_emb", scaled_emb)
+        
+        # 加入位置编码
+        X = self.pos_encoding(scaled_emb)
+        log_tensor_info("加入位置编码后的输入", X)
+        
+        # 初始化注意力权重存储（用于后续可视化）
+        # [0]: 解码器自注意力权重，[1]: 跨注意力权重
+        self._attention_weights = [[None] * len(self.blks) for _ in range(2)]
+        
+        # 通过num_layers个解码器块
+        for i, blk in enumerate(self.blks):
+            print(f"[LOG] ---- 进入解码器块 block{i} ----")
+            X, state = blk(X, state)
+            log_tensor_info(f"block{i} 输出", X)
+            # 保存该层的自注意力权重
+            self._attention_weights[0][i] = blk.attention1.attention.attention_weights
+            log_tensor_info(f"block{i} 自注意力权重", self._attention_weights[0][i])
+            # 保存该层的跨注意力权重（编码器-解码器注意力）
+            self._attention_weights[1][i] = blk.attention2.attention.attention_weights
+            log_tensor_info(f"block{i} 跨注意力权重", self._attention_weights[1][i])
+            print(f"[LOG] ---- 退出解码器块 block{i} ----")
+        
+        # 最终线性投影：映射到词表大小，得到logits
+        logits = self.dense(X)
+        log_tensor_info("最终输出logits (dense层后)", logits)
+        print(f"[LOG] 输出logits形状: {tuple(logits.shape)}")
+        print("[LOG] ========= 退出 TransformerDecoder.forward ==========\n")
+        return logits, state
+
+    @property
+    def attention_weights(self):
+        """返回所有层的注意力权重
+        
+        返回：
+            [[self_attn_weights_layer0, ..., self_attn_weights_layer_L],
+             [cross_attn_weights_layer0, ..., cross_attn_weights_layer_L]]
+        """
+        return self._attention_weights
+
+```
+
+#### 整个 Decoder 的信息流
+
+```md
+
+            输入token
+                ↓
+          Embedding + PE
+                ↓
+        ┌──────────────────┐
+        │ Masked Self-Attn │ ← 看历史
+        └──────────────────┘
+                ↓
+        ┌──────────────────┐
+        │ Cross Attention  │ ← 看输入
+        └──────────────────┘
+                ↓
+        ┌──────────────────┐
+        │       FFN        │ ← 加工特征
+        └──────────────────┘
+                ↓
+           多层重复
+                ↓
+            Linear
+                ↓
+            logits
+
+```
+
+### 编码器-解码器测试代码
+
+```md
+
+# valid_lens: 第0个样本只看前3个位置，第1个样本只看前2个位置
+valid_lens = torch.tensor([3, 2])
+print(f"[LOG] valid_lens={valid_lens}")
+
+print("\n[LOG] ============= 完整TransformerDecoder测试 =============")
+# 初始化完整解码器
+# vocab_size=200, num_hiddens=24, num_heads=8, num_layers=2
+decoder = TransformerDecoder(
+    200, 24, 24, 24, 24, [100, 24], 24, 48, 8, 2, 0.5)
+decoder.eval()  # 推理模式
+
+print("[LOG] ---- 第1步：使用编码器处理源语言 ----")
+# 源语言序列
+src_X = torch.ones((2, 100), dtype=torch.long)
+log_tensor_info("源序列输入 src_X", src_X)
+
+# 编码
+encoder = TransformerEncoder(200, 24, 24, 24, 24, [100, 24], 24, 48, 8, 2, 0.5)
+encoder.eval()
+enc_outputs = encoder(src_X, valid_lens)
+log_tensor_info("编码器输出 enc_outputs", enc_outputs)
+print(f"[LOG] 编码器输出形状: {tuple(enc_outputs.shape)}")
+
+print("\n[LOG] ---- 第2步：初始化解码器状态 ----")
+# 初始化解码器状态
+state = decoder.init_state(enc_outputs, valid_lens)
+print(f"[LOG] state[0] (enc_outputs) 形状: {tuple(state[0].shape)}")
+print(f"[LOG] state[1] (enc_valid_lens): {state[1]}")
+print(f"[LOG] state[2] (decoder_cache) 层数: {len(state[2])}")
+
+print("\n[LOG] ---- 第3步：目标端解码 ----")
+# 目标语言序列（通常在预测时逐步生成）
+# 注意：目标序列长度需与 norm_shape 的第一个维度匹配（这里为100）
+tgt_X = torch.ones((2, 100), dtype=torch.long)  # 目标序列长度100
+log_tensor_info("目标序列输入 tgt_X", tgt_X)
+
+# 解码
+logits, state_updated = decoder(tgt_X, state)
+log_tensor_info("解码器输出logits", logits)
+print(f"[LOG] 解码器输出logits形状: {tuple(logits.shape)}")
+print(f"[LOG] 预期形状: (batch_size=2, tgt_seq_len=100, vocab_size=200)")
+
+print("\n[LOG] ---- 第4步：查看注意力权重 ----")
+attn_weights = decoder.attention_weights
+print(f"[LOG] 解码器自注意力权重 (Masked Self-Attention) 层数: {len(attn_weights[0])}")
+print(f"[LOG] 跨注意力权重 (Cross-Attention) 层数: {len(attn_weights[1])}")
+for i in range(len(attn_weights[0])):
+    if attn_weights[0][i] is not None:
+        print(f"[LOG] 第{i}层 自注意力权重形状: {tuple(attn_weights[0][i].shape)}")
+    if attn_weights[1][i] is not None:
+        print(f"[LOG] 第{i}层 跨注意力权重形状: {tuple(attn_weights[1][i].shape)}")
+
+print("\n[LOG] ---- 第5步：解码器cache状态 ----")
+print(f"[LOG] 更新后state[2] (decoder_cache) 缓存块数: {len(state_updated[2])}")
+for i in range(len(state_updated[2])):
+    if state_updated[2][i] is not None:
+        print(f"[LOG] block{i} 缓存形状: {tuple(state_updated[2][i].shape)}")
+    else:
+        print(f"[LOG] block{i} 缓存: None")
+
+print("\n[LOG] ============= 完整TransformerDecoder测试结束 =============\n")
+
+```
+
+#### 架构
+
+```md
+
+源序列 src_X (B,S)
+        │
+        ▼
+┌─────────────── Encoder ───────────────┐
+│ Embedding → Scale → PosEncoding       │
+│      │                                 │
+│      ▼                                 │
+│  [EncoderBlock × L]                    │
+│   Self-Attn → AddNorm → FFN → AddNorm  │
+│      │                                 │
+└──────▼─────────────────────────────────┘
+   enc_outputs (B,S,d)
+        │
+        ▼
+state = [enc_outputs, valid_lens, cache]
+
+        │
+        ▼
+目标序列 tgt_X (B,T)
+        │
+        ▼
+┌─────────────── Decoder ───────────────┐
+│ Embedding → Scale → PosEncoding       │
+│      │                                 │
+│      ▼                                 │
+│  [DecoderBlock × L]                   │
+│   ① Masked Self-Attn                  │
+│   ② Cross-Attn                        │
+│   ③ FFN                               │
+│   + 每步 AddNorm                       │
+│      │                                 │
+└──────▼─────────────────────────────────┘
+      X_L (B,T,d)
+        │
+        ▼
+Linear → logits (B,T,V)
+
+```
+
+#### Step 1：Encoder 详细流程
+
+```md
+
+src_X (B,S)
+  │  token_id（离散）
+  ▼
+Embedding
+  │  (B,S) → (B,S,d)
+  │  每个token变向量
+  ▼
+Scale (×√d)
+  │  放大embedding
+  ▼
+PosEncoding
+  │  注入位置信息
+  ▼
+X0 (B,S,d)
+
+```
+
+**EncoderBlock（重复 L 次）**
+
+```md
+
+输入：X (B,S,d)
+  │
+  ├─► Self-Attention
+  │      Q=K=V=X
+  │      ↓
+  │      融合“全局上下文”
+  │
+  ├─► AddNorm
+  │      X + Attn(X)
+  │      ↓
+  │      稳定训练 + 保留原信息
+  │
+  ├─► FFN
+  │      每个token独立：
+  │      d → 4d → d
+  │
+  └─► AddNorm
+         再次稳定
+
+```
+
+**Encoder 输出**
+
+```md
+
+enc_outputs (B,S,d)
+
+含义：
+每个 token → “带上下文的语义表示”
+
+```
+
+#### Step 2：初始化 Decoder 状态
+
+```md
+
+state = [
+  enc_outputs,        # 输入语义
+  valid_lens,         # mask
+  [None, None, ...]   # cache（每层一个）
+]
+🧠 cache 的意义
+cache[i] = 第 i 层已经算过的 K/V
+
+推理时：
+避免重复计算历史token
+
+```
+
+#### Step 3：Decoder 输入处理
+
+```md
+
+tgt_X (B,T)
+  │
+  ▼
+Embedding
+  │ (B,T) → (B,T,d)
+  ▼
+Scale
+  ▼
+PosEncoding
+  ▼
+X0 (B,T,d)
+
+```
+
+#### Step 4：DecoderBlock（核心）
+
+```md
+
+输入：X (B,T,d)
+
+        ┌──────────────────────────────┐
+        │ ① Masked Self-Attention      │
+        │   Q = 当前token              │
+        │   K,V = 历史+当前            │
+        │                              │
+        │   作用：                     │
+        │   只能看“过去”               │
+        └───────────────┬──────────────┘
+                        ▼
+                    AddNorm1
+                        │
+                        ▼
+        ┌──────────────────────────────┐
+        │ ② Cross-Attention            │
+        │   Q = decoder状态            │
+        │   K,V = enc_outputs          │
+        │                              │
+        │   作用：                     │
+        │   从输入句子“取信息”          │
+        └───────────────┬──────────────┘
+                        ▼
+                    AddNorm2
+                        │
+                        ▼
+        ┌──────────────────────────────┐
+        │ ③ FFN                        │
+        │   每个token独立              │
+        │   非线性变换                 │
+        └───────────────┬──────────────┘
+                        ▼
+                    AddNorm3
+                        │
+                        ▼
+                  输出 X (B,T,d)
+
+```
+
+#### Step 6：Linear 输出层
+
+```md
+
+X (B,T,d)
+  │
+  ▼
+Linear(d → vocab_size)
+  │
+  ▼
+logits (B,T,V)
+
+🎯 含义
+每个位置：一个“词表概率分布”
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
