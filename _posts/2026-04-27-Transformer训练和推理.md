@@ -330,6 +330,372 @@ loss 很低
 * 理想状态：从高向低递减，最后降到 0（预测 = 真实）。
 * 提示：这比逐 token 准确率更宽松：允许位置偏移、少个几个词等，但整体衡量句子级别差距。
 
+## 模型保存
+
+| 文件/内容                     | 是否必须     | 文件形式示例                   | 作用                  | 推理阶段用在哪             | 备注             |
+| ------------------------- | -------- | ------------------------ | ------------------- | ------------------- | -------------- |
+| **模型权重（state_dict）**      | ⭐⭐⭐⭐⭐ 必须 | `model_weights.pth`      | 存储所有层参数             | `load_state_dict()` | 不能缺            |
+| **模型结构配置（hparams）**       | ⭐⭐⭐⭐⭐ 必须 | dict / json              | 重建模型结构              | 初始化 Encoder/Decoder | 层数/hidden/head |
+| **源语言词表（src_vocab）**      | ⭐⭐⭐⭐⭐ 必须 | pickle / torch           | 文本 → token id       | 输入编码                | 不可缺            |
+| **目标语言词表（tgt_vocab）**     | ⭐⭐⭐⭐⭐ 必须 | pickle / torch           | token id → 文本       | 输出解码                | 不可缺            |
+| **tokenizer规则**           | ⭐⭐⭐⭐ 建议  | json                     | 分词规则                | 文本预处理               | 你现在是简单split    |
+| **特殊token定义**             | ⭐⭐⭐⭐ 建议  | json                     | `<bos>/<eos>/<pad>` | 编码/解码控制             | 很重要            |
+| **完整checkpoint**          | ⭐⭐⭐⭐⭐ 推荐 | `xxx_inference_ckpt.pth` | 一次性打包所有内容           | 一步加载                | 你已经实现 👍       |
+| **ONNX模型**                | ⭐⭐⭐（部署）  | `model.onnx`             | 跨平台推理               | 嵌入式/加速              | RK3568用        |
+| **推理脚本**                  | ⭐⭐⭐⭐ 建议  | `infer.py`               | 串起整个流程              | 实际调用                | 工程必须           |
+
+
+## 模型推理
+
+```py
+
+import argparse
+from pathlib import Path
+
+import torch
+from d2l import torch as d2l
+
+from demo_04 import TransformerEncoder, TransformerDecoder
+
+
+def resolve_ckpt_path(user_ckpt_arg):
+    """解析checkpoint路径：优先用户指定，其次脚本目录与当前目录兜底。
+
+    路径优先级：
+    1) --ckpt 显式传入的路径（最优先）
+    2) 推理脚本同目录下的 demo_04_inference_ckpt.pth
+    3) 当前工作目录下的 demo_04_inference_ckpt.pth
+    """
+    if user_ckpt_arg:
+        return Path(user_ckpt_arg)
+
+    candidates = [
+        Path(__file__).with_name("demo_04_inference_ckpt.pth"),
+        Path.cwd() / "demo_04_inference_ckpt.pth",
+    ]
+    for p in candidates:
+        if p.exists():
+            return p
+    return candidates[0]
+
+
+def build_model_from_hparams(src_vocab, tgt_vocab, hparams):
+    """按checkpoint中的超参数重建网络结构。
+
+    hparams 字段逐项说明（与训练侧保持一致）：
+    - key_size: 注意力中 Key 的投影维度
+    - query_size: 注意力中 Query 的投影维度
+    - value_size: 注意力中 Value 的投影维度
+    - num_hiddens: Transformer隐藏维度（embedding和各层主通道维度）
+    - norm_shape: LayerNorm 的归一化维度，通常是 [num_hiddens]
+    - ffn_num_input: PositionWiseFFN 输入维度（一般与 num_hiddens 一致）
+    - ffn_num_hiddens: PositionWiseFFN 中间隐藏层维度
+    - num_heads: 多头注意力头数
+    - num_layers: 编码器/解码器堆叠层数
+    - dropout: dropout 概率（推理时虽然eval会关闭dropout，但结构需一致）
+    """
+    # 1) 构建编码器：超参数必须与训练时一致，否则权重shape无法匹配
+    encoder = TransformerEncoder(
+        len(src_vocab),
+        hparams["key_size"],
+        hparams["query_size"],
+        hparams["value_size"],
+        hparams["num_hiddens"],
+        hparams["norm_shape"],
+        hparams["ffn_num_input"],
+        hparams["ffn_num_hiddens"],
+        hparams["num_heads"],
+        hparams["num_layers"],
+        hparams["dropout"],
+    )
+    # 2) 构建解码器：同样要求结构完全一致
+    decoder = TransformerDecoder(
+        len(tgt_vocab),
+        hparams["key_size"],
+        hparams["query_size"],
+        hparams["value_size"],
+        hparams["num_hiddens"],
+        hparams["norm_shape"],
+        hparams["ffn_num_input"],
+        hparams["ffn_num_hiddens"],
+        hparams["num_heads"],
+        hparams["num_layers"],
+        hparams["dropout"],
+    )
+    # 3) 封装为 D2L 的 EncoderDecoder 总体模型
+    return d2l.EncoderDecoder(encoder, decoder)
+
+
+def load_model_and_vocab(ckpt_path, device):
+    """加载推理checkpoint，返回模型与词表。
+
+    返回值：
+    - net: 已加载权重并切到 eval() 的模型
+    - src_vocab: 源语言词表（英文）
+    - tgt_vocab: 目标语言词表（法文）
+    - hparams: 训练时保存的模型超参数
+    """
+    # PyTorch 2.6 起 torch.load 默认 weights_only=True。
+    # 本地训练生成的checkpoint包含词表对象（如 d2l.Vocab），
+    # 推理时需要显式关闭 weights_only 才能反序列化完整内容。
+    try:
+        ckpt = torch.load(ckpt_path, map_location=device, weights_only=False)
+    except TypeError:
+        # 兼容旧版本PyTorch（没有 weights_only 参数）
+        ckpt = torch.load(ckpt_path, map_location=device)
+    src_vocab = ckpt["src_vocab"]
+    tgt_vocab = ckpt["tgt_vocab"]
+    hparams = ckpt["hparams"]
+
+    net = build_model_from_hparams(src_vocab, tgt_vocab, hparams)
+    net.load_state_dict(ckpt["model_state_dict"])
+    net.to(device)
+    net.eval()
+    return net, src_vocab, tgt_vocab, hparams
+
+    
+def run_d2l_demo(ckpt_path, device):
+    """按D2L章节示例风格执行多句推理并计算BLEU。
+
+    说明：
+    - engs: 待翻译的英文句子（源语言）
+    - fras: 对应参考法语（用于计算BLEU，不参与模型推理）
+    - d2l.predict_seq2seq:
+        输入英文句子后，按自回归方式逐token生成法语结果
+    - d2l.bleu(..., k=2):
+        计算2-gram BLEU，数值越高表示与参考翻译越接近
+    """
+    net, src_vocab, tgt_vocab, hparams = load_model_and_vocab(ckpt_path, device)
+    engs = ["go .", "i lost .", "he's calm .", "i'm home ."]
+    fras = ["va !", "j'ai perdu .", "il est calme .", "je suis chez moi ."]
+
+    for eng, fra in zip(engs, fras):
+        translation, _ = d2l.predict_seq2seq(
+            net,
+            eng,
+            src_vocab,
+            tgt_vocab,
+            hparams["num_steps"],
+            device,
+            save_attention_weights=True,
+        )
+        print(f"{eng} => {translation}, bleu {d2l.bleu(translation, fra, k=2):.3f}")
+
+
+def print_hparams_guide(hparams):
+    """把checkpoint中的超参数逐项打印，便于理解推理模型配置。"""
+    desc = {
+        "num_hiddens": "隐藏维度/主通道维度（embedding与Transformer内部特征维）",
+        "num_layers": "编码器层数与解码器层数（均为该值）",
+        "dropout": "dropout概率（训练中生效，推理eval后自动关闭）",
+        "batch_size": "训练时batch大小（推理单句时不强依赖）",
+        "num_steps": "最大时间步/最大序列长度（推理解码上限）",
+        "lr": "训练学习率（仅记录，不影响推理）",
+        "num_epochs": "训练轮数（仅记录，不影响推理）",
+        "ffn_num_input": "前馈网络输入维度",
+        "ffn_num_hiddens": "前馈网络隐藏层维度",
+        "num_heads": "多头注意力头数",
+        "key_size": "注意力Key投影维度",
+        "query_size": "注意力Query投影维度",
+        "value_size": "注意力Value投影维度",
+        "norm_shape": "LayerNorm归一化维度",
+    }
+    print("[INFER] ====== checkpoint 超参数说明 ======")
+    for k, v in hparams.items():
+        meaning = desc.get(k, "（未定义说明）")
+        print(f"[INFER] {k} = {v}  # {meaning}")
+    print("[INFER] =================================")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="demo_04 推理脚本")
+    parser.add_argument(
+        "--ckpt",
+        type=str,
+        default=None,
+        help="推理checkpoint路径",
+    )
+    parser.add_argument(
+        "--text",
+        type=str,
+        default="i am cold .",
+        help="待翻译英文句子（建议按训练数据风格：小写+空格分词）",
+    )
+    parser.add_argument(
+        "--demo",
+        action="store_true",
+        help="使用D2L示例句批量推理并输出BLEU",
+    )
+    parser.add_argument(
+        "--show-hparams",
+        action="store_true",
+        help="启动时打印checkpoint中的超参数及中文解释",
+    )
+    args = parser.parse_args()
+
+    ckpt_path = resolve_ckpt_path(args.ckpt)
+    if not ckpt_path.exists():
+        raise FileNotFoundError(
+            f"checkpoint不存在: {ckpt_path}；请用 --ckpt 指定，例如 "
+            f"/home/lxg/code/AI/code/20260425/demo_04_inference_ckpt.pth"
+        )
+
+    device = d2l.try_gpu()
+    print(f"[INFER] 使用设备: {device}")
+    print(f"[INFER] 加载checkpoint: {ckpt_path}")
+
+    # 可选：先打印超参数说明，帮助理解当前推理模型的配置
+    if args.show_hparams:
+        _, _, _, hparams = load_model_and_vocab(str(ckpt_path), device)
+        print_hparams_guide(hparams)
+
+    run_d2l_demo(str(ckpt_path), device)
+
+
+if __name__ == "__main__":
+    main()
+
+```
+
+### 模型推理过程
+
+```md
+
+┌──────────────────────────────────────────────┐
+│                输入英文句子                  │
+│           "i am cold ."                     │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────┐
+│           文本预处理（tokenizer）            │
+│  lower + split → ["i","am","cold","."]      │
+│  + <eos> → ["i","am","cold",".","<eos>"]    │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────┐
+│         token → id（src_vocab）              │
+│  ["i","am","cold","."]                      │
+│      ↓                                      │
+│  [17, 25, 98, 4, 2]                         │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────┐
+│              padding + 截断                  │
+│  → 固定长度 num_steps (如10)                 │
+│  [17,25,98,4,2,0,0,0,0,0]                   │
+│  valid_len = 5                              │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼
+==================== Encoder ====================
+
+┌──────────────────────────────────────────────┐
+│           Embedding（词嵌入）                │
+│  (1,10) → (1,10,32)                         │
+│  每个token变成向量                           │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────┐
+│         加位置编码 PositionalEncoding        │
+│  加入位置信息（顺序感）                      │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────┐
+│      Encoder Block × N（比如2层）            │
+│                                              │
+│  每一层：                                    │
+│   1️⃣ 自注意力（Self-Attention）              │
+│      👉 每个词看所有词                        │
+│   2️⃣ Add & Norm                             │
+│   3️⃣ FFN（逐位置MLP）                       │
+│   4️⃣ Add & Norm                             │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────┐
+│            Encoder输出 enc_outputs           │
+│         shape: (1,10,32)                     │
+└──────────────────────────────────────────────┘
+
+==================== Decoder ====================
+
+初始输入：
+┌──────────────────────────────────────────────┐
+│  dec_input = ["<bos>"]                      │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼
+
+🔁 逐token生成（循环 num_steps 次）
+
+┌──────────────────────────────────────────────┐
+│           Embedding + 位置编码               │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────┐
+│       Decoder Block × N                      │
+│                                              │
+│  每一层：                                    │
+│                                              │
+│  1️⃣ Masked Self-Attention                   │
+│     👉 只能看“已经生成的词”                   │
+│                                              │
+│  2️⃣ Cross Attention（重点！）               │
+│     👉 decoder 看 encoder 输出               │
+│     👉 学习翻译对齐关系                      │
+│                                              │
+│  3️⃣ FFN                                     │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────┐
+│           线性层（投影到词表）               │
+│      (1, t, 32) → (1, t, vocab_size)        │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────┐
+│            Softmax + argmax                  │
+│         选出概率最大token                    │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────┐
+│        输出一个token（例如 "j'"）           │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────┐
+│   拼接到输入 → ["<bos>", "j'"]              │
+│   继续下一轮生成                             │
+└──────────────────────────────────────────────┘
+
+🔁 重复直到：
+
+┌──────────────────────────────────────────────┐
+│         遇到 <eos> 或 达到最大长度           │
+└──────────────────────────────────────────────┘
+
+==================== 输出 ====================
+
+┌──────────────────────────────────────────────┐
+│      token id → 文本（tgt_vocab）           │
+│  [5, 88, 23, 2] → "j'ai froid ."            │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────┐
+│                最终翻译输出                  │
+│              "j'ai froid ."                 │
+└──────────────────────────────────────────────┘
+
+```
 
 
 
