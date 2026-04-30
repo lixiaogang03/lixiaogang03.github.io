@@ -53,11 +53,11 @@ tags:
 
 **删除依赖库**
 
-![as_aosp_source](/images/androidstudio/as_aosp_source.png)
+![as_aosp_source](/images/tools/androidstudio/as_aosp_source.png)
 
 **excluded 不常用的目录提高速度**
 
-![as_aosp_source_2](/images/androidstudio/as_aosp_source_2.png)
+![as_aosp_source_2](/images/tools/androidstudio/as_aosp_source_2.png)
 
 ## 常见问题
 

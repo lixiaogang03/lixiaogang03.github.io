@@ -112,7 +112,7 @@ allprojects {
 
 ## 找不到app.iml文件解决方案
 
-![gradle_iml](/images/androidstudio/gradle_iml.png)
+![gradle_iml](/images/tools/androidstudio/gradle_iml.png)
 
 
 ## gradle 下载慢问题
@@ -135,7 +135,7 @@ Caused by: org.codehaus.groovy.control.MultipleCompilationErrorsException: start
 
 **解决方案**
 
-![gradle_java](/images/androidstudio/gradle_java.png)
+![gradle_java](/images/tools/androidstudio/gradle_java.png)
 
 ## ndk 版本配置
 
