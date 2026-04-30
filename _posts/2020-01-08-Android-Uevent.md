@@ -16,7 +16,7 @@ tags:
 
 ## Linux Uevent
 
-![linux_uevent](/images/uevent/linux_uevent.png)
+![linux_uevent](/images/linux/uevent/linux_uevent.png)
 
 ## Linux Netlink
 
@@ -35,7 +35,7 @@ Netlink 是一种在内核与用户应用间进行双向数据传输的非常好
 
 一般来说用户空间和内核空间的通信方式有三种：/proc、ioctl、Netlink。而前两种都是单向的，而Netlink可以实现双工通信。
 
-![linux_netlink](/images/uevent/linux_netlink.png)
+![linux_netlink](/images/linux/uevent/linux_netlink.png)
 
 ## Android Ueventd
 
@@ -210,11 +210,11 @@ void device_init() {
 
 ## ueventd init
 
-![ueventd_init](/images/uevent/ueventd_init.png)
+![ueventd_init](/images/linux/uevent/ueventd_init.png)
 
 ## Ueventd 处理
 
-![uevent_handle](/images/uevent/uevent_handle.png)
+![uevent_handle](/images/linux/uevent/uevent_handle.png)
 
 ## UEventObserver
 
@@ -226,7 +226,7 @@ void device_init() {
 
 注册 Uevent 事件监听
 
-![uevent_observer](/images/uevent/uevent_observer.png)
+![uevent_observer](/images/linux/uevent/uevent_observer.png)
 
 
 
