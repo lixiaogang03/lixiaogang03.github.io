@@ -16,7 +16,7 @@ tags:
 
 ## FUSE 文件系统
 
-[fuse_filesystem](/images/fuse/fuse_filesystem.webp)
+[fuse_filesystem](/images/android/fuse/fuse_filesystem.webp)
 
 1. Fuse包含一个内核模块和一个用户空间守护进程
 2. 内核模块加载时被注册成 Linux 虚拟文件系统的一个 fuse 文件系统驱动
@@ -399,7 +399,7 @@ service storaged /system/bin/storaged
 
 Android启动后会默认首先挂载内卡，从开机动画结束开始，进行内卡的挂载操作，主要涉及ActivityManagerService，VOLD，StorageManagerService等模块。
 
-![storage_manager](/images/fuse/storage_manager.webp)
+![storage_manager](/images/android/fuse/storage_manager.webp)
 
 ## dumpsys mount
 
