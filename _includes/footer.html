@@ -463,52 +463,72 @@
 }
 </style>
 
-<script src="{{ '/js/simple-jekyll-search.min.js' | prepend: site.baseurl }}"></script>
+<script src="{{ '/js/fuse.min.js' | prepend: site.baseurl }}"></script>
 <script>
+
 document.addEventListener('DOMContentLoaded', function() {
     var searchIcon = document.getElementById('search-icon');
     var searchOverlay = document.getElementById('search-overlay');
     var searchClose = document.getElementById('search-close');
     var searchInput = document.getElementById('search-input');
+    var resultsContainer = document.getElementById('results-container');
+    var fuse = null;
+    var searchData = [];
 
-    // 初始化搜索
-    var sjs = SimpleJekyllSearch({
-        searchInput: document.getElementById('search-input'),
-        resultsContainer: document.getElementById('results-container'),
-        json: '{{ site.baseurl }}/search.json',
-        searchResultTemplate: '<div class="search-result"><a href="{url}"><div class="search-result-title">{title}</div><div class="search-result-date"><i class="fa fa-calendar"></i> {date}</div>{tags}<div class="search-result-content">{content}</div></a></div>',
-        noResultsText: '<div class="search-no-results"><i class="fa fa-search"></i><p>没有找到相关文章</p><p>试试其他关键词吧</p></div>',
-        limit: 30,
-        fuzzy: true,
-        sortMiddleware: function() {
-            return 0;
-        },
-        templateMiddleware: function(prop, value, template) {
-            if (prop === 'tags') {
-                if (value && value.trim() !== '') {
-                    var tags = value.split(',').map(function(tag) {
-                        return '<span class="tag">' + tag.trim() + '</span>';
-                    }).join('');
-                    return '<div class="search-result-tags"><i class="fa fa-tags"></i> ' + tags + '</div>';
-                }
-                return '';
-            }
-            if (prop === 'content') {
-                // 限制内容长度并高亮关键词
-                var searchTerm = document.getElementById('search-input').value;
-                var content = value;
-                if (content.length > 200) {
-                    content = content.substring(0, 200) + '...';
-                }
-                // 高亮搜索关键词
-                if (searchTerm && searchTerm.trim() !== '') {
-                    var regex = new RegExp('(' + searchTerm.trim() + ')', 'gi');
-                    content = content.replace(regex, '<mark>$1</mark>');
-                }
-                return content;
-            }
-            return value;
+    // 加载 search.json 并初始化 Fuse
+    fetch('{{ site.baseurl }}/search.json')
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            searchData = data;
+            fuse = new Fuse(searchData, {
+                keys: [
+                    { name: 'title', weight: 0.4 },
+                    { name: 'subtitle', weight: 0.2 },
+                    { name: 'tags', weight: 0.2 },
+                    { name: 'content', weight: 0.2 }
+                ],
+                includeScore: true,
+                threshold: 0.4,
+                minMatchCharLength: 1,
+                ignoreLocation: true,
+                useExtendedSearch: true
+            });
+        });
+
+    function renderResults(results, keyword) {
+        resultsContainer.innerHTML = '';
+        if (!results.length) {
+            resultsContainer.innerHTML = '<div class="search-no-results"><i class="fa fa-search"></i><p>没有找到相关文章</p><p>试试其他关键词吧</p></div>';
+            return;
         }
+        results.slice(0, 30).forEach(function(result) {
+            var item = result.item;
+            var tagsHtml = '';
+            if (item.tags && item.tags.trim() !== '') {
+                tagsHtml = '<div class="search-result-tags"><i class="fa fa-tags"></i> ' + item.tags.split(',').map(function(tag) {
+                    return '<span class="tag">' + tag.trim() + '</span>';
+                }).join('') + '</div>';
+            }
+            var content = item.content || '';
+            if (content.length > 200) content = content.substring(0, 200) + '...';
+            if (keyword) {
+                var regex = new RegExp('(' + keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+                content = content.replace(regex, '<mark>$1</mark>');
+            }
+            var html = '<div class="search-result"><a href="' + item.url + '"><div class="search-result-title">' + item.title + '</div><div class="search-result-date"><i class="fa fa-calendar"></i> ' + item.date + '</div>' + tagsHtml + '<div class="search-result-content">' + content + '</div></a></div>';
+            resultsContainer.innerHTML += html;
+        });
+    }
+
+    // 搜索输入事件
+    searchInput.addEventListener('input', function() {
+        var keyword = searchInput.value.trim();
+        if (!fuse || !keyword) {
+            resultsContainer.innerHTML = '';
+            return;
+        }
+        var results = fuse.search(keyword);
+        renderResults(results, keyword);
     });
 
     // 打开搜索
@@ -523,28 +543,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function closeSearch() {
         searchOverlay.style.display = 'none';
         searchInput.value = '';
-        document.getElementById('results-container').innerHTML = '';
+        resultsContainer.innerHTML = '';
         document.body.style.overflow = 'auto';
     }
-
     searchClose.addEventListener('click', closeSearch);
-
-    // 点击背景关闭
     searchOverlay.addEventListener('click', function(e) {
-        if (e.target === searchOverlay) {
-            closeSearch();
-        }
+        if (e.target === searchOverlay) closeSearch();
     });
-
-    // ESC键关闭
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && searchOverlay.style.display === 'flex') {
-            closeSearch();
-        }
-    });
-
-    // 快捷键 Ctrl+K 或 Cmd+K 打开搜索
-    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && searchOverlay.style.display === 'flex') closeSearch();
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
             searchOverlay.style.display = 'flex';
