@@ -10,7 +10,8 @@ layout: none
       "tags"     : "{{ post.tags | join: ', ' }}",
       "url"      : "{{ site.baseurl }}{{ post.url }}",
       "date"     : "{{ post.date | date: '%Y-%m-%d' }}",
-      "content"  : {{ post.content | strip_html | strip_newlines | jsonify }}
+      "year"     : "{{ post.date | date: '%Y' }}",
+      "excerpt"  : {{ post.content | strip_html | strip_newlines | truncate: 220 | jsonify }}
     } {% unless forloop.last %},{% endunless %}
   {% endfor %}
 ]
