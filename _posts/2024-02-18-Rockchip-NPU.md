@@ -457,7 +457,7 @@ adb push examples/rknn_yolov5_demo/install/rknn_yolov5_demo_Android  /data/
 
 原始图片
 
-![bus](/images/npu/bus.jpg)
+![bus](/images/rockchip/npu/bus.jpg)
 
 ```txt
 
@@ -491,7 +491,7 @@ adb pull /data/rknn_yolov5_demo_Android/out.jpg ./
 
 运行模型后生成的图片
 
-![out](/images/npu/out.jpg)
+![out](/images/rockchip/npu/out.jpg)
 
 
 
