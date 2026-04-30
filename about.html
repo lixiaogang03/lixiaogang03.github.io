@@ -75,11 +75,51 @@ header-img: "img/post-bg-rwd.jpg"
 
             <div class="skill-item">
                 <div class="skill-header">
+                    <span class="skill-name">系统性能优化</span>
+                    <span class="skill-level">85%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" style="width: 85%"></div>
+                </div>
+            </div>
+
+            <div class="skill-item">
+                <div class="skill-header">
+                    <span class="skill-name">系统Debug/分析工具</span>
+                    <span class="skill-level">85%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" style="width: 85%"></div>
+                </div>
+            </div>
+
+            <div class="skill-item">
+                <div class="skill-header">
                     <span class="skill-name">C/C++ & 嵌入式</span>
                     <span class="skill-level">82%</span>
                 </div>
                 <div class="skill-bar">
                     <div class="skill-progress" style="width: 82%"></div>
+                </div>
+            </div>
+
+            <div class="skill-item">
+                <div class="skill-header">
+                    <span class="skill-name">网络协议/通信</span>
+                    <span class="skill-level">80%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" style="width: 80%"></div>
+                </div>
+            </div>
+
+            <div class="skill-item">
+                <div class="skill-header">
+                    <span class="skill-name">技术方案设计</span>
+                    <span class="skill-level">80%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" style="width: 80%"></div>
                 </div>
             </div>
 
@@ -180,80 +220,23 @@ header-img: "img/post-bg-rwd.jpg"
         <h3 class="section-title">
             <i class="fa fa-bar-chart"></i> 博客数据
         </h3>
-        
-        <!-- 核心统计指标 -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number">{{ site.posts | size }}</div>
-                <div class="stat-label">文章总数</div>
+        <div class="stats-mini-grid">
+            <div class="stat-mini-card">
+                <div class="stat-mini-number">{{ site.posts | size }}</div>
+                <div class="stat-mini-label">文章</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number" id="total-words">50.5万+</div>
-                <div class="stat-label">字数总计</div>
+            <div class="stat-mini-card">
+                <div class="stat-mini-number">{{ site.tags | size }}</div>
+                <div class="stat-mini-label">标签</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number" id="days-count">...</div>
-                <div class="stat-label">运行天数</div>
+            <div class="stat-mini-card">
+                {% assign postsByYear = site.posts | group_by_exp:"post", "post.date | date: '%Y'" %}
+                <div class="stat-mini-number">{{ postsByYear | size }}</div>
+                <div class="stat-mini-label">年份</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number" id="update-status">2026年4月</div>
-                <div class="stat-label">最新更新</div>
-            </div>
-        </div>
-
-        <!-- 分类统计 -->
-        <div class="category-section">
-            <h4>📂 按年份分布</h4>
-            <div class="category-grid">
-                <div class="category-item">
-                    <span class="category-year">2026</span>
-                    <span class="category-count">64</span>
-                </div>
-                <div class="category-item">
-                    <span class="category-year">2025</span>
-                    <span class="category-count">88</span>
-                </div>
-                <div class="category-item">
-                    <span class="category-year">2024</span>
-                    <span class="category-count">51</span>
-                </div>
-                <div class="category-item">
-                    <span class="category-year">2023</span>
-                    <span class="category-count">53</span>
-                </div>
-                <div class="category-item">
-                    <span class="category-year">2022</span>
-                    <span class="category-count">41</span>
-                </div>
-                <div class="category-item">
-                    <span class="category-year">2021</span>
-                    <span class="category-count">50</span>
-                </div>
-                <div class="category-item">
-                    <span class="category-year">2020</span>
-                    <span class="category-count">58</span>
-                </div>
-                <div class="category-item">
-                    <span class="category-year">2019</span>
-                    <span class="category-count">59</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- 热门标签 -->
-        <div class="tags-section">
-            <h4>🏷️ 热门技术标签</h4>
-            <div class="tags-cloud">
-                <span class="tag-badge" style="--count: 197;">Android <span class="tag-count">(197)</span></span>
-                <span class="tag-badge" style="--count: 61;">Linux <span class="tag-count">(61)</span></span>
-                <span class="tag-badge" style="--count: 61;">AI <span class="tag-count">(61)</span></span>
-                <span class="tag-badge" style="--count: 53;">驱动 <span class="tag-count">(53)</span></span>
-                <span class="tag-badge" style="--count: 44;">硬件 <span class="tag-count">(44)</span></span>
-                <span class="tag-badge" style="--count: 42;">Rockchip <span class="tag-count">(42)</span></span>
-                <span class="tag-badge" style="--count: 33;">Tool <span class="tag-count">(33)</span></span>
-                <span class="tag-badge" style="--count: 26;">行业 <span class="tag-count">(26)</span></span>
-                <span class="tag-badge" style="--count: 21;">全志 <span class="tag-count">(21)</span></span>
-                <span class="tag-badge" style="--count: 17;">随笔 <span class="tag-count">(17)</span></span>
+            <div class="stat-mini-card">
+                <div class="stat-mini-number" id="days-count">...</div>
+                <div class="stat-mini-label">运行天数</div>
             </div>
         </div>
     </div>
@@ -534,123 +517,29 @@ header-img: "img/post-bg-rwd.jpg"
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.stats-grid {
+.stats-mini-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
-    margin-bottom: 40px;
 }
 
-.stat-card {
+.stat-mini-card {
+    text-align: center;
+    padding: 20px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 25px;
-    border-radius: 10px;
-    color: white;
-    text-align: center;
-}
-
-.stat-number {
-    font-size: 36px;
-    font-weight: bold;
-    margin-bottom: 8px;
-}
-
-.stat-label {
-    font-size: 14px;
-    opacity: 0.9;
-    font-weight: 500;
-}
-
-/* 分类统计 */
-.category-section {
-    margin-bottom: 35px;
-}
-
-.category-section h4 {
-    color: #333;
-    font-size: 18px;
-    margin: 0 0 15px 0;
-    font-weight: 600;
-}
-
-.category-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 12px;
-}
-
-.category-item {
-    background: #f0f5ff;
-    border: 1px solid #dde8ff;
     border-radius: 8px;
-    padding: 12px;
-    text-align: center;
-    transition: all 0.3s;
+    color: white;
 }
 
-.category-item:hover {
-    background: #e6f0ff;
-    border-color: #0085a1;
-    transform: translateY(-2px);
-}
-
-.category-year {
-    display: block;
+.stat-mini-number {
+    font-size: 32px;
     font-weight: bold;
-    color: #0085a1;
-    font-size: 16px;
     margin-bottom: 5px;
 }
 
-.category-count {
-    display: block;
+.stat-mini-label {
     font-size: 14px;
-    color: #666;
-}
-
-/* 热门标签 */
-.tags-section {
-    margin-top: 35px;
-}
-
-.tags-section h4 {
-    color: #333;
-    font-size: 18px;
-    margin: 0 0 15px 0;
-    font-weight: 600;
-}
-
-.tags-cloud {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-.tag-badge {
-    --count: 50;
-    background: linear-gradient(135deg, 
-        hsl(205, 100%, calc(50% - var(--count) * 0.15%))) 0%, 
-        hsl(205, 100%, 40%));
-    color: white;
-    padding: calc(8px + var(--count) * 0.1px) calc(12px + var(--count) * 0.15px);
-    border-radius: 20px;
-    font-size: calc(13px + var(--count) * 0.01px);
-    font-weight: 500;
-    transition: all 0.3s;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.tag-badge:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 133, 161, 0.3);
-}
-
-.tag-count {
-    opacity: 0.8;
-    font-size: 12px;
+    opacity: 0.9;
 }
 
 /* 响应式 */
@@ -668,21 +557,8 @@ header-img: "img/post-bg-rwd.jpg"
         grid-template-columns: 1fr;
     }
 
-    .stats-grid {
+    .stats-mini-grid {
         grid-template-columns: repeat(2, 1fr);
-    }
-
-    .category-grid {
-        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-    }
-
-    .tags-cloud {
-        gap: 8px;
-    }
-
-    .tag-badge {
-        font-size: 12px;
-        padding: 6px 10px;
     }
 
     .profile-card,
@@ -696,21 +572,13 @@ header-img: "img/post-bg-rwd.jpg"
 </style>
 
 <script>
-// 计算博客运行天数和更新最近更新时间
+// 计算博客运行天数
 document.addEventListener('DOMContentLoaded', function() {
     {% if site.posts.size > 0 %}
     const firstPostDate = new Date('{{ site.posts.last.date | date: "%Y-%m-%d" }}');
-    const latestPostDate = new Date('{{ site.posts.first.date | date: "%Y-%m-%d" }}');
     const today = new Date();
-    
-    // 计算运行天数
     const daysDiff = Math.floor((today - firstPostDate) / (1000 * 60 * 60 * 24));
     document.getElementById('days-count').textContent = daysDiff;
-    
-    // 显示最近更新时间
-    const year = latestPostDate.getFullYear();
-    const month = String(latestPostDate.getMonth() + 1).padStart(2, '0');
-    document.getElementById('update-status').textContent = `${year}年${month}月`;
     {% endif %}
 
     // 技能条动画
