@@ -409,6 +409,15 @@
     margin-top: 8px;
 }
 
+/* 搜索关键词高亮 */
+.search-result-content mark {
+    background: #ffeb3b;
+    color: #333;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
 .search-no-results {
     text-align: center;
     padding: 40px;
@@ -469,8 +478,11 @@ document.addEventListener('DOMContentLoaded', function() {
         json: '{{ site.baseurl }}/search.json',
         searchResultTemplate: '<div class="search-result"><a href="{url}"><div class="search-result-title">{title}</div><div class="search-result-date"><i class="fa fa-calendar"></i> {date}</div>{tags}<div class="search-result-content">{content}</div></a></div>',
         noResultsText: '<div class="search-no-results"><i class="fa fa-search"></i><p>没有找到相关文章</p><p>试试其他关键词吧</p></div>',
-        limit: 10,
-        fuzzy: false,
+        limit: 30,
+        fuzzy: true,
+        sortMiddleware: function() {
+            return 0;
+        },
         templateMiddleware: function(prop, value, template) {
             if (prop === 'tags') {
                 if (value && value.trim() !== '') {
@@ -482,11 +494,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 return '';
             }
             if (prop === 'content') {
-                // 限制内容长度
-                if (value.length > 150) {
-                    return value.substring(0, 150) + '...';
+                // 限制内容长度并高亮关键词
+                var searchTerm = document.getElementById('search-input').value;
+                var content = value;
+                if (content.length > 200) {
+                    content = content.substring(0, 200) + '...';
                 }
-                return value;
+                // 高亮搜索关键词
+                if (searchTerm && searchTerm.trim() !== '') {
+                    var regex = new RegExp('(' + searchTerm.trim() + ')', 'gi');
+                    content = content.replace(regex, '<mark>$1</mark>');
+                }
+                return content;
             }
             return value;
         }
