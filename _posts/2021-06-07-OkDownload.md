@@ -116,7 +116,7 @@ tags:
 
 ## 下载进度监听
 
-![okdownload_listener](/images/http/okdownload_listener.png)
+![okdownload_listener](/images/web/http/okdownload_listener.png)
 
 ## 文档
 
@@ -126,7 +126,7 @@ tags:
 
 ## 总体流程
 
-![okdownload](/images/http/okdownload.png)
+![okdownload](/images/web/http/okdownload.png)
 
 
 
