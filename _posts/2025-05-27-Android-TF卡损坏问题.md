@@ -876,6 +876,180 @@ ceres-c3:/ # blkid /dev/block/vold/public:179,65
 
 ```
 
+## TF卡诊断流程
+
+### 查看挂载状态
+
+```bash
+
+ceres-c3:/ # cat /proc/mounts | grep -E "vold"
+/dev/block/vold/public:179,65 /mnt/media_rw/40F3-8374 exfat ro,dirsync,nosuid,nodev,noexec,noatime,uid=1023,gid=1023,fmask=0007,dmask=0007,
+allow_utime=177777,iocharset=utf8,errors=remount-ro 0 0
+
+```
+
+### 查“出生证明”（判断是不是山寨、劣质卡）
+
+```bash
+
+# 逐条执行查看
+cat /sys/class/mmc_host/mmc1/mmc1:0001/name      # 查型号（你测出来是正品江波龙 SD）
+cat /sys/class/mmc_host/mmc1/mmc1:0001/date      # 查生产日期
+cat /sys/class/mmc_host/mmc1/mmc1:0001/serial    # 查唯一的芯片序列号
+cat /sys/class/mmc_host/mmc1/mmc1:0001/manfid    # 查厂商ID（0x0000fe 代表江波龙）
+
+>cat /sys/class/mmc_host/mmc1/mmc1:0001/name
+SD
+>cat /sys/class/mmc_host/mmc1/mmc1:0001/date
+10/2025
+>cat /sys/class/mmc_host/mmc1/mmc1:0001/serial
+0x00001b46
+>cat /sys/class/mmc_host/mmc1/mmc1:0001/manfid
+0x0000fe
+
+```
+
+### 查硬件底层健康度（读取状态寄存器）
+
+```bash
+
+>cat /sys/class/mmc_host/mmc1/mmc1:0001/ssr
+000000000800000004049000080a190a000800000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+```
+
+### 纯检测模式：抓取具体损坏的文件（不破坏现场）
+
+```bash
+
+# 先强行释放挂载（避免提示设备忙）
+vdc volume unmount public:179,65 force
+
+# 纯检测不修复
+fsck.exfat -n /dev/block/vold/public:179,65
+
+```
+
+### 翻看内核底层日志（查有没有“硬坏道”）
+
+```bash
+
+>dmesg | grep -i -E "mmcblk1|exfat|FAT-fs"
+[ 1.134544] mmcblk1: mmc1:0001 SD 116 GiB
+[ 1.136970] mmcblk1: p1
+[ 1.241140] FAT-fs (mmcblk0p16): Volume was not properly unmounted. Some data may be corrupt. Please run fsck.
+[ 1.258641] FAT-fs (mmcblk0p16): Volume was not properly unmounted. Some data may be corrupt. Please run fsck.
+[ 1.551017] FAT-fs (mmcblk0p16): Volume was not properly unmounted. Some data may be corrupt. Please run fsck.
+[ 14.448909] exFAT-fs (mmcblk1p1): Volume was not properly unmounted. Some data may be corrupt. Please run fsck.
+[ 14.776397] sdcardfs: mounted on top of /mnt/media_rw/40F3-8374 type exfat
+[ 20.717876] exFAT-fs (mmcblk1p1): Volume was not properly unmounted. Some data may be corrupt. Please run fsck.
+[ 21.148993] sdcardfs: mounted on top of /mnt/media_rw/40F3-8374 type exfat
+[ 63.201232] exFAT-fs (mmcblk1p1): error, found bogus dentry(176) beyond unused empty group(174) (start_clu : 33, cur_clu : 33)
+[ 63.201283] exFAT-fs (mmcblk1p1): Filesystem has been set read-only
+
+```
+
+**诊断结论**
+
+* `崩溃现场还原`：在开机第 63 秒时，有应用（或者是系统）正在高频读取或写入 TF 卡。内核在解析文件目录时，在簇（Cluster）编号 33 的地方，发现了一个 bogus dentry（伪造的/错乱的目录项）。
+* `通俗解释`：文件系统里的“索引目录”彻底被烧糊涂了。系统本来以为这是一个没人用的空物理组（empty group 174），结果走过去一看，里面竟然塞了一个莫名其妙的未知文件标记（dentry 176）。
+* `连锁反应`：由于目录结构已经处于“完全精神分裂”的状态，Linux 内核为了防止应用继续写入导致卡内其他完好的数据被乱写覆盖，立刻执行了终极防御命令：Filesystem has been set read-only（文件系统已被强行设为只读）。
+
+
+`卡绝对没有物理报废`：注意到整个崩溃日志里，没有出现任何类似 I/O error, dev mmcblk1 的底层硬件报错。这意味着江波龙这张卡的硬件颗粒、金手指、闪存主控全部是健康的。
+
+`确诊结果`：这是最典型的“因断电引发的文件系统元数据大面积错位”。由于你们之前跳过了开机 fsck 自检（日志第 14 秒和第 20 秒，系统疯狂警告 Please run fsck，但被系统无视了），卡带着内伤强行挂载运行。直到开机第 63 秒，App 踩中了这块“错位的索引雷区”，内核直接把卡锁死成了只读。
+
+### 问题发生的原因
+
+```bash
+
+exFAT-fs (mmcblk1p1): error, found bogus dentry(176) beyond unused empty group(174) (start_clu : 33, cur_clu : 33)
+
+```
+
+#### 核心元凶：高频写入时突发剧烈断电（90% 的现场死因）**
+
+* `底层逻辑`：当你的视频录制 App（比如 /WIFIPC/ 路径下的那些 .mp4 文件）正在往 TF 卡里疯狂写数据时，exFAT 文件系统为了提高效率，会使用一种叫 分配位图（Allocation Bitmap） 的机制。
+* `崩溃瞬间`：系统在“分配位图”里把第 174 号组（Group 174）标记为了 unused/empty（没人使用的空白物理区）。但在写入真正的目录结构（Dentry）时，断电突然发生。此时，负责记录文件名字和位置的目录树（Dentry 176）已经抢先一步被写入了物理颗粒，而“分配位图”还没来得及更新。
+* `内核开机踩雷`：下次开机，内核走到第 33 号簇（start_clu : 33）去读取目录。它先看账本总则：“嗯，174号组是一片空白荒地。” 结果一迈腿走进去，竟然一头撞上了一个已经存在且有效的目录标记（Dentry 176）。内核直接懵了：“明明账本说这里是空的，为什么里面会凭空伪造（bogus）出来一个文件目录？” 为了防止数据被交叉覆盖，Linux 选择立刻熔断锁死。
+
+#### 软件层的“多线程并发写入冲突”（App 代码内伤）
+
+* `底层逻辑`：Android 的 sdcardfs（或者 MediaProvider）作为一个中间层，挂载在 exFAT 之上。如果你们的业务 App 开启了多个线程，同时对同一个文件夹进行极高频的创建、删除、写入操作（例如一边录像分段，一边疯狂删旧文件）。
+* `崩溃现场`：Linux 内核的文件系统驱动在内存中缓存了 VFS（虚拟文件系统）树。如果高并发写入导致内存中的缓存还未来得及同步到 TF 卡的物理 FAT 表上，驱动在擦除一个 Group 的同时，另一个线程又在这个 Group 的边缘写入了新目录。这种软件同步时间差，就会在硬件层面上留下一个“账本对不上”的残影（bogus dentry）。
+
+#### 内核 exFAT 驱动版本过低或存在 Bug
+
+* `底层逻辑`：老旧的 Android 固件（特别是有些板卡厂沿用了很多年前的 Linux 4.x 或 5.x 内核基线），其内置的 exfat 驱动并不是微软官方后来开源的那套最新驱动，而是早期的社区逆向版或老版本驱动。
+* `崩溃现场`：老版本驱动在处理大容量（如 128GB）大文件簇边界（Cluster Boundary）的计算时，存在某些临界值 Bug（特别是当卡内碎片过多，文件大小跨越 Cluster 边界时）。驱动自己算错了一个偏移量，误把一个有效的目录项当成了“越界”数据，自己把自己吓死，从而报错锁死。
+
+#### 闪存卡主控的“垃圾回收（GC）延迟”与掉电延迟
+
+* `底层逻辑`：TF 卡内部有一个极其微小的电脑芯片，叫 FTL（闪存转换层）。当安卓向卡内写入数据时，卡片内部其实在悄悄地做“擦除、移动、垃圾回收”等高负荷动作。
+* `崩溃现场`：如果大屏突然断电，虽然板卡上的电容让主控把最后一批数据强行写进了芯片，但由于卡片内部的 FTL 账本更新（Block 映射）和安卓系统的 exFAT 账本更新产生了微秒级的时间差，导致物理上数据写进去了，而 exFAT 认为没写完；或者反过来，从而在硬件层面上固化了这个逻辑死锁。
+
+### TF 卡性修复
+
+
+```sh
+
+# 1. 解锁挂载：利用 sm 工具强行卸载该卷，释放文件锁
+sm unmount public:179,65
+
+# 2. 精准外科手术：用 exfat 专用工具去修复内核日志里报错的 "bogus dentry"
+# -p 参数代表全自动无损修复，不询问
+fsck.exfat -p /dev/block/vold/public:179,65
+
+# 3. 重新上线：修复完成后，将卡重新挂载回系统
+sm mount public:179,65
+
+```
+
+
+**先卸载**
+
+```bash
+
+sm unmount public:179,65
+
+```
+
+**修复**
+
+```bash
+
+ceres-c3:/ # fsck.exfat -p /dev/block/vold/public:179,65                                                                                                                                           
+exfatprogs version : 1.2.9
+ERROR: /WIFIPC/037a0002009e366b83ef/20260429/202604290845.mp4: more clusters are allocated. truncate to 917504 bytes at 0xd39fd0600. Truncate (y/N)? y
+ERROR: /WIFIPC/037a0002009e325e79ff/20260521/202605211623.mp4: more clusters are allocated. truncate to 393216 bytes at 0x7beb80. Truncate (y/N)? y
+/dev/block/vold/public:179,65: clean. directories 106, files 76242
+/dev/block/vold/public:179,65: files corrupted 0, files fixed 2
+
+```
+
+**挂载**
+
+```bash
+
+sm mount public:179,65
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
