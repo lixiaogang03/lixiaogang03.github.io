@@ -989,6 +989,38 @@ exFAT-fs (mmcblk1p1): error, found bogus dentry(176) beyond unused empty group(1
 * `底层逻辑`：TF 卡内部有一个极其微小的电脑芯片，叫 FTL（闪存转换层）。当安卓向卡内写入数据时，卡片内部其实在悄悄地做“擦除、移动、垃圾回收”等高负荷动作。
 * `崩溃现场`：如果大屏突然断电，虽然板卡上的电容让主控把最后一批数据强行写进了芯片，但由于卡片内部的 FTL 账本更新（Block 映射）和安卓系统的 exFAT 账本更新产生了微秒级的时间差，导致物理上数据写进去了，而 exFAT 认为没写完；或者反过来，从而在硬件层面上固化了这个逻辑死锁。
 
+### 模拟TF卡损坏情形一
+
+```md
+
+# 1. 找到块设备
+cat /proc/mounts | grep vold
+
+# 2. 卸载
+sm unmount public:179,65
+
+# 3. 用 dd 向 exfat 超级块区域写入随机数据（前 512 字节是 boot sector）
+dd if=/dev/urandom of=/dev/block/vold/public:179,65 bs=512 count=1 conv=notrunc
+
+# 4. 挂载回来（此时内核应该会报错）
+sm mount public:179,65
+
+```
+
+### 模拟TF卡损坏情形二
+
+```md
+
+sm unmount public:179,65
+
+# 跳过超级块，直接破坏 FAT 表区域（通常在偏移 512KB 附近）
+dd if=/dev/zero of=/dev/block/vold/public:179,65 bs=512 count=4 seek=1024 conv=notrunc
+
+sm mount public:179,65
+# dmesg 里应该能看到 bogus dentry / read-only 的报错
+
+```
+
 ### TF 卡性修复
 
 
