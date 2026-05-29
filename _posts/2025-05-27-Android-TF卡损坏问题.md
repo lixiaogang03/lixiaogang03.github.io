@@ -989,7 +989,12 @@ exFAT-fs (mmcblk1p1): error, found bogus dentry(176) beyond unused empty group(1
 * `底层逻辑`：TF 卡内部有一个极其微小的电脑芯片，叫 FTL（闪存转换层）。当安卓向卡内写入数据时，卡片内部其实在悄悄地做“擦除、移动、垃圾回收”等高负荷动作。
 * `崩溃现场`：如果大屏突然断电，虽然板卡上的电容让主控把最后一批数据强行写进了芯片，但由于卡片内部的 FTL 账本更新（Block 映射）和安卓系统的 exFAT 账本更新产生了微秒级的时间差，导致物理上数据写进去了，而 exFAT 认为没写完；或者反过来，从而在硬件层面上固化了这个逻辑死锁。
 
-### 模拟TF卡损坏情形一
+### 损坏模拟
+
+dmesg | grep -i -E "mmcblk|exfat|bogus|read-only|fsck"
+fsck.exfat -n /dev/block/vold/public:179,65
+
+#### 模拟TF卡损坏情形一
 
 ```md
 
@@ -1007,7 +1012,7 @@ sm mount public:179,65
 
 ```
 
-### 模拟TF卡损坏情形二
+#### 模拟TF卡损坏情形二
 
 ```md
 
@@ -1018,6 +1023,15 @@ dd if=/dev/zero of=/dev/block/vold/public:179,65 bs=512 count=4 seek=1024 conv=n
 
 sm mount public:179,65
 # dmesg 里应该能看到 bogus dentry / read-only 的报错
+
+```
+
+#### 模拟断电
+
+```md
+
+# 往卡里高频写入数据的同时直接 reboot -f（强制重启，不 sync）
+dd if=/dev/zero of=/sdcard/test_write bs=1M & reboot -f
 
 ```
 
