@@ -113,6 +113,23 @@ self.addEventListener('fetch', event => {
 
   // Skip some of cross-origin requests, like those for Google Analytics.
   if (HOSTNAME_WHITELIST.indexOf(new URL(event.request.url).hostname) > -1) {
+    const requestUrl = new URL(event.request.url);
+
+    // Keep search index fresh so new posts are immediately searchable.
+    if (requestUrl.pathname.endsWith('/search.json')) {
+      event.respondWith(
+        fetch(getFixedUrl(event.request), {cache: "no-store"})
+          .then(response => {
+            if (response && response.ok) {
+              const copy = response.clone();
+              caches.open(RUNTIME).then(cache => cache.put(event.request, copy));
+            }
+            return response;
+          })
+          .catch(_ => caches.match(event.request))
+      );
+      return;
+    }
     
     // Redirect in SW manually fixed github pages 404s on repo?blah 
     if(shouldRedirect(event.request)){

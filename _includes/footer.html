@@ -475,39 +475,14 @@ document.addEventListener('DOMContentLoaded', function() {
     var sjs = SimpleJekyllSearch({
         searchInput: document.getElementById('search-input'),
         resultsContainer: document.getElementById('results-container'),
-        json: '{{ site.baseurl }}/search.json',
-        searchResultTemplate: '<div class="search-result"><a href="{url}"><div class="search-result-title">{title}</div><div class="search-result-date"><i class="fa fa-calendar"></i> {date}</div>{tags}<div class="search-result-content">{content}</div></a></div>',
+        json: '{{ site.baseurl }}/search.json?v={{ site.time | date: "%s" }}',
+        searchResultTemplate: '<div class="search-result"><a href="{url}"><div class="search-result-title">{title}</div><div class="search-result-date"><i class="fa fa-calendar"></i> {date}</div></a></div>',
         noResultsText: '<div class="search-no-results"><i class="fa fa-search"></i><p>没有找到相关文章</p><p>试试其他关键词吧</p></div>',
-        limit: 10,
+        limit: 100,
         fuzzy: false,
+        exclude: ['url', 'date'],
         sortMiddleware: function() {
             return 0;
-        },
-        templateMiddleware: function(prop, value, template) {
-            if (prop === 'tags') {
-                if (value && value.trim() !== '') {
-                    var tags = value.split(',').map(function(tag) {
-                        return '<span class="tag">' + tag.trim() + '</span>';
-                    }).join('');
-                    return '<div class="search-result-tags"><i class="fa fa-tags"></i> ' + tags + '</div>';
-                }
-                return '';
-            }
-            if (prop === 'content') {
-                // 限制内容长度并高亮关键词
-                var searchTerm = document.getElementById('search-input').value;
-                var content = value;
-                if (content.length > 200) {
-                    content = content.substring(0, 200) + '...';
-                }
-                // 高亮搜索关键词
-                if (searchTerm && searchTerm.trim() !== '') {
-                    var regex = new RegExp('(' + searchTerm.trim() + ')', 'gi');
-                    content = content.replace(regex, '<mark>$1</mark>');
-                }
-                return content;
-            }
-            return value;
         }
     });
 
