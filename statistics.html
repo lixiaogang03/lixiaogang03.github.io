@@ -117,7 +117,7 @@ header-img: "img/tag-bg.jpg"
                     {% assign sorted_tags = site.tags | sort %}
                     {% for tag in sorted_tags limit:10 %}
                     <div class="tag-stat-item">
-                        <a href="{{ site.baseurl }}/tags.html#tag-{{ tag[0] }}" class="tag-stat-link">
+                        <a href="{{ site.baseurl }}/tags/#tag-{{ tag[0] }}" class="tag-stat-link">
                             <div class="tag-stat-name">
                                 <i class="fa fa-tag"></i> {{ tag[0] }}
                             </div>

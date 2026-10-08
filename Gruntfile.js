@@ -5,8 +5,8 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         uglify: {
             main: {
-                src: 'js/<%= pkg.name %>.js',
-                dest: 'js/<%= pkg.name %>.min.js'
+                src: 'js/hux-blog.js',
+                dest: 'js/hux-blog.min.js'
             }
         },
         less: {
@@ -15,7 +15,7 @@ module.exports = function(grunt) {
                     paths: ["css"]
                 },
                 files: {
-                    "css/<%= pkg.name %>.css": "less/<%= pkg.name %>.less"
+                    "css/hux-blog.css": "less/hux-blog.less"
                 }
             },
             minified: {
@@ -24,7 +24,7 @@ module.exports = function(grunt) {
                     cleancss: true
                 },
                 files: {
-                    "css/<%= pkg.name %>.min.css": "less/<%= pkg.name %>.less"
+                    "css/hux-blog.min.css": "less/hux-blog.less"
                 }
             }
         },
@@ -39,13 +39,13 @@ module.exports = function(grunt) {
                     banner: '<%= banner %>'
                 },
                 files: {
-                    src: ['css/<%= pkg.name %>.css', 'css/<%= pkg.name %>.min.css', 'js/<%= pkg.name %>.min.js']
+                    src: ['css/hux-blog.css', 'css/hux-blog.min.css', 'js/hux-blog.min.js']
                 }
             }
         },
         watch: {
             scripts: {
-                files: ['js/<%= pkg.name %>.js'],
+                files: ['js/hux-blog.js'],
                 tasks: ['uglify'],
                 options: {
                     spawn: false,

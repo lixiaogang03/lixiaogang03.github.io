@@ -47,6 +47,33 @@ layout: default
     </div>
 </header>
 
+<!-- JSON-LD Structured Data for SEO -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": {{ page.title | jsonify }},
+    "description": {{ page.subtitle | default: site.description | jsonify }},
+    "datePublished": {{ page.date | date_to_xmlschema | jsonify }},
+    "dateModified": {{ page.date | date_to_xmlschema | jsonify }},
+    "author": {
+        "@type": "Person",
+        "name": {{ page.author | default: site.title | jsonify }}
+    },
+    "image": "{{ site.url }}{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}",
+    "url": "{{ site.url }}{{ page.url }}",
+    "mainEntityOfPage": "{{ site.url }}{{ page.url }}",
+    "publisher": {
+        "@type": "Organization",
+        "name": {{ site.title | jsonify }},
+        "logo": {
+            "@type": "ImageObject",
+            "url": "{{ site.url }}{{ site.baseurl }}/img/apple-touch-icon.png"
+        }
+    }
+}
+</script>
+
 <!-- Post Content -->
 <article>
     <div class="container">

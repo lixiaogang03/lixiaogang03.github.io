@@ -1,7 +1,7 @@
 {
-  "name": "BY Blog",
-  "short_name": "BY Blog",
-  "description": "A personal blog by engineer",
+  "name": "LXG Blog",
+  "short_name": "LXG Blog",
+  "description": "李晓刚的技术博客：Android、AI、无人车等技术笔记",
   "icons": [{
     "src": "icons/pwa_icon_128.png",
     "sizes": "128x128",
@@ -12,7 +12,7 @@
     "type": "image/png"
   }],
   "background_color": "#fff",
-  "theme_color": "#000",
+  "theme_color": "#0085a1",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait"

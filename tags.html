@@ -210,26 +210,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // 监听滚动，高亮当前标签
+    // 监听滚动，高亮当前标签（rAF 节流，避免滚动时高频布局计算）
     let isScrolling = false;
+    let scrollTicking = false;
     window.addEventListener('scroll', function() {
-        if (isScrolling) return;
+        if (isScrolling || scrollTicking) return;
+        scrollTicking = true;
 
-        const scrollPosition = window.scrollY + 150;
-        const tagSections = document.querySelectorAll('.one-tag-list');
+        window.requestAnimationFrame(function() {
+            scrollTicking = false;
 
-        tagSections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionBottom = sectionTop + section.offsetHeight;
+            const scrollPosition = window.scrollY + 150;
+            const tagSections = document.querySelectorAll('.one-tag-list');
 
-            if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
-                const sectionId = section.getAttribute('id');
-                document.querySelectorAll('.tag-nav-link').forEach(link => {
-                    if (link.getAttribute('href') === '#' + sectionId) {
-                        document.querySelectorAll('.tag-nav-link').forEach(l => l.classList.remove('active'));
-                        link.classList.add('active');
-                    }
-                });
+            for (let i = 0; i < tagSections.length; i++) {
+                const section = tagSections[i];
+                const sectionTop = section.offsetTop;
+                const sectionBottom = sectionTop + section.offsetHeight;
+
+                if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+                    const sectionId = section.getAttribute('id');
+                    document.querySelectorAll('.tag-nav-link').forEach(link => {
+                        if (link.getAttribute('href') === '#' + sectionId) {
+                            document.querySelectorAll('.tag-nav-link').forEach(l => l.classList.remove('active'));
+                            link.classList.add('active');
+                        }
+                    });
+                    break;
+                }
             }
         });
     });
