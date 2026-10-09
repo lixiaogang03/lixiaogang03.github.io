@@ -254,12 +254,16 @@
 
         // 全局计数服务 (countapi: hit +1 / get 读取, 无需注册)
         var API_BASE = 'https://countapi.mileshilliard.com/api/v1';
+        var REQUEST_TIMEOUT = 8000;                           // 该服务偶发无响应, 不设超时会让按钮永久卡在加载态
         var postUrl = likeButton.getAttribute('data-post-url');
         var likeKey = 'post_like_' + postUrl;                 // 本机是否已点赞
         var legacyCountKey = 'post_like_count_' + postUrl;    // 旧版本本地计数(清理用)
         var cachedCountKey = 'post_like_cached_' + postUrl;   // 最近一次全局计数(离线兜底显示)
         var apiKey = 'lxgblog_like_' + hashKey(postUrl);
         var likePending = false;
+        var shownCount = null;                                // 当前显示的数字, 未知时为 null
+        var countSettled = false;                             // 是否已拿到服务端权威数字
+        var likeText = likeButton.querySelector('.like-text');
 
         // djb2 哈希: 把文章 URL 转为 URL 安全的唯一 key
         function hashKey(str) {
@@ -268,40 +272,99 @@
             return (h >>> 0).toString(36);
         }
 
-        function setCount(n) {
+        // 带超时的请求: fetch 自身无超时, 服务不响应时会一直挂起
+        function apiFetch(path) {
+            var controller = typeof AbortController === 'function' ? new AbortController() : null;
+            var timer = setTimeout(function () { if (controller) controller.abort(); }, REQUEST_TIMEOUT);
+            return fetch(API_BASE + path, {
+                cache: 'no-store',
+                signal: controller ? controller.signal : undefined
+            }).then(function (r) {
+                if (!r.ok) {
+                    var err = new Error('HTTP ' + r.status);
+                    err.status = r.status;
+                    throw err;
+                }
+                return r.json();
+            }).finally(function () { clearTimeout(timer); });
+        }
+
+        // 超时的请求可能已在服务端计数, 重试会重复计数, 故只对明确的失败重试
+        function apiFetchRetry(path, retriesLeft) {
+            return apiFetch(path).catch(function (err) {
+                if (err && err.name === 'AbortError') throw err;
+                if (retriesLeft <= 0) throw err;
+                return new Promise(function (resolve) { setTimeout(resolve, 600); })
+                    .then(function () { return apiFetchRetry(path, retriesLeft - 1); });
+            });
+        }
+
+        function setCount(n, opts) {
+            shownCount = n;
             likeCount.textContent = n;
+            if (opts && opts.optimistic) return;   // 乐观 +1 不写缓存, 避免下次访问显示未确认的数字
             try { localStorage.setItem(cachedCountKey, String(n)); } catch (e) { /* ignore */ }
+        }
+
+        function setLikedVisual(liked) {
+            if (liked) {
+                likeButton.classList.add('liked');
+            } else {
+                likeButton.classList.remove('liked');
+            }
+            if (likeText) likeText.textContent = liked ? '已喜欢' : '喜欢';
         }
 
         function markLiked() {
             try { localStorage.setItem(likeKey, 'true'); } catch (e) { /* ignore */ }
-            likeButton.classList.add('liked');
-            likeButton.querySelector('.like-text').textContent = '已喜欢';
+            setLikedVisual(true);
+        }
+
+        function playLikeAnimation() {
+            likeButton.classList.add('animating');
+            likeCount.classList.add('increment');
+            createFloatingHearts();
+            setTimeout(function () {
+                likeButton.classList.remove('animating');
+                likeCount.classList.remove('increment');
+            }, 500);
+        }
+
+        // 读取服务端权威计数
+        function loadCount() {
+            return apiFetchRetry('/get/' + apiKey, 2)
+                .then(function (data) {
+                    if (data && data.value !== undefined) {
+                        setCount(parseInt(data.value, 10) || 0);
+                        countSettled = true;
+                    }
+                })
+                .catch(function () { /* 服务不可用: 保留缓存值/占位符 */ });
         }
 
         // 初始化点赞状态
         function initLikeStatus() {
             // 检查用户是否已点赞
-            var hasLiked = localStorage.getItem(likeKey) === 'true';
-            if (hasLiked) {
-                likeButton.classList.add('liked');
-                likeButton.querySelector('.like-text').textContent = '已喜欢';
-            }
+            if (localStorage.getItem(likeKey) === 'true') setLikedVisual(true);
 
-            // 先显示本机缓存值, 再拉取全局计数
-            setCount(parseInt(localStorage.getItem(cachedCountKey) || '0', 10));
+            // 有本机缓存就先显示, 没有则显示占位符: 凭空显示 0 会让同一个数字
+            // 在不同浏览器/新访客眼里不一致
+            var cached = localStorage.getItem(cachedCountKey);
+            if (cached === null) {
+                likeCount.textContent = '–';
+            } else {
+                setCount(parseInt(cached, 10) || 0);
+            }
 
             // 清理旧版本遗留的本地计数
             try { localStorage.removeItem(legacyCountKey); } catch (e) { /* ignore */ }
 
-            fetch(API_BASE + '/get/' + apiKey, { cache: 'no-store' })
-                .then(function (r) { return r.ok ? r.json() : null; })
-                .then(function (data) {
-                    if (data && data.value !== undefined) {
-                        setCount(parseInt(data.value, 10) || 0);
-                    }
-                })
-                .catch(function () { /* 服务不可用: 保留缓存值 */ });
+            loadCount();
+
+            // 读取失败(服务偶发不可用)时, 回到页面再补一次, 避免数字长期停在旧值
+            document.addEventListener('visibilitychange', function () {
+                if (!document.hidden && !countSettled) loadCount();
+            });
         }
 
         // 点赞功能（单向: 全局计数 +1, 点过赞后不可取消, 保证全局计数准确）
@@ -318,35 +381,30 @@
             likePending = true;
             likeButton.classList.add('loading');
 
-            fetch(API_BASE + '/hit/' + apiKey, { cache: 'no-store' })
-                .then(function (r) {
-                    if (!r.ok) throw new Error('HTTP ' + r.status);
-                    return r.json();
-                })
+            // 接口通常要 1~4 秒才返回, 先给出乐观反馈, 失败再回滚
+            var baseCount = shownCount;
+            setLikedVisual(true);
+            if (baseCount !== null) setCount(baseCount + 1, { optimistic: true });
+            playLikeAnimation();
+
+            apiFetchRetry('/hit/' + apiKey, 1)
                 .then(function (data) {
                     // 使用服务端返回的最新全局计数
-                    var value = parseInt(data.value, 10);
-                    if (!isNaN(value)) setCount(value);
-
+                    var value = parseInt(data && data.value, 10);
+                    setCount(isNaN(value) ? (baseCount === null ? 0 : baseCount + 1) : value);
                     markLiked();
-
-                    // 点赞动画
-                    likeButton.classList.add('animating');
-                    likeCount.classList.add('increment');
-                    createFloatingHearts();
-
-                    // 移除动画类
-                    setTimeout(function () {
-                        likeButton.classList.remove('animating');
-                        likeCount.classList.remove('increment');
-                    }, 500);
                 })
                 .catch(function (err) {
-                    // 计数失败: 不标记已点赞, 允许稍后重试
+                    // 计数失败: 回滚乐观状态, 不标记已点赞, 允许稍后重试
                     console.error('点赞失败:', err);
-                    var textEl = likeButton.querySelector('.like-text');
-                    textEl.textContent = '网络异常, 请重试';
-                    setTimeout(function () { textEl.textContent = '喜欢'; }, 2000);
+                    setLikedVisual(false);
+                    if (baseCount !== null) setCount(baseCount);
+                    if (likeText) {
+                        likeText.textContent = '网络异常, 请重试';
+                        setTimeout(function () {
+                            if (!likeButton.classList.contains('liked')) likeText.textContent = '喜欢';
+                        }, 2500);
+                    }
                 })
                 .finally(function () {
                     likePending = false;

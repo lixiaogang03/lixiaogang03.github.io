@@ -66,7 +66,7 @@ The site automatically deploys to GitHub Pages when pushing to the `master` bran
 
 ### Key Features
 - **Giscus Comments**: GitHub Discussions-based comments (configured under `giscus:` in `_config.yml`)
-- **Like System**: One-way like button (like once per browser, cannot un-like) with a real global count via the free CountAPI service (`https://countapi.mileshilliard.com`, key format `lxgblog_like_<djb2 hash of post URL>`); per-browser liked flag and a cached last-seen count live in `localStorage` (in `js/blog-features.js`)
+- **Like System**: One-way like button (like once per browser, cannot un-like) with a real global count via the free CountAPI service (`https://countapi.mileshilliard.com`, key format `lxgblog_like_<djb2 hash of post URL>`); per-browser liked flag and a cached last-seen count live in `localStorage` (in `js/blog-features.js`). The upstream service is slow/flaky, so the code request-times-out at 8s, retries once only on explicit failures (a timed-out `hit` may already have counted), gives optimistic feedback and rolls it back on failure
 - **Side Catalog**: Auto-generated table of contents for posts with `catalog: true`
 - **Tag System**: Featured tags on homepage and dedicated tags page
 - **Search**: Title/tag search via SimpleJekyllSearch and `search.json`

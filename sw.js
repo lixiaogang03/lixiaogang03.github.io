@@ -6,8 +6,8 @@
  * Register service worker.
  * ========================================================== */
 
-const PRECACHE = 'precache-v1';
-const RUNTIME = 'runtime';
+const PRECACHE = 'precache-v2';
+const RUNTIME = 'runtime-v2';
 const HOSTNAME_WHITELIST = [
   self.location.hostname,
   "cdnjs.cloudflare.com"
@@ -93,7 +93,14 @@ self.addEventListener('install', e => {
  */
 self.addEventListener('activate',  event => {
   console.log('service worker activated.')
-  event.waitUntil(self.clients.claim());
+  // Drop caches from previous versions so stale pages/posts can't be served anymore.
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(
+        keys.filter(key => key !== PRECACHE && key !== RUNTIME).map(key => caches.delete(key))
+      ))
+      .then(_ => self.clients.claim())
+  );
 });
 
 
@@ -132,6 +139,23 @@ self.addEventListener('fetch', event => {
     // Redirect in SW manually fixed github pages 404s on repo?blah 
     if(shouldRedirect(event.request)){
       event.respondWith(Response.redirect(getRedirectUrl(event.request)))
+      return;
+    }
+
+    // Page navigations: network-first.
+    // The race below resolves with whatever comes first, and a cache hit always beats the
+    // network, so a returning visitor kept being served the HTML cached on their PREVIOUS
+    // visit - i.e. different browsers could run different (older) versions of a page.
+    if (isNavigationReq(event.request)) {
+      event.respondWith(
+        fetch(getFixedUrl(event.request), {cache: "no-store"})
+          .then(response => {
+            const copy = response.clone();
+            caches.open(RUNTIME).then(cache => cache.put(event.request, copy));
+            return response;
+          })
+          .catch(_ => caches.match(event.request).then(cached => cached || caches.match('offline.html')))
+      );
       return;
     }
 
